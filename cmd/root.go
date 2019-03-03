@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lucassabreu/clockify-cli/api"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -56,6 +57,8 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", "gitHub's token")
 	rootCmd.PersistentFlags().StringVar(&trelloToken, "trello-token", "", "trello's token")
+
+	rootCmd.MarkFlagRequired("token")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -81,5 +84,16 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client)) func(*cobra.Command, []string) {
+	return func(cmd *cobra.Command, args []string) {
+		c, err := api.NewClient(token)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+		fn(cmd, args, c)
 	}
 }
