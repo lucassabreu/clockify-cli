@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -78,4 +79,39 @@ func (c *Client) Workspaces(f WorkspacesFilter) ([]dto.Workspace, error) {
 	}
 
 	return ws, nil
+}
+
+// WorkspaceUsersParam params to query workspace users
+type WorkspaceUsersParam struct {
+	Workspace string
+	Email     string
+}
+
+// WorkspaceUsers all users in a Workspace
+func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
+	var users []dto.User
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf("workspaces/%s/users", p.Workspace),
+		nil,
+	)
+	if err != nil {
+		return users, err
+	}
+
+	_, err = c.Do(r, &users)
+
+	if p.Email == "" {
+		return users, nil
+	}
+
+	uCopy := []dto.User{}
+	for _, i := range users {
+		if strings.Contains(strings.ToLower(i.Email), strings.ToLower(p.Email)) {
+			uCopy = append(uCopy, i)
+		}
+	}
+
+	return uCopy, nil
 }

@@ -15,6 +15,7 @@ Features
 * [ ] Link a Clockify Project with Github:Issues repository
 * [ ] Link a Clockify Project with Trello board
 * [X] List Clockify Workspaces
+* [X] List Clockify Workspaces Users
 
 Help
 ----
