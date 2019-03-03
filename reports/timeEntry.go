@@ -1,0 +1,87 @@
+package reports
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"text/template"
+	"time"
+
+	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/olekukonko/tablewriter"
+	"golang.org/x/crypto/ssh/terminal"
+)
+
+// TimeEntriesJSONPrint will print as JSON
+func TimeEntriesJSONPrint(t []dto.TimeEntry, w io.Writer) error {
+	return json.NewEncoder(w).Encode(t)
+}
+
+// TimeEntriesPrintQuietly will only print the IDs
+func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
+	for _, u := range timeEntries {
+		fmt.Fprintln(w, u.ID)
+	}
+
+	return nil
+}
+
+// TimeEntriesPrint will print more details
+func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
+	tw := tablewriter.NewWriter(w)
+	tw.SetHeader([]string{"Start", "End", "Dur", "Project", "Description"})
+
+	lines := make([][]string, len(timeEntries))
+
+	var wD, wP = 0, 0
+
+	for i, t := range timeEntries {
+		if wD < len(t.Description) {
+			wD = len(t.Description)
+		}
+
+		if wP < len(t.Project.Name) {
+			wP = len(t.Project.Name)
+		}
+
+		lines[i] = []string{
+			t.TimeInterval.Start.In(time.Local).Format("15:04:05"),
+			t.TimeInterval.End.In(time.Local).Format("15:04:05"),
+			fmt.Sprintf("%-8v", t.TimeInterval.End.Sub(t.TimeInterval.Start)),
+			t.Project.Name,
+			t.Description,
+		}
+	}
+
+	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+		width = width - 30 - wP
+		if width < wD {
+			wD = width
+		}
+	}
+
+	tw.SetColWidth(wD)
+	tw.AppendBulk(lines)
+	tw.Render()
+
+	return nil
+}
+
+// TimeEntriesPrintWithTemplate will print each time entry using the format string
+func TimeEntriesPrintWithTemplate(format string) func([]dto.TimeEntry, io.Writer) error {
+	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
+		t, err := template.New("tmpl").Parse(format)
+		if err != nil {
+			return err
+		}
+
+		for _, i := range timeEntries {
+			if err := t.Execute(w, i); err != nil {
+				return err
+			}
+			fmt.Fprintln(w)
+		}
+		return nil
+	}
+}

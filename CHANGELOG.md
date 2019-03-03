@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `--debug` option to allow better understanding of the requests
+- Command `clockify-cli log` implemented, with options to format the 
+  output, will require the user for now
 - Package `dto` created to hold all payload objects
 - Package `api.Client` to call Clockfy's API
 - Command `clockify-cli workspaces` created, with options to format the output

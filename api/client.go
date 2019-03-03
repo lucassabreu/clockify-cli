@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
@@ -115,4 +116,46 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	}
 
 	return uCopy, nil
+}
+
+// LogParam params to query entries
+type LogParam struct {
+	Workspace string
+	UserID    string
+	Date      time.Time
+	AllPages  bool
+}
+
+// Log list time entries
+func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
+	c.debugf("Log - Date Param: %s", p.Date)
+
+	var timeEntries []dto.TimeEntry
+
+	d := p.Date.Round(time.Hour)
+	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
+
+	filter := dto.TimeEntryStartEndRequest{
+		Start: dto.DateTime{Time: d},
+		End:   dto.DateTime{Time: d.Add(time.Hour * 24)},
+	}
+
+	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
+
+	r, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/user/%s/entriesInRange",
+			p.Workspace,
+			p.UserID,
+		),
+		filter,
+	)
+	if err != nil {
+		return timeEntries, err
+	}
+
+	_, err = c.Do(r, &timeEntries)
+
+	return timeEntries, nil
 }

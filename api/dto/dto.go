@@ -81,6 +81,86 @@ type HourlyRate struct {
 	Currency string `json:"currency"`
 }
 
+// TimeEntry DTO
+type TimeEntry struct {
+	ID            string       `json:"id"`
+	Billable      bool         `json:"billable"`
+	Description   string       `json:"description"`
+	HourlyRate    HourlyRate   `json:"hourlyRate"`
+	IsLocked      bool         `json:"isLocked"`
+	Project       Project      `json:"project"`
+	ProjectID     string       `json:"projectId"`
+	Tags          []Tag        `json:"tags"`
+	Task          Task         `json:"task"`
+	TimeInterval  TimeInterval `json:"timeInterval"`
+	TotalBillable int64        `json:"totalBillable"`
+	User          User         `json:"user"`
+	WorkspaceID   string       `json:"workspaceId"`
+}
+
+// TimeInterval DTO
+type TimeInterval struct {
+	Duration string    `json:"duration"`
+	End      time.Time `json:"end"`
+	Start    time.Time `json:"start"`
+}
+
+// Tag DTO
+type Tag struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	WorkspaceID string `json:"workspaceId"`
+}
+
+// TaskStatus task status
+type TaskStatus string
+
+// TaskStatusActive task is Active
+const TaskStatusActive = TaskStatus("ACTIVE")
+
+// TaskStatusDone task is Done
+const TaskStatusDone = TaskStatus("DONE")
+
+// Task DTO
+type Task struct {
+	ID         string     `json:"id"`
+	AssigneeID string     `json:"assigneeId"`
+	Estimate   string     `json:"estimate"`
+	Name       string     `json:"name"`
+	ProjectID  string     `json:"projectId"`
+	Status     TaskStatus `json:"status"`
+}
+
+// Project DTO
+type Project struct {
+	ID          string       `json:"id"`
+	Archived    bool         `json:"archived"`
+	Billable    bool         `json:"billable"`
+	ClientID    string       `json:"clientId"`
+	Color       string       `json:"color"`
+	Estimate    Estimate     `json:"estimate"`
+	HourlyRate  HourlyRate   `json:"hourlyRate"`
+	Memberships []Membership `json:"memberships"`
+	Name        string       `json:"name"`
+	Public      bool         `json:"public"`
+	WorkspaceID string       `json:"workspaceId"`
+}
+
+// EstimateType possible Estimate types
+type EstimateType string
+
+// EstimateTypeAuto estimate is Auto
+const EstimateTypeAuto = EstimateType("AUTO")
+
+// EstimateTypeManual estimate is Manual
+const EstimateTypeManual = EstimateType("MANUAL")
+
+// Estimate DTO
+type Estimate struct {
+	Estimate string       `json:"estimate"`
+	Type     EstimateType `json:"type"`
+}
+
 // UserStatus possible user status
 type UserStatus string
 
@@ -165,4 +245,25 @@ type Invitation struct {
 	Membership     Membership `json:"membership"`
 	WorkspaceID    string     `json:"workspaceId"`
 	WorkspaceName  string     `json:"workspaceName"`
+}
+
+// TimeEntriesList DTO
+type TimeEntriesList struct {
+	AllEntriesCount int64           `json:"allEntriesCount"`
+	GotAllEntries   bool            `json:"gotAllEntries"`
+	TimeEntriesList []TimeEntryImpl `json:"timeEntriesList"`
+}
+
+// TimeEntryImpl DTO
+type TimeEntryImpl struct {
+	Billable     bool         `json:"billable"`
+	Description  string       `json:"description"`
+	ID           string       `json:"id"`
+	IsLocked     bool         `json:"isLocked"`
+	ProjectID    string       `json:"projectId"`
+	TagIDs       []string     `json:"tagIds"`
+	TaskID       string       `json:"taskId"`
+	TimeInterval TimeInterval `json:"timeInterval"`
+	UserID       string       `json:"userId"`
+	WorkspaceID  string       `json:"workspaceId"`
 }
