@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -40,8 +39,8 @@ var workspacesCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
+			printError(err)
+			return
 		}
 
 		var reportFn func([]dto.Workspace, io.Writer) error
@@ -56,8 +55,7 @@ var workspacesCmd = &cobra.Command{
 		}
 
 		if err = reportFn(w, os.Stdout); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
+			printError(err)
 		}
 	}),
 }
