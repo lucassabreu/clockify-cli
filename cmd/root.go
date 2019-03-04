@@ -91,9 +91,14 @@ func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client
 	return func(cmd *cobra.Command, args []string) {
 		c, err := api.NewClient(token)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
+			printError(err)
+			return
 		}
 		fn(cmd, args, c)
 	}
+}
+
+func printError(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
 }

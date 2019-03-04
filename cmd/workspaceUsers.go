@@ -25,17 +25,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// workspacesCmd represents the workspaces command
-var workspacesCmd = &cobra.Command{
-	Use:   "workspaces",
-	Short: "List user's workspaces",
+// workspaceUsersCmd represents the workspaceUsers command
+var workspaceUsersCmd = &cobra.Command{
+	Use:   "users",
+	Short: "List all users on a Workspace",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		name, _ := cmd.Flags().GetString("name")
+		workspace, _ := cmd.Flags().GetString("workspace")
+		email, _ := cmd.Flags().GetString("email")
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
-		w, err := c.Workspaces(api.WorkspacesFilter{
-			Name: name,
+		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
+			Workspace: workspace,
+			Email:     email,
 		})
 
 		if err != nil {
@@ -43,27 +45,30 @@ var workspacesCmd = &cobra.Command{
 			return
 		}
 
-		var reportFn func([]dto.Workspace, io.Writer) error
+		var reportFn func([]dto.User, io.Writer) error
 
-		reportFn = reports.WorkspacePrint
+		reportFn = reports.UserPrint
 		if format != "" {
-			reportFn = reports.WorkspacePrintWithTemplate(format)
+			reportFn = reports.UserPrintWithTemplate(format)
 		}
 
 		if quiet {
-			reportFn = reports.WorkspacePrintQuietly
+			reportFn = reports.UserPrintQuietly
 		}
 
-		if err = reportFn(w, os.Stdout); err != nil {
+		if err = reportFn(users, os.Stdout); err != nil {
 			printError(err)
 		}
+
 	}),
 }
 
 func init() {
-	rootCmd.AddCommand(workspacesCmd)
+	workspacesCmd.AddCommand(workspaceUsersCmd)
 
-	workspacesCmd.Flags().StringP("name", "n", "", "will be used to filter the workspaces by name")
-	workspacesCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each workspace")
-	workspacesCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	workspaceUsersCmd.Flags().StringP("email", "e", "", "will be used to filter the workspaces by email")
+	workspaceUsersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each workspace")
+	workspaceUsersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+
+	workspaceUsersCmd.MarkFlagRequired("workspace")
 }

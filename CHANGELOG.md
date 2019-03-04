@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package `dto` created to hold all payload objects
 - Package `api.Client` to call Clockfy's API
 - Command `clockify-cli workspaces` created, with options to format the output
+- Command `clockify-cli workspaces users` created, with options to format the output
+  to allow retriving the user's ID
 
 ## [0.0.1] - 2019-03-03
 ### Added
