@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/lucassabreu/clockify-cli/api"
@@ -29,6 +30,8 @@ var token string
 var workspace string
 var githubToken string
 var trelloToken string
+var debug bool
+var userID string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -54,9 +57,12 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clockify-cli.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "clockify's token, can be generated here: https://clockify.me/user/settings#generateApiKeyBtn")
 	rootCmd.PersistentFlags().StringVarP(&workspace, "workspace", "w", "", "workspace to be used")
+	rootCmd.PersistentFlags().StringVarP(&userID, "user-id", "u", "", "user id from the token")
 
 	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", "gitHub's token")
 	rootCmd.PersistentFlags().StringVar(&trelloToken, "trello-token", "", "trello's token")
+
+	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "show debug log")
 
 	rootCmd.MarkFlagRequired("token")
 }
@@ -94,6 +100,13 @@ func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client
 			printError(err)
 			return
 		}
+
+		if debug {
+			c.SetDebugLogger(
+				log.New(os.Stdout, "DEBUG ", log.LstdFlags),
+			)
+		}
+
 		fn(cmd, args, c)
 	}
 }

@@ -15,9 +15,13 @@
 package cmd
 
 import (
-	"fmt"
+	"io"
+	"os"
 	"time"
 
+	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 )
 
@@ -27,11 +31,51 @@ var dateFormat = "2006-01-02"
 
 // logCmd represents the log command
 var logCmd = &cobra.Command{
-	Use:   "log",
-	Short: "List the entries from a specific day",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("log called")
-	},
+	Use:     "log",
+	Aliases: []string{"logs"},
+	Short:   "List the entries from a specific day",
+	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+		workspaceID, err := cmd.Flags().GetString("workspace")
+		format, err := cmd.Flags().GetString("format")
+		asJSON, _ := cmd.Flags().GetBool("json")
+		var filterDate time.Time
+
+		if filterDate, err = time.Parse(dateFormat, dateString); err != nil {
+			printError(err)
+			return
+		}
+
+		if yesterday {
+			filterDate = time.Now().Add(time.Hour * -24)
+		}
+
+		log, err := c.Log(api.LogParam{
+			Workspace: workspaceID,
+			UserID:    userID,
+			Date:      filterDate,
+			AllPages:  true,
+		})
+
+		if err != nil {
+			printError(err)
+			return
+		}
+
+		var reportFn func([]dto.TimeEntry, io.Writer) error
+		reportFn = reports.TimeEntriesPrint
+
+		if asJSON {
+			reportFn = reports.TimeEntriesJSONPrint
+		}
+
+		if format != "" {
+			reportFn = reports.TimeEntriesPrintWithTemplate(format)
+		}
+
+		if err = reportFn(log, os.Stdout); err != nil {
+			printError(err)
+		}
+	}),
 }
 
 func init() {
@@ -39,4 +83,9 @@ func init() {
 
 	logCmd.Flags().StringVarP(&dateString, "date", "d", time.Now().Format(dateFormat), "set the date to be logged in the format: YYYY-MM-DD")
 	logCmd.Flags().BoolVarP(&yesterday, "yesterday", "y", false, "list the yesterday's entries")
+	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	logCmd.Flags().BoolP("json", "j", false, "print as json")
+
+	logCmd.MarkFlagRequired("workspace")
+	logCmd.MarkFlagRequired("user-id")
 }

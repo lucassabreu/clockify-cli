@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
@@ -14,6 +15,7 @@ import (
 type Client struct {
 	baseURL *url.URL
 	http.Client
+	debugLogger Logger
 }
 
 // baseURL is the Clockify API base URL
@@ -22,7 +24,7 @@ const baseURL = "https://api.clockify.me/api"
 // ErrorMissingAPIKey returned if X-Api-Key is missing
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
-// NewClient create a new Client
+// NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
 	if len(apiKey) == 0 {
 		return nil, ErrorMissingAPIKey
@@ -114,4 +116,174 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	}
 
 	return uCopy, nil
+}
+
+// LogParam params to query entries
+type LogParam struct {
+	Workspace string
+	UserID    string
+	Date      time.Time
+	AllPages  bool
+}
+
+// Log list time entries
+func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
+	c.debugf("Log - Date Param: %s", p.Date)
+
+	var timeEntries []dto.TimeEntry
+
+	d := p.Date.Round(time.Hour)
+	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
+
+	filter := dto.TimeEntryStartEndRequest{
+		Start: dto.DateTime{Time: d},
+		End:   dto.DateTime{Time: d.Add(time.Hour * 24)},
+	}
+
+	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
+
+	r, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/user/%s/entriesInRange",
+			p.Workspace,
+			p.UserID,
+		),
+		filter,
+	)
+	if err != nil {
+		return timeEntries, err
+	}
+
+	_, err = c.Do(r, &timeEntries)
+
+	return timeEntries, nil
+}
+
+// LogInProgressParam params to query entries
+type LogInProgressParam struct {
+	Workspace string
+}
+
+// LogInProgress show time entry in progress (if any)
+func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error) {
+	var timeEntryImpl *dto.TimeEntryImpl
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/inProgress",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return timeEntryImpl, err
+	}
+
+	_, err = c.Do(r, &timeEntryImpl)
+	return timeEntryImpl, err
+}
+
+// GetTagParam params to find a tag
+type GetTagParam struct {
+	Workspace string
+	TagID     string
+}
+
+// GetTag get a single tag, if it exists
+func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
+	var tag *dto.Tag
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tags/%s",
+			p.Workspace,
+			p.TagID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return tag, err
+	}
+
+	_, err = c.Do(r, &tag)
+	return tag, err
+}
+
+// GetProjectParam params to get a Project
+type GetProjectParam struct {
+	Workspace string
+	ProjectID string
+}
+
+// GetProject get a single Project, if exists
+func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
+	var project *dto.Project
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/projects/%s",
+			p.Workspace,
+			p.ProjectID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(r, &project)
+	return project, err
+}
+
+// GetUser get a specific user by its id
+func (c *Client) GetUser(id string) (*dto.User, error) {
+	var user *dto.User
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf("users/%s", id),
+		nil,
+	)
+
+	if err != nil {
+		return user, err
+	}
+
+	_, err = c.Do(r, &user)
+	return user, err
+}
+
+// GetTaskParam params to get a Task
+type GetTaskParam struct {
+	Workspace string
+	TaskID    string
+}
+
+// GetTask get a single Task, if exists
+func (c *Client) GetTask(p GetTaskParam) (*dto.Task, error) {
+	var task *dto.Task
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tasks/%s",
+			p.Workspace,
+			p.TaskID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(r, &task)
+	return task, err
 }
