@@ -159,3 +159,131 @@ func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
 
 	return timeEntries, nil
 }
+
+// LogInProgressParam params to query entries
+type LogInProgressParam struct {
+	Workspace string
+}
+
+// LogInProgress show time entry in progress (if any)
+func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error) {
+	var timeEntryImpl *dto.TimeEntryImpl
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/inProgress",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return timeEntryImpl, err
+	}
+
+	_, err = c.Do(r, &timeEntryImpl)
+	return timeEntryImpl, err
+}
+
+// GetTagParam params to find a tag
+type GetTagParam struct {
+	Workspace string
+	TagID     string
+}
+
+// GetTag get a single tag, if it exists
+func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
+	var tag *dto.Tag
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tags/%s",
+			p.Workspace,
+			p.TagID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return tag, err
+	}
+
+	_, err = c.Do(r, &tag)
+	return tag, err
+}
+
+// GetProjectParam params to get a Project
+type GetProjectParam struct {
+	Workspace string
+	ProjectID string
+}
+
+// GetProject get a single Project, if exists
+func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
+	var project *dto.Project
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/projects/%s",
+			p.Workspace,
+			p.ProjectID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(r, &project)
+	return project, err
+}
+
+// GetUser get a specific user by its id
+func (c *Client) GetUser(id string) (*dto.User, error) {
+	var user *dto.User
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf("users/%s", id),
+		nil,
+	)
+
+	if err != nil {
+		return user, err
+	}
+
+	_, err = c.Do(r, &user)
+	return user, err
+}
+
+// GetTaskParam params to get a Task
+type GetTaskParam struct {
+	Workspace string
+	TaskID    string
+}
+
+// GetTask get a single Task, if exists
+func (c *Client) GetTask(p GetTaskParam) (*dto.Task, error) {
+	var task *dto.Task
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tasks/%s",
+			p.Workspace,
+			p.TaskID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(r, &task)
+	return task, err
+}

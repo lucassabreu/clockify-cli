@@ -72,7 +72,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	buf := new(bytes.Buffer)
 	io.Copy(buf, r.Body)
-	c.debugf("url: %s, status: %d, body: %s", req.URL.String(), r.StatusCode, buf)
+	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
 	decoder := json.NewDecoder(buf)
 
@@ -83,6 +83,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 			return r, err
 		}
 		return r, apiErr
+	}
+
+	if buf.Len() == 0 {
+		v = nil
+		return r, err
 	}
 
 	err = decoder.Decode(v)

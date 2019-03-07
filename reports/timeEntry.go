@@ -85,3 +85,39 @@ func TimeEntriesPrintWithTemplate(format string) func([]dto.TimeEntry, io.Writer
 		return nil
 	}
 }
+
+// TimeEntryJSONPrint will print as JSON
+func TimeEntryJSONPrint(t *dto.TimeEntry, w io.Writer) error {
+	return json.NewEncoder(w).Encode(t)
+}
+
+// TimeEntryPrintQuietly will only print the IDs
+func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
+	fmt.Fprintln(w, timeEntry.ID)
+	return nil
+}
+
+// TimeEntryPrint will print more details
+func TimeEntryPrint(timeEntry *dto.TimeEntry, w io.Writer) error {
+	entries := []dto.TimeEntry{}
+
+	if timeEntry != nil {
+		entries = append(entries, *timeEntry)
+	}
+
+	return TimeEntriesPrint(entries, w)
+}
+
+// TimeEntryPrintWithTemplate will print each time entry using the format string
+func TimeEntryPrintWithTemplate(format string) func(*dto.TimeEntry, io.Writer) error {
+	fn := TimeEntriesPrintWithTemplate(format)
+	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
+		entries := []dto.TimeEntry{}
+
+		if timeEntry != nil {
+			entries = append(entries, *timeEntry)
+		}
+
+		return fn(entries, w)
+	}
+}

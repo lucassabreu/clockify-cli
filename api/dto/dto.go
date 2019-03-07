@@ -88,21 +88,21 @@ type TimeEntry struct {
 	Description   string       `json:"description"`
 	HourlyRate    HourlyRate   `json:"hourlyRate"`
 	IsLocked      bool         `json:"isLocked"`
-	Project       Project      `json:"project"`
+	Project       *Project     `json:"project"`
 	ProjectID     string       `json:"projectId"`
 	Tags          []Tag        `json:"tags"`
-	Task          Task         `json:"task"`
+	Task          *Task        `json:"task"`
 	TimeInterval  TimeInterval `json:"timeInterval"`
 	TotalBillable int64        `json:"totalBillable"`
-	User          User         `json:"user"`
+	User          *User        `json:"user"`
 	WorkspaceID   string       `json:"workspaceId"`
 }
 
 // TimeInterval DTO
 type TimeInterval struct {
-	Duration string    `json:"duration"`
-	End      time.Time `json:"end"`
-	Start    time.Time `json:"start"`
+	Duration string     `json:"duration"`
+	End      *time.Time `json:"end"`
+	Start    time.Time  `json:"start"`
 }
 
 // Tag DTO

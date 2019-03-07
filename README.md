@@ -7,6 +7,7 @@ Features
 --------
 
 * [X] List time entries from a day
+  * [X] List in progress entry
 * [ ] Start a new time entry
   + [ ] Using a GitHub issue
   + [ ] Using a Trello card
