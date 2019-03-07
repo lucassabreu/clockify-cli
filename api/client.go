@@ -14,6 +14,7 @@ import (
 type Client struct {
 	baseURL *url.URL
 	http.Client
+	debugLogger Logger
 }
 
 // baseURL is the Clockify API base URL
@@ -22,7 +23,7 @@ const baseURL = "https://api.clockify.me/api"
 // ErrorMissingAPIKey returned if X-Api-Key is missing
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
-// NewClient create a new Client
+// NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
 	if len(apiKey) == 0 {
 		return nil, ErrorMissingAPIKey

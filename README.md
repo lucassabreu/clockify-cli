@@ -35,6 +35,7 @@ Available Commands:
 
 Flags:
       --config string         config file (default is $HOME/.clockify-cli.yaml)
+      --debug                 show debug log
       --github-token string   gitHub's token
   -h, --help                  help for clockify-cli
   -t, --token string          clockify's token, can be generated here: https://clockify.me/user/settings#generateApiKeyBtn

@@ -69,7 +69,12 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	}
 
 	defer r.Body.Close()
-	decoder := json.NewDecoder(r.Body)
+
+	buf := new(bytes.Buffer)
+	io.Copy(buf, r.Body)
+	c.debugf("url: %s, status: %d, body: %s", req.URL.String(), r.StatusCode, buf)
+
+	decoder := json.NewDecoder(buf)
 
 	if r.StatusCode < 200 || r.StatusCode > 300 {
 		var apiErr dto.Error
