@@ -26,3 +26,6 @@ build/linux:
 build/windows:
 	mkdir -p build/windows
 	GOOS=windows GOARCH=amd64 go build -o build/windows/clockify-cli
+
+go-install: ## install dev version
+	go install
