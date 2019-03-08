@@ -45,10 +45,14 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 			wP = len(t.Project.Name)
 		}
 
+		end := time.Now()
+		if t.TimeInterval.End != nil {
+			end = *t.TimeInterval.End
+		}
 		lines[i] = []string{
 			t.TimeInterval.Start.In(time.Local).Format("15:04:05"),
-			t.TimeInterval.End.In(time.Local).Format("15:04:05"),
-			fmt.Sprintf("%-8v", t.TimeInterval.End.Sub(t.TimeInterval.Start)),
+			end.In(time.Local).Format("15:04:05"),
+			fmt.Sprintf("%-8v", end.Sub(t.TimeInterval.Start)),
 			t.Project.Name,
 			t.Description,
 		}

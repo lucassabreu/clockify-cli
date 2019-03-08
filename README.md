@@ -8,9 +8,10 @@ Features
 
 * [X] List time entries from a day
   * [X] List in progress entry
-* [ ] Start a new time entry
+* [X] Start a new time entry
   + [ ] Using a GitHub issue
   + [ ] Using a Trello card
+  + [ ] Cloning last time entry
 * [ ] Stop the last entry
 * [X] List workspace projects
 * [ ] Link a Clockify Project with Github:Issues repository
