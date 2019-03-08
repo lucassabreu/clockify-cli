@@ -287,3 +287,31 @@ func (c *Client) GetTask(p GetTaskParam) (*dto.Task, error) {
 	_, err = c.Do(r, &task)
 	return task, err
 }
+
+
+
+// GetProjectsParam params to get all project of a workspace
+type GetProjectsParam struct {
+	Workspace string
+}
+
+// GetProjects get all project of a workspace
+func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
+	var ps []dto.Project
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/projects/",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return ps, err
+	}
+
+	_, err = c.Do(r, &ps)
+	return ps, err
+}

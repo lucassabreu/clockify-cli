@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Command `clockify-cli project list` was implemented, it allows to list the 
+  projects of a worspace, format the return to table, json, and just id. Helps
+  with script automatation
 - Using https://github.com/spf13/viper to link enviroment variables and config 
   files with the global flags. User can set variables `CLOCKIFY_TOKEN`,
   `CLOCKIFY_WORKSPACE` and `CLOCKIFY_USER_ID` instead of using the command flags
