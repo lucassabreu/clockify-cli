@@ -38,6 +38,7 @@ func (c *Client) NewRequest(method, uri string, body interface{}) (*http.Request
 		if err != nil {
 			return nil, err
 		}
+		c.debugf("request body: %s", buf.(*bytes.Buffer))
 	}
 
 	req, err := http.NewRequest(method, u.String(), buf)
@@ -59,6 +60,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return r, err
 	}
+	defer r.Body.Close()
+
+	buf := new(bytes.Buffer)
+	io.Copy(buf, r.Body)
+	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
 	if v == nil {
 		return r, err
@@ -67,12 +73,6 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	if r.StatusCode == 404 {
 		return r, ErrorNotFound
 	}
-
-	defer r.Body.Close()
-
-	buf := new(bytes.Buffer)
-	io.Copy(buf, r.Body)
-	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
 	decoder := json.NewDecoder(buf)
 
