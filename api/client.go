@@ -315,3 +315,30 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 	_, err = c.Do(r, &ps)
 	return ps, err
 }
+
+// OutParam params to end the current time entry
+type OutParam struct {
+	Workspace string
+	End       time.Time
+}
+
+// Out create a new time entry
+func (c *Client) Out(p OutParam) error {
+	r, err := c.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/endStarted",
+			p.Workspace,
+		),
+		dto.OutTimeEntryRequest{
+			End: dto.DateTime{Time: p.End},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Do(r, nil)
+	return err
+}

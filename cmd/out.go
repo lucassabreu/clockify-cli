@@ -15,22 +15,44 @@
 package cmd
 
 import (
-	"fmt"
+	"time"
 
+	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var whenDateFormat = "2006-01-02 15:04"
 
 // outCmd represents the out command
 var outCmd = &cobra.Command{
 	Use:   "out",
 	Short: "Stops the last time entry",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("out called")
-	},
+	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+		var whenDate time.Time
+		var err error
+		whenString, _ := cmd.Flags().GetString("when")
+
+		if whenDate, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+			printError(err)
+			return
+		}
+
+		err = c.Out(api.OutParam{
+			Workspace: viper.GetString("workspace"),
+			End:       whenDate,
+		})
+
+		if err != nil {
+			printError(err)
+			return
+		}
+
+	}),
 }
 
 func init() {
 	rootCmd.AddCommand(outCmd)
 
-	outCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
+	outCmd.Flags().String("when", time.Now().Format(whenDateFormat), "when the entry should be closed, if not informed will use current time")
 }

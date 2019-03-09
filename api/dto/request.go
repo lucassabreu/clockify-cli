@@ -20,3 +20,8 @@ type TimeEntryStartEndRequest struct {
 	Start DateTime `json:"start"`
 	End   DateTime `json:"end"`
 }
+
+// OutTimeEntryRequest to end the current time entry
+type OutTimeEntryRequest struct {
+	End DateTime `json:"end"`
+}
