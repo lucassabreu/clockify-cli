@@ -121,13 +121,17 @@ var inCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(inCmd)
 
-	inCmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
-	inCmd.Flags().IntVarP(&cardNumber, "card", "c", 0, "trello card number being started")
-	inCmd.Flags().IntVarP(&issueNumber, "issue", "i", 0, "issue number being started")
-	inCmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
-	inCmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
-	inCmd.Flags().StringVar(&whenString, "when", time.Now().Format(whenDateFormat), "when the entry should be closed, if not informed will use current time")
+	addTimeEntryFlags(inCmd)
 
 	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
 	inCmd.Flags().BoolP("json", "j", false, "print as json")
+}
+
+func addTimeEntryFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
+	cmd.Flags().IntVarP(&cardNumber, "card", "c", 0, "trello card number being started")
+	cmd.Flags().IntVarP(&issueNumber, "issue", "i", 0, "issue number being started")
+	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
+	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
+	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(whenDateFormat), "when the entry should be closed, if not informed will use current time")
 }

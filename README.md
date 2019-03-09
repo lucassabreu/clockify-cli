@@ -19,6 +19,7 @@ Features
 * [X] List Clockify Workspaces
 * [X] List Clockify Workspaces Users
 * [X] List Clockify Tags
+* [X] Edit time entry
 
 Help
 ----
@@ -30,6 +31,7 @@ Usage:
   clockify-cli [command]
 
 Available Commands:
+  edit        Edit a time entry, use id "current" to apply to time entry in progress
   help        Help about any command
   in          Create a new time entry and starts it
   log         List the entries from a specific day

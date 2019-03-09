@@ -413,3 +413,52 @@ func (c *Client) Out(p OutParam) error {
 	_, err = c.Do(r, nil)
 	return err
 }
+
+// UpdateTimeEntryParam params to update a new time entry
+type UpdateTimeEntryParam struct {
+	Workspace   string
+	TimeEntryID string
+	Start       time.Time
+	End         *time.Time
+	Billable    bool
+	Description string
+	ProjectID   string
+	TaskID      string
+	TagIDs      []string
+}
+
+// UpdateTimeEntry update a time entry
+func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, error) {
+	var t dto.TimeEntryImpl
+
+	var end *dto.DateTime
+	if p.End != nil {
+		end = &dto.DateTime{Time: *p.End}
+	}
+
+	r, err := c.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/%s",
+			p.Workspace,
+			p.TimeEntryID,
+		),
+		dto.UpdateTimeEntryRequest{
+			Start:       dto.DateTime{Time: p.Start},
+			End:         end,
+			Billable:    p.Billable,
+			Description: p.Description,
+			ProjectID:   p.ProjectID,
+			TaskID:      p.TaskID,
+			TagIDs:      p.TagIDs,
+		},
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	_, err = c.Do(r, &t)
+
+	return t, err
+}
