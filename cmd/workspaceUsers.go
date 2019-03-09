@@ -23,6 +23,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // workspaceUsersCmd represents the workspaceUsers command
@@ -30,13 +31,12 @@ var workspaceUsersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List all users on a Workspace",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		workspace, _ := cmd.Flags().GetString("workspace")
 		email, _ := cmd.Flags().GetString("email")
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
 		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-			Workspace: workspace,
+			Workspace: viper.GetString("workspace"),
 			Email:     email,
 		})
 

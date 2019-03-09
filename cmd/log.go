@@ -23,6 +23,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var dateString string
@@ -35,7 +36,6 @@ var logCmd = &cobra.Command{
 	Aliases: []string{"logs"},
 	Short:   "List the entries from a specific day",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		workspaceID, err := cmd.Flags().GetString("workspace")
 		format, err := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		var filterDate time.Time
@@ -50,8 +50,8 @@ var logCmd = &cobra.Command{
 		}
 
 		log, err := c.Log(api.LogParam{
-			Workspace: workspaceID,
-			UserID:    userID,
+			Workspace: viper.GetString("workspace"),
+			UserID:    viper.GetString("user.id"),
 			Date:      filterDate,
 			AllPages:  true,
 		})

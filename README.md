@@ -37,13 +37,14 @@ Available Commands:
 
 Flags:
       --config string         config file (default is $HOME/.clockify-cli.yaml)
-      --debug                 show debug log
-      --github-token string   gitHub's token
+      --debug                 show debug log (defaults to env $CLOCKIFY_DEBUG)
+      --github-token string   gitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)
   -h, --help                  help for clockify-cli
-  -t, --token string          clockify's token, can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
-      --trello-token string   trello's token
-  -u, --user-id string        user id from the token
-  -w, --workspace string      workspace to be used
+  -t, --token string          clockify's token (defaults to env $CLOCKIFY_TOKEN)
+                              	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
+      --trello-token string   trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
+  -u, --user-id string        user id from the token (defaults to env $CLOCKIFY_USER_ID)
+  -w, --workspace string      workspace to be used (defaults to env $CLOCKIFY_WROKSPACE)
 
 Use "clockify-cli [command] --help" for more information about a command.
 ```

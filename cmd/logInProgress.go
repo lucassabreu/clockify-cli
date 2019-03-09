@@ -22,6 +22,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // logInProgressCmd represents the logInProgress command
@@ -30,7 +31,7 @@ var logInProgressCmd = &cobra.Command{
 	Short: "Show time entry in progress (if any)",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		tei, err := c.LogInProgress(api.LogInProgressParam{
-			Workspace: workspace,
+			Workspace: viper.GetString("workspace"),
 		})
 
 		if err != nil {

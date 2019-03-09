@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Using https://github.com/spf13/viper to link enviroment variables and config 
+  files with the global flags. User can set variables `CLOCKIFY_TOKEN`,
+  `CLOCKIFY_WORKSPACE` and `CLOCKIFY_USER_ID` instead of using the command flags
 - `--debug` option to allow better understanding of the requests
 - Command `clockify-cli log in-progress` implemented, with options to format the
   output, and in the TimeEntry format, instead of TimeEntryImpl
