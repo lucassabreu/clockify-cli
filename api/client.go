@@ -287,3 +287,178 @@ func (c *Client) GetTask(p GetTaskParam) (*dto.Task, error) {
 	_, err = c.Do(r, &task)
 	return task, err
 }
+
+// CreateTimeEntryParam params to create a new time entry
+type CreateTimeEntryParam struct {
+	Workspace   string
+	Start       time.Time
+	End         *time.Time
+	Billable    bool
+	Description string
+	ProjectID   string
+	TaskID      string
+	TagIDs      []string
+}
+
+// CreateTimeEntry create a new time entry
+func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, error) {
+	var t dto.TimeEntryImpl
+
+	var end *dto.DateTime
+	if p.End != nil {
+		end = &dto.DateTime{Time: *p.End}
+	}
+
+	r, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/",
+			p.Workspace,
+		),
+		dto.CreateTimeEntryRequest{
+			Start:       dto.DateTime{Time: p.Start},
+			End:         end,
+			Billable:    p.Billable,
+			Description: p.Description,
+			ProjectID:   p.ProjectID,
+			TaskID:      p.TaskID,
+			TagIDs:      p.TagIDs,
+		},
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	_, err = c.Do(r, &t)
+
+	return t, err
+}
+
+// GetTagsParam params to get all tags of a workspace
+type GetTagsParam struct {
+	Workspace string
+}
+
+// GetTags get all tags of a workspace
+func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
+	var ps []dto.Tag
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tags",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return ps, err
+	}
+
+	_, err = c.Do(r, &ps)
+	return ps, err
+}
+
+// GetProjectsParam params to get all project of a workspace
+type GetProjectsParam struct {
+	Workspace string
+}
+
+// GetProjects get all project of a workspace
+func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
+	var ps []dto.Project
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/projects/",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return ps, err
+	}
+
+	_, err = c.Do(r, &ps)
+	return ps, err
+}
+
+// OutParam params to end the current time entry
+type OutParam struct {
+	Workspace string
+	End       time.Time
+}
+
+// Out create a new time entry
+func (c *Client) Out(p OutParam) error {
+	r, err := c.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/endStarted",
+			p.Workspace,
+		),
+		dto.OutTimeEntryRequest{
+			End: dto.DateTime{Time: p.End},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Do(r, nil)
+	return err
+}
+
+// UpdateTimeEntryParam params to update a new time entry
+type UpdateTimeEntryParam struct {
+	Workspace   string
+	TimeEntryID string
+	Start       time.Time
+	End         *time.Time
+	Billable    bool
+	Description string
+	ProjectID   string
+	TaskID      string
+	TagIDs      []string
+}
+
+// UpdateTimeEntry update a time entry
+func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, error) {
+	var t dto.TimeEntryImpl
+
+	var end *dto.DateTime
+	if p.End != nil {
+		end = &dto.DateTime{Time: *p.End}
+	}
+
+	r, err := c.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/%s",
+			p.Workspace,
+			p.TimeEntryID,
+		),
+		dto.UpdateTimeEntryRequest{
+			Start:       dto.DateTime{Time: p.Start},
+			End:         end,
+			Billable:    p.Billable,
+			Description: p.Description,
+			ProjectID:   p.ProjectID,
+			TaskID:      p.TaskID,
+			TagIDs:      p.TagIDs,
+		},
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	_, err = c.Do(r, &t)
+
+	return t, err
+}

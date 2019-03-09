@@ -17,27 +17,25 @@ package cmd
 import (
 	"io"
 	"os"
-
-	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// workspaceUsersCmd represents the workspaceUsers command
-var workspaceUsersCmd = &cobra.Command{
-	Use:   "users",
-	Short: "List all users on a Workspace",
+// tagsCmd represents the tags command
+var tagsCmd = &cobra.Command{
+	Use:   "tags",
+	Short: "List tags of workspace",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		email, _ := cmd.Flags().GetString("email")
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
-		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
+		tags, err := c.GetTags(api.GetTagsParam{
 			Workspace: viper.GetString("workspace"),
-			Email:     email,
 		})
 
 		if err != nil {
@@ -45,30 +43,46 @@ var workspaceUsersCmd = &cobra.Command{
 			return
 		}
 
-		var reportFn func([]dto.User, io.Writer) error
+		name, _ := cmd.Flags().GetString("name")
+		tags = filterTags(name, tags)
 
-		reportFn = reports.UserPrint
+		var reportFn func([]dto.Tag, io.Writer) error
+
+		reportFn = reports.TagPrint
 		if format != "" {
-			reportFn = reports.UserPrintWithTemplate(format)
+			reportFn = reports.TagPrintWithTemplate(format)
 		}
 
 		if quiet {
-			reportFn = reports.UserPrintQuietly
+			reportFn = reports.TagPrintQuietly
 		}
 
-		if err = reportFn(users, os.Stdout); err != nil {
+		if err = reportFn(tags, os.Stdout); err != nil {
 			printError(err)
 		}
-
 	}),
 }
 
+func filterTags(name string, tags []dto.Tag) []dto.Tag {
+	if name == "" {
+		return tags
+	}
+
+	ts := make([]dto.Tag, 0)
+
+	for _, t := range tags {
+		if strings.Contains(strings.ToLower(t.Name), strings.ToLower(name)) {
+			ts = append(ts, t)
+		}
+	}
+
+	return ts
+}
+
 func init() {
-	workspacesCmd.AddCommand(workspaceUsersCmd)
+	rootCmd.AddCommand(tagsCmd)
 
-	workspaceUsersCmd.Flags().StringP("email", "e", "", "will be used to filter the workspaces by email")
-	workspaceUsersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each workspace")
-	workspaceUsersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
-
-	workspaceUsersCmd.MarkFlagRequired("workspace")
+	tagsCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
+	tagsCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each Tag")
+	tagsCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }
