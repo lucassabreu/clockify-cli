@@ -335,6 +335,31 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 	return t, err
 }
 
+// GetTagsParam params to get all tags of a workspace
+type GetTagsParam struct {
+	Workspace string
+}
+
+// GetTags get all tags of a workspace
+func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
+	var ps []dto.Tag
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/tags",
+			p.Workspace,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return ps, err
+	}
+
+	_, err = c.Do(r, &ps)
+	return ps, err
+}
 
 // GetProjectsParam params to get all project of a workspace
 type GetProjectsParam struct {

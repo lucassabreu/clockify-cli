@@ -18,6 +18,7 @@ Features
 * [ ] Link a Clockify Project with Trello board
 * [X] List Clockify Workspaces
 * [X] List Clockify Workspaces Users
+* [X] List Clockify Tags
 
 Help
 ----
@@ -34,6 +35,7 @@ Available Commands:
   log         List the entries from a specific day
   out         Stops the last time entry
   project     Allow project aliasing and integration of a project with GitHub:Issues or Trello
+  tags        List tags of workspace
   workspaces  List user's workspaces
 
 Flags:
