@@ -27,8 +27,9 @@ import (
 
 // logInProgressCmd represents the logInProgress command
 var logInProgressCmd = &cobra.Command{
-	Use:   "in-progress",
-	Short: "Show time entry in progress (if any)",
+	Use:     "in-progress",
+	Aliases: []string{"current", "open", "running"},
+	Short:   "Show time entry in progress (if any)",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		tei, err := c.LogInProgress(api.LogInProgressParam{
 			Workspace: viper.GetString("workspace"),
