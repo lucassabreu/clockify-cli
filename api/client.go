@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -461,4 +462,42 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 	_, err = c.Do(r, &t)
 
 	return t, err
+}
+
+// GetRecentTimeEntries params to get recent time entries
+type GetRecentTimeEntries struct {
+	Workspace    string
+	UserID       string
+	Page         int
+	ItemsPerPage int
+}
+
+// GetRecentTimeEntries will return the recent time entries of the user, paginated
+func (c *Client) GetRecentTimeEntries(p GetRecentTimeEntries) (dto.TimeEntriesList, error) {
+	var resp dto.TimeEntriesList
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"workspaces/%s/timeEntries/user/%s",
+			p.Workspace,
+			p.UserID,
+		),
+		nil,
+	)
+
+	if p.Page != 0 {
+		r.URL.Query().Add("page", strconv.Itoa(p.Page))
+	}
+
+	if p.ItemsPerPage != 0 {
+		r.URL.Query().Add("limit", strconv.Itoa(p.ItemsPerPage))
+	}
+
+	if err != nil {
+		return resp, err
+	}
+
+	_, err = c.Do(r, &resp)
+	return resp, err
 }

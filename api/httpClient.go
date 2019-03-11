@@ -66,10 +66,6 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	io.Copy(buf, r.Body)
 	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
-	if v == nil {
-		return r, err
-	}
-
 	if r.StatusCode == 404 {
 		return r, ErrorNotFound
 	}
@@ -83,6 +79,10 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 			return r, err
 		}
 		return r, apiErr
+	}
+
+	if v == nil {
+		return r, err
 	}
 
 	if buf.Len() == 0 {

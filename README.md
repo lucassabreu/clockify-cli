@@ -11,8 +11,8 @@ Features
 * [X] Start a new time entry
   + [ ] Using a GitHub issue
   + [ ] Using a Trello card
-  + [ ] Cloning last time entry
-* [ ] Stop the last entry
+  + [X] Cloning last time entry
+* [X] Stop the last entry
 * [X] List workspace projects
 * [ ] Link a Clockify Project with Github:Issues repository
 * [ ] Link a Clockify Project with Trello board
