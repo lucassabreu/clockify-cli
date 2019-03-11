@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Command `clockify-cli out` implemented, it will close any pending time entry
 - Command `clockify-cli in clone` implemented, to allow creation of new time 
   entries based on existing ones, it also close pending ones, if any
 - Command `clockify-cli project list` was implemented, it allows to list the 
