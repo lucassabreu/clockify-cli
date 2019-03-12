@@ -30,7 +30,7 @@ func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
 // TimeEntriesPrint will print more details
 func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 	tw := tablewriter.NewWriter(w)
-	tw.SetHeader([]string{"Start", "End", "Dur", "Project", "Description"})
+	tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description"})
 
 	lines := make([][]string, len(timeEntries))
 
@@ -55,6 +55,7 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 			projectName = t.Project.Name
 		}
 		lines[i] = []string{
+			t.ID,
 			t.TimeInterval.Start.In(time.Local).Format("15:04:05"),
 			end.In(time.Local).Format("15:04:05"),
 			fmt.Sprintf("%-8v", end.Sub(t.TimeInterval.Start)),
@@ -64,7 +65,7 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 	}
 
 	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
-		width = width - 30 - wP
+		width = width - 70 - wP
 		if width < wD {
 			wD = width
 		}
