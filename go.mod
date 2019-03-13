@@ -9,5 +9,7 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0 // indirect
-	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
+	golang.org/x/crypto v0.0.0-20190123085648-057139ce5d2b
+	gopkg.in/AlecAivazis/survey.v1 v1.8.2
+	gopkg.in/yaml.v2 v2.2.2
 )

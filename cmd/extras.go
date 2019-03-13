@@ -19,16 +19,10 @@ var simplerOnlyTimeFormat = "15:04"
 
 func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client)) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
-		c, err := api.NewClient(viper.GetString("token"))
+		c, err := getAPIClient()
 		if err != nil {
 			printError(err)
 			return
-		}
-
-		if viper.GetBool("debug") {
-			c.SetDebugLogger(
-				log.New(os.Stdout, "DEBUG ", log.LstdFlags),
-			)
 		}
 
 		fn(cmd, args, c)
@@ -61,4 +55,19 @@ func convertToTime(timeString string) (t time.Time, err error) {
 	}
 
 	return time.ParseInLocation(fullTimeFormat, timeString, time.Local)
+}
+
+func getAPIClient() (*api.Client, error) {
+	c, err := api.NewClient(viper.GetString("token"))
+	if err != nil {
+		return c, err
+	}
+
+	if viper.GetBool("debug") {
+		c.SetDebugLogger(
+			log.New(os.Stdout, "DEBUG ", log.LstdFlags),
+		)
+	}
+
+	return c, err
 }

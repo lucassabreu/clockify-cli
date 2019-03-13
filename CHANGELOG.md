@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Command `clockify-cli config init` allows to start a fresh setup, creating a
+  configuration file
+- Command `clockify-cli config set` updates/creates one config key into the 
+  config file
 - "in" commands now allow more flexible time format inputs, can be: hh:mm, 
   hh:mm:ss, yyyy-mm-dd hh:mm or yyyy-mm-dd hh:mm:ss
 - Command `clockify-cli out` implemented, it will close any pending time entry,

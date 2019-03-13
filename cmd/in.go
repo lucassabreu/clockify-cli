@@ -138,7 +138,7 @@ func init() {
 func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
 	cmd.Flags().IntVarP(&cardNumber, "card", "c", 0, "trello card number being started")
-	cmd.Flags().IntVarP(&issueNumber, "issue", "i", 0, "issue number being started")
+	cmd.Flags().IntVar(&issueNumber, "issue", 0, "issue number being started")
 	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
 	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
 	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
