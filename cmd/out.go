@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var whenDateFormat = "2006-01-02 15:04"
-
 // outCmd represents the out command
 var outCmd = &cobra.Command{
 	Use:   "out",
@@ -33,7 +31,7 @@ var outCmd = &cobra.Command{
 		var err error
 		whenString, _ := cmd.Flags().GetString("when")
 
-		if whenDate, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+		if whenDate, err = convertToTime(whenString); err != nil {
 			printError(err)
 			return
 		}
@@ -54,5 +52,5 @@ var outCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(outCmd)
 
-	outCmd.Flags().String("when", time.Now().Format(whenDateFormat), "when the entry should be closed, if not informed will use current time")
+	outCmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
 }

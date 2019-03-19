@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"os"
 	"time"
@@ -56,29 +57,36 @@ var inCmd = &cobra.Command{
 			description = args[1]
 		}
 
-		if whenDate, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+		if whenDate, err = convertToTime(whenString); err != nil {
 			printError(err)
 			return
 		}
 
 		if whenToCloseString != "" {
-			if whenDate, err = time.Parse(whenDateFormat, whenString); err != nil {
+			var t time.Time
+			if t, err = convertToTime(whenToCloseString); err != nil {
 				printError(err)
 				return
 			}
-			*whenToCloseDate = whenToCloseDate.Round(time.Second)
+			whenToCloseDate = &t
 		}
 
 		workspace := viper.GetString("workspace")
-		c.Out(api.OutParam{
+
+		err = c.Out(api.OutParam{
 			Workspace: workspace,
-			End:       time.Now(),
+			End:       whenDate,
 		})
+
+		if err != nil {
+			printError(errors.New("can not end current time entry"))
+			return
+		}
 
 		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   workspace,
 			Billable:    !notBillable,
-			Start:       whenDate.Round(time.Second),
+			Start:       whenDate,
 			End:         whenToCloseDate,
 			ProjectID:   project,
 			Description: description,
@@ -133,5 +141,5 @@ func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().IntVarP(&issueNumber, "issue", "i", 0, "issue number being started")
 	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
 	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
-	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(whenDateFormat), "when the entry should be closed, if not informed will use current time")
+	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
 }

@@ -68,7 +68,7 @@ var editCmd = &cobra.Command{
 
 		whenString, _ = cmd.Flags().GetString("when")
 		var v time.Time
-		if v, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+		if v, err = convertToTime(whenString); err != nil {
 			printError(err)
 			return
 		}
@@ -77,7 +77,7 @@ var editCmd = &cobra.Command{
 		if cmd.Flags().Changed("end-at") {
 			whenString, _ = cmd.Flags().GetString("end-at")
 			var v time.Time
-			if v, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+			if v, err = convertToTime(whenString); err != nil {
 				printError(err)
 				return
 			}
