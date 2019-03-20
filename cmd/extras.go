@@ -15,7 +15,7 @@ import (
 var fullTimeFormat = "2006-01-02 15:04:05"
 var simplerTimeFormat = "2006-01-02 15:04"
 var onlyTimeFormat = "15:04:05"
-var simplerOnlyTimeFormat = "15:04:05"
+var simplerOnlyTimeFormat = "15:04"
 
 func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client)) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
@@ -42,18 +42,23 @@ func printError(err error) {
 
 func convertToTime(timeString string) (t time.Time, err error) {
 	timeString = strings.TrimSpace(timeString)
-	format := ""
-
-	switch len(timeString) {
-	case len(fullTimeFormat):
-		format = fullTimeFormat
-	case len(simplerTimeFormat):
-		format = simplerTimeFormat
-	case len(onlyTimeFormat):
-		format = onlyTimeFormat
-	case len(simplerOnlyTimeFormat):
-		format = simplerOnlyTimeFormat
+	if len(fullTimeFormat) != len(timeString) && len(simplerTimeFormat) != len(timeString) && len(onlyTimeFormat) != len(timeString) && len(simplerOnlyTimeFormat) != len(timeString) {
+		return t, fmt.Errorf(
+			"supported formats are: %s",
+			strings.Join(
+				[]string{fullTimeFormat, simplerTimeFormat, onlyTimeFormat, simplerOnlyTimeFormat},
+				", ",
+			),
+		)
 	}
 
-	return time.ParseInLocation(format, timeString, time.Local)
+	if len(simplerOnlyTimeFormat) == len(timeString) || len(simplerTimeFormat) == len(timeString) {
+		timeString = timeString + ":00"
+	}
+
+	if len(onlyTimeFormat) == len(timeString) {
+		timeString = time.Now().Format("2006-01-02") + " " + timeString
+	}
+
+	return time.ParseInLocation(fullTimeFormat, timeString, time.Local)
 }
