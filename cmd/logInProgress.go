@@ -31,50 +31,58 @@ var logInProgressCmd = &cobra.Command{
 	Aliases: []string{"current", "open", "running"},
 	Short:   "Show time entry in progress (if any)",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		tei, err := c.LogInProgress(api.LogInProgressParam{
-			Workspace: viper.GetString("workspace"),
-		})
-
+		te, err := getTimeEntryInProgres(c, viper.GetString("workspace"))
 		if err != nil {
 			printError(err)
 			return
 		}
 
-		var te *dto.TimeEntry
-		if tei != nil {
-			tef, err := c.ConvertIntoFullTimeEntry(*tei)
-			if err != nil {
-				printError(err)
-				return
-			}
-			te = &tef
-		}
-
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = reports.TimeEntryPrint
-
-		if asJSON {
-			reportFn = reports.TimeEntryJSONPrint
-		}
-
-		if format != "" {
-			reportFn = reports.TimeEntryPrintWithTemplate(format)
-		}
-
-		if err = reportFn(te, os.Stdout); err != nil {
+		if err = formatTimeEntry(te, asJSON, format); err != nil {
 			printError(err)
 		}
 	}),
 }
 
+func getTimeEntryInProgres(c *api.Client, workspace string) (*dto.TimeEntry, error) {
+	tei, err := c.LogInProgress(api.LogInProgressParam{
+		Workspace: workspace,
+	})
+
+	if err != nil || tei == nil {
+		return nil, err
+	}
+
+	tef, err := c.ConvertIntoFullTimeEntry(*tei)
+	return &tef, err
+}
+
+func formatTimeEntry(te *dto.TimeEntry, asJSON bool, format string) error {
+	var reportFn func(*dto.TimeEntry, io.Writer) error
+
+	reportFn = reports.TimeEntryPrint
+
+	if asJSON {
+		reportFn = reports.TimeEntryJSONPrint
+	}
+
+	if format != "" {
+		reportFn = reports.TimeEntryPrintWithTemplate(format)
+	}
+
+	return reportFn(te, os.Stdout)
+}
+
 func init() {
 	logCmd.AddCommand(logInProgressCmd)
-	logInProgressCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
-	logInProgressCmd.Flags().BoolP("json", "j", false, "print as json")
+	setCommonFormats(logInProgressCmd)
 
 	logInProgressCmd.MarkFlagRequired("workspace")
+}
+
+func setCommonFormats(cmd *cobra.Command) {
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed")
+	cmd.Flags().BoolP("json", "j", false, "print as json")
 }

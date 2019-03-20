@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"errors"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
@@ -36,8 +37,19 @@ var outCmd = &cobra.Command{
 			return
 		}
 
+		workspace := viper.GetString("workspace")
+		te, err := getTimeEntryInProgres(c, workspace)
+		if te == nil && err == nil {
+			err = errors.New("no time entry in progress")
+		}
+
+		if err != nil {
+			printError(err)
+			return
+		}
+
 		err = c.Out(api.OutParam{
-			Workspace: viper.GetString("workspace"),
+			Workspace: workspace,
 			End:       whenDate,
 		})
 
@@ -46,11 +58,25 @@ var outCmd = &cobra.Command{
 			return
 		}
 
+		quiet, _ := cmd.Flags().GetBool("quiet")
+		if quiet {
+			return
+		}
+
+		te.TimeInterval.End = &whenDate
+		format, _ := cmd.Flags().GetString("format")
+		asJSON, _ := cmd.Flags().GetBool("json")
+
+		if err = formatTimeEntry(te, asJSON, format); err != nil {
+			printError(err)
+		}
 	}),
 }
 
 func init() {
 	rootCmd.AddCommand(outCmd)
+	setCommonFormats(outCmd)
 
 	outCmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
+	outCmd.Flags().BoolP("quiet", "q", false, "print nothing")
 }
