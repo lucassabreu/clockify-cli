@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Command `clockify-cli out` implemented, it will close any pending time entry
+- "in" commands now allow more flexible time format inputs, can be: hh:mm, 
+  hh:mm:ss, yyyy-mm-dd hh:mm or yyyy-mm-dd hh:mm:ss
+- Command `clockify-cli out` implemented, it will close any pending time entry,
+  and show the last entry info when closing it with success
 - Command `clockify-cli in clone` implemented, to allow creation of new time 
   entries based on existing ones, it also close pending ones, if any
 - Command `clockify-cli project list` was implemented, it allows to list the 
