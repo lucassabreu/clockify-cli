@@ -16,11 +16,9 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
-	"github.com/lucassabreu/clockify-cli/api"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -101,27 +99,4 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-}
-
-func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client)) func(*cobra.Command, []string) {
-	return func(cmd *cobra.Command, args []string) {
-		c, err := api.NewClient(viper.GetString("token"))
-		if err != nil {
-			printError(err)
-			return
-		}
-
-		if viper.GetBool("debug") {
-			c.SetDebugLogger(
-				log.New(os.Stdout, "DEBUG ", log.LstdFlags),
-			)
-		}
-
-		fn(cmd, args, c)
-	}
-}
-
-func printError(err error) {
-	fmt.Fprintln(os.Stderr, err.Error())
-	os.Exit(1)
 }

@@ -37,7 +37,7 @@ var inCloneCmd = &cobra.Command{
 		var whenDate time.Time
 		var err error
 
-		if whenDate, err = time.ParseInLocation(whenDateFormat, whenString, time.Local); err != nil {
+		if whenDate, err = convertToTime(whenString); err != nil {
 			printError(err)
 			return
 		}
@@ -57,7 +57,7 @@ var inCloneCmd = &cobra.Command{
 
 		err = c.Out(api.OutParam{
 			Workspace: workspace,
-			End:       time.Now(),
+			End:       whenDate,
 		})
 
 		if err != nil {
