@@ -28,8 +28,9 @@ import (
 
 // projectListCmd represents the projectList command
 var projectListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List projects on Clockify and project links",
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "List projects on Clockify and project links",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
