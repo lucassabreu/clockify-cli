@@ -16,9 +16,13 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
+
+	"gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/viper"
 
@@ -43,39 +47,47 @@ var inCmd = &cobra.Command{
 	Use:     "in <project-name-or-id> <description>",
 	Short:   "Create a new time entry and starts it",
 	Example: `clockify-cli in --issue 13 "timesheet"`,
-	Args:    cobra.MinimumNArgs(1),
+	Args:    cobra.MaximumNArgs(2),
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 
-		var whenDate time.Time
+		var whenDate *time.Time
 		var whenToCloseDate *time.Time
 		var err error
 
-		project := args[0]
+		workspace := viper.GetString("workspace")
+		project, err := getProjectID(args, 0, workspace, c)
 
-		var description string
-		if len(args) > 1 {
-			description = args[1]
+		if err != nil {
+			printError(errors.New("can not end current time entry"))
+			return
 		}
 
-		if whenDate, err = convertToTime(whenString); err != nil {
+		if project == "" {
+			printError(errors.New("project must be informed"))
+			return
+		}
+
+		description := getDescription(args, 1)
+
+		tags, err = getTagIDs(tags, workspace, c)
+		if err != nil {
+			printError(errors.New("can not end current time entry"))
+			return
+		}
+
+		if whenDate, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
 			printError(err)
 			return
 		}
 
-		if whenToCloseString != "" {
-			var t time.Time
-			if t, err = convertToTime(whenToCloseString); err != nil {
-				printError(err)
-				return
-			}
-			whenToCloseDate = &t
+		if whenToCloseDate, err = getDateTimeParam("End", true, whenToCloseString, convertToTime); err != nil {
+			printError(err)
+			return
 		}
-
-		workspace := viper.GetString("workspace")
 
 		err = c.Out(api.OutParam{
 			Workspace: workspace,
-			End:       whenDate,
+			End:       *whenDate,
 		})
 
 		if err != nil {
@@ -86,7 +98,7 @@ var inCmd = &cobra.Command{
 		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   workspace,
 			Billable:    !notBillable,
-			Start:       whenDate,
+			Start:       *whenDate,
 			End:         whenToCloseDate,
 			ProjectID:   project,
 			Description: description,
@@ -124,6 +136,107 @@ var inCmd = &cobra.Command{
 			printError(err)
 		}
 	}),
+}
+
+func getProjectID(args []string, i int, workspace string, c *api.Client) (string, error) {
+	if len(args) > i {
+		return args[i], nil
+	}
+
+	if !viper.GetBool("interactive") {
+		return "", nil
+	}
+
+	projects, err := c.GetProjects(api.GetProjectsParam{
+		Workspace: workspace,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	projectsString := make([]string, len(projects))
+	for i, u := range projects {
+		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	}
+
+	projectID := ""
+	err = survey.AskOne(
+		&survey.Select{
+			Message: "Choose your project:",
+			Options: projectsString,
+		},
+		&projectID,
+		nil,
+	)
+
+	if err != nil {
+		return "", nil
+	}
+
+	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil
+}
+
+func getDescription(args []string, i int) string {
+	if len(args) > i {
+		return args[i]
+	}
+
+	if !viper.GetBool("interactive") {
+		return ""
+	}
+
+	v := ""
+	survey.AskOne(
+		&survey.Input{
+			Message: "Description:",
+		},
+		&v,
+		nil,
+	)
+
+	return v
+}
+func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
+	if len(tagIDs) > 0 {
+		return tagIDs, nil
+	}
+
+	if !viper.GetBool("interactive") {
+		return nil, nil
+	}
+
+	tags, err := c.GetTags(api.GetTagsParam{
+		Workspace: workspace,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	tagsString := make([]string, len(tags))
+	for i, u := range tags {
+		tagsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	}
+
+	err = survey.AskOne(
+		&survey.MultiSelect{
+			Message: "Choose your tags:",
+			Options: tagsString,
+		},
+		&tagIDs,
+		nil,
+	)
+
+	if err != nil {
+		return nil, nil
+	}
+
+	for i, t := range tagIDs {
+		tagIDs[i] = strings.TrimSpace(t[0:strings.Index(t, " - ")])
+	}
+
+	return tagIDs, nil
 }
 
 func init() {
