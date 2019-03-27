@@ -15,16 +15,24 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+
 	"github.com/spf13/cobra"
 )
 
-// projectCmd represents the project command
-var projectCmd = &cobra.Command{
-	Use:     "project",
-	Aliases: []string{"projects"},
-	Short:   "Allow project aliasing and integration of a project with GitHub:Issues or Trello",
+// configCmd represents the config command
+var configCmd = &cobra.Command{
+	Use:   "config",
+	Short: "Manages configuration file parameters",
+	Run: func(cmd *cobra.Command, args []string) {
+		b, _ := yaml.Marshal(viper.AllSettings())
+		fmt.Println(string(b))
+	},
 }
 
 func init() {
-	rootCmd.AddCommand(projectCmd)
+	rootCmd.AddCommand(configCmd)
 }

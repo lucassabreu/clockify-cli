@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- "in" commands now allow more flexible time format inputs, can be: hh:mm, 
-  hh:mm:ss, yyyy-mm-dd hh:mm or yyyy-mm-dd hh:mm:ss
+- `clockify-cli in` asks user about new entry information when `interactive` is
+  enabled
+- Command `clockify-cli config init` allows to start a fresh setup, creating a
+  configuration file
+- Command `clockify-cli config set` updates/creates one config key into the 
+  config file
+- `clockify-cli in` commands now allow more flexible time format inputs, can be: 
+  hh:mm, hh:mm:ss, yyyy-mm-dd hh:mm or yyyy-mm-dd hh:mm:ss
 - Command `clockify-cli out` implemented, it will close any pending time entry,
   and show the last entry info when closing it with success
 - Command `clockify-cli in clone` implemented, to allow creation of new time 

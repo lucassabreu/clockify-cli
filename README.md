@@ -12,6 +12,7 @@ Features
   + [ ] Using a GitHub issue
   + [ ] Using a Trello card
   + [X] Cloning last time entry
+  + [X] Ask input interactively
 * [X] Stop the last entry
 * [X] List workspace projects
 * [ ] Link a Clockify Project with Github:Issues repository
@@ -20,6 +21,10 @@ Features
 * [X] List Clockify Workspaces Users
 * [X] List Clockify Tags
 * [X] Edit time entry
+* [X] Configuration management
+  * [X] Initialize configuration
+  * [X] Update individual configuration
+  * [X] Show current configuration
 
 Help
 ----

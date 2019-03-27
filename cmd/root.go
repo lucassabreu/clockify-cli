@@ -68,8 +68,10 @@ func init() {
 	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $CLOCKIFY_DEBUG)")
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
-	rootCmd.MarkFlagRequired("token")
+	rootCmd.PersistentFlags().BoolP("interactive", "i", false, "show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)")
+	viper.BindPFlag("interactive", rootCmd.PersistentFlags().Lookup("interactive"))
 
+	rootCmd.MarkFlagRequired("token")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -96,7 +98,8 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		printError(err)
+		return
 	}
 }
