@@ -80,7 +80,7 @@ var inCmd = &cobra.Command{
 			return
 		}
 
-		if whenToCloseDate, err = getDateTimeParam("End", true, whenToCloseString, convertToTime); err != nil {
+		if whenToCloseDate, err = getDateTimeParam("End", false, whenToCloseString, convertToTime); err != nil {
 			printError(err)
 			return
 		}
