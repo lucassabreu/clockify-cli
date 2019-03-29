@@ -154,6 +154,7 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryIm
 }
 
 func init() {
+	rootCmd.AddCommand(inCloneCmd)
 	inCmd.AddCommand(inCloneCmd)
 	inCloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
 

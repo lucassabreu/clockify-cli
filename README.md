@@ -36,6 +36,8 @@ Usage:
   clockify-cli [command]
 
 Available Commands:
+  clone       Copy a time entry and starts it (use "last" to copy the last one)
+  config      Manages configuration file parameters
   edit        Edit a time entry, use id "current" to apply to time entry in progress
   help        Help about any command
   in          Create a new time entry and starts it
@@ -50,6 +52,7 @@ Flags:
       --debug                 show debug log (defaults to env $CLOCKIFY_DEBUG)
       --github-token string   gitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)
   -h, --help                  help for clockify-cli
+  -i, --interactive           show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
   -t, --token string          clockify's token (defaults to env $CLOCKIFY_TOKEN)
                               	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
       --trello-token string   trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
