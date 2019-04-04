@@ -99,7 +99,12 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		printError(err)
-		return
+        switch err.(type){
+        case viper.ConfigFileNotFoundError:
+            return
+        default:
+			printError(err)
+			return
+    }
 	}
 }
