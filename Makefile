@@ -8,24 +8,32 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 clean: ## clean all buildable files
-	rm -rf build
+	rm -rf dist
 
 install-deps: ## install golang dependencies
 	go mod download
 
-build: install-deps build/darwin build/linux build/windows ## build all cli versions (default)
+build: dist
 
-build/darwin:
-	mkdir -p build/darwin
-	GOOS=darwin GOARCH=amd64 go build -o build/darwin/clockify-cli
+dist: install-deps dist/darwin dist/linux dist/windows ## build all cli versions (default)
 
-build/linux:
-	mkdir -p build/linux
-	GOOS=linux GOARCH=amd64 go build -o build/linux/clockify-cli
+dist/darwin:
+	mkdir -p dist/darwin
+	GOOS=darwin GOARCH=amd64 go build -o dist/darwin/clockify-cli
 
-build/windows:
-	mkdir -p build/windows
-	GOOS=windows GOARCH=amd64 go build -o build/windows/clockify-cli
+dist/linux:
+	mkdir -p dist/linux
+	GOOS=linux GOARCH=amd64 go build -o dist/linux/clockify-cli
+
+dist/windows:
+	mkdir -p dist/windows
+	GOOS=windows GOARCH=amd64 go build -o dist/windows/clockify-cli
 
 go-install: ## install dev version
 	go install
+
+goreleaser-test:
+	go install github.com/goreleaser/goreleaser
+	goreleaser --snapshot --skip-publish --rm-dist
+	go mod tidy
+
