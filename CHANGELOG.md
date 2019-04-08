@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0]
+
 ### Added
 - Add `goreleaser` to manage binary and releases of the command
 - `clockify-cli in` asks user about new entry information when `interactive` is
