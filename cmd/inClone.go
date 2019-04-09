@@ -34,10 +34,10 @@ var inCloneCmd = &cobra.Command{
 	Short: "Copy a time entry and starts it (use \"last\" to copy the last one)",
 	Args:  cobra.ExactArgs(1),
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		var whenDate time.Time
+		var whenDate *time.Time
 		var err error
 
-		if whenDate, err = convertToTime(whenString); err != nil {
+		if whenDate, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
 			printError(err)
 			return
 		}
@@ -57,7 +57,7 @@ var inCloneCmd = &cobra.Command{
 
 		err = c.Out(api.OutParam{
 			Workspace: workspace,
-			End:       whenDate,
+			End:       *whenDate,
 		})
 
 		if err != nil {
@@ -68,7 +68,7 @@ var inCloneCmd = &cobra.Command{
 		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   workspace,
 			Billable:    tec.Billable,
-			Start:       whenDate.Round(time.Second),
+			Start:       *whenDate,
 			ProjectID:   tec.ProjectID,
 			Description: tec.Description,
 			TagIDs:      tec.TagIDs,

@@ -102,7 +102,7 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 
 	for {
-		survey.AskOne(
+		_ = survey.AskOne(
 			&survey.Input{
 				Message: message,
 				Default: value,

@@ -79,7 +79,7 @@ func init() {
 	logCmd.AddCommand(logInProgressCmd)
 	setCommonFormats(logInProgressCmd)
 
-	logInProgressCmd.MarkFlagRequired("workspace")
+	_ = logInProgressCmd.MarkFlagRequired("workspace")
 }
 
 func setCommonFormats(cmd *cobra.Command) {

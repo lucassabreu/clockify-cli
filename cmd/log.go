@@ -86,6 +86,6 @@ func init() {
 	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
 	logCmd.Flags().BoolP("json", "j", false, "print as json")
 
-	logCmd.MarkFlagRequired("workspace")
-	logCmd.MarkFlagRequired("user-id")
+	_ = logCmd.MarkFlagRequired("workspace")
+	_ = logCmd.MarkFlagRequired("user-id")
 }

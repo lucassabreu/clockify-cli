@@ -55,7 +55,11 @@ var inCmd = &cobra.Command{
 		var err error
 
 		workspace := viper.GetString("workspace")
-		project, err := getProjectID(args, 0, workspace, c)
+		project := ""
+		if len(args) > 0 {
+			project = args[0]
+		}
+		project, err = getProjectID(project, workspace, c)
 
 		if err != nil {
 			printError(errors.New("can not end current time entry"))
@@ -138,9 +142,9 @@ var inCmd = &cobra.Command{
 	}),
 }
 
-func getProjectID(args []string, i int, workspace string, c *api.Client) (string, error) {
-	if len(args) > i {
-		return args[i], nil
+func getProjectID(value string, workspace string, c *api.Client) (string, error) {
+	if value != "" {
+		return value, nil
 	}
 
 	if !viper.GetBool("interactive") {
@@ -187,7 +191,7 @@ func getDescription(args []string, i int) string {
 	}
 
 	v := ""
-	survey.AskOne(
+	_ = survey.AskOne(
 		&survey.Input{
 			Message: "Description:",
 		},

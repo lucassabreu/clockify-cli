@@ -70,5 +70,5 @@ func init() {
 	workspaceUsersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each workspace")
 	workspaceUsersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 
-	workspaceUsersCmd.MarkFlagRequired("workspace")
+	_ = workspaceUsersCmd.MarkFlagRequired("workspace")
 }

@@ -40,6 +40,11 @@ var editCmd = &cobra.Command{
 			TimeEntryID: args[0],
 		}
 
+		param.ProjectID, _ = cmd.Flags().GetString("project")
+		param.Description, _ = cmd.Flags().GetString("description")
+		param.TaskID, _ = cmd.Flags().GetString("task")
+		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
+
 		if param.TimeEntryID == "current" {
 			te, err := c.LogInProgress(api.LogInProgressParam{
 				Workspace: param.Workspace,
@@ -56,12 +61,17 @@ var editCmd = &cobra.Command{
 			}
 
 			param.TimeEntryID = te.ID
-		}
 
-		param.ProjectID, _ = cmd.Flags().GetString("project")
-		param.Description, _ = cmd.Flags().GetString("description")
-		param.TaskID, _ = cmd.Flags().GetString("task")
-		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
+			if viper.GetBool("interactive") {
+				param.ProjectID = te.ProjectID
+				param.Description = te.Description
+				param.TaskID = te.TaskID
+				param.TagIDs = te.TagIDs
+				param.Billable = te.Billable
+				param.Start = te.TimeInterval.Start
+				param.End = te.TimeInterval.End
+			}
+		}
 
 		b, _ := cmd.Flags().GetBool("not-billable")
 		param.Billable = !b
