@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - run: curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes <(sed '/^## \[${CIRCLE_TAG}/, /^## \[/!d' CHANGELOG.md | tail -n +2 | head -n -2)
-  release:
+  release-next:
     docker:
       - image: circleci/golang:1.10
     steps:
