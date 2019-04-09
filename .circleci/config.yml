@@ -6,6 +6,13 @@ jobs:
     steps:
       - checkout
       - run: curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes <(sed '/^## \[${CIRCLE_TAG}/, /^## \[/!d' CHANGELOG.md | tail -n +2 | head -n -2)
+  release:
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes <(sed '/^## \[Unreleased/, /^## \[/!d' CHANGELOG.md | tail -n +2 | head -n -2) --snapshot
+
 workflows:
   version: 2
   release:
@@ -16,3 +23,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - release-next:
+          filters:
+            branches:
+              only: master
