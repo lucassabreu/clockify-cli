@@ -40,11 +40,6 @@ var editCmd = &cobra.Command{
 			TimeEntryID: args[0],
 		}
 
-		param.ProjectID, _ = cmd.Flags().GetString("project")
-		param.Description, _ = cmd.Flags().GetString("description")
-		param.TaskID, _ = cmd.Flags().GetString("task")
-		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
-
 		if param.TimeEntryID == "current" {
 			te, err := c.LogInProgress(api.LogInProgressParam{
 				Workspace: param.Workspace,
@@ -73,16 +68,38 @@ var editCmd = &cobra.Command{
 			}
 		}
 
-		b, _ := cmd.Flags().GetBool("not-billable")
-		param.Billable = !b
+		if cmd.Flags().Changed("not-billable") {
+			b, _ := cmd.Flags().GetBool("not-billable")
+			param.Billable = !b
+		}
+
+		if cmd.Flags().Changed("project") {
+			param.ProjectID, _ = cmd.Flags().GetString("project")
+		}
+
+		if cmd.Flags().Changed("description") {
+			param.Description, _ = cmd.Flags().GetString("description")
+		}
+
+		if cmd.Flags().Changed("task") {
+			param.TaskID, _ = cmd.Flags().GetString("task")
+		}
+
+		if cmd.Flags().Changed("tag") {
+			param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
+		}
 
 		whenString, _ = cmd.Flags().GetString("when")
-		var v time.Time
-		if v, err = convertToTime(whenString); err != nil {
+		if !cmd.Flags().Changed("when") {
+			whenString = param.Start.Format(fullTimeFormat)
+		}
+
+		var whenDate *time.Time
+		if whenDate, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
 			printError(err)
 			return
 		}
-		param.Start = v
+		param.Start = *whenDate
 
 		if cmd.Flags().Changed("end-at") {
 			whenString, _ = cmd.Flags().GetString("end-at")
