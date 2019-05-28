@@ -33,7 +33,7 @@ var dateFormat = "2006-01-02"
 // logCmd represents the log command
 var logCmd = &cobra.Command{
 	Use:     "log",
-	Aliases: []string{"logs"},
+	Aliases: []string{"logs", "l"},
 	Short:   "List the entries from a specific day",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		format, err := cmd.Flags().GetString("format")
