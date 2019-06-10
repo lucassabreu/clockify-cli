@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.1] - 2019-06-10
+
+### Changed
+- The list returned by the `log` command will the sorted starting from the oldest
+time entry.
+
 ## [v0.1.0] - 2019-04-08
 
 ### Added
@@ -14,18 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   enabled
 - Command `clockify-cli config init` allows to start a fresh setup, creating a
   configuration file
-- Command `clockify-cli config set` updates/creates one config key into the 
+- Command `clockify-cli config set` updates/creates one config key into the
   config file
-- `clockify-cli in` commands now allow more flexible time format inputs, can be: 
+- `clockify-cli in` commands now allow more flexible time format inputs, can be:
   hh:mm, hh:mm:ss, yyyy-mm-dd hh:mm or yyyy-mm-dd hh:mm:ss
 - Command `clockify-cli out` implemented, it will close any pending time entry,
   and show the last entry info when closing it with success
-- Command `clockify-cli in clone` implemented, to allow creation of new time 
+- Command `clockify-cli in clone` implemented, to allow creation of new time
   entries based on existing ones, it also close pending ones, if any
-- Command `clockify-cli project list` was implemented, it allows to list the 
+- Command `clockify-cli project list` was implemented, it allows to list the
   projects of a worspace, format the return to table, json, and just id. Helps
   with script automatation
-- Using https://github.com/spf13/viper to link enviroment variables and config 
+- Using https://github.com/spf13/viper to link enviroment variables and config
   files with the global flags. User can set variables `CLOCKIFY_TOKEN`,
   `CLOCKIFY_WORKSPACE` and `CLOCKIFY_USER_ID` instead of using the command flags
 - Command `clockify-cli tags` created, to list workspace tags
@@ -36,12 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--debug` option to allow better understanding of the requests
 - Command `clockify-cli log in-progress` implemented, with options to format the
   output, and in the TimeEntry format, instead of TimeEntryImpl
-- Command `clockify-cli log` implemented, with options to format the  output, 
+- Command `clockify-cli log` implemented, with options to format the  output,
   will require the user for now
 - Package `dto` created to hold all payload objects
 - Package `api.Client` to call Clockfy's API
 - Command `clockify-cli workspaces` created, with options to format the output
-- Command `clockify-cli workspaces users` created, with options to format the 
+- Command `clockify-cli workspaces users` created, with options to format the
   output to allow retriving the user's ID
 
 ## [0.0.1] - 2019-03-03

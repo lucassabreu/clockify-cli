@@ -17,6 +17,7 @@ package cmd
 import (
 	"io"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
@@ -54,6 +55,12 @@ var logCmd = &cobra.Command{
 			UserID:    viper.GetString("user.id"),
 			Date:      filterDate,
 			AllPages:  true,
+		})
+
+		sort.Slice(log, func(i, j int) bool {
+			return log[j].TimeInterval.Start.After(
+				log[i].TimeInterval.Start,
+			)
 		})
 
 		if err != nil {
