@@ -16,15 +16,14 @@ package cmd
 
 import (
 	"errors"
-	"io"
 	"os"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 // editCmd represents the edit command
@@ -40,32 +39,10 @@ var editCmd = &cobra.Command{
 			TimeEntryID: args[0],
 		}
 
-		if param.TimeEntryID == "current" {
-			te, err := c.LogInProgress(api.LogInProgressParam{
-				Workspace: param.Workspace,
-			})
-
-			if err != nil {
-				printError(err)
-				return
-			}
-
-			if te == nil {
-				printError(errors.New("there is no time entry in progress"))
-				return
-			}
-
-			param.TimeEntryID = te.ID
-
-			if viper.GetBool("interactive") {
-				param.ProjectID = te.ProjectID
-				param.Description = te.Description
-				param.TaskID = te.TaskID
-				param.TagIDs = te.TagIDs
-				param.Billable = te.Billable
-				param.Start = te.TimeInterval.Start
-				param.End = te.TimeInterval.End
-			}
+		param, err = getForEdit(param, c)
+		if err != nil {
+			printError(err)
+			return
 		}
 
 		if cmd.Flags().Changed("not-billable") {
@@ -89,17 +66,13 @@ var editCmd = &cobra.Command{
 			param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
 		}
 
-		whenString, _ = cmd.Flags().GetString("when")
 		if !cmd.Flags().Changed("when") {
-			whenString = param.Start.Format(fullTimeFormat)
+			whenString, _ = cmd.Flags().GetString("when")
+			if param.Start, err = convertToTime(whenString); err != nil {
+				printError(err)
+				return
+			}
 		}
-
-		var whenDate *time.Time
-		if whenDate, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
-			printError(err)
-			return
-		}
-		param.Start = *whenDate
 
 		if cmd.Flags().Changed("end-at") {
 			whenString, _ = cmd.Flags().GetString("end-at")
@@ -109,6 +82,13 @@ var editCmd = &cobra.Command{
 				return
 			}
 			param.End = &v
+		}
+
+		if viper.GetBool("interactive") {
+			if param, err = confirmValuesForEdit(param, c); err != nil {
+				printError(err)
+				return
+			}
 		}
 
 		tei, err := c.UpdateTimeEntry(param)
@@ -127,9 +107,7 @@ var editCmd = &cobra.Command{
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = reports.TimeEntryPrint
+		reportFn := reports.TimeEntryPrint
 
 		if asJSON {
 			reportFn = reports.TimeEntryJSONPrint
@@ -143,6 +121,103 @@ var editCmd = &cobra.Command{
 			printError(err)
 		}
 	}),
+}
+
+func confirmValuesForEdit(param api.UpdateTimeEntryParam, c *api.Client) (api.UpdateTimeEntryParam, error) {
+	var err error
+	if param.ProjectID, err = getProjectID(param.ProjectID, param.Workspace, c); err != nil {
+		return param, err
+	}
+
+	if param.ProjectID == "" {
+		return param, errors.New("project must be informed")
+	}
+
+	_ = survey.AskOne(
+		&survey.Input{
+			Message: "Description:",
+			Default: param.Description,
+		},
+		&param.Description,
+		nil,
+	)
+
+	param.TagIDs, err = getTagIDs(param.TagIDs, param.Workspace, c)
+	if err != nil {
+		return param, errors.New("can not end current time entry")
+	}
+
+	var t *time.Time
+	if t, err = getDateTimeParam("Start", true, param.Start.Format(fullTimeFormat), convertToTime); err != nil {
+		return param, err
+	}
+	param.Start = *t
+
+	when := ""
+	if param.End != nil {
+		when = param.End.Format(fullTimeFormat)
+	}
+
+	if param.End, err = getDateTimeParam("End", false, when, convertToTime); err != nil {
+		return param, err
+	}
+
+	return param, nil
+}
+
+func getForEdit(param api.UpdateTimeEntryParam, c *api.Client) (api.UpdateTimeEntryParam, error) {
+	if param.TimeEntryID == "current" {
+		te, err := c.LogInProgress(api.LogInProgressParam{
+			Workspace: param.Workspace,
+		})
+
+		if err != nil {
+			return param, err
+		}
+
+		if te == nil {
+			return param, errors.New("there is no time entry in progress")
+		}
+
+		param.TimeEntryID = te.ID
+
+		if !viper.GetBool("interactive") {
+			return param, nil
+		}
+
+		param.ProjectID = te.ProjectID
+		param.Description = te.Description
+		param.TaskID = te.TaskID
+		param.TagIDs = te.TagIDs
+		param.Billable = te.Billable
+		param.Start = te.TimeInterval.Start
+		param.End = te.TimeInterval.End
+		return param, nil
+	}
+
+	tec, err := getTimeEntry(
+		param.TimeEntryID,
+		param.Workspace,
+		viper.GetString("user.id"),
+		c,
+	)
+
+	if err != nil {
+		return param, err
+	}
+
+	if !viper.GetBool("interactive") {
+		return param, nil
+	}
+
+	param.ProjectID = tec.ProjectID
+	param.Description = tec.Description
+	param.TaskID = tec.TaskID
+	param.TagIDs = tec.TagIDs
+	param.Billable = tec.Billable
+	param.Start = tec.TimeInterval.Start
+	param.End = tec.TimeInterval.End
+	return param, nil
 }
 
 func init() {

@@ -36,10 +36,11 @@ var logCmd = &cobra.Command{
 	Aliases: []string{"logs", "l"},
 	Short:   "List the entries from a specific day",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		format, err := cmd.Flags().GetString("format")
+		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		var filterDate time.Time
 
+		var err error
 		if filterDate, err = time.Parse(dateFormat, dateString); err != nil {
 			printError(err)
 			return

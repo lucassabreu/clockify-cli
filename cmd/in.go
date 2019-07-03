@@ -62,7 +62,7 @@ var inCmd = &cobra.Command{
 		project, err = getProjectID(project, workspace, c)
 
 		if err != nil {
-			printError(errors.New("can not end current time entry"))
+			printError(err)
 			return
 		}
 
@@ -201,6 +201,7 @@ func getDescription(args []string, i int) string {
 
 	return v
 }
+
 func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
 	if len(tagIDs) > 0 {
 		return tagIDs, nil

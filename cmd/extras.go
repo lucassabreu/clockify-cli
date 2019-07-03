@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -122,4 +124,49 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 
 		return &t, err
 	}
+}
+func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryImpl, error) {
+	id = strings.ToLower(id)
+	page := 0
+	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
+		Workspace: workspace,
+		UserID:    userID,
+		Page:      page,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if id == "last" {
+		if len(list.TimeEntriesList) == 0 {
+			return nil, errors.New("there is no previous time entry")
+		}
+
+		return &list.TimeEntriesList[0], err
+	}
+
+	for {
+		for _, tei := range list.TimeEntriesList {
+			if strings.ToLower(tei.ID) == id {
+				return &tei, nil
+			}
+		}
+
+		if list.GotAllEntries {
+			return nil, err
+		}
+
+		page = page + 1
+		list, err = c.GetRecentTimeEntries(api.GetRecentTimeEntries{
+			Workspace: workspace,
+			UserID:    userID,
+			Page:      page,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 }
