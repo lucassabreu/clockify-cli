@@ -37,10 +37,11 @@ var logCmd = &cobra.Command{
 	Aliases: []string{"logs"},
 	Short:   "List the entries from a specific day",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		format, err := cmd.Flags().GetString("format")
+		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		var filterDate time.Time
 
+		var err error
 		if filterDate, err = time.Parse(dateFormat, dateString); err != nil {
 			printError(err)
 			return
@@ -93,6 +94,6 @@ func init() {
 	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
 	logCmd.Flags().BoolP("json", "j", false, "print as json")
 
-	logCmd.MarkFlagRequired("workspace")
-	logCmd.MarkFlagRequired("user-id")
+	_ = logCmd.MarkFlagRequired("workspace")
+	_ = logCmd.MarkFlagRequired("user-id")
 }
