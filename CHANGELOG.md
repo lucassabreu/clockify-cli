@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add comand `clockify-cli report` implemented to generate bigger exports. CSV, JSON,
+`gofmt` and table formats allowed in this command.
+
 ## [v0.1.1] - 2019-06-10
 
 ### Changed

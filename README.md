@@ -8,6 +8,10 @@ Features
 
 * [X] List time entries from a day
   * [X] List in progress entry
+* [X] Report time entries using a date range
+  * [X] Inform date range as parameters
+  * [X] "auto filter" for last month
+  * [X] "auto filter" for this month
 * [X] Start a new time entry
   + [ ] Using a GitHub issue
   + [ ] Using a Trello card
