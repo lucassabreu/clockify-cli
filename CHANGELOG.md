@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.3] - 2019-08-02
+
+## Changed
+- Set `publish` to `true` so it will be sent to `snapcraft`
+
 ## [v0.1.2] - 2019-08-02
 
 ### Added
