@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.2] - 2019-08-02
+
 ### Added
+- Add release to snapcraft by the name `clockify-cli`
 - Add comand `clockify-cli report` implemented to generate bigger exports. CSV, JSON,
 `gofmt` and table formats allowed in this command.
 
