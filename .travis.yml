@@ -1,0 +1,39 @@
+language: go
+go:
+  - "1.12.x"
+
+addons:
+  apt:
+    packages:
+    # needed for the nfpm pipe:
+    - rpm
+    # needed for the snap pipe:
+    - snapd
+
+env:
+# needed for the snap pipe:
+- PATH=/snap/bin:$PATH
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_c7b8c1fd25b9_key -iv $encrypted_c7b8c1fd25b9_iv -in snap.login.enc -out snap.login -d
+
+install:
+# needed for the snap pipe:
+- sudo snap install snapcraft --classic
+
+# needed for the docker pipe
+services:
+- docker
+
+after_success:
+- test -n "$TRAVIS_TAG" && snapcraft login --with snap.login && rm -f snap.login
+
+# calls goreleaser
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: make release tag=$TRAVIS_TAG
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
+

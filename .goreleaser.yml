@@ -25,4 +25,10 @@ changelog:
     - '^test:'
 snapcrafts:
   - name: clockify-cli
-    publish: true
+    publish: false
+    summary: Helps to interact with Clockfy's API
+    description: Helps to interact with Clockfy's API
+    grade: stable
+    confinement: strict
+    apps:
+      clockify-cli:

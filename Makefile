@@ -1,6 +1,3 @@
-.PHONY: all
-all: install-deps
-
 export GO111MODULE=on
 
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
@@ -37,3 +34,7 @@ goreleaser-test:
 	goreleaser --snapshot --skip-publish --rm-dist
 	go mod tidy
 
+tag=
+release: ## releases a tagged version
+	sed "/^## \[$(tag)/, /^## \[/!d" CHANGELOG.md | tail -n +2 | head -n -2 > /tmp/rn.md
+	curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes /tmp/rn.md
