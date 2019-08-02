@@ -6,6 +6,28 @@ jobs:
     steps:
       - checkout
       - run: curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes <(sed "/^## \[${CIRCLE_TAG}/, /^## \[/!d" CHANGELOG.md | tail -n +2 | head -n -2)
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "dist"
+      - store_artifacts:
+          path: ./dist
+          destination: dist
+  snap:
+    docker:
+      - image: cibuilds/snapcraft:stable
+    steps:
+      - checkout
+      - attach_workspace:
+          at: dist
+      - run: snapcraft
+      - run:
+          name: Publish to store
+          command: |
+            mkdir .snapcraft
+            echo $SNAPCRAFT_LOGIN_FILE | base64 --decode --ignore-garbage > .snapcraft/snapcraft.cfg
+            snapcraft push dist/*.snap --release stable
+
   release-next:
     docker:
       - image: circleci/golang:1.12
@@ -23,6 +45,9 @@ workflows:
               ignore: /.*/
             tags:
               only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - snap:
+          requires:
+            - release
       - release-next:
           filters:
             branches:
