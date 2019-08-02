@@ -127,18 +127,40 @@ type LogParam struct {
 	AllPages  bool
 }
 
-// Log list time entries
+// Log list time entries from a date
 func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
 	c.debugf("Log - Date Param: %s", p.Date)
-
-	var timeEntries []dto.TimeEntry
 
 	d := p.Date.Round(time.Hour)
 	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
 
+	return c.LogRange(LogRangeParam{
+		Workspace: p.Workspace,
+		UserID:    p.UserID,
+		AllPages:  p.AllPages,
+		FirstDate: d,
+		LastDate:  d.Add(time.Hour * 24),
+	})
+}
+
+// LogRangeParam params to query entries
+type LogRangeParam struct {
+	Workspace string
+	UserID    string
+	FirstDate time.Time
+	LastDate  time.Time
+	AllPages  bool
+}
+
+// LogRange list time entries by date range
+func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
+	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
+
+	var timeEntries []dto.TimeEntry
+
 	filter := dto.TimeEntryStartEndRequest{
-		Start: dto.DateTime{Time: d},
-		End:   dto.DateTime{Time: d.Add(time.Hour * 24)},
+		Start: dto.DateTime{Time: p.FirstDate},
+		End:   dto.DateTime{Time: p.LastDate},
 	}
 
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
@@ -158,7 +180,7 @@ func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
 
 	_, err = c.Do(r, &timeEntries)
 
-	return timeEntries, nil
+	return timeEntries, err
 }
 
 // LogInProgressParam params to query entries
