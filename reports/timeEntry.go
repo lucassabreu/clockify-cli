@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -76,6 +77,70 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 	tw.Render()
 
 	return nil
+}
+
+// TimeEntriesCSVPrint will print each time entry using the format string
+func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
+	w := csv.NewWriter(out)
+
+	err := w.Write([]string{
+		"id",
+		"description",
+		"project.id",
+		"project.name",
+		"start",
+		"end",
+		"duration",
+		"user.id",
+		"user.email",
+		"user.name",
+		"tags...",
+	})
+
+	if err != nil {
+		return err
+	}
+
+	format := func(t *time.Time) string {
+		if t == nil {
+			return ""
+		}
+		return t.In(time.Local).Format("2006-01-02 15:04:05")
+	}
+
+	tags := func(tags []dto.Tag) []string {
+		s := make([]string, len(tags))
+
+		for i, t := range tags {
+			s[i] = fmt.Sprintf("%s (%s)", t.Name, t.ID)
+		}
+
+		return s
+	}
+
+	for _, te := range timeEntries {
+		arr := []string{
+			te.ID,
+			te.Description,
+			te.Project.ID,
+			te.Project.Name,
+			format(&te.TimeInterval.Start),
+			format(te.TimeInterval.End),
+			fmt.Sprintf("%-8v", te.TimeInterval.End.Sub(te.TimeInterval.Start)),
+			te.User.ID,
+			te.User.Email,
+			te.User.Name,
+		}
+
+		err := w.Write(append(arr, tags(te.Tags)...))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	w.Flush()
+	return w.Error()
 }
 
 // TimeEntriesPrintWithTemplate will print each time entry using the format string

@@ -158,13 +158,9 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 
 	var timeEntries []dto.TimeEntry
 
-	truncateDate := func(t time.Time) time.Time {
-		return t.Round(time.Hour).Add(time.Hour * time.Duration(t.Hour()) * -1)
-	}
-
 	filter := dto.TimeEntryStartEndRequest{
-		Start: dto.DateTime{Time: truncateDate(p.FirstDate)},
-		End:   dto.DateTime{Time: truncateDate(p.LastDate)},
+		Start: dto.DateTime{Time: p.FirstDate},
+		End:   dto.DateTime{Time: p.LastDate},
 	}
 
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)

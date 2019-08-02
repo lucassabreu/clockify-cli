@@ -15,10 +15,13 @@
 package cmd
 
 import (
+	"io"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,7 +44,7 @@ var reportCmd = &cobra.Command{
 			return
 		}
 
-		reportWithRange(c, start, end)
+		reportWithRange(c, start, end, cmd)
 	}),
 }
 
@@ -51,7 +54,7 @@ var reportThisMonthCmd = &cobra.Command{
 	Short: "report all entries in this month",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		first, last := getMonthRange(time.Now())
-		reportWithRange(c, first, last)
+		reportWithRange(c, first, last, cmd)
 	}),
 }
 
@@ -61,7 +64,7 @@ var reportLastMonthCmd = &cobra.Command{
 	Short: "report all entries in last month",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		first, last := getMonthRange(time.Now().AddDate(0, -1, 0))
-		reportWithRange(c, first, last)
+		reportWithRange(c, first, last, cmd)
 	}),
 }
 
@@ -71,8 +74,18 @@ func init() {
 	_ = reportCmd.MarkFlagRequired("workspace")
 	_ = reportCmd.MarkFlagRequired("user-id")
 
+	reportFlags(reportCmd)
+	reportFlags(reportThisMonthCmd)
+	reportFlags(reportLastMonthCmd)
+
 	reportCmd.AddCommand(reportThisMonthCmd)
 	reportCmd.AddCommand(reportLastMonthCmd)
+}
+
+func reportFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	cmd.Flags().BoolP("json", "j", false, "print as JSON")
+	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 }
 
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
@@ -82,12 +95,16 @@ func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
 	return
 }
 
-func reportWithRange(c *api.Client, start, end time.Time) {
+func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
+	format, _ := cmd.Flags().GetString("format")
+	asJSON, _ := cmd.Flags().GetBool("json")
+	asCSV, _ := cmd.Flags().GetBool("csv")
+
 	log, err := c.LogRange(api.LogRangeParam{
 		Workspace: viper.GetString("workspace"),
 		UserID:    viper.GetString("user.id"),
-		FirstDate: start,
-		LastDate:  end,
+		FirstDate: start.Add(time.Duration(start.Hour()) * time.Hour * -1),
+		LastDate:  end.Add(time.Duration(24-start.Hour()) * time.Hour * 1),
 		AllPages:  true,
 	})
 
@@ -96,5 +113,27 @@ func reportWithRange(c *api.Client, start, end time.Time) {
 		return
 	}
 
-	reports.TimeEntriesPrint(log, os.Stdout)
+	sort.Slice(log, func(i, j int) bool {
+		return log[j].TimeInterval.Start.After(
+			log[i].TimeInterval.Start,
+		)
+	})
+
+	var fn func([]dto.TimeEntry, io.Writer) error
+	fn = reports.TimeEntriesPrint
+	if asJSON {
+		fn = reports.TimeEntriesJSONPrint
+	}
+
+	if asCSV {
+		fn = reports.TimeEntriesCSVPrint
+	}
+
+	if format != "" {
+		fn = reports.TimeEntriesPrintWithTemplate(format)
+	}
+
+	if err = fn(log, os.Stdout); err != nil {
+		printError(err)
+	}
 }
