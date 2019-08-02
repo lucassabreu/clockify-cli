@@ -24,3 +24,7 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+
+snapcraft:
+  name: clockify-cli
+  publish: true
