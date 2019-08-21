@@ -67,7 +67,7 @@ time entry.
 - Command `clockify-cli workspaces users` created, with options to format the
   output to allow retriving the user's ID
 
-## [0.0.1] - 2019-03-03
+## [v0.0.1] - 2019-03-03
 ### Added
 - This CHANGELOG file to hopefully serve as an evolving example of a
   standardized open source project CHANGELOG.
@@ -76,9 +76,9 @@ time entry.
 - Makefile to help setup actions
 
 [Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.1.4...HEAD
-[0.1.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.4
-[0.1.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.3
-[0.1.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.2
-[0.1.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.1
-[0.1.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.0
-[0.0.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.0.1
+[v0.1.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.4
+[v0.1.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.3
+[v0.1.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.2
+[v0.1.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.1
+[v0.1.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.0
+[v0.0.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.0.1
