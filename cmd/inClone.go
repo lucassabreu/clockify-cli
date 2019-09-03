@@ -55,14 +55,16 @@ var inCloneCmd = &cobra.Command{
 			return
 		}
 
-		err = c.Out(api.OutParam{
-			Workspace: workspace,
-			End:       whenDate,
-		})
+		if !viper.GetBool("no-closing") {
+			err = c.Out(api.OutParam{
+				Workspace: workspace,
+				End:       whenDate,
+			})
 
-		if err != nil {
-			printError(errors.New("can not end current time entry"))
-			return
+			if err != nil {
+				printError(errors.New("can not end current time entry"))
+				return
+			}
 		}
 
 		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
@@ -156,6 +158,8 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryIm
 func init() {
 	rootCmd.AddCommand(inCloneCmd)
 	inCmd.AddCommand(inCloneCmd)
+
+	inCloneCmd.Flags().Bool("no-closing", false, "don't close any time entry")
 	inCloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
 
 	inCloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")

@@ -37,6 +37,7 @@ var cardNumber int
 var issueNumber int
 var tags []string
 var notBillable bool
+var noClosing bool
 var task string
 
 var whenString string
@@ -85,14 +86,16 @@ var inCmd = &cobra.Command{
 			return
 		}
 
-		err = c.Out(api.OutParam{
-			Workspace: workspace,
-			End:       *whenDate,
-		})
+		if !noClosing {
+			err = c.Out(api.OutParam{
+				Workspace: workspace,
+				End:       *whenDate,
+			})
 
-		if err != nil {
-			printError(errors.New("can not end current time entry"))
-			return
+			if err != nil {
+				printError(errors.New("can not end current time entry"))
+				return
+			}
 		}
 
 		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
@@ -246,6 +249,7 @@ func init() {
 
 	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
 	inCmd.Flags().BoolP("json", "j", false, "print as json")
+	inCmd.Flags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
 }
 
 func addTimeEntryFlags(cmd *cobra.Command) {
