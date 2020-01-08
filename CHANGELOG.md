@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.5] - 2020-01-08
+
 ## Fixed
 - fixed bug on the `log` commands, where the previews api url is not available
   anymore, now using `v1/workspace/{workspace}/user/{user}/times-entries`
