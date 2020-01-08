@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- `go.mod` updated
+
+## Added
+- `.nvimrc` added to provide spell check
+
 ## [v0.1.4] - 2019-08-05
 
 ## Added
