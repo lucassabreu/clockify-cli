@@ -104,6 +104,9 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	}
 
 	_, err = c.Do(r, &users)
+	if err != nil {
+		return users, err
+	}
 
 	if p.Email == "" {
 		return users, nil

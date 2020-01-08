@@ -190,7 +190,7 @@ func getDescription(args []string, i int) string {
 	}
 
 	v := ""
-	survey.AskOne(
+	_ = survey.AskOne(
 		&survey.Input{
 			Message: "Description:",
 		},

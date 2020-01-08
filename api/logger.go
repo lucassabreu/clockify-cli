@@ -13,26 +13,10 @@ func (c *Client) SetDebugLogger(logger Logger) *Client {
 	return c
 }
 
-func (c *Client) debug(v ...interface{}) {
-	if c.debugLogger == nil {
-		return
-	}
-
-	c.debugLogger.Print(v...)
-}
-
 func (c *Client) debugf(format string, v ...interface{}) {
 	if c.debugLogger == nil {
 		return
 	}
 
 	c.debugLogger.Printf(format, v...)
-}
-
-func (c *Client) debugln(v ...interface{}) {
-	if c.debugLogger == nil {
-		return
-	}
-
-	c.debugLogger.Println(v...)
 }

@@ -79,10 +79,10 @@ func init() {
 	logCmd.AddCommand(logInProgressCmd)
 	setCommonFormats(logInProgressCmd)
 
-	logInProgressCmd.MarkFlagRequired("workspace")
+	_ = logInProgressCmd.MarkFlagRequired("workspace")
 }
 
 func setCommonFormats(cmd *cobra.Command) {
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed")
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied")
 	cmd.Flags().BoolP("json", "j", false, "print as json")
 }

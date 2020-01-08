@@ -91,7 +91,7 @@ func init() {
 
 	logCmd.Flags().StringVarP(&dateString, "date", "d", time.Now().Format(dateFormat), "set the date to be logged in the format: YYYY-MM-DD")
 	logCmd.Flags().BoolVarP(&yesterday, "yesterday", "y", false, "list the yesterday's entries")
-	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	logCmd.Flags().BoolP("json", "j", false, "print as json")
 
 	_ = logCmd.MarkFlagRequired("workspace")

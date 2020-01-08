@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## Changed
+- spelling of some words fixed and improving some aspects of the code
 - `go.mod` updated
 
 ## Added
