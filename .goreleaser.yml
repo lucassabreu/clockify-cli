@@ -23,22 +23,22 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
-snapcrafts:
-  - name: clockify-cli
-    summary: Helps to interact with Clockfy's API
-    description: Helps to interact with Clockfy's API
+# snapcrafts:
+#   - name: clockify-cli
+#     summary: Helps to interact with Clockfy's API
+#     description: Helps to interact with Clockfy's API
 
-    grade: stable
-    confinement: classic
-    publish: true
+#     grade: stable
+#     confinement: classic
+#     publish: true
 
-    apps:
-      clockify-cli:
-        plugs: ["personal-files", "network"]
+#     apps:
+#       clockify-cli:
+#         plugs: ["personal-files", "network"]
 
-    plugs:
-      personal-files:
-        read:
-          - $HOME/clockify-cli.yaml
-        write:
-          - $HOME/clockify-cli.yaml
+#     plugs:
+#       personal-files:
+#         read:
+#           - $HOME/clockify-cli.yaml
+#         write:
+#           - $HOME/clockify-cli.yaml
