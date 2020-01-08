@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -12,13 +13,26 @@ type DateTime struct {
 
 // MarshalJSON converts DateTime correctly
 func (d DateTime) MarshalJSON() ([]byte, error) {
-	return []byte(strconv.Quote(d.Time.UTC().Format("2006-01-02T15:04:05Z"))), nil
+	return []byte(strconv.Quote(d.String())), nil
+}
+
+func (d DateTime) String() string {
+	return d.Time.UTC().Format("2006-01-02T15:04:05Z")
 }
 
 // TimeEntryStartEndRequest to get entries by range
 type TimeEntryStartEndRequest struct {
-	Start DateTime `json:"start"`
-	End   DateTime `json:"end"`
+	Start DateTime
+	End   DateTime
+}
+
+func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
+	v := u.Query()
+	v.Add("start", r.Start.String())
+	v.Add("end", r.End.String())
+	u.RawQuery = v.Encode()
+
+	return u
 }
 
 // OutTimeEntryRequest to end the current time entry

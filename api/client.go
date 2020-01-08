@@ -180,9 +180,9 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
 
 	r, err := c.NewRequest(
-		"POST",
+		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/user/%s/entriesInRange",
+			"v1/workspaces/%s/user/%s/time-entries",
 			p.Workspace,
 			p.UserID,
 		),

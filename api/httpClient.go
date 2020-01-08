@@ -5,10 +5,15 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
+
+type QueryAppender interface {
+	AppendToQuery(url.URL) url.URL
+}
 
 // ErrorNotFound Not Found
 var ErrorNotFound = dto.Error{Message: "Nothing was found"}
@@ -29,6 +34,14 @@ func (c *Client) NewRequest(method, uri string, body interface{}) (*http.Request
 	u, err := c.baseURL.Parse(strings.Join([]string{c.baseURL.Path, uri}, "/"))
 	if err != nil {
 		return nil, err
+	}
+
+	if qa, ok := body.(QueryAppender); ok {
+		*u = qa.AppendToQuery(*u)
+	}
+
+	if method == "GET" {
+		body = nil
 	}
 
 	var buf io.ReadWriter

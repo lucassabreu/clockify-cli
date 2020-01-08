@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+## Fixed
+- fixed bug on the `log` commands, where the previews api url is not available
+  anymore, now using `v1/workspace/{workspace}/user/{user}/times-entries`
 - spelling of some words fixed and improving some aspects of the code
+
+## Changed
 - `go.mod` updated
 
 ## Added
+- seamless support for query parameters using the interface `QueryAppender`
 - support for retrieving the current user of the token (`v1/user`) in the API client.
 - `.nvimrc` added to provide spell check
 
