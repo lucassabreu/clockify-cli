@@ -51,27 +51,27 @@ func init() {
 
 	rootCmd.PersistentFlags().StringP("token", "t", "", `clockify's token (defaults to env $CLOCKIFY_TOKEN)
 	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn`)
-	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
+	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 
 	rootCmd.PersistentFlags().StringP("workspace", "w", "", "workspace to be used (defaults to env $CLOCKIFY_WROKSPACE)")
-	viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
+	_ = viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
 
 	rootCmd.PersistentFlags().StringP("user-id", "u", "", "user id from the token (defaults to env $CLOCKIFY_USER_ID)")
-	viper.BindPFlag("user.id", rootCmd.PersistentFlags().Lookup("user-id"))
+	_ = viper.BindPFlag("user.id", rootCmd.PersistentFlags().Lookup("user-id"))
 
-	rootCmd.PersistentFlags().String("github-token", "", "gitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)")
-	viper.BindPFlag("github.token", rootCmd.PersistentFlags().Lookup("github-token"))
+	rootCmd.PersistentFlags().String("github-token", "", "GitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)")
+	_ = viper.BindPFlag("github.token", rootCmd.PersistentFlags().Lookup("github-token"))
 
-	rootCmd.PersistentFlags().String("trello-token", "", "trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)")
-	viper.BindPFlag("trello.token", rootCmd.PersistentFlags().Lookup("trello-token"))
+	rootCmd.PersistentFlags().String("trello-token", "", "Trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)")
+	_ = viper.BindPFlag("trello.token", rootCmd.PersistentFlags().Lookup("trello-token"))
 
 	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $CLOCKIFY_DEBUG)")
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
 	rootCmd.PersistentFlags().BoolP("interactive", "i", false, "show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)")
-	viper.BindPFlag("interactive", rootCmd.PersistentFlags().Lookup("interactive"))
+	_ = viper.BindPFlag("interactive", rootCmd.PersistentFlags().Lookup("interactive"))
 
-	rootCmd.MarkFlagRequired("token")
+	_ = rootCmd.MarkFlagRequired("token")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -99,12 +99,12 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-        switch err.(type){
-        case viper.ConfigFileNotFoundError:
-            return
-        default:
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			return
+		default:
 			printError(err)
 			return
-    }
+		}
 	}
 }

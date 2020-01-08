@@ -35,7 +35,7 @@ var configSetCmd = &cobra.Command{
 			value = &args[1]
 		}
 
-		if viper.GetBool("interactive") == false && value == nil {
+		if !viper.GetBool("interactive") && value == nil {
 			printError(fmt.Errorf("you must inform the value of the config %s", key))
 			return
 		}

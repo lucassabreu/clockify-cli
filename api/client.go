@@ -90,6 +90,17 @@ type WorkspaceUsersParam struct {
 	Email     string
 }
 
+func (c *Client) CurrentUser() (dto.User, error) {
+	var u dto.User
+	r, err := c.NewRequest("GET", "v1/user", nil)
+	if err != nil {
+		return u, err
+	}
+
+	_, err = c.Do(r, &u)
+	return u, err
+}
+
 // WorkspaceUsers all users in a Workspace
 func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	var users []dto.User
@@ -104,6 +115,9 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	}
 
 	_, err = c.Do(r, &users)
+	if err != nil {
+		return users, err
+	}
 
 	if p.Email == "" {
 		return users, nil
@@ -166,9 +180,9 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
 
 	r, err := c.NewRequest(
-		"POST",
+		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/user/%s/entriesInRange",
+			"v1/workspaces/%s/user/%s/time-entries",
 			p.Workspace,
 			p.UserID,
 		),
