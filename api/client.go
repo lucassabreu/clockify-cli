@@ -90,6 +90,17 @@ type WorkspaceUsersParam struct {
 	Email     string
 }
 
+func (c *Client) CurrentUser() (dto.User, error) {
+	var u dto.User
+	r, err := c.NewRequest("GET", "v1/user", nil)
+	if err != nil {
+		return u, err
+	}
+
+	_, err = c.Do(r, &u)
+	return u, err
+}
+
 // WorkspaceUsers all users in a Workspace
 func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	var users []dto.User

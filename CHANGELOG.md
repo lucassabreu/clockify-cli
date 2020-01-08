@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `go.mod` updated
 
 ## Added
+- support for retrieving the current user of the token (`v1/user`) in the API client.
 - `.nvimrc` added to provide spell check
 
 ## [v0.1.4] - 2019-08-05
