@@ -101,11 +101,11 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 	asCSV, _ := cmd.Flags().GetBool("csv")
 
 	log, err := c.LogRange(api.LogRangeParam{
-		Workspace: viper.GetString("workspace"),
-		UserID:    viper.GetString("user.id"),
-		FirstDate: start.Add(time.Duration(start.Hour()) * time.Hour * -1),
-		LastDate:  end.Add(time.Duration(24-start.Hour()) * time.Hour * 1),
-		AllPages:  true,
+		Workspace:       viper.GetString("workspace"),
+		UserID:          viper.GetString("user.id"),
+		FirstDate:       start.Add(time.Duration(start.Hour()) * time.Hour * -1),
+		LastDate:        end.Add(time.Duration(24-start.Hour()) * time.Hour * 1),
+		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
 	if err != nil {

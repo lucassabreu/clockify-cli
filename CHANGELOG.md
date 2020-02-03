@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Fixed
+
+- `clockify-cli report` was not getting all pages from the period, implemented
+  support for pagination and to get "all pages" at once into `Client.Log` and
+  `Client.LogRange`
+
 ## Changed
 
 - updated README, so it shows the `--help` output as it is now
