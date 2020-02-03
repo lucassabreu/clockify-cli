@@ -133,12 +133,18 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	return uCopy, nil
 }
 
+type PaginationParam struct {
+	AllPages bool
+	Page     int
+	PageSize int
+}
+
 // LogParam params to query entries
 type LogParam struct {
 	Workspace string
 	UserID    string
 	Date      time.Time
-	AllPages  bool
+	PaginationParam
 }
 
 // Log list time entries from a date
@@ -149,11 +155,11 @@ func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
 	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
 
 	return c.LogRange(LogRangeParam{
-		Workspace: p.Workspace,
-		UserID:    p.UserID,
-		AllPages:  p.AllPages,
-		FirstDate: d,
-		LastDate:  d.Add(time.Hour * 24),
+		Workspace:       p.Workspace,
+		UserID:          p.UserID,
+		FirstDate:       d,
+		LastDate:        d.Add(time.Hour * 24),
+		PaginationParam: p.PaginationParam,
 	})
 }
 
@@ -163,7 +169,7 @@ type LogRangeParam struct {
 	UserID    string
 	FirstDate time.Time
 	LastDate  time.Time
-	AllPages  bool
+	PaginationParam
 }
 
 // LogRange list time entries by date range
@@ -181,22 +187,36 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
 
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"v1/workspaces/%s/user/%s/time-entries",
-			p.Workspace,
-			p.UserID,
-		),
-		filter,
-	)
-	if err != nil {
-		return timeEntries, err
+	page := p.Page
+	if p.AllPages {
+		page = 1
 	}
 
-	_, err = c.Do(r, &timeEntries)
-	if err != nil {
-		return timeEntries, err
+	stop := false
+
+	for !stop {
+		var tes []dto.TimeEntry
+		r, err := c.NewRequest(
+			"GET",
+			fmt.Sprintf(
+				"v1/workspaces/%s/user/%s/time-entries",
+				p.Workspace,
+				p.UserID,
+			),
+			filter.WithPagination(page, p.PageSize),
+		)
+		if err != nil {
+			return timeEntries, err
+		}
+
+		_, err = c.Do(r, &tes)
+		if err != nil {
+			return timeEntries, err
+		}
+
+		timeEntries = append(timeEntries, tes...)
+		stop = len(tes) == 0 || !p.AllPages
+		page++
 	}
 
 	user, err := c.GetUser(p.UserID)
@@ -235,6 +255,31 @@ func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error)
 
 	_, err = c.Do(r, &timeEntryImpl)
 	return timeEntryImpl, err
+}
+
+type GetTimeEntryParam struct {
+	Workspace   string
+	TimeEntryId string
+}
+
+// GetTimeEntry will retrieve a Time Entry using its Workspace and ID
+func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl, err error) {
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/time-entries/%s",
+			p.Workspace,
+			p.TimeEntryId,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return timeEntry, err
+	}
+
+	_, err = c.Do(r, &timeEntry)
+	return timeEntry, err
 }
 
 // GetTagParam params to find a tag

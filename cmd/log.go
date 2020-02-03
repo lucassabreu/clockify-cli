@@ -52,10 +52,10 @@ var logCmd = &cobra.Command{
 		}
 
 		log, err := c.Log(api.LogParam{
-			Workspace: viper.GetString("workspace"),
-			UserID:    viper.GetString("user.id"),
-			Date:      filterDate,
-			AllPages:  true,
+			Workspace:       viper.GetString("workspace"),
+			UserID:          viper.GetString("user.id"),
+			Date:            filterDate,
+			PaginationParam: api.PaginationParam{AllPages: true},
 		})
 
 		sort.Slice(log, func(i, j int) bool {

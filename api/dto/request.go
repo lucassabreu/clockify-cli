@@ -25,6 +25,15 @@ type TimeEntryStartEndRequest struct {
 	Start    DateTime
 	End      DateTime
 	Hydrated *bool
+
+	page     int
+	pageSize int
+}
+
+func (r TimeEntryStartEndRequest) WithPagination(page, size int) TimeEntryStartEndRequest {
+	r.page = page
+	r.pageSize = size
+	return r
 }
 
 func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
@@ -34,6 +43,14 @@ func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
 	if r.Hydrated != nil && *r.Hydrated {
 		v.Add("hydrated", "true")
 	}
+
+	if r.page != 0 {
+		v.Add("page", strconv.Itoa(r.page))
+	}
+	if r.pageSize != 0 {
+		v.Add("page-size", strconv.Itoa(r.pageSize))
+	}
+
 	u.RawQuery = v.Encode()
 
 	return u
