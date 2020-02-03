@@ -119,11 +119,16 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 	}
 
 	for _, te := range timeEntries {
+		var p dto.Project
+		if te.Project != nil {
+			p = *te.Project
+		}
+
 		arr := []string{
 			te.ID,
 			te.Description,
-			te.Project.ID,
-			te.Project.Name,
+			p.ID,
+			p.Name,
 			format(&te.TimeInterval.Start),
 			format(te.TimeInterval.End),
 			fmt.Sprintf("%-8v", te.TimeInterval.End.Sub(te.TimeInterval.Start)),
