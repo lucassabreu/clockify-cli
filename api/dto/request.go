@@ -22,14 +22,18 @@ func (d DateTime) String() string {
 
 // TimeEntryStartEndRequest to get entries by range
 type TimeEntryStartEndRequest struct {
-	Start DateTime
-	End   DateTime
+	Start    DateTime
+	End      DateTime
+	Hydrated *bool
 }
 
 func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
 	v := u.Query()
 	v.Add("start", r.Start.String())
 	v.Add("end", r.End.String())
+	if r.Hydrated != nil && *r.Hydrated {
+		v.Add("hydrated", "true")
+	}
 	u.RawQuery = v.Encode()
 
 	return u

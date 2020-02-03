@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.6] - 2020-02-03
+
+## Fixed
+
+- fixed bug after Clockify's API changed, where `user` and `project` are not
+  automatically provided by the "time-entries" endpoint, unless sending
+  an extra parameter `hydrated=true`, and `user` is not provided anymore, so
+  now we find it using the user id from the function filter
+
 ## [v0.1.5] - 2020-01-08
 
 ## Fixed

@@ -172,9 +172,11 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 
 	var timeEntries []dto.TimeEntry
 
+	b := true
 	filter := dto.TimeEntryStartEndRequest{
-		Start: dto.DateTime{Time: p.FirstDate},
-		End:   dto.DateTime{Time: p.LastDate},
+		Start:    dto.DateTime{Time: p.FirstDate},
+		End:      dto.DateTime{Time: p.LastDate},
+		Hydrated: &b,
 	}
 
 	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
@@ -193,6 +195,18 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	}
 
 	_, err = c.Do(r, &timeEntries)
+	if err != nil {
+		return timeEntries, err
+	}
+
+	user, err := c.GetUser(p.UserID)
+	if err != nil {
+		return timeEntries, err
+	}
+
+	for i := range timeEntries {
+		timeEntries[i].User = user
+	}
 
 	return timeEntries, err
 }
