@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- `api.Client` now supports getting one specific time entry from a workspace,
+  without the need to paginate through all time entries to find it (`GetTimeEntry`
+  function).
+
 ## Fixed
 
 - `clockify-cli report` was not getting all pages from the period, implemented

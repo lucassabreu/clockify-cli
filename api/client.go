@@ -257,6 +257,31 @@ func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error)
 	return timeEntryImpl, err
 }
 
+type GetTimeEntryParam struct {
+	Workspace   string
+	TimeEntryId string
+}
+
+// GetTimeEntry will retrieve a Time Entry using its Workspace and ID
+func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl, err error) {
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/time-entries/%s",
+			p.Workspace,
+			p.TimeEntryId,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return timeEntry, err
+	}
+
+	_, err = c.Do(r, &timeEntry)
+	return timeEntry, err
+}
+
 // GetTagParam params to find a tag
 type GetTagParam struct {
 	Workspace string

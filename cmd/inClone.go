@@ -111,48 +111,30 @@ var inCloneCmd = &cobra.Command{
 
 func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryImpl, error) {
 	id = strings.ToLower(id)
-	page := 0
+
+	if id != "last" {
+		return c.GetTimeEntry(api.GetTimeEntryParam{
+			Workspace:   workspace,
+			TimeEntryId: id,
+		})
+	}
+
 	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
-		Workspace: workspace,
-		UserID:    userID,
-		Page:      page,
+		Workspace:    workspace,
+		UserID:       userID,
+		Page:         1,
+		ItemsPerPage: 1,
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	if id == "last" {
-		if len(list.TimeEntriesList) == 0 {
-			return nil, errors.New("there is no previous time entry")
-		}
-
-		return &list.TimeEntriesList[0], err
+	if len(list.TimeEntriesList) == 0 {
+		return nil, errors.New("there is no previous time entry")
 	}
 
-	for {
-		for _, tei := range list.TimeEntriesList {
-			if strings.ToLower(tei.ID) == id {
-				return &tei, nil
-			}
-		}
-
-		if list.GotAllEntries {
-			return nil, err
-		}
-
-		page = page + 1
-		list, err = c.GetRecentTimeEntries(api.GetRecentTimeEntries{
-			Workspace: workspace,
-			UserID:    userID,
-			Page:      page,
-		})
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	return &list.TimeEntriesList[0], err
 }
 
 func init() {
