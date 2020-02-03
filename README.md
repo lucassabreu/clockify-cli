@@ -48,18 +48,19 @@ Available Commands:
   log         List the entries from a specific day
   out         Stops the last time entry
   project     Allow project aliasing and integration of a project with GitHub:Issues or Trello
+  report      report for date ranges and with more data (format date as 2016-01-02)
   tags        List tags of workspace
   workspaces  List user's workspaces
 
 Flags:
       --config string         config file (default is $HOME/.clockify-cli.yaml)
       --debug                 show debug log (defaults to env $CLOCKIFY_DEBUG)
-      --github-token string   gitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)
+      --github-token string   GitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)
   -h, --help                  help for clockify-cli
   -i, --interactive           show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
   -t, --token string          clockify's token (defaults to env $CLOCKIFY_TOKEN)
-                              	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
-      --trello-token string   trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
+                                Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
+      --trello-token string   Trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
   -u, --user-id string        user id from the token (defaults to env $CLOCKIFY_USER_ID)
   -w, --workspace string      workspace to be used (defaults to env $CLOCKIFY_WROKSPACE)
 
