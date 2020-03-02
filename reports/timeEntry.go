@@ -124,6 +124,16 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			p = *te.Project
 		}
 
+		end := te.TimeInterval.Start
+		if te.TimeInterval.End != nil {
+			end = *te.TimeInterval.End
+		}
+
+		if te.User == nil {
+			u := dto.User{}
+			te.User = &u
+		}
+
 		arr := []string{
 			te.ID,
 			te.Description,
@@ -131,7 +141,7 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			p.Name,
 			format(&te.TimeInterval.Start),
 			format(te.TimeInterval.End),
-			fmt.Sprintf("%-8v", te.TimeInterval.End.Sub(te.TimeInterval.Start)),
+			fmt.Sprintf("%-8v", end.Sub(te.TimeInterval.Start)),
 			te.User.ID,
 			te.User.Email,
 			te.User.Name,

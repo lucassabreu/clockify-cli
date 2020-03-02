@@ -83,9 +83,10 @@ func init() {
 }
 
 func reportFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
 }
 
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
@@ -99,12 +100,15 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 	format, _ := cmd.Flags().GetString("format")
 	asJSON, _ := cmd.Flags().GetBool("json")
 	asCSV, _ := cmd.Flags().GetBool("csv")
+	fillEmptyDates, _ := cmd.Flags().GetBool("fill-empty-dates")
 
+	start = start.Add(time.Duration(start.Hour()) * time.Hour * -1)
+	end = end.Add(time.Duration(24-start.Hour()) * time.Hour * 1)
 	log, err := c.LogRange(api.LogRangeParam{
 		Workspace:       viper.GetString("workspace"),
 		UserID:          viper.GetString("user.id"),
-		FirstDate:       start.Add(time.Duration(start.Hour()) * time.Hour * -1),
-		LastDate:        end.Add(time.Duration(24-start.Hour()) * time.Hour * 1),
+		FirstDate:       start,
+		LastDate:        end,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
@@ -118,6 +122,34 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 			log[i].TimeInterval.Start,
 		)
 	})
+
+	if fillEmptyDates && len(log) > 0 {
+		newLog := make([]dto.TimeEntry, 0, len(log))
+
+		fillMissing := func(user *dto.User, first, last time.Time) []dto.TimeEntry {
+			first = time.Date(first.Year(), first.Month(), first.Day(), 0, 0, 0, 0, time.Local)
+			last = time.Date(last.Year(), last.Month(), last.Day(), 0, 0, 0, 0, time.Local)
+			d := int(last.Sub(first).Hours() / 24)
+			if d <= 0 {
+				return []dto.TimeEntry{}
+			}
+
+			missing := make([]dto.TimeEntry, d)
+			for i, t := range missing {
+				t.TimeInterval.Start = first.AddDate(0, 0, i)
+				missing[i] = t
+			}
+			return missing
+		}
+
+		nextDay := start
+		for _, t := range log {
+			newLog = append(newLog, fillMissing(t.User, nextDay, t.TimeInterval.Start)...)
+			newLog = append(newLog, t)
+			nextDay = t.TimeInterval.Start.Add(time.Duration(24-t.TimeInterval.Start.Hour()) * time.Hour)
+		}
+		log = append(newLog, fillMissing(log[0].User, nextDay, end)...)
+	}
 
 	var fn func([]dto.TimeEntry, io.Writer) error
 	fn = reports.TimeEntriesPrint
