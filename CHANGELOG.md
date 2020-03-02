@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- `clockify-cli report --fill-missing-dates` when this parameters is set, if there
+  are dates from the range informed, will be created "stub" entries to better show
+  that are missing entries.
+
 ## [v0.1.7] - 2020-02-03
 
 ## Added
