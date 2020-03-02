@@ -100,7 +100,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 	format, _ := cmd.Flags().GetString("format")
 	asJSON, _ := cmd.Flags().GetBool("json")
 	asCSV, _ := cmd.Flags().GetBool("csv")
-	fillEmptyDates, _ := cmd.Flags().GetBool("fill-empty-dates")
+	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 
 	start = start.Add(time.Duration(start.Hour()) * time.Hour * -1)
 	end = end.Add(time.Duration(24-start.Hour()) * time.Hour * 1)
@@ -123,7 +123,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 		)
 	})
 
-	if fillEmptyDates && len(log) > 0 {
+	if fillMissingDates && len(log) > 0 {
 		newLog := make([]dto.TimeEntry, 0, len(log))
 
 		fillMissing := func(user *dto.User, first, last time.Time) []dto.TimeEntry {
