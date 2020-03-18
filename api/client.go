@@ -290,24 +290,21 @@ type GetTagParam struct {
 
 // GetTag get a single tag, if it exists
 func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
-	var tag *dto.Tag
-
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"workspaces/%s/tags/%s",
-			p.Workspace,
-			p.TagID,
-		),
-		nil,
-	)
+	tags, err := c.GetTags(GetTagsParam{
+		Workspace: p.Workspace,
+	})
 
 	if err != nil {
-		return tag, err
+		return nil, err
 	}
 
-	_, err = c.Do(r, &tag)
-	return tag, err
+	for _, t := range tags {
+		if t.ID == p.TagID {
+			return &t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
 }
 
 // GetProjectParam params to get a Project

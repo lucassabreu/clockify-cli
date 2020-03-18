@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.2] - 2020-03-18
+
+## Fixed
+
+- the endpoint `workspaces/<workspace-id>/tags/<tag-id>` does not exist anymore, instead the
+  `api.Client` will get all tags of the workspace (`api.Client.GetTags`) and filter the response
+  to find the tag by its id.
+
 ## [v0.2.1] - 2020-03-02
 
 ## Fixed
