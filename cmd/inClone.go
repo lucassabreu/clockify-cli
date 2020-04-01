@@ -19,7 +19,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -34,13 +33,7 @@ var inCloneCmd = &cobra.Command{
 	Short: "Copy a time entry and starts it (use \"last\" to copy the last one)",
 	Args:  cobra.ExactArgs(1),
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
-		var whenDate time.Time
 		var err error
-
-		if whenDate, err = convertToTime(whenString); err != nil {
-			printError(err)
-			return
-		}
 
 		workspace := viper.GetString("workspace")
 		tec, err := getTimeEntry(
@@ -55,34 +48,19 @@ var inCloneCmd = &cobra.Command{
 			return
 		}
 
-		if !viper.GetBool("no-closing") {
-			err = c.Out(api.OutParam{
-				Workspace: workspace,
-				End:       whenDate,
-			})
-
-			if err != nil {
-				printError(errors.New("can not end current time entry"))
-				return
-			}
+		if tec.TimeInterval.Start, err = convertToTime(whenString); err != nil {
+			printError(err)
+			return
 		}
 
-		tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
-			Workspace:   workspace,
-			Billable:    tec.Billable,
-			Start:       whenDate.Round(time.Second),
-			ProjectID:   tec.ProjectID,
-			Description: tec.Description,
-			TagIDs:      tec.TagIDs,
-			TaskID:      tec.TaskID,
-		})
+		tec, err = newEntry(c, tec, viper.GetBool("interactive"), !viper.GetBool("no-closing"))
 
 		if err != nil {
 			printError(err)
 			return
 		}
 
-		te, err := c.ConvertIntoFullTimeEntry(tei)
+		te, err := c.ConvertIntoFullTimeEntry(tec)
 		if err != nil {
 			printError(err)
 			return
@@ -109,14 +87,24 @@ var inCloneCmd = &cobra.Command{
 	}),
 }
 
-func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryImpl, error) {
+func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImpl, error) {
 	id = strings.ToLower(id)
 
 	if id != "last" {
-		return c.GetTimeEntry(api.GetTimeEntryParam{
+		tei, err := c.GetTimeEntry(api.GetTimeEntryParam{
 			Workspace:   workspace,
 			TimeEntryId: id,
 		})
+
+		if err != nil {
+			return dto.TimeEntryImpl{}, err
+		}
+
+		if tei == nil {
+			return dto.TimeEntryImpl{}, errors.New("no previous time entry found")
+		}
+
+		return *tei, nil
 	}
 
 	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
@@ -127,14 +115,14 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (*dto.TimeEntryIm
 	})
 
 	if err != nil {
-		return nil, err
+		return dto.TimeEntryImpl{}, err
 	}
 
 	if len(list.TimeEntriesList) == 0 {
-		return nil, errors.New("there is no previous time entry")
+		return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
 	}
 
-	return &list.TimeEntriesList[0], err
+	return list.TimeEntriesList[0], err
 }
 
 func init() {

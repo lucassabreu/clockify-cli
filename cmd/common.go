@@ -117,7 +117,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 	var err error
 
 	if interactive {
-		te.ProjectID, err = getProjectID(te.WorkspaceID, c)
+		te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
 		if err != nil {
 			return te, err
 		}
@@ -128,7 +128,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 	}
 
 	if interactive {
-		te.Description = getDescription()
+		te.Description = getDescription(te.Description)
 	}
 
 	if interactive {
@@ -172,7 +172,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 	})
 }
 
-func getProjectID(workspace string, c *api.Client) (string, error) {
+func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace: workspace,
 	})
@@ -184,13 +184,16 @@ func getProjectID(workspace string, c *api.Client) (string, error) {
 	projectsString := make([]string, len(projects))
 	for i, u := range projects {
 		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+		if u.ID == projectID {
+			projectID = projectsString[i]
+		}
 	}
-
-	projectID := ""
+	println(projectID)
 	err = survey.AskOne(
 		&survey.Select{
 			Message: "Choose your project:",
 			Options: projectsString,
+			Default: projectID,
 		},
 		&projectID,
 		nil,
@@ -203,17 +206,17 @@ func getProjectID(workspace string, c *api.Client) (string, error) {
 	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil
 }
 
-func getDescription() string {
-	v := ""
+func getDescription(description string) string {
 	_ = survey.AskOne(
 		&survey.Input{
 			Message: "Description:",
+			Default: description,
 		},
-		&v,
+		&description,
 		nil,
 	)
 
-	return v
+	return description
 }
 
 func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
