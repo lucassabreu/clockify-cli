@@ -122,7 +122,9 @@ func init() {
 
 	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
 	inCmd.Flags().BoolP("json", "j", false, "print as json")
-	inCmd.Flags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
+	inCmd.PersistentFlags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
+
+	_ = viper.BindPFlag("no-closing", inCmd.PersistentFlags().Lookup("no-closing"))
 }
 
 func addTimeEntryFlags(cmd *cobra.Command) {

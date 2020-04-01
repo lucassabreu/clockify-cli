@@ -42,6 +42,7 @@ var inCloneCmd = &cobra.Command{
 			viper.GetString("user.id"),
 			c,
 		)
+		tec.TimeInterval.End = nil
 
 		if err != nil {
 			printError(err)
@@ -129,7 +130,6 @@ func init() {
 	rootCmd.AddCommand(inCloneCmd)
 	inCmd.AddCommand(inCloneCmd)
 
-	inCloneCmd.Flags().Bool("no-closing", false, "don't close any time entry")
 	inCloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
 
 	inCloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")

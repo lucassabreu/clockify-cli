@@ -138,12 +138,19 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 		}
 
 		var date *time.Time
-		if date, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
+		dateString := te.TimeInterval.Start.Format(fullTimeFormat)
+
+		if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
 			return te, err
 		}
 		te.TimeInterval.Start = *date
 
-		if date, err = getDateTimeParam("End", false, whenToCloseString, convertToTime); err != nil {
+		dateString = ""
+		if te.TimeInterval.End != nil {
+			dateString = te.TimeInterval.End.Format(fullTimeFormat)
+		}
+
+		if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
 			return te, err
 		}
 		te.TimeInterval.End = date
