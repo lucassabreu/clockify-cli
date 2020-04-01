@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -80,19 +82,6 @@ func getAPIClient() (*api.Client, error) {
 }
 
 func getDateTimeParam(name string, required bool, value string, convert func(string) (time.Time, error)) (*time.Time, error) {
-	if value != "" && !viper.GetBool("interactive") {
-		t, err := convert(value)
-		return &t, err
-	}
-
-	if value == "" && !viper.GetBool("interactive") {
-		if required {
-			return nil, fmt.Errorf("%s is required", name)
-		}
-
-		return nil, nil
-	}
-
 	var t time.Time
 	var err error
 
@@ -122,4 +111,149 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 
 		return &t, err
 	}
+}
+
+func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) (dto.TimeEntryImpl, error) {
+	var err error
+
+	if interactive {
+		te.ProjectID, err = getProjectID(te.WorkspaceID, c)
+		if err != nil {
+			return te, err
+		}
+	}
+
+	if te.ProjectID == "" {
+		return te, errors.New("project must be informed")
+	}
+
+	if interactive {
+		te.Description = getDescription()
+	}
+
+	if interactive {
+		te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
+		if err != nil {
+			return te, err
+		}
+
+		var date *time.Time
+		if date, err = getDateTimeParam("Start", true, whenString, convertToTime); err != nil {
+			return te, err
+		}
+		te.TimeInterval.Start = *date
+
+		if date, err = getDateTimeParam("End", false, whenToCloseString, convertToTime); err != nil {
+			return te, err
+		}
+		te.TimeInterval.End = date
+	}
+
+	if autoClose {
+		err = c.Out(api.OutParam{
+			Workspace: te.WorkspaceID,
+			End:       te.TimeInterval.Start,
+		})
+
+		if err != nil {
+			return te, err
+		}
+	}
+
+	return c.CreateTimeEntry(api.CreateTimeEntryParam{
+		Workspace:   te.WorkspaceID,
+		Billable:    !notBillable,
+		Start:       te.TimeInterval.Start,
+		End:         te.TimeInterval.End,
+		ProjectID:   te.ProjectID,
+		Description: te.Description,
+		TagIDs:      te.TagIDs,
+		TaskID:      te.TaskID,
+	})
+}
+
+func getProjectID(workspace string, c *api.Client) (string, error) {
+	projects, err := c.GetProjects(api.GetProjectsParam{
+		Workspace: workspace,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	projectsString := make([]string, len(projects))
+	for i, u := range projects {
+		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	}
+
+	projectID := ""
+	err = survey.AskOne(
+		&survey.Select{
+			Message: "Choose your project:",
+			Options: projectsString,
+		},
+		&projectID,
+		nil,
+	)
+
+	if err != nil {
+		return "", nil
+	}
+
+	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil
+}
+
+func getDescription() string {
+	v := ""
+	_ = survey.AskOne(
+		&survey.Input{
+			Message: "Description:",
+		},
+		&v,
+		nil,
+	)
+
+	return v
+}
+
+func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
+	if len(tagIDs) > 0 {
+		return tagIDs, nil
+	}
+
+	if !viper.GetBool("interactive") {
+		return nil, nil
+	}
+
+	tags, err := c.GetTags(api.GetTagsParam{
+		Workspace: workspace,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	tagsString := make([]string, len(tags))
+	for i, u := range tags {
+		tagsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	}
+
+	err = survey.AskOne(
+		&survey.MultiSelect{
+			Message: "Choose your tags:",
+			Options: tagsString,
+		},
+		&tagIDs,
+		nil,
+	)
+
+	if err != nil {
+		return nil, nil
+	}
+
+	for i, t := range tagIDs {
+		tagIDs[i] = strings.TrimSpace(t[0:strings.Index(t, " - ")])
+	}
+
+	return tagIDs, nil
 }
