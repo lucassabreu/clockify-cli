@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.3.0] - 2020-04-01
+
 - improvements to the code moving interactive logic of the "in" command into `cmd/common.go`
 - "in clone" is now interactive and will ask the user to confirm the time entry data before
   creating it.
