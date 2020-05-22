@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- printing duration as "h:mm:ss" instead of the Go's default format,
+  because is more user and sheet applications friendly.
+
 ## [v0.3.1] - 2020-04-01
 
 ## Fixed
