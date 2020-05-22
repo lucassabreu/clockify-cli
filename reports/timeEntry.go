@@ -59,7 +59,7 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 			t.ID,
 			t.TimeInterval.Start.In(time.Local).Format("15:04:05"),
 			end.In(time.Local).Format("15:04:05"),
-			fmt.Sprintf("%-8v", end.Sub(t.TimeInterval.Start)),
+			durationToString(end.Sub(t.TimeInterval.Start)),
 			projectName,
 			t.Description,
 		}
@@ -124,7 +124,7 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			p = *te.Project
 		}
 
-		end := te.TimeInterval.Start
+		end := time.Now()
 		if te.TimeInterval.End != nil {
 			end = *te.TimeInterval.End
 		}
@@ -141,7 +141,7 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			p.Name,
 			format(&te.TimeInterval.Start),
 			format(te.TimeInterval.End),
-			fmt.Sprintf("%-8v", end.Sub(te.TimeInterval.Start)),
+			durationToString(end.Sub(te.TimeInterval.Start)),
 			te.User.ID,
 			te.User.Email,
 			te.User.Name,
@@ -210,4 +210,8 @@ func TimeEntryPrintWithTemplate(format string) func(*dto.TimeEntry, io.Writer) e
 
 		return fn(entries, w)
 	}
+}
+
+func durationToString(d time.Duration) string {
+	return fmt.Sprintf("%d:%02d:%02d", int64(d.Hours()), int64(d.Minutes())%60, int64(d.Seconds())%60)
 }
