@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- table format will show time entry tags
+
 ## Changed
 
 - when adding fake entries with `--fill-missing-dates`, will set end time as equal

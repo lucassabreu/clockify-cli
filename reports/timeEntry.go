@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -31,21 +32,11 @@ func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
 // TimeEntriesPrint will print more details
 func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 	tw := tablewriter.NewWriter(w)
-	tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description"})
+	tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"})
 
 	lines := make([][]string, len(timeEntries))
 
-	var wD, wP = 0, 0
-
 	for i, t := range timeEntries {
-		if wD < len(t.Description) {
-			wD = len(t.Description)
-		}
-
-		if t.Project != nil && wP < len(t.Project.Name) {
-			wP = len(t.Project.Name)
-		}
-
 		end := time.Now()
 		if t.TimeInterval.End != nil {
 			end = *t.TimeInterval.End
@@ -62,21 +53,29 @@ func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
 			durationToString(end.Sub(t.TimeInterval.Start)),
 			projectName,
 			t.Description,
+			strings.Join(tagsToStringSlice(t.Tags), ", "),
 		}
 	}
 
 	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
-		width = width - 70 - wP
-		if width < wD {
-			wD = width
-		}
+		tw.SetColWidth(width / 3)
 	}
 
-	tw.SetColWidth(wD)
+	tw.SetRowLine(true)
 	tw.AppendBulk(lines)
 	tw.Render()
 
 	return nil
+}
+
+func tagsToStringSlice(tags []dto.Tag) []string {
+	s := make([]string, len(tags))
+
+	for i, t := range tags {
+		s[i] = fmt.Sprintf("%s (%s)", t.Name, t.ID)
+	}
+
+	return s
 }
 
 // TimeEntriesCSVPrint will print each time entry using the format string
@@ -108,16 +107,6 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 		return t.In(time.Local).Format("2006-01-02 15:04:05")
 	}
 
-	tags := func(tags []dto.Tag) []string {
-		s := make([]string, len(tags))
-
-		for i, t := range tags {
-			s[i] = fmt.Sprintf("%s (%s)", t.Name, t.ID)
-		}
-
-		return s
-	}
-
 	for _, te := range timeEntries {
 		var p dto.Project
 		if te.Project != nil {
@@ -147,7 +136,7 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			te.User.Name,
 		}
 
-		err := w.Write(append(arr, tags(te.Tags)...))
+		err := w.Write(append(arr, tagsToStringSlice(te.Tags)...))
 
 		if err != nil {
 			return err
