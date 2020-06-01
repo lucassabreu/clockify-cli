@@ -136,7 +136,9 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 
 			missing := make([]dto.TimeEntry, d)
 			for i, t := range missing {
-				t.TimeInterval.Start = first.AddDate(0, 0, i)
+				ti := first.AddDate(0, 0, i)
+				t.TimeInterval.Start = ti
+				t.TimeInterval.End = &ti
 				missing[i] = t
 			}
 			return missing

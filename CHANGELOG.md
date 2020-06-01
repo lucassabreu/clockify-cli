@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- when adding fake entries with `--fill-missing-dates`, will set end time as equal
+  to start time, so the duration will be 0 seconds
+
 ## [v0.3.2] - 2020-05-22
 
 ## Changed
