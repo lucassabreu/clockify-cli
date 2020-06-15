@@ -353,6 +353,18 @@ func (c *Client) GetUser(id string) (*dto.User, error) {
 	return user, err
 }
 
+func (c *Client) GetMe() (dto.User, error) {
+	r, err := c.NewRequest("GET", "v1/user", nil)
+
+	if err != nil {
+		return dto.User{}, err
+	}
+
+	var user dto.User
+	_, err = c.Do(r, &user)
+	return user, err
+}
+
 // GetTaskParam params to get a Task
 type GetTaskParam struct {
 	Workspace string

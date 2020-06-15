@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- `me` command returns information about the user who owns the token used to access
+  the clockify's api
+
 ## [v0.4.0] - 2020-06-01
 
 ## Added
