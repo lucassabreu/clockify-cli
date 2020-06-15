@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- `in`, `log` and `report` now don't require you to inform a "user-id", if none is set,
+  than will get the user id from the token used to access the api
+
 ## Added
 
 - `me` command returns information about the user who owns the token used to access

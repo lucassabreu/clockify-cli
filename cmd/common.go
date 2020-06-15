@@ -267,3 +267,18 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 
 	return tagIDs, nil
 }
+
+func getUserId(c *api.Client) (string, error) {
+	userId := viper.GetString("user.id")
+	if len(userId) > 0 {
+		return userId, nil
+	}
+
+	u, err := c.GetMe()
+	if err != nil {
+		return "", err
+	}
+
+	return u.ID, nil
+
+}

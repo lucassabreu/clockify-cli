@@ -35,11 +35,16 @@ var inCloneCmd = &cobra.Command{
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		var err error
 
+		userId, err := getUserId(c)
+		if err != nil {
+			printError(err)
+			return
+		}
 		workspace := viper.GetString("workspace")
 		tec, err := getTimeEntry(
 			args[0],
 			workspace,
-			viper.GetString("user.id"),
+			userId,
 			c,
 		)
 		tec.TimeInterval.End = nil
