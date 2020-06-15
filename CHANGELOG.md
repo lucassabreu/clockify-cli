@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.5.0] - 2020-06-15
+
 ## Changed
 
 - `in`, `log` and `report` now don't require you to inform a "user-id", if none is set,
