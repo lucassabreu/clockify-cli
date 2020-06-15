@@ -104,9 +104,16 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 
 	start = start.Add(time.Duration(start.Hour()) * time.Hour * -1)
 	end = end.Add(time.Duration(24-start.Hour()) * time.Hour * 1)
+
+	userId, err := getUserId(c)
+	if err != nil {
+		printError(err)
+		return
+	}
+
 	log, err := c.LogRange(api.LogRangeParam{
 		Workspace:       viper.GetString("workspace"),
-		UserID:          viper.GetString("user.id"),
+		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,
 		PaginationParam: api.PaginationParam{AllPages: true},

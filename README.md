@@ -46,6 +46,7 @@ Available Commands:
   help        Help about any command
   in          Create a new time entry and starts it
   log         List the entries from a specific day
+  me          Show the user info
   out         Stops the last time entry
   project     Allow project aliasing and integration of a project with GitHub:Issues or Trello
   report      report for date ranges and with more data (format date as 2016-01-02)

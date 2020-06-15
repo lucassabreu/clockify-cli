@@ -51,9 +51,15 @@ var logCmd = &cobra.Command{
 			filterDate = time.Now().Add(time.Hour * -24)
 		}
 
+		userId, err := getUserId(c)
+		if err != nil {
+			printError(err)
+			return
+		}
+
 		log, err := c.Log(api.LogParam{
 			Workspace:       viper.GetString("workspace"),
-			UserID:          viper.GetString("user.id"),
+			UserID:          userId,
 			Date:            filterDate,
 			PaginationParam: api.PaginationParam{AllPages: true},
 		})

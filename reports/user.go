@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"text/template"
@@ -16,6 +17,10 @@ func UserPrintQuietly(users []dto.User, w io.Writer) error {
 	}
 
 	return nil
+}
+
+func UserJSONPrint(u dto.User, w io.Writer) error {
+	return json.NewEncoder(w).Encode(u)
 }
 
 // UserPrint will print more details
