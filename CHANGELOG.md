@@ -14,11 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - help was showing `CLOCKIFY_WROKSPACE` as env var for workspace, the right name is
   `CLOCKIFY_WORKSPACE`
+- fixed some `golint` warnings
 
 ## Changed
 
 - go mod dependencies updated
 - `snapcraft` package only requires network
+
+## Removed
+
+- Removed `GetCurrentUser` in favor of `GetMe` to be closer to the APIs format
 
 ## [v0.5.0] - 2020-06-15
 

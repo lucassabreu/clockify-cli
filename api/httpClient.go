@@ -11,6 +11,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
 
+// QueryAppender an interface to identify if the parameters should be sent through the query or body
 type QueryAppender interface {
 	AppendToQuery(url.URL) url.URL
 }
