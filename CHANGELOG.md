@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.0] - 2020-06-16
+
 ## Added
 
 - some badges, who does not like they?
