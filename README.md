@@ -63,7 +63,7 @@ Flags:
                                 Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
       --trello-token string   Trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
   -u, --user-id string        user id from the token (defaults to env $CLOCKIFY_USER_ID)
-  -w, --workspace string      workspace to be used (defaults to env $CLOCKIFY_WROKSPACE)
+  -w, --workspace string      workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)
 
 Use "clockify-cli [command] --help" for more information about a command.
 ```

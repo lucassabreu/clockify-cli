@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Fixed
+
+- help was showing `CLOCKIFY_WROKSPACE` as env var for workspace, the right name is
+  `CLOCKIFY_WORKSPACE`
+
 ## Changed
 
 - go mod dependencies updated
