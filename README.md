@@ -1,11 +1,11 @@
-clockify-cli
+Clockify CLI
 ============
 
 A simple cli to manage your time entries on Clockify from terminal
 
-[![clockify-cli](https://snapcraft.io//clockify-cli/badge.svg)](https://snapcraft.io/clockify-cli)
-[![Build Status](https://travis-ci.org/lucassabreu/clockify-cli.svg?branch=master)](https://travis-ci.org/lucassabreu/clockify-cli)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lucassabreu/clockify-cli)](https://goreportcard.com/report/github.com/lucassabreu/clockify-cli)
+[![clockify-cli](https://snapcraft.io//clockify-cli/badge.svg?classes=badges)](https://snapcraft.io/clockify-cli)
+[![Build Status](https://travis-ci.org/lucassabreu/clockify-cli.svg?branch=master&classes=badges)](https://travis-ci.org/lucassabreu/clockify-cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lucassabreu/clockify-cli?classes=badges)](https://goreportcard.com/report/github.com/lucassabreu/clockify-cli)
 
 Features
 --------

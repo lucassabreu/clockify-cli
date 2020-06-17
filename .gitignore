@@ -1,2 +1,5 @@
 build/
 dist/
+docs/content/commands/
+clockify-cli
+docs/public/

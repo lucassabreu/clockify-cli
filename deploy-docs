@@ -1,0 +1,29 @@
+#!/bin/sh
+
+download() {
+  curl -s https://api.github.com/repos/lucassabreu/clockify-cli/releases/latest | \
+      grep 'browser_download_url.*clockify-cli_.*_Linux_x86_64.tar.gz' | \
+      cut -d : -f 2- | tr -d \" | \
+      wget -qi - -O- | tar zxf -
+}
+
+set -e
+download
+
+rm -rf docs/content/commands/* || true
+./clockify-cli gendocs docs/content/commands
+
+# fix root command to be "chapter root"
+mv docs/content/commands/clockify-cli.md docs/content/commands/_index.md
+
+# add license information
+mkdir -p docs/content/license
+echo '---
+title: License
+chapter: true
+---
+```txt' > docs/content/license/_index.md
+cat LICENSE >> docs/content/license/_index.md
+echo '```' >> docs/content/license/_index.md
+
+cd docs && hugo
