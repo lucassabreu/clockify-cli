@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.1] - 2020-06-16
+
+## Added
+
+- `config` command can print the "global" parameters in `json` or `yaml`
+- `config` now accepts a argument, which is the name of the parameter,
+  when informed only this parameter will be printed
+
 ## [v0.6.0] - 2020-06-16
 
 ## Added

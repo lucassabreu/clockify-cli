@@ -15,7 +15,10 @@
 package cmd
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -23,16 +26,44 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const FORMAT_YAML = "yaml"
+const FORMAT_JSON = "json"
+
 // configCmd represents the config command
 var configCmd = &cobra.Command{
-	Use:   "config",
+	Use:   "config [config-name]",
 	Short: "Manages configuration file parameters",
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		b, _ := yaml.Marshal(viper.AllSettings())
+		format, _ := cmd.Flags().GetString("format")
+
+		var b []byte
+
+		var v interface{}
+		if len(args) == 0 {
+			v = viper.AllSettings()
+		} else {
+			v = viper.Get(args[0])
+		}
+
+		format = strings.ToLower(format)
+		switch format {
+		case FORMAT_JSON:
+			b, _ = json.Marshal(v)
+
+		case FORMAT_YAML:
+			b, _ = yaml.Marshal(v)
+		default:
+			printError(errors.New("invalid format"))
+			return
+		}
+
 		fmt.Println(string(b))
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(configCmd)
+
+	configCmd.Flags().StringP("format", "f", FORMAT_YAML, fmt.Sprintf("format of the output can be one of: %s, %s", FORMAT_YAML, FORMAT_JSON))
 }
