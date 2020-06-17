@@ -99,7 +99,7 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	if id != "last" {
 		tei, err := c.GetTimeEntry(api.GetTimeEntryParam{
 			Workspace:   workspace,
-			TimeEntryId: id,
+			TimeEntryID: id,
 		})
 
 		if err != nil {

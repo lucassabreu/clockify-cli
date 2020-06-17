@@ -53,7 +53,7 @@ func init() {
 	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn`)
 	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 
-	rootCmd.PersistentFlags().StringP("workspace", "w", "", "workspace to be used (defaults to env $CLOCKIFY_WROKSPACE)")
+	rootCmd.PersistentFlags().StringP("workspace", "w", "", "workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)")
 	_ = viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
 
 	rootCmd.PersistentFlags().StringP("user-id", "u", "", "user id from the token (defaults to env $CLOCKIFY_USER_ID)")

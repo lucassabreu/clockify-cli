@@ -90,17 +90,6 @@ type WorkspaceUsersParam struct {
 	Email     string
 }
 
-func (c *Client) CurrentUser() (dto.User, error) {
-	var u dto.User
-	r, err := c.NewRequest("GET", "v1/user", nil)
-	if err != nil {
-		return u, err
-	}
-
-	_, err = c.Do(r, &u)
-	return u, err
-}
-
 // WorkspaceUsers all users in a Workspace
 func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	var users []dto.User
@@ -133,6 +122,7 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	return uCopy, nil
 }
 
+// PaginationParam parameters about pagination
 type PaginationParam struct {
 	AllPages bool
 	Page     int
@@ -257,9 +247,10 @@ func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error)
 	return timeEntryImpl, err
 }
 
+// GetTimeEntryParam params to get a Time Entry
 type GetTimeEntryParam struct {
 	Workspace   string
-	TimeEntryId string
+	TimeEntryID string
 }
 
 // GetTimeEntry will retrieve a Time Entry using its Workspace and ID
@@ -269,7 +260,7 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 		fmt.Sprintf(
 			"v1/workspaces/%s/time-entries/%s",
 			p.Workspace,
-			p.TimeEntryId,
+			p.TimeEntryID,
 		),
 		nil,
 	)
@@ -353,6 +344,7 @@ func (c *Client) GetUser(id string) (*dto.User, error) {
 	return user, err
 }
 
+// GetMe get details about the user who created the token
 func (c *Client) GetMe() (dto.User, error) {
 	r, err := c.NewRequest("GET", "v1/user", nil)
 
