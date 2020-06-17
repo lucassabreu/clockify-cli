@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 - go mod dependencies updated
+- `snapcraft` package only requires network
 
 ## [v0.5.0] - 2020-06-15
 
