@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - missing release links for the title on the CHANGELOG
+- filling the brackets on the LICENSE file
 
 ## [v0.6.1] - 2020-06-16
 
