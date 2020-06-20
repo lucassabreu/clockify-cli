@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- improved headers on the CHANGELOG to better represent the hierarchie
+- improved headers on the CHANGELOG to better represent the hierarchies
+- moved `in clone` to be just `clone`
 
 ### Fixed
 
