@@ -1,4 +1,5 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -6,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- improved headers on the CHANGELOG to better represent the hierarchie
+
+### Fixed
+
+- missing release links for the title on the CHANGELOG
+
 ## [v0.6.1] - 2020-06-16
 
-## Added
+### Added
 
 - `config` command can print the "global" parameters in `json` or `yaml`
 - `config` now accepts a argument, which is the name of the parameter,
@@ -16,69 +25,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.6.0] - 2020-06-16
 
-## Added
+### Added
 
 - some badges, who does not like they?
 
-## Fixed
+### Fixed
 
 - help was showing `CLOCKIFY_WROKSPACE` as env var for workspace, the right name is
   `CLOCKIFY_WORKSPACE`
 - fixed some `golint` warnings
 
-## Changed
+### Changed
 
 - go mod dependencies updated
 - `snapcraft` package only requires network
 
-## Removed
+### Removed
 
 - Removed `GetCurrentUser` in favor of `GetMe` to be closer to the APIs format
 
 ## [v0.5.0] - 2020-06-15
 
-## Changed
+### Changed
 
 - `in`, `log` and `report` now don't require you to inform a "user-id", if none is set,
   than will get the user id from the token used to access the api
 
-## Added
+### Added
 
 - `me` command returns information about the user who owns the token used to access
   the clockify's api
 
 ## [v0.4.0] - 2020-06-01
 
-## Added
+### Added
 
 - table format will show time entry tags
 
-## Changed
+### Changed
 
 - when adding fake entries with `--fill-missing-dates`, will set end time as equal
   to start time, so the duration will be 0 seconds
 
 ## [v0.3.2] - 2020-05-22
 
-## Changed
+### Changed
 
 - printing duration as "h:mm:ss" instead of the Go's default format,
   because is more user and sheet applications friendly.
 
 ## [v0.3.1] - 2020-04-01
 
-## Fixed
+### Fixed
 
 - fixed `--no-closing` being ignored
 - interactive flow of `clone` was keeping previous time interval
 
 ## [v0.3.0] - 2020-04-01
 
-## Fixed
+### Fixed
 
 - minor grammar bug fixes
 
-## Changed
+### Changed
 
 - improvements to the code moving interactive logic of the "in" command into `cmd/common.go`
 - "in clone" is now interactive and will ask the user to confirm the time entry data before
@@ -86,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.2] - 2020-03-18
 
-## Fixed
+### Fixed
 
 - the endpoint `workspaces/<workspace-id>/tags/<tag-id>` does not exist anymore, instead the
   `api.Client` will get all tags of the workspace (`api.Client.GetTags`) and filter the response
@@ -94,13 +103,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.1] - 2020-03-02
 
-## Fixed
+### Fixed
 
 - `clockify-cli report` parameter `--fill-missing-dates`, was not working
 
 ## [v0.2.0] - 2020-03-02
 
-## Added
+### Added
 
 - `clockify-cli report --fill-missing-dates` when this parameters is set, if there
   are dates from the range informed, will be created "stub" entries to better show
@@ -108,25 +117,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.1.7] - 2020-02-03
 
-## Added
+### Added
 
 - `api.Client` now supports getting one specific time entry from a workspace,
   without the need to paginate through all time entries to find it (`GetTimeEntry`
   function).
 
-## Fixed
+### Fixed
 
 - `clockify-cli report` was not getting all pages from the period, implemented
   support for pagination and to get "all pages" at once into `Client.Log` and
   `Client.LogRange`
 
-## Changed
+### Changed
 
 - updated README, so it shows the `--help` output as it is now
 
 ## [v0.1.6] - 2020-02-03
 
-## Fixed
+### Fixed
 
 - fixed bug after Clockify's API changed, where `user` and `project` are not
   automatically provided by the "time-entries" endpoint, unless sending
@@ -135,27 +144,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.1.5] - 2020-01-08
 
-## Fixed
+### Fixed
 - fixed bug on the `log` commands, where the previews api url is not available
   anymore, now using `v1/workspace/{workspace}/user/{user}/times-entries`
 - spelling of some words fixed and improving some aspects of the code
 
-## Changed
+### Changed
 - `go.mod` updated
 
-## Added
+### Added
 - seamless support for query parameters using the interface `QueryAppender`
 - support for retrieving the current user of the token (`v1/user`) in the API client.
 - `.nvimrc` added to provide spell check
 
 ## [v0.1.4] - 2019-08-05
 
-## Added
+### Added
 - Permissions to `snap` installation, so configuration file can be used
 
 ## [v0.1.3] - 2019-08-02
 
-## Changed
+### Changed
 - Set `publish` to `true` so it will be sent to `snapcraft`
 
 ## [v0.1.2] - 2019-08-02
@@ -217,7 +226,20 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.6.1...HEAD
+[v0.6.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.6.1
+[v0.6.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.6.0
+[v0.5.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.5.0
+[v0.4.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.4.0
+[v0.3.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.3.2
+[v0.3.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.3.1
+[v0.3.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.3.0
+[v0.2.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.2.2
+[v0.2.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.2.1
+[v0.2.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.2.0
+[v0.1.7]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.7
+[v0.1.6]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.6
+[v0.1.5]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.5
 [v0.1.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.4
 [v0.1.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.3
 [v0.1.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.2
