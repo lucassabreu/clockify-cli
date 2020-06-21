@@ -15,14 +15,12 @@ env:
 - PATH=/snap/bin:$PATH
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_c7b8c1fd25b9_key -iv $encrypted_c7b8c1fd25b9_iv -in snap.login.enc -out snap.login -d
+  - if [ ! -z $TRAVIS_TAG ]; then openssl aes-256-cbc -K $encrypted_c7b8c1fd25b9_key -iv $encrypted_c7b8c1fd25b9_iv -in snap.login.enc -out snap.login -d; fi
 
 install:
 # needed for the snap pipe:
   - sudo snap install snapcraft --classic
-
-after_success:
-  - if [ ! -z $TRAVIS_TAG ]; then snapcraft login --with snap.login fi
+  - if [ ! -z $TRAVIS_TAG ]; then snapcraft login --with snap.login; fi
   - rm -f snap.login;
 
 jobs:
