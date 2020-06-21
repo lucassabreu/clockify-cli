@@ -4,8 +4,6 @@ builds:
   hooks:
     pre:
       - go mod download
-    post:
-      - curl -X POST -d {} https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6
 archives:
   - id: default
     replacements:

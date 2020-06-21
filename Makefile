@@ -29,12 +29,17 @@ dist/windows:
 go-install: ## install dev version
 	go install
 
-goreleaser-test:
-	go install github.com/goreleaser/goreleaser
-	goreleaser --snapshot --skip-publish --rm-dist
-	go mod tidy
+goreleaser-test: tag=Unreleased
+goreleaser-test: release
 
+ifeq ($(tag),Unreleased)
+SNAPSHOT=1
+endif
 tag=
 release: ## releases a tagged version
 	sed "/^## \[$(tag)/, /^## \[/!d" CHANGELOG.md | tail -n +2 | head -n -2 > /tmp/rn.md
-	curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes /tmp/rn.md
+	curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes /tmp/rn.md \
+		--rm-dist $(if $(SNAPSHOT),--snapshot --skip-publish,)
+ifneq ($(SNAPSHOT),1)
+	curl -X POST -d {} https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6
+endif

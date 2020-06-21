@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- build every pull request as a snapshot to check if it is not failing
 - command to auto-generated hugo formatted markdown files from the commands
 - implemented a site to better help people to understand what the CLI does,
   without having to download it (live on: https://clockify-cli.netlify.app/)
