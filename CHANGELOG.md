@@ -1,3 +1,7 @@
+---
+title: Changelog
+chapter: true
+---
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -7,9 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- command to auto-generated hugo formatted markdown files from the commands
+- implemented a site to better help people to understand what the CLI does,
+  without having to download it (live on: https://clockify-cli.netlify.app/)
+
 ### Changed
 
-- improved headers on the CHANGELOG to better represent the hierarchie
+- improved headers on the CHANGELOG to better represent the hierarchies
+- moved `in clone` to be just `clone`
 
 ### Fixed
 

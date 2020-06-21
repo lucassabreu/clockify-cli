@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// inCloneCmd represents the clone command
-var inCloneCmd = &cobra.Command{
+// cloneCmd represents the clone command
+var cloneCmd = &cobra.Command{
 	Use:   "clone <time-entry-id>",
 	Short: "Copy a time entry and starts it (use \"last\" to copy the last one)",
 	Args:  cobra.ExactArgs(1),
@@ -132,11 +132,10 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 }
 
 func init() {
-	rootCmd.AddCommand(inCloneCmd)
-	inCmd.AddCommand(inCloneCmd)
+	rootCmd.AddCommand(cloneCmd)
 
-	inCloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
+	cloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
 
-	inCloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	inCloneCmd.Flags().BoolP("json", "j", false, "print as json")
+	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
 }

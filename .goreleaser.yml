@@ -1,10 +1,11 @@
-before:
-  hooks:
-    # you may remove this if you don't use vgo
-    - go mod download
 builds:
 - env:
   - CGO_ENABLED=0
+  hooks:
+    pre:
+      - go mod download
+    post:
+      - curl -X POST -d {} https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6
 archives:
   - id: default
     replacements:

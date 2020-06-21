@@ -1,0 +1,3 @@
+[build]
+    command = "./deploy-docs"
+    publish = "docs/public"
