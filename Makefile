@@ -41,5 +41,5 @@ release: ## releases a tagged version
 	curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes /tmp/rn.md \
 		--rm-dist $(if $(SNAPSHOT),--snapshot --skip-publish,)
 ifneq ($(SNAPSHOT),1)
-	curl -X POST -d {} "https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6?trigger_branch=$(tag)&trigger_title=Releasing $(tag)"
+	curl -X POST -d '{"trigger_branch":"$(tag)","trigger_title":"Releasing $(tag)"}' https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6 -v
 endif
