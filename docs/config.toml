@@ -1,0 +1,18 @@
+baseURL = "http://example.org/"
+languageCode = "en-us"
+title = "Clockify CLI"
+
+theme = "hugo-theme-learn"
+
+pygmentsCodeFences = true
+pygmentsUseClasses = true
+pygmentsOptions = "hl_lines=3,startinline=1"
+
+[outputs]
+home = ["HTML", "RSS", "JSON"]
+
+[params]
+    description = "Clockify CLI"
+    author = "Lucas dos Santos Abreu"
+    showVisitedLinks = false
+    custom_css = ['css/custom.css']
