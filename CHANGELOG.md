@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.1] - 2020-06-21
+
+### Fixed
+
+- snapcraft build/release problems after Travis config update
+
 ## [v0.7.0] - 2020-06-21
 
 ### Added
@@ -241,7 +247,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.7.1...HEAD
+[v0.7.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.7.1
 [v0.7.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.7.0
 [v0.6.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.6.1
 [v0.6.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.6.0
