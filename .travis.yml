@@ -1,6 +1,6 @@
 language: go
 go:
-  - "1.12.x"
+  - "1.14.x"
 
 addons:
   apt:
@@ -19,21 +19,17 @@ before_install:
 
 install:
 # needed for the snap pipe:
-- sudo snap install snapcraft --classic
-
-# needed for the docker pipe
-services:
-- docker
+  - sudo snap install snapcraft --classic
 
 after_success:
-- test -n "$TRAVIS_TAG" && snapcraft login --with snap.login && rm -f snap.login
+  - if [ ! -z $TRAVIS_TAG ]; then snapcraft login --with snap.login fi
+  - rm -f snap.login;
 
-# calls goreleaser
-deploy:
-- provider: script
-  skip_cleanup: true
-  script: make release tag=$TRAVIS_TAG
-  on:
-    tags: true
-    condition: $TRAVIS_OS_NAME = linux
-
+jobs:
+  include:
+    - script:
+        - snapcraft cleanbuild || true
+        - make release tag=${TRAVIS_TAG:-Unreleased}
+      on:
+        tags: true
+        condition: $TRAVIS_OS_NAME = linux
