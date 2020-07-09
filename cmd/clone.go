@@ -57,8 +57,9 @@ var cloneCmd = &cobra.Command{
 		}
 
 		format, _ := cmd.Flags().GetString("format")
+		noClosing, _ := cmd.Flags().GetBool("no-closing")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		err = newEntry(c, tec, viper.GetBool("interactive"), !viper.GetBool("no-closing"), format, asJSON)
+		err = newEntry(c, tec, viper.GetBool("interactive"), !noClosing, format, asJSON)
 		if err != nil {
 			printError(err)
 		}
@@ -108,9 +109,7 @@ func init() {
 
 	addTimeEntryFlags(cloneCmd)
 
-	cloneCmd.PersistentFlags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
-	_ = viper.BindPFlag("no-closing", inCmd.PersistentFlags().Lookup("no-closing"))
-
+	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
 	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
 }
