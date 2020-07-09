@@ -50,8 +50,9 @@ Available Commands:
   edit        Edit a time entry, use id "current" to apply to time entry in progress
   gendocs     Generate Markdown documentation for the clockify-cli.
   help        Help about any command
-  in          Create a new time entry and starts it
+  in          Create a new time entry and starts it (will close time entries not closed)
   log         List the entries from a specific day
+  manual      Creates a new completed time entry (does not stop on-going time entries)
   me          Show the user info
   out         Stops the last time entry
   project     List projects from a workspace

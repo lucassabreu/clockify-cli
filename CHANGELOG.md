@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- created a new sub-command `manual` that will allow to create "completed" time entries
+  in a more easy way.
 - created a new flag `--when-to-close` on `in` and `clone` to set close time for the
   time entry being started (if wanted).
 
