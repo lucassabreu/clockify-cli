@@ -30,7 +30,7 @@ import (
 // reportsCmd represents the reports command
 var reportCmd = &cobra.Command{
 	Use:   "report <start> <end>",
-	Short: "report for date ranges and with more data (format date as 2016-01-02)",
+	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
 	Args:  cobra.ExactArgs(2),
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		start, err := time.Parse("2006-01-02", args[0])
@@ -51,7 +51,7 @@ var reportCmd = &cobra.Command{
 // reportThisMonthCmd represents the reports this-month command
 var reportThisMonthCmd = &cobra.Command{
 	Use:   "this-month",
-	Short: "report all entries in this month",
+	Short: "List all time entries in this month",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		first, last := getMonthRange(time.Now())
 		reportWithRange(c, first, last, cmd)
@@ -61,7 +61,7 @@ var reportThisMonthCmd = &cobra.Command{
 // reportLastMonthCmd represents the report last-month command
 var reportLastMonthCmd = &cobra.Command{
 	Use:   "last-month",
-	Short: "report all entries in last month",
+	Short: "List all time entries in last month",
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 		first, last := getMonthRange(time.Now().AddDate(0, -1, 0))
 		reportWithRange(c, first, last, cmd)

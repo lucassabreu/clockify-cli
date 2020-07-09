@@ -59,12 +59,6 @@ func init() {
 	rootCmd.PersistentFlags().StringP("user-id", "u", "", "user id from the token (defaults to env $CLOCKIFY_USER_ID)")
 	_ = viper.BindPFlag("user.id", rootCmd.PersistentFlags().Lookup("user-id"))
 
-	rootCmd.PersistentFlags().String("github-token", "", "GitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)")
-	_ = viper.BindPFlag("github.token", rootCmd.PersistentFlags().Lookup("github-token"))
-
-	rootCmd.PersistentFlags().String("trello-token", "", "Trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)")
-	_ = viper.BindPFlag("trello.token", rootCmd.PersistentFlags().Lookup("trello-token"))
-
 	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $CLOCKIFY_DEBUG)")
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 

@@ -22,7 +22,7 @@ import (
 var projectCmd = &cobra.Command{
 	Use:     "project",
 	Aliases: []string{"projects"},
-	Short:   "Allow project aliasing and integration of a project with GitHub:Issues or Trello",
+	Short:   "List projects from a workspace",
 }
 
 func init() {

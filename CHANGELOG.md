@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.8.0] - 2020-07-08
+
+### Added
+
+- created a new sub-command `manual` that will allow to create "completed" time entries
+  in a more easy way.
+- created a new flag `--when-to-close` on `in` and `clone` to set close time for the
+  time entry being started (if wanted).
+
+### Changed
+
+- `clone` sub-command allows the flag `--no-closing` and will have the same flags as
+  `in` to set start and end time (if wanted)
+- `in` sub-command will always stops time entries that are open in the moment of the
+  sub-command call.
+- some helps and messages were improved to better describe what the command does
+
+### Removed
+
+- flags `--trello-token` and `--github-token` were removed because they are not
+  currently used and may give false impressions about the cli
+
+### Fixed
+
+- some code for the in and clone sub-commands were duplicated, now they are in `newEntry`
+  function that they both used.
+
 ## [v0.7.2] - 2020-06-21
 
 ### Fixed
