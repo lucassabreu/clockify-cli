@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.8.0] - 2020-07-08
+
 ### Added
 
 - created a new sub-command `manual` that will allow to create "completed" time entries
