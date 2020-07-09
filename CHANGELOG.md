@@ -11,8 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- created a new flag `--when-to-close` on `in` and `clone` to set close time for the
+  time entry being started (if wanted).
+
 ### Changed
 
+- `clone` sub-command allows the flag `--no-closing` and will have the same flags as
+  `in` to set start and end time (if wanted)
+- `in` sub-command will always stops time entries that are open in the moment of the
+  sub-command call.
 - some helps and messages were improved to better describe what the command does
 
 ### Removed

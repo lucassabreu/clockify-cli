@@ -36,9 +36,10 @@ var whenToCloseString string
 
 // inCmd represents the in command
 var inCmd = &cobra.Command{
-	Use:   "in <project-id> <description>",
-	Short: "Create a new time entry and starts it",
-	Args:  cobra.MaximumNArgs(2),
+	Use:     "in <project-id> <description>",
+	Short:   "Create a new time entry and starts it (will close time entries not closed)",
+	Args:    cobra.MaximumNArgs(2),
+	Aliases: []string{"start"},
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 
 		var whenToCloseDate time.Time
@@ -77,7 +78,7 @@ var inCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		err = newEntry(c, tei, viper.GetBool("interactive"), !noClosing, format, asJSON)
+		err = newEntry(c, tei, viper.GetBool("interactive"), true, format, asJSON)
 		if err != nil {
 			printError(err)
 		}
@@ -91,14 +92,12 @@ func init() {
 
 	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	inCmd.Flags().BoolP("json", "j", false, "print as json")
-	inCmd.PersistentFlags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
-
-	_ = viper.BindPFlag("no-closing", inCmd.PersistentFlags().Lookup("no-closing"))
 }
 
 func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
 	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
 	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
-	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
+	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+	cmd.Flags().StringVar(&whenToCloseString, "when-to-close", "", "when the entry should be closed, if not informed will let it open")
 }

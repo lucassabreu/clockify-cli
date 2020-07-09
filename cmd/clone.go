@@ -106,7 +106,10 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 func init() {
 	rootCmd.AddCommand(cloneCmd)
 
-	cloneCmd.Flags().String("when", "", "when the entry should be closed, if not informed will use current time")
+	addTimeEntryFlags(cloneCmd)
+
+	cloneCmd.PersistentFlags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
+	_ = viper.BindPFlag("no-closing", inCmd.PersistentFlags().Lookup("no-closing"))
 
 	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
