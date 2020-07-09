@@ -16,14 +16,11 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"time"
 
 	"github.com/spf13/viper"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
@@ -78,35 +75,10 @@ var inCmd = &cobra.Command{
 			tei.TimeInterval.End = &whenToCloseDate
 		}
 
-		tei, err = newEntry(c, tei, viper.GetBool("interactive"), !noClosing)
-
-		if err != nil {
-			printError(err)
-			return
-		}
-
-		te, err := c.ConvertIntoFullTimeEntry(tei)
-		if err != nil {
-			printError(err)
-			return
-		}
-
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = reports.TimeEntryPrint
-
-		if asJSON {
-			reportFn = reports.TimeEntryJSONPrint
-		}
-
-		if format != "" {
-			reportFn = reports.TimeEntryPrintWithTemplate(format)
-		}
-
-		if err = reportFn(&te, os.Stdout); err != nil {
+		err = newEntry(c, tei, viper.GetBool("interactive"), !noClosing, format, asJSON)
+		if err != nil {
 			printError(err)
 		}
 	}),

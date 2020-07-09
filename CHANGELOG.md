@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - flags `--trello-token` and `--github-token` were removed because they are not
   currently used and may give false impressions about the cli
 
+### Fixed
+
+- some code for the in and clone sub-commands were duplicated, now they are in `newEntry`
+  function that they both used.
+
 ## [v0.7.2] - 2020-06-21
 
 ### Fixed

@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -113,18 +115,18 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 }
 
-func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) (dto.TimeEntryImpl, error) {
+func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool, format string, asJSON bool) error {
 	var err error
 
 	if interactive {
 		te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
 		if err != nil {
-			return te, err
+			return err
 		}
 	}
 
 	if te.ProjectID == "" {
-		return te, errors.New("project must be informed")
+		return errors.New("project must be informed")
 	}
 
 	if interactive {
@@ -134,14 +136,14 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 	if interactive {
 		te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 		if err != nil {
-			return te, err
+			return err
 		}
 
 		var date *time.Time
 		dateString := te.TimeInterval.Start.Format(fullTimeFormat)
 
 		if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
-			return te, err
+			return err
 		}
 		te.TimeInterval.Start = *date
 
@@ -151,7 +153,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 		}
 
 		if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
-			return te, err
+			return err
 		}
 		te.TimeInterval.End = date
 	}
@@ -163,11 +165,11 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 		})
 
 		if err != nil {
-			return te, err
+			return err
 		}
 	}
 
-	return c.CreateTimeEntry(api.CreateTimeEntryParam{
+	tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 		Workspace:   te.WorkspaceID,
 		Billable:    !notBillable,
 		Start:       te.TimeInterval.Start,
@@ -177,6 +179,29 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool) 
 		TagIDs:      te.TagIDs,
 		TaskID:      te.TaskID,
 	})
+
+	if err != nil {
+		return err
+	}
+
+	fte, err := c.ConvertIntoFullTimeEntry(tei)
+	if err != nil {
+		return err
+	}
+
+	var reportFn func(*dto.TimeEntry, io.Writer) error
+
+	reportFn = reports.TimeEntryPrint
+
+	if asJSON {
+		reportFn = reports.TimeEntryJSONPrint
+	}
+
+	if format != "" {
+		reportFn = reports.TimeEntryPrintWithTemplate(format)
+	}
+
+	return reportFn(&fte, os.Stdout)
 }
 
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {

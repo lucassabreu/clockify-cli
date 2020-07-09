@@ -16,13 +16,10 @@ package cmd
 
 import (
 	"errors"
-	"io"
-	"os"
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -59,35 +56,10 @@ var cloneCmd = &cobra.Command{
 			return
 		}
 
-		tec, err = newEntry(c, tec, viper.GetBool("interactive"), !viper.GetBool("no-closing"))
-
-		if err != nil {
-			printError(err)
-			return
-		}
-
-		te, err := c.ConvertIntoFullTimeEntry(tec)
-		if err != nil {
-			printError(err)
-			return
-		}
-
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = reports.TimeEntryPrint
-
-		if asJSON {
-			reportFn = reports.TimeEntryJSONPrint
-		}
-
-		if format != "" {
-			reportFn = reports.TimeEntryPrintWithTemplate(format)
-		}
-
-		if err = reportFn(&te, os.Stdout); err != nil {
+		err = newEntry(c, tec, viper.GetBool("interactive"), !viper.GetBool("no-closing"), format, asJSON)
+		if err != nil {
 			printError(err)
 		}
 	}),
