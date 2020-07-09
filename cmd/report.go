@@ -32,19 +32,17 @@ var reportCmd = &cobra.Command{
 	Use:   "report <start> <end>",
 	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
 	Args:  cobra.ExactArgs(2),
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		start, err := time.Parse("2006-01-02", args[0])
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 		end, err := time.Parse("2006-01-02", args[1])
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
-		reportWithRange(c, start, end, cmd)
+		return reportWithRange(c, start, end, cmd)
 	}),
 }
 
@@ -52,9 +50,9 @@ var reportCmd = &cobra.Command{
 var reportThisMonthCmd = &cobra.Command{
 	Use:   "this-month",
 	Short: "List all time entries in this month",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getMonthRange(time.Now())
-		reportWithRange(c, first, last, cmd)
+		return reportWithRange(c, first, last, cmd)
 	}),
 }
 
@@ -62,9 +60,9 @@ var reportThisMonthCmd = &cobra.Command{
 var reportLastMonthCmd = &cobra.Command{
 	Use:   "last-month",
 	Short: "List all time entries in last month",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getMonthRange(time.Now().AddDate(0, -1, 0))
-		reportWithRange(c, first, last, cmd)
+		return reportWithRange(c, first, last, cmd)
 	}),
 }
 
@@ -96,7 +94,7 @@ func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
 	return
 }
 
-func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
+func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
 	format, _ := cmd.Flags().GetString("format")
 	asJSON, _ := cmd.Flags().GetBool("json")
 	asCSV, _ := cmd.Flags().GetBool("csv")
@@ -107,8 +105,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 
 	userId, err := getUserId(c)
 	if err != nil {
-		printError(err)
-		return
+		return err
 	}
 
 	log, err := c.LogRange(api.LogRangeParam{
@@ -120,8 +117,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 	})
 
 	if err != nil {
-		printError(err)
-		return
+		return err
 	}
 
 	sort.Slice(log, func(i, j int) bool {
@@ -174,7 +170,5 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) {
 		fn = reports.TimeEntriesPrintWithTemplate(format)
 	}
 
-	if err = fn(log, os.Stdout); err != nil {
-		printError(err)
-	}
+	return fn(log, os.Stdout)
 }

@@ -29,7 +29,7 @@ import (
 var workspacesCmd = &cobra.Command{
 	Use:   "workspaces",
 	Short: "List user's workspaces",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		name, _ := cmd.Flags().GetString("name")
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
@@ -39,8 +39,7 @@ var workspacesCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		var reportFn func([]dto.Workspace, io.Writer) error
@@ -54,9 +53,7 @@ var workspacesCmd = &cobra.Command{
 			reportFn = reports.WorkspacePrintQuietly
 		}
 
-		if err = reportFn(w, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(w, os.Stdout)
 	}),
 }
 

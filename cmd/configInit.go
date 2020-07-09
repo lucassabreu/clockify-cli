@@ -31,7 +31,7 @@ import (
 var configInitCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize the config with Tokens, default Workspace and User",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		token := ""
 		err := survey.AskOne(
 			&survey.Input{
@@ -43,23 +43,20 @@ var configInitCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		viper.Set("token", token)
 
 		c, err := getAPIClient()
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		ws, err := c.Workspaces(api.WorkspacesFilter{})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		dWorkspace := ""
@@ -84,21 +81,17 @@ var configInitCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		viper.Set("workspace", strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
-
-		print(viper.GetString("workspace"))
 
 		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
 			Workspace: viper.GetString("workspace"),
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		dUser := ""
@@ -123,8 +116,7 @@ var configInitCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		viper.Set("user.id", strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
@@ -140,8 +132,7 @@ var configInitCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		viper.Set("github.token", githubToken)
@@ -157,33 +148,27 @@ var configInitCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		viper.Set("trello.token", trelloToken)
 
-		saveConfigFile()
+		return saveConfigFile()
 	},
 }
 
-func saveConfigFile() {
+func saveConfigFile() error {
 	filename := viper.ConfigFileUsed()
 	if filename == "" {
 		home, err := homedir.Dir()
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		filename = path.Join(home, ".clockify-cli.yaml")
 	}
 
-	err := viper.WriteConfigAs(filename)
-	if err != nil {
-		printError(err)
-		return
-	}
+	return viper.WriteConfigAs(filename)
 }
 
 func init() {

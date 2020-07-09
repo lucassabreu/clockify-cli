@@ -36,7 +36,11 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		if viper.GetBool("debug") {
+			panic(err)
+		} else {
+			fmt.Fprintln(os.Stderr, err.Error())
+		}
 		os.Exit(1)
 	}
 }
@@ -97,7 +101,7 @@ func initConfig() {
 		case viper.ConfigFileNotFoundError:
 			return
 		default:
-			printError(err)
+			fmt.Print(err)
 			return
 		}
 	}

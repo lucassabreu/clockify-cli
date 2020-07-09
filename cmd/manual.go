@@ -29,7 +29,7 @@ var manualCmd = &cobra.Command{
 	Use:   "manual <project-id> <start> <end> <description>",
 	Short: "Creates a new completed time entry (does not stop on-going time entries)",
 	Args:  cobra.MaximumNArgs(4),
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var whenToCloseDate time.Time
 		var err error
 
@@ -46,16 +46,15 @@ var manualCmd = &cobra.Command{
 		if len(args) > 1 {
 			tei.TimeInterval.Start, err = convertToTime(args[1])
 			if err != nil {
-				printError(fmt.Errorf("Fail to convert when to start: %s", err.Error()))
-				return
+				return fmt.Errorf("Fail to convert when to start: %s", err.Error())
+
 			}
 		}
 
 		if len(args) > 2 {
 			whenToCloseDate, err = convertToTime(args[2])
 			if err != nil {
-				printError(fmt.Errorf("Fail to convert when to end: %s", err.Error()))
-				return
+				return fmt.Errorf("Fail to convert when to end: %s", err.Error())
 			}
 			tei.TimeInterval.End = &whenToCloseDate
 		}
@@ -66,10 +65,7 @@ var manualCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		err = newEntry(c, tei, viper.GetBool("interactive"), false, format, asJSON)
-		if err != nil {
-			printError(err)
-		}
+		return newEntry(c, tei, viper.GetBool("interactive"), false, format, asJSON)
 	}),
 }
 

@@ -36,15 +36,14 @@ var logCmd = &cobra.Command{
 	Use:     "log",
 	Aliases: []string{"logs"},
 	Short:   "List the entries from a specific day",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		var filterDate time.Time
 
 		var err error
 		if filterDate, err = time.Parse(dateFormat, dateString); err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		if yesterday {
@@ -53,8 +52,7 @@ var logCmd = &cobra.Command{
 
 		userId, err := getUserId(c)
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		log, err := c.Log(api.LogParam{
@@ -71,8 +69,7 @@ var logCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		var reportFn func([]dto.TimeEntry, io.Writer) error
@@ -86,9 +83,7 @@ var logCmd = &cobra.Command{
 			reportFn = reports.TimeEntriesPrintWithTemplate(format)
 		}
 
-		if err = reportFn(log, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(log, os.Stdout)
 	}),
 }
 

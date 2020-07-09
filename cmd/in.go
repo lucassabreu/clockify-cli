@@ -28,7 +28,6 @@ import (
 
 var tags []string
 var notBillable bool
-var noClosing bool
 var task string
 
 var whenString string
@@ -40,7 +39,7 @@ var inCmd = &cobra.Command{
 	Short:   "Create a new time entry and starts it (will close time entries not closed)",
 	Args:    cobra.MaximumNArgs(2),
 	Aliases: []string{"start"},
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 
 		var whenToCloseDate time.Time
 		var err error
@@ -62,26 +61,21 @@ var inCmd = &cobra.Command{
 		if whenString != "" {
 			tei.TimeInterval.Start, err = convertToTime(whenString)
 			if err != nil {
-				printError(fmt.Errorf("Fail to convert when to start: %s", err.Error()))
-				return
+				return fmt.Errorf("Fail to convert when to start: %s", err.Error())
 			}
 		}
 
 		if whenToCloseString != "" {
 			whenToCloseDate, err = convertToTime(whenToCloseString)
 			if err != nil {
-				printError(fmt.Errorf("Fail to convert when to end: %s", err.Error()))
-				return
+				return fmt.Errorf("Fail to convert when to end: %s", err.Error())
 			}
 			tei.TimeInterval.End = &whenToCloseDate
 		}
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		err = newEntry(c, tei, viper.GetBool("interactive"), true, format, asJSON)
-		if err != nil {
-			printError(err)
-		}
+		return newEntry(c, tei, viper.GetBool("interactive"), true, format, asJSON)
 	}),
 }
 

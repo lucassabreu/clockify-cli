@@ -28,7 +28,7 @@ var configSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Updates or adds a key to the file",
 	Args:  cobra.RangeArgs(1, 2),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		key := args[0]
 		var value *string
 		if len(args) >= 2 {
@@ -36,8 +36,7 @@ var configSetCmd = &cobra.Command{
 		}
 
 		if !viper.GetBool("interactive") && value == nil {
-			printError(fmt.Errorf("you must inform the value of the config %s", key))
-			return
+			return fmt.Errorf("you must inform the value of the config %s", key)
 		}
 
 		if value == nil {
@@ -52,15 +51,14 @@ var configSetCmd = &cobra.Command{
 			)
 
 			if err != nil {
-				printError(err)
-				return
+				return err
 			}
 
 			value = &v
 		}
 
 		viper.Set(key, value)
-		saveConfigFile()
+		return saveConfigFile()
 	},
 }
 
