@@ -48,27 +48,28 @@ Available Commands:
   clone       Copy a time entry and starts it (use "last" to copy the last one)
   config      Manages configuration file parameters
   edit        Edit a time entry, use id "current" to apply to time entry in progress
+  gendocs     Generate Markdown documentation for the clockify-cli.
   help        Help about any command
   in          Create a new time entry and starts it
   log         List the entries from a specific day
   me          Show the user info
   out         Stops the last time entry
-  project     Allow project aliasing and integration of a project with GitHub:Issues or Trello
-  report      report for date ranges and with more data (format date as 2016-01-02)
+  project     List projects from a workspace
+  report      List all time entries in the date ranges and with more data (format date as 2016-01-02)
   tags        List tags of workspace
   workspaces  List user's workspaces
 
 Flags:
-      --config string         config file (default is $HOME/.clockify-cli.yaml)
-      --debug                 show debug log (defaults to env $CLOCKIFY_DEBUG)
-      --github-token string   GitHub's token (defaults to env $CLOCKIFY_GITHUB_TOKEN)
-  -h, --help                  help for clockify-cli
-  -i, --interactive           show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
-  -t, --token string          clockify's token (defaults to env $CLOCKIFY_TOKEN)
-                                Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
-      --trello-token string   Trello's token (defaults to env $CLOCKIFY_TRELLO_TOKEN)
-  -u, --user-id string        user id from the token (defaults to env $CLOCKIFY_USER_ID)
-  -w, --workspace string      workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)
+      --config string      config file (default is $HOME/.clockify-cli.yaml)
+      --debug              show debug log (defaults to env $CLOCKIFY_DEBUG)
+  -h, --help               help for clockify-cli
+  -i, --interactive        show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
+  -t, --token string       clockify's token (defaults to env $CLOCKIFY_TOKEN)
+                           	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
+  -u, --user-id string     user id from the token (defaults to env $CLOCKIFY_USER_ID)
+  -w, --workspace string   workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)
 
 Use "clockify-cli [command] --help" for more information about a command.
 ```
+
+See more information about the sub-commands at: https://clockify-cli.netlify.app/en/commands/clockify-cli/

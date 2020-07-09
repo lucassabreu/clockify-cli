@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- some helps and messages were improved to better describe what the command does
+
+### Removed
+
+- flags `--trello-token` and `--github-token` were removed because they are not
+  currently used and may give false impressions about the cli
+
 ## [v0.7.2] - 2020-06-21
 
 ### Fixed

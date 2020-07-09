@@ -29,8 +29,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cardNumber int
-var issueNumber int
 var tags []string
 var notBillable bool
 var noClosing bool
@@ -41,10 +39,9 @@ var whenToCloseString string
 
 // inCmd represents the in command
 var inCmd = &cobra.Command{
-	Use:     "in <project-name-or-id> <description>",
-	Short:   "Create a new time entry and starts it",
-	Example: `clockify-cli in --issue 13 "time sheet"`,
-	Args:    cobra.MaximumNArgs(2),
+	Use:   "in <project-id> <description>",
+	Short: "Create a new time entry and starts it",
+	Args:  cobra.MaximumNArgs(2),
 	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
 
 		var whenToCloseDate time.Time
@@ -120,7 +117,7 @@ func init() {
 
 	addTimeEntryFlags(inCmd)
 
-	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	inCmd.Flags().BoolP("json", "j", false, "print as json")
 	inCmd.PersistentFlags().BoolVar(&noClosing, "no-closing", false, "don't close any active time entry")
 
@@ -129,8 +126,6 @@ func init() {
 
 func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
-	cmd.Flags().IntVarP(&cardNumber, "card", "c", 0, "trello card number being started")
-	cmd.Flags().IntVar(&issueNumber, "issue", 0, "issue number being started")
 	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
 	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
 	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
