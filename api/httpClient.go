@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/pkg/errors"
 )
 
 // QueryAppender an interface to identify if the parameters should be sent through the query or body
@@ -80,13 +81,13 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	_, err = io.Copy(buf, r.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
 	if r.StatusCode == 404 {
-		return r, ErrorNotFound
+		return r, errors.WithStack(ErrorNotFound)
 	}
 
 	decoder := json.NewDecoder(buf)
@@ -95,19 +96,18 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		var apiErr dto.Error
 		err = decoder.Decode(&apiErr)
 		if err != nil {
-			return r, err
+			return r, errors.WithStack(err)
 		}
-		return r, apiErr
+		return r, errors.WithStack(apiErr)
 	}
 
 	if v == nil {
-		return r, err
+		return r, nil
 	}
 
 	if buf.Len() == 0 {
-		return r, err
+		return r, nil
 	}
 
-	err = decoder.Decode(v)
-	return r, err
+	return r, errors.WithStack(decoder.Decode(v))
 }

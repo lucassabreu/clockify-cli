@@ -39,7 +39,7 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if viper.GetBool("debug") {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "%+v\n", err)
 		} else {
 			fmt.Fprintln(os.Stderr, err.Error())
 		}
