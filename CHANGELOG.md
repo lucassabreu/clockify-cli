@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- all relevant errors now have stack trace with then, which will be printed when the
+  flag `--debug` is used.
+- error reporting now centralized, removing the need for a helper function in each
+  sub-command
+
 ## [v0.8.1] - 2020-07-09
 
 ### Fixed
