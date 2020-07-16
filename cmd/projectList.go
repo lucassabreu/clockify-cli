@@ -31,7 +31,7 @@ var projectListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List projects on Clockify and project links",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
@@ -40,8 +40,7 @@ var projectListCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		name, _ := cmd.Flags().GetString("name")
@@ -58,9 +57,7 @@ var projectListCmd = &cobra.Command{
 			reportFn = reports.ProjectPrintQuietly
 		}
 
-		if err = reportFn(projects, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(projects, os.Stdout)
 	}),
 }
 

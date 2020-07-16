@@ -30,19 +30,15 @@ var logInProgressCmd = &cobra.Command{
 	Use:     "in-progress",
 	Aliases: []string{"current", "open", "running"},
 	Short:   "Show time entry in progress (if any)",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		te, err := getTimeEntryInProgres(c, viper.GetString("workspace"))
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-
-		if err = formatTimeEntry(te, asJSON, format); err != nil {
-			printError(err)
-		}
+		return formatTimeEntry(te, asJSON, format)
 	}),
 }
 

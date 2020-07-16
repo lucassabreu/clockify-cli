@@ -33,7 +33,7 @@ var editCmd = &cobra.Command{
 	Aliases: []string{"update"},
 	Args:    cobra.ExactArgs(1),
 	Short:   `Edit a time entry, use id "current" to apply to time entry in progress`,
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 		param := api.UpdateTimeEntryParam{
 			Workspace:   viper.GetString("workspace"),
@@ -46,13 +46,11 @@ var editCmd = &cobra.Command{
 			})
 
 			if err != nil {
-				printError(err)
-				return
+				return err
 			}
 
 			if te == nil {
-				printError(errors.New("there is no time entry in progress"))
-				return
+				return errors.New("there is no time entry in progress")
 			}
 
 			param.TimeEntryID = te.ID
@@ -69,8 +67,7 @@ var editCmd = &cobra.Command{
 		whenString, _ = cmd.Flags().GetString("when")
 		var v time.Time
 		if v, err = convertToTime(whenString); err != nil {
-			printError(err)
-			return
+			return err
 		}
 		param.Start = v
 
@@ -78,8 +75,7 @@ var editCmd = &cobra.Command{
 			whenString, _ = cmd.Flags().GetString("end-at")
 			var v time.Time
 			if v, err = convertToTime(whenString); err != nil {
-				printError(err)
-				return
+				return err
 			}
 			param.End = &v
 		}
@@ -87,14 +83,12 @@ var editCmd = &cobra.Command{
 		tei, err := c.UpdateTimeEntry(param)
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		te, err := c.ConvertIntoFullTimeEntry(tei)
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
@@ -112,9 +106,7 @@ var editCmd = &cobra.Command{
 			reportFn = reports.TimeEntryPrintWithTemplate(format)
 		}
 
-		if err = reportFn(&te, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(&te, os.Stdout)
 	}),
 }
 

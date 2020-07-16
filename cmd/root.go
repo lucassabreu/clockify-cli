@@ -28,15 +28,21 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "clockify-cli",
-	Short: "Allow to integrate with Clockify through terminal",
+	Use:           "clockify-cli",
+	Short:         "Allow to integrate with Clockify through terminal",
+	SilenceErrors: true,
+	SilenceUsage:  true,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		if viper.GetBool("debug") {
+			fmt.Fprintf(os.Stderr, "%+v\n", err)
+		} else {
+			fmt.Fprintln(os.Stderr, err.Error())
+		}
 		os.Exit(1)
 	}
 }
@@ -66,6 +72,12 @@ func init() {
 	_ = viper.BindPFlag("interactive", rootCmd.PersistentFlags().Lookup("interactive"))
 
 	_ = rootCmd.MarkFlagRequired("token")
+
+	rootCmd.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
+		cmd.Println(err)
+		cmd.Println(cmd.UsageString())
+		return nil
+	})
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -97,7 +109,7 @@ func initConfig() {
 		case viper.ConfigFileNotFoundError:
 			return
 		default:
-			printError(err)
+			fmt.Print(err)
 			return
 		}
 	}

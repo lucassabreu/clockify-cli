@@ -34,7 +34,7 @@ var configCmd = &cobra.Command{
 	Use:   "config [config-name]",
 	Short: "Manages configuration file parameters",
 	Args:  cobra.MaximumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		format, _ := cmd.Flags().GetString("format")
 
 		var b []byte
@@ -54,11 +54,11 @@ var configCmd = &cobra.Command{
 		case FORMAT_YAML:
 			b, _ = yaml.Marshal(v)
 		default:
-			printError(errors.New("invalid format"))
-			return
+			return errors.New("invalid format")
 		}
 
 		fmt.Println(string(b))
+		return nil
 	},
 }
 

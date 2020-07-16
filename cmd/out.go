@@ -27,14 +27,13 @@ import (
 var outCmd = &cobra.Command{
 	Use:   "out",
 	Short: "Stops the last time entry",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var whenDate time.Time
 		var err error
 		whenString, _ := cmd.Flags().GetString("when")
 
 		if whenDate, err = convertToTime(whenString); err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		workspace := viper.GetString("workspace")
@@ -44,8 +43,7 @@ var outCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		err = c.Out(api.OutParam{
@@ -54,22 +52,19 @@ var outCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		quiet, _ := cmd.Flags().GetBool("quiet")
 		if quiet {
-			return
+			return nil
 		}
 
 		te.TimeInterval.End = &whenDate
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 
-		if err = formatTimeEntry(te, asJSON, format); err != nil {
-			printError(err)
-		}
+		return formatTimeEntry(te, asJSON, format)
 	}),
 }
 

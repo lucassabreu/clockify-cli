@@ -30,7 +30,7 @@ import (
 var tagsCmd = &cobra.Command{
 	Use:   "tags",
 	Short: "List tags of workspace",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
@@ -39,8 +39,7 @@ var tagsCmd = &cobra.Command{
 		})
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		name, _ := cmd.Flags().GetString("name")
@@ -57,9 +56,7 @@ var tagsCmd = &cobra.Command{
 			reportFn = reports.TagPrintQuietly
 		}
 
-		if err = reportFn(tags, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(tags, os.Stdout)
 	}),
 }
 

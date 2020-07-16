@@ -28,14 +28,13 @@ import (
 var meCmd = &cobra.Command{
 	Use:   "me",
 	Short: "Show the user info",
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 
 		u, err := c.GetMe()
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		var reportFn func(dto.User, io.Writer) error
@@ -56,9 +55,7 @@ var meCmd = &cobra.Command{
 			}
 		}
 
-		if err = reportFn(u, os.Stdout); err != nil {
-			printError(err)
-		}
+		return reportFn(u, os.Stdout)
 	}),
 }
 

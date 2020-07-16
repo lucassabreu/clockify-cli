@@ -23,21 +23,15 @@ var onlyTimeFormat = "15:04:05"
 var simplerOnlyTimeFormat = "15:04"
 var nowTimeFormat = "now"
 
-func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client)) func(*cobra.Command, []string) {
-	return func(cmd *cobra.Command, args []string) {
+func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client) error) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
 		c, err := getAPIClient()
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
-		fn(cmd, args, c)
+		return fn(cmd, args, c)
 	}
-}
-
-func printError(err error) {
-	fmt.Fprintln(os.Stderr, err.Error())
-	os.Exit(1)
 }
 
 func convertToTime(timeString string) (t time.Time, err error) {
@@ -305,5 +299,4 @@ func getUserId(c *api.Client) (string, error) {
 	}
 
 	return u.ID, nil
-
 }

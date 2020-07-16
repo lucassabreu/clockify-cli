@@ -29,13 +29,12 @@ var cloneCmd = &cobra.Command{
 	Use:   "clone <time-entry-id>",
 	Short: "Copy a time entry and starts it (use \"last\" to copy the last one)",
 	Args:  cobra.ExactArgs(1),
-	Run: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) {
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 
 		userId, err := getUserId(c)
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 		workspace := viper.GetString("workspace")
 		tec, err := getTimeEntry(
@@ -47,22 +46,17 @@ var cloneCmd = &cobra.Command{
 		tec.TimeInterval.End = nil
 
 		if err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		if tec.TimeInterval.Start, err = convertToTime(whenString); err != nil {
-			printError(err)
-			return
+			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		err = newEntry(c, tec, viper.GetBool("interactive"), !noClosing, format, asJSON)
-		if err != nil {
-			printError(err)
-		}
+		return newEntry(c, tec, viper.GetBool("interactive"), !noClosing, format, asJSON)
 	}),
 }
 

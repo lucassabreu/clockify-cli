@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	stackedErrors "github.com/pkg/errors"
 )
 
 // Client will help to access Clockify API
@@ -28,12 +29,12 @@ var ErrorMissingAPIKey = errors.New("api Key must be informed")
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
 	if len(apiKey) == 0 {
-		return nil, ErrorMissingAPIKey
+		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
 	}
 
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, err
+		return nil, stackedErrors.WithStack(err)
 	}
 
 	c := &Client{
@@ -295,7 +296,7 @@ func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
+	return nil, stackedErrors.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
 }
 
 // GetProjectParam params to get a Project
@@ -428,7 +429,6 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 	}
 
 	_, err = c.Do(r, &t)
-
 	return t, err
 }
 
@@ -556,7 +556,6 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 	}
 
 	_, err = c.Do(r, &t)
-
 	return t, err
 }
 
