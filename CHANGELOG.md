@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new sub-command `version` to allow a quick way to know which version is installed
+
 ### Changed
 
 - all relevant errors now have stack trace with then, which will be printed when the
