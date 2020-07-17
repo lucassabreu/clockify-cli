@@ -16,6 +16,12 @@ package main
 
 import "github.com/lucassabreu/clockify-cli/cmd"
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
-	cmd.Execute()
+	cmd.Execute(version, commit, date)
 }
