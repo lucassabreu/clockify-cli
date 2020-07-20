@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - new sub-command `version` to allow a quick way to know which version is installed
+- sub-command `report` now supports `this-week` and `last-week` as time range aliases
+  listing respectively all entries which start this week, and all entries that happened
+  on previous week.
 
 ### Changed
 
