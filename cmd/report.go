@@ -66,6 +66,26 @@ var reportLastMonthCmd = &cobra.Command{
 	}),
 }
 
+// reportThisWeekCmd represents the report last-month command
+var reportThisWeekCmd = &cobra.Command{
+	Use:   "this-week",
+	Short: "List all time entries in this week",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		first, last := getWeekRange(time.Now())
+		return reportWithRange(c, first, last, cmd)
+	}),
+}
+
+// reportLastWeekCmd represents the report last-month command
+var reportLastWeekCmd = &cobra.Command{
+	Use:   "last-week",
+	Short: "List all time entries in last week",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		first, last := getWeekRange(time.Now().AddDate(0, 0, -7))
+		return reportWithRange(c, first, last, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
@@ -75,9 +95,13 @@ func init() {
 	reportFlags(reportCmd)
 	reportFlags(reportThisMonthCmd)
 	reportFlags(reportLastMonthCmd)
+	reportFlags(reportThisWeekCmd)
+	reportFlags(reportLastWeekCmd)
 
 	reportCmd.AddCommand(reportThisMonthCmd)
 	reportCmd.AddCommand(reportLastMonthCmd)
+	reportCmd.AddCommand(reportThisWeekCmd)
+	reportCmd.AddCommand(reportLastWeekCmd)
 }
 
 func reportFlags(cmd *cobra.Command) {
@@ -90,6 +114,13 @@ func reportFlags(cmd *cobra.Command) {
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
 	first = ref.AddDate(0, 0, ref.Day()*-1+1).Truncate(time.Hour)
 	last = first.AddDate(0, 1, -1)
+
+	return
+}
+
+func getWeekRange(ref time.Time) (first time.Time, last time.Time) {
+	first = ref.AddDate(0, 0, int(ref.Weekday())*-1).Truncate(time.Hour)
+	last = first.AddDate(0, 0, 5)
 
 	return
 }
