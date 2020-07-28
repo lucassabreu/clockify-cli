@@ -246,12 +246,8 @@ func getDescription(description string) string {
 }
 
 func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
-	if len(tagIDs) > 0 {
+	if len(tagIDs) > 0 && !viper.GetBool("interactive") {
 		return tagIDs, nil
-	}
-
-	if !viper.GetBool("interactive") {
-		return nil, nil
 	}
 
 	tags, err := c.GetTags(api.GetTagsParam{
@@ -267,10 +263,20 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 		tagsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 	}
 
+	for i, t := range tagIDs {
+		for _, s := range tagsString {
+			if strings.HasPrefix(s, t) {
+				tagIDs[i] = s
+				break
+			}
+		}
+	}
+
 	err = survey.AskOne(
 		&survey.MultiSelect{
 			Message: "Choose your tags:",
 			Options: tagsString,
+			Default: tagIDs,
 		},
 		&tagIDs,
 		nil,
