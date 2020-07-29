@@ -48,6 +48,7 @@ var inCmd = &cobra.Command{
 			WorkspaceID:  viper.GetString("workspace"),
 			TagIDs:       tags,
 			TimeInterval: dto.TimeInterval{},
+			Billable:     !notBillable,
 		}
 
 		if len(args) > 0 {
@@ -89,7 +90,7 @@ func init() {
 }
 
 func addTimeEntryFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
+	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "this time entry is not billable")
 	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
 	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
 	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")

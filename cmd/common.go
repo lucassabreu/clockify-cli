@@ -165,7 +165,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool, 
 
 	tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 		Workspace:   te.WorkspaceID,
-		Billable:    !notBillable,
+		Billable:    te.Billable,
 		Start:       te.TimeInterval.Start,
 		End:         te.TimeInterval.End,
 		ProjectID:   te.ProjectID,
