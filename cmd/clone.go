@@ -66,6 +66,14 @@ var cloneCmd = &cobra.Command{
 			tec.TagIDs, _ = cmd.Flags().GetStringArray("tags")
 		}
 
+		if cmd.Flags().Changed("project") {
+			tec.ProjectID, _ = cmd.Flags().GetString("project")
+		}
+
+		if cmd.Flags().Changed("description") {
+			tec.Description, _ = cmd.Flags().GetString("description")
+		}
+
 		format, _ := cmd.Flags().GetString("format")
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 		asJSON, _ := cmd.Flags().GetBool("json")
@@ -116,6 +124,8 @@ func init() {
 
 	addTimeEntryFlags(cloneCmd)
 
+	cloneCmd.Flags().StringP("project", "", "", "use this project instead")
+	cloneCmd.Flags().StringP("description", "", "", "use this description instead")
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
 	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
