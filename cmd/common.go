@@ -125,9 +125,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool, 
 
 	if interactive {
 		te.Description = getDescription(te.Description)
-	}
 
-	if interactive {
 		te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 		if err != nil {
 			return err
@@ -165,7 +163,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool, 
 
 	tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
 		Workspace:   te.WorkspaceID,
-		Billable:    !notBillable,
+		Billable:    te.Billable,
 		Start:       te.TimeInterval.Start,
 		End:         te.TimeInterval.End,
 		ProjectID:   te.ProjectID,
@@ -208,13 +206,20 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 	}
 
 	projectsString := make([]string, len(projects))
+	found := false
 	for i, u := range projects {
 		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 		if u.ID == projectID {
 			projectID = projectsString[i]
+			found = true
 		}
 	}
-	println(projectID)
+
+	if !found {
+		fmt.Printf("Project '%s' informed was not found.\n", projectID)
+		projectID = ""
+	}
+
 	err = survey.AskOne(
 		&survey.Select{
 			Message: "Choose your project:",

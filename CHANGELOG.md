@@ -11,10 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `clone` command now allow to change the project and description on the
+  time entry creation, interactive mode already had this possibility
+
 ### Fixed
 
 - `clone` sub-command was not asking to confirm the tags when the original time entry already
   had some.
+- `clone` command now will respect flags `--tags` and `--when-to-close`.
+- "billable" attribute was not being cloned
 
 ## [v0.9.0] - 2020-07-20
 
