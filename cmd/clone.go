@@ -17,6 +17,7 @@ package cmd
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -43,7 +44,6 @@ var cloneCmd = &cobra.Command{
 			userId,
 			c,
 		)
-		tec.TimeInterval.End = nil
 
 		if err != nil {
 			return err
@@ -51,6 +51,19 @@ var cloneCmd = &cobra.Command{
 
 		if tec.TimeInterval.Start, err = convertToTime(whenString); err != nil {
 			return err
+		}
+
+		tec.TimeInterval.End = nil
+		if whenToCloseString != "" {
+			var whenToCloseDate time.Time
+			if whenToCloseDate, err = convertToTime(whenToCloseString); err != nil {
+				return err
+			}
+			tec.TimeInterval.End = &whenToCloseDate
+		}
+
+		if cmd.Flags().Changed("tags") {
+			tec.TagIDs, _ = cmd.Flags().GetStringArray("tags")
 		}
 
 		format, _ := cmd.Flags().GetString("format")
