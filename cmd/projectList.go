@@ -81,6 +81,6 @@ func init() {
 	projectCmd.AddCommand(projectListCmd)
 
 	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
-	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each Project")
+	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
 	projectListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }

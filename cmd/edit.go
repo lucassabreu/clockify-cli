@@ -119,6 +119,6 @@ func init() {
 	editCmd.Flags().String("description", "", "change the description")
 	editCmd.Flags().String("end-at", "", "when the entry should end (if not set \"\" will be used)")
 
-	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	editCmd.Flags().BoolP("json", "j", false, "print as json")
 }

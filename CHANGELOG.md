@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clone` command now will respect flags `--tags` and `--when-to-close`.
 - "billable" attribute was not being cloned
 - keep the current CHANGELOG when extracting the last tag
+- some grammatic errors ("applyied" => applied)
 
 ## [v0.9.0] - 2020-07-20
 

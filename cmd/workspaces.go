@@ -61,6 +61,6 @@ func init() {
 	rootCmd.AddCommand(workspacesCmd)
 
 	workspacesCmd.Flags().StringP("name", "n", "", "will be used to filter the workspaces by name")
-	workspacesCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each workspace")
+	workspacesCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each workspace")
 	workspacesCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }
