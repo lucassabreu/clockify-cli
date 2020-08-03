@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `clone` command now allow to change the project and description on the
   time entry creation, interactive mode already had this possibility
+- new flag `archived` on `project list` to list archived projects
 
 ### Fixed
 

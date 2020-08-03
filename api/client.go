@@ -461,6 +461,10 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 // GetProjectsParam params to get all project of a workspace
 type GetProjectsParam struct {
 	Workspace string
+	Name      string
+	Archived  bool
+
+	PaginationParam
 }
 
 // GetProjects get all project of a workspace
@@ -470,10 +474,14 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 	r, err := c.NewRequest(
 		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/projects/",
+			"v1/workspaces/%s/projects",
 			p.Workspace,
 		),
-		nil,
+		dto.GetProjectRequest{
+			Name:       p.Name,
+			Archived:   p.Archived,
+			Pagination: dto.NewPagination(p.Page, p.PageSize),
+		},
 	)
 
 	if err != nil {

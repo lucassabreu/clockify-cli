@@ -17,7 +17,6 @@ package cmd
 import (
 	"io"
 	"os"
-	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -34,17 +33,18 @@ var projectListCmd = &cobra.Command{
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
+		name, _ := cmd.Flags().GetString("name")
+		archived, _ := cmd.Flags().GetBool("archived")
 
 		projects, err := c.GetProjects(api.GetProjectsParam{
 			Workspace: viper.GetString("workspace"),
+			Name:      name,
+			Archived:  archived,
 		})
 
 		if err != nil {
 			return err
 		}
-
-		name, _ := cmd.Flags().GetString("name")
-		projects = filterProjects(name, projects)
 
 		var reportFn func([]dto.Project, io.Writer) error
 
@@ -61,26 +61,11 @@ var projectListCmd = &cobra.Command{
 	}),
 }
 
-func filterProjects(name string, projects []dto.Project) []dto.Project {
-	if name == "" {
-		return projects
-	}
-
-	ts := make([]dto.Project, 0)
-
-	for _, t := range projects {
-		if strings.Contains(strings.ToLower(t.Name), strings.ToLower(name)) {
-			ts = append(ts, t)
-		}
-	}
-
-	return ts
-}
-
 func init() {
 	projectCmd.AddCommand(projectListCmd)
 
 	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
+	projectListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
 	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
 	projectListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }
