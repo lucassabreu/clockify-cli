@@ -121,37 +121,6 @@ var configInitCmd = &cobra.Command{
 
 		viper.Set("user.id", strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
-		githubToken := ""
-		err = survey.AskOne(
-			&survey.Input{
-				Message: "GitHub token (must have permission to read issues):",
-				Default: viper.GetString("github.token"),
-			},
-			&githubToken,
-			nil,
-		)
-
-		if err != nil {
-			return err
-		}
-
-		viper.Set("github.token", githubToken)
-
-		trelloToken := ""
-		err = survey.AskOne(
-			&survey.Input{
-				Message: "Trello token (must have permission to read cards):",
-				Default: viper.GetString("trello.token"),
-			},
-			&trelloToken,
-			nil,
-		)
-
-		if err != nil {
-			return err
-		}
-
-		viper.Set("trello.token", trelloToken)
 
 		return saveConfigFile()
 	},
