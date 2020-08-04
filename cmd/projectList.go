@@ -37,9 +37,10 @@ var projectListCmd = &cobra.Command{
 		archived, _ := cmd.Flags().GetBool("archived")
 
 		projects, err := c.GetProjects(api.GetProjectsParam{
-			Workspace: viper.GetString("workspace"),
-			Name:      name,
-			Archived:  archived,
+			Workspace:       viper.GetString("workspace"),
+			Name:            name,
+			Archived:        archived,
+			PaginationParam: api.PaginationParam{AllPages: true},
 		})
 
 		if err != nil {

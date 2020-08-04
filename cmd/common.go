@@ -112,7 +112,10 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 
 func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
 	project = strings.ToLower(strings.TrimSpace(project))
-	projects, err := c.GetProjects(api.GetProjectsParam{Workspace: workspace})
+	projects, err := c.GetProjects(api.GetProjectsParam{
+		Workspace:       workspace,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
 	if err != nil {
 		return "", err
 	}
