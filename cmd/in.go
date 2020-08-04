@@ -76,7 +76,7 @@ var inCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(c, tei, viper.GetBool("interactive"), true, format, asJSON)
+		return newEntry(c, tei, viper.GetBool("interactive"), viper.GetBool("allow-project-name"), true, format, asJSON)
 	}),
 }
 

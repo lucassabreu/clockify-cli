@@ -12,6 +12,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
+	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -109,8 +110,34 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 }
 
-func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, autoClose bool, format string, asJSON bool) error {
+func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
+	project = strings.ToLower(strings.TrimSpace(project))
+	projects, err := c.GetProjects(api.GetProjectsParam{Workspace: workspace})
+	if err != nil {
+		return "", err
+	}
+
+	for _, p := range projects {
+		if strings.ToLower(p.ID) == project {
+			return p.ID, nil
+		}
+		if strings.Contains(strings.ToLower(p.Name), project) {
+			return p.ID, nil
+		}
+	}
+
+	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
+}
+
+func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByName, autoClose bool, format string, asJSON bool) error {
 	var err error
+
+	if allowProjectByName && te.ProjectID != "" {
+		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
+		if err != nil && !interactive {
+			return err
+		}
+	}
 
 	if interactive {
 		te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)

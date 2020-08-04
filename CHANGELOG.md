@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clone` command now allow to change the project and description on the
   time entry creation, interactive mode already had this possibility
 - new flag `archived` on `project list` to list archived projects
+- a new global config `allow-project-name` that, when enabled, allow the user to the project
+  name (or parts of it) to be used where the project id is asked.
 
 ### Fixed
 

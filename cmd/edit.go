@@ -61,6 +61,12 @@ var editCmd = &cobra.Command{
 		param.TaskID, _ = cmd.Flags().GetString("task")
 		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
 
+		if viper.GetBool("allow-project-name") && param.ProjectID != "" {
+			if param.ProjectID, err = getProjectByNameOrId(c, param.Workspace, param.ProjectID); err != nil {
+				return err
+			}
+		}
+
 		b, _ := cmd.Flags().GetBool("not-billable")
 		param.Billable = !b
 

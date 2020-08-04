@@ -121,6 +121,21 @@ var configInitCmd = &cobra.Command{
 
 		viper.Set("user.id", strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
+		allowProjectName := viper.GetBool("allow-project-name")
+		err = survey.AskOne(
+			&survey.Confirm{
+				Message: "Should try to find project by its name?",
+				Default: allowProjectName,
+			},
+			&allowProjectName,
+			nil,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		viper.Set("allow-project-name", allowProjectName)
 
 		return saveConfigFile()
 	},
