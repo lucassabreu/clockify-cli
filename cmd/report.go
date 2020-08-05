@@ -188,7 +188,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	var fn func([]dto.TimeEntry, io.Writer) error
-	fn = reports.TimeEntriesPrint
+	fn = reports.TimeEntriesPrintWithTimeFormat(reports.TIME_FORMAT_FULL)
 	if asJSON {
 		fn = reports.TimeEntriesJSONPrint
 	}

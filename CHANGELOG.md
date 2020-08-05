@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   flag `--debug` is used.
 - error reporting now centralized, removing the need for a helper function in each
   sub-command
+- `report`command default output (table) with show in which day the times entries were made.
 
 ## [v0.8.1] - 2020-07-09
 
