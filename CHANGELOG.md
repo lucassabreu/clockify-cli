@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `clone` command now allow to change the project and description on the
   time entry creation, interactive mode already had this possibility
+- new flag `archived` on `project list` to list archived projects
+- a new global config `allow-project-name` that, when enabled, allow the user to the project
+  name (or parts of it) to be used where the project id is asked.
+- common function to get all pages on a paginated request, to not reimplement it, and guarantee
+  all entities are being used/returned.
 
 ### Fixed
 
@@ -23,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clone` command now will respect flags `--tags` and `--when-to-close`.
 - "billable" attribute was not being cloned
 - keep the current CHANGELOG when extracting the last tag
+- some grammatic errors ("applyied" => applied)
+- remove mentions to GitHub or Trello token, until integration is implemented
 
 ## [v0.9.0] - 2020-07-20
 
@@ -39,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   flag `--debug` is used.
 - error reporting now centralized, removing the need for a helper function in each
   sub-command
+- `report`command default output (table) with show in which day the times entries were made.
 
 ## [v0.8.1] - 2020-07-09
 

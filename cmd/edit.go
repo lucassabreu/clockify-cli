@@ -61,6 +61,12 @@ var editCmd = &cobra.Command{
 		param.TaskID, _ = cmd.Flags().GetString("task")
 		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
 
+		if viper.GetBool("allow-project-name") && param.ProjectID != "" {
+			if param.ProjectID, err = getProjectByNameOrId(c, param.Workspace, param.ProjectID); err != nil {
+				return err
+			}
+		}
+
 		b, _ := cmd.Flags().GetBool("not-billable")
 		param.Billable = !b
 
@@ -119,6 +125,6 @@ func init() {
 	editCmd.Flags().String("description", "", "change the description")
 	editCmd.Flags().String("end-at", "", "when the entry should end (if not set \"\" will be used)")
 
-	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each time entry")
+	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	editCmd.Flags().BoolP("json", "j", false, "print as json")
 }

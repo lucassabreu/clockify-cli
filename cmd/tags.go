@@ -80,6 +80,6 @@ func init() {
 	rootCmd.AddCommand(tagsCmd)
 
 	tagsCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
-	tagsCmd.Flags().StringP("format", "f", "", "golang text/template format to be applyed on each Tag")
+	tagsCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Tag")
 	tagsCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }

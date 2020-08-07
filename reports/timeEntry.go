@@ -29,43 +29,55 @@ func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
 	return nil
 }
 
+const (
+	TIME_FORMAT_FULL   = "2006-01-02 15:04:05"
+	TIME_FORMAT_SIMPLE = "15:04:05"
+)
+
+// TimeEntriesPrintWithTimeFormat will print more details
+func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writer) error {
+	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
+		tw := tablewriter.NewWriter(w)
+		tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"})
+
+		lines := make([][]string, len(timeEntries))
+
+		for i, t := range timeEntries {
+			end := time.Now()
+			if t.TimeInterval.End != nil {
+				end = *t.TimeInterval.End
+			}
+
+			projectName := ""
+			if t.Project != nil {
+				projectName = t.Project.Name
+			}
+			lines[i] = []string{
+				t.ID,
+				t.TimeInterval.Start.In(time.Local).Format(format),
+				end.In(time.Local).Format(format),
+				durationToString(end.Sub(t.TimeInterval.Start)),
+				projectName,
+				t.Description,
+				strings.Join(tagsToStringSlice(t.Tags), ", "),
+			}
+		}
+
+		if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+			tw.SetColWidth(width / 3)
+		}
+
+		tw.SetRowLine(true)
+		tw.AppendBulk(lines)
+		tw.Render()
+
+		return nil
+	}
+}
+
 // TimeEntriesPrint will print more details
 func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
-	tw := tablewriter.NewWriter(w)
-	tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"})
-
-	lines := make([][]string, len(timeEntries))
-
-	for i, t := range timeEntries {
-		end := time.Now()
-		if t.TimeInterval.End != nil {
-			end = *t.TimeInterval.End
-		}
-
-		projectName := ""
-		if t.Project != nil {
-			projectName = t.Project.Name
-		}
-		lines[i] = []string{
-			t.ID,
-			t.TimeInterval.Start.In(time.Local).Format("15:04:05"),
-			end.In(time.Local).Format("15:04:05"),
-			durationToString(end.Sub(t.TimeInterval.Start)),
-			projectName,
-			t.Description,
-			strings.Join(tagsToStringSlice(t.Tags), ", "),
-		}
-	}
-
-	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
-		tw.SetColWidth(width / 3)
-	}
-
-	tw.SetRowLine(true)
-	tw.AppendBulk(lines)
-	tw.Render()
-
-	return nil
+	return TimeEntriesPrintWithTimeFormat(TIME_FORMAT_SIMPLE)(timeEntries, w)
 }
 
 func tagsToStringSlice(tags []dto.Tag) []string {
