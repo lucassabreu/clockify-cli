@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.10.1] - 2020-08-10
+
 ### Fixed
 
 - `in` and `manual` command were showing a error "Project '' informed was not found", even
@@ -332,7 +334,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.10.1...HEAD
+[v0.10.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.1
 [v0.10.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.0
 [v0.9.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.9.0
 [v0.8.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.8.1
