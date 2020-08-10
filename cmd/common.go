@@ -245,7 +245,7 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 		}
 	}
 
-	if !found {
+	if !found && projectID != "" {
 		fmt.Printf("Project '%s' informed was not found.\n", projectID)
 		projectID = ""
 	}

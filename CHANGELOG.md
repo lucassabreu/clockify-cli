@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `in` and `manual` command were showing a error "Project '' informed was not found", even
+  when no project id/name is informed, this is now fixed.
+
 ## [v0.10.0] - 2020-08-07
 
 ### Added
