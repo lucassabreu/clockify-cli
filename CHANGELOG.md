@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.0] - 2020-08-22
+
 ### Added
 
 - new `delete` command to remove a existing time entry from a workspace.
@@ -344,7 +346,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.11.0...HEAD
+[v0.11.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.11.0
 [v0.10.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.1
 [v0.10.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.0
 [v0.9.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.9.0
