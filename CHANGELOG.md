@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new `delete` command to remove a existing time entry from a workspace.
+
 ## [v0.10.1] - 2020-08-10
 
 ### Fixed
