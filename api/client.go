@@ -603,6 +603,32 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 	return t, err
 }
 
+// DeleteTimeEntryParam params to update a new time entry
+type DeleteTimeEntryParam struct {
+	Workspace   string
+	TimeEntryID string
+}
+
+// DeleteTimeEntry deletes a time entry
+func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) error {
+	r, err := c.NewRequest(
+		"DELETE",
+		fmt.Sprintf(
+			"v1/workspaces/%s/time-entries/%s",
+			p.Workspace,
+			p.TimeEntryID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Do(r, nil)
+	return err
+}
+
 // GetRecentTimeEntries params to get recent time entries
 type GetRecentTimeEntries struct {
 	Workspace    string
