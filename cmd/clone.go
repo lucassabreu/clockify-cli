@@ -15,12 +15,9 @@
 package cmd
 
 import (
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -79,44 +76,6 @@ var cloneCmd = &cobra.Command{
 		asJSON, _ := cmd.Flags().GetBool("json")
 		return newEntry(c, tec, viper.GetBool("interactive"), viper.GetBool("allow-project-name"), !noClosing, format, asJSON)
 	}),
-}
-
-func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImpl, error) {
-	id = strings.ToLower(id)
-
-	if id != "last" {
-		tei, err := c.GetTimeEntry(api.GetTimeEntryParam{
-			Workspace:   workspace,
-			TimeEntryID: id,
-		})
-
-		if err != nil {
-			return dto.TimeEntryImpl{}, err
-		}
-
-		if tei == nil {
-			return dto.TimeEntryImpl{}, errors.New("no previous time entry found")
-		}
-
-		return *tei, nil
-	}
-
-	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
-		Workspace:    workspace,
-		UserID:       userID,
-		Page:         1,
-		ItemsPerPage: 1,
-	})
-
-	if err != nil {
-		return dto.TimeEntryImpl{}, err
-	}
-
-	if len(list.TimeEntriesList) == 0 {
-		return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
-	}
-
-	return list.TimeEntriesList[0], err
 }
 
 func init() {

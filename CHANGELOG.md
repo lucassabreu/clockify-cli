@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - new `delete` command to remove a existing time entry from a workspace.
+- `edit` command support to interactive mode.
+
+### Fixed
+
+- when cloning a time entry, using interactive mode, the tags selected were not being respected.
+- `edit` command was removing all data from time-entry if the flag to fill the field was not being set.
 
 ## [v0.10.1] - 2020-08-10
 
