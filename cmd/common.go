@@ -307,13 +307,14 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 		}
 	}
 
+	var newTags []string
 	err = survey.AskOne(
 		&survey.MultiSelect{
 			Message: "Choose your tags:",
 			Options: tagsString,
 			Default: tagIDs,
 		},
-		&tagIDs,
+		&newTags,
 		nil,
 	)
 
@@ -321,11 +322,11 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 		return nil, nil
 	}
 
-	for i, t := range tagIDs {
-		tagIDs[i] = strings.TrimSpace(t[0:strings.Index(t, " - ")])
+	for i, t := range newTags {
+		newTags[i] = strings.TrimSpace(t[0:strings.Index(t, " - ")])
 	}
 
-	return tagIDs, nil
+	return newTags, nil
 }
 
 func getUserId(c *api.Client) (string, error) {

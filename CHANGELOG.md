@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - new `delete` command to remove a existing time entry from a workspace.
 
+### Fixed
+
+- when cloning a time entry, using interactive mode, the tags selected were not being respected.
+
 ## [v0.10.1] - 2020-08-10
 
 ### Fixed
