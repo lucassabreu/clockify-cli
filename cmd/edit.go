@@ -15,14 +15,9 @@
 package cmd
 
 import (
-	"errors"
-	"io"
-	"os"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -35,47 +30,59 @@ var editCmd = &cobra.Command{
 	Short:   `Edit a time entry, use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
-		param := api.UpdateTimeEntryParam{
-			Workspace:   viper.GetString("workspace"),
-			TimeEntryID: args[0],
-		}
+		interactive := viper.GetBool("interactive")
 
-		if param.TimeEntryID == "current" {
-			te, err := c.LogInProgress(api.LogInProgressParam{
-				Workspace: param.Workspace,
-			})
-
-			if err != nil {
-				return err
-			}
-
-			if te == nil {
-				return errors.New("there is no time entry in progress")
-			}
-
-			param.TimeEntryID = te.ID
-		}
-
-		param.ProjectID, _ = cmd.Flags().GetString("project")
-		param.Description, _ = cmd.Flags().GetString("description")
-		param.TaskID, _ = cmd.Flags().GetString("task")
-		param.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
-
-		if viper.GetBool("allow-project-name") && param.ProjectID != "" {
-			if param.ProjectID, err = getProjectByNameOrId(c, param.Workspace, param.ProjectID); err != nil {
-				return err
-			}
-		}
-
-		b, _ := cmd.Flags().GetBool("not-billable")
-		param.Billable = !b
-
-		whenString, _ = cmd.Flags().GetString("when")
-		var v time.Time
-		if v, err = convertToTime(whenString); err != nil {
+		userID, err := getUserId(c)
+		if err != nil {
 			return err
 		}
-		param.Start = v
+
+		tei, err := getTimeEntry(
+			args[0],
+			viper.GetString("workspace"),
+			userID,
+			c,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		if cmd.Flags().Changed("project") {
+			tei.ProjectID, _ = cmd.Flags().GetString("project")
+			if viper.GetBool("allow-project-name") && tei.ProjectID != "" {
+				tei.ProjectID, err = getProjectByNameOrId(c, tei.WorkspaceID, tei.ProjectID)
+				if err != nil && !interactive {
+					return err
+				}
+			}
+		}
+
+		if cmd.Flags().Changed("description") {
+			tei.Description, _ = cmd.Flags().GetString("description")
+		}
+
+		if cmd.Flags().Changed("task") {
+			tei.TaskID, _ = cmd.Flags().GetString("task")
+		}
+
+		if cmd.Flags().Changed("tag") {
+			tei.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
+		}
+
+		if cmd.Flags().Changed("not-billable") {
+			b, _ := cmd.Flags().GetBool("not-billable")
+			tei.Billable = !b
+		}
+
+		if cmd.Flags().Changed("when") {
+			whenString, _ = cmd.Flags().GetString("when")
+			var v time.Time
+			if v, err = convertToTime(whenString); err != nil {
+				return err
+			}
+			tei.TimeInterval.Start = v
+		}
 
 		if cmd.Flags().Changed("end-at") {
 			whenString, _ = cmd.Flags().GetString("end-at")
@@ -83,36 +90,35 @@ var editCmd = &cobra.Command{
 			if v, err = convertToTime(whenString); err != nil {
 				return err
 			}
-			param.End = &v
+			tei.TimeInterval.End = &v
 		}
 
-		tei, err := c.UpdateTimeEntry(param)
-
-		if err != nil {
-			return err
+		if interactive {
+			tei, err = confirmEntryInteractively(c, tei)
+			if err != nil {
+				return err
+			}
 		}
 
-		te, err := c.ConvertIntoFullTimeEntry(tei)
+		tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+			Workspace:   tei.WorkspaceID,
+			TimeEntryID: tei.ID,
+			Description: tei.Description,
+			Start:       tei.TimeInterval.Start,
+			End:         tei.TimeInterval.End,
+			Billable:    tei.Billable,
+			ProjectID:   tei.ProjectID,
+			TaskID:      tei.TaskID,
+			TagIDs:      tei.TagIDs,
+		})
+
 		if err != nil {
 			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = reports.TimeEntryPrint
-
-		if asJSON {
-			reportFn = reports.TimeEntryJSONPrint
-		}
-
-		if format != "" {
-			reportFn = reports.TimeEntryPrintWithTemplate(format)
-		}
-
-		return reportFn(&te, os.Stdout)
+		return printTimeEntryImpl(c, tei, asJSON, format)
 	}),
 }
 

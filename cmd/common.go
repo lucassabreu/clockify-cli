@@ -132,6 +132,65 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
+func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	var err error
+	te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
+	if err != nil {
+		return te, err
+	}
+	if te.ProjectID == "" {
+		return te, errors.New("project must be informed")
+	}
+
+	te.Description = getDescription(te.Description)
+
+	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
+	if err != nil {
+		return te, err
+	}
+
+	var date *time.Time
+	dateString := te.TimeInterval.Start.In(time.Local).Format(fullTimeFormat)
+
+	if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
+		return te, err
+	}
+	te.TimeInterval.Start = *date
+
+	dateString = ""
+	if te.TimeInterval.End != nil {
+		dateString = te.TimeInterval.End.In(time.Local).Format(fullTimeFormat)
+	}
+
+	if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
+		return te, err
+	}
+	te.TimeInterval.End = date
+
+	return te, nil
+}
+
+func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, format string) error {
+	fte, err := c.ConvertIntoFullTimeEntry(tei)
+	if err != nil {
+		return err
+	}
+
+	var reportFn func(*dto.TimeEntry, io.Writer) error
+
+	reportFn = reports.TimeEntryPrint
+
+	if asJSON {
+		reportFn = reports.TimeEntryJSONPrint
+	}
+
+	if format != "" {
+		reportFn = reports.TimeEntryPrintWithTemplate(format)
+	}
+
+	return reportFn(&fte, os.Stdout)
+}
+
 func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByName, autoClose bool, format string, asJSON bool) error {
 	var err error
 
@@ -143,41 +202,12 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 	}
 
 	if interactive {
-		te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
+		te, err = confirmEntryInteractively(c, te)
 		if err != nil {
 			return err
 		}
-	}
-
-	if te.ProjectID == "" {
+	} else if te.ProjectID == "" {
 		return errors.New("project must be informed")
-	}
-
-	if interactive {
-		te.Description = getDescription(te.Description)
-
-		te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
-		if err != nil {
-			return err
-		}
-
-		var date *time.Time
-		dateString := te.TimeInterval.Start.Format(fullTimeFormat)
-
-		if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
-			return err
-		}
-		te.TimeInterval.Start = *date
-
-		dateString = ""
-		if te.TimeInterval.End != nil {
-			dateString = te.TimeInterval.End.Format(fullTimeFormat)
-		}
-
-		if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
-			return err
-		}
-		te.TimeInterval.End = date
 	}
 
 	if autoClose {
@@ -206,24 +236,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 		return err
 	}
 
-	fte, err := c.ConvertIntoFullTimeEntry(tei)
-	if err != nil {
-		return err
-	}
-
-	var reportFn func(*dto.TimeEntry, io.Writer) error
-
-	reportFn = reports.TimeEntryPrint
-
-	if asJSON {
-		reportFn = reports.TimeEntryJSONPrint
-	}
-
-	if format != "" {
-		reportFn = reports.TimeEntryPrintWithTemplate(format)
-	}
-
-	return reportFn(&fte, os.Stdout)
+	return printTimeEntryImpl(c, tei, asJSON, format)
 }
 
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
@@ -341,4 +354,42 @@ func getUserId(c *api.Client) (string, error) {
 	}
 
 	return u.ID, nil
+}
+
+func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImpl, error) {
+	id = strings.ToLower(id)
+
+	if id != "last" && id != "current" {
+		tei, err := c.GetTimeEntry(api.GetTimeEntryParam{
+			Workspace:   workspace,
+			TimeEntryID: id,
+		})
+
+		if err != nil {
+			return dto.TimeEntryImpl{}, err
+		}
+
+		if tei == nil {
+			return dto.TimeEntryImpl{}, errors.New("no previous time entry found")
+		}
+
+		return *tei, nil
+	}
+
+	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
+		Workspace:    workspace,
+		UserID:       userID,
+		Page:         1,
+		ItemsPerPage: 1,
+	})
+
+	if err != nil {
+		return dto.TimeEntryImpl{}, err
+	}
+
+	if len(list.TimeEntriesList) == 0 {
+		return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
+	}
+
+	return list.TimeEntriesList[0], err
 }
