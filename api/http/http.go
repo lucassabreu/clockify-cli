@@ -1,27 +1,34 @@
-package api
+package http
 
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/pkg/errors"
+	stackedErrors "github.com/pkg/errors"
 )
 
-// QueryAppender an interface to identify if the parameters should be sent through the query or body
-type QueryAppender interface {
-	AppendToQuery(url.URL) url.URL
-}
+// ErrorMissingAPIKey returned if X-Api-Key is missing
+var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
 // ErrorNotFound Not Found
 var ErrorNotFound = dto.Error{Message: "Nothing was found", Code: 404}
 
 // ErrorForbidden Forbidden
 var ErrorForbidden = dto.Error{Message: "Forbidden", Code: 403}
+
+// Client have the basic methods to call the Clockify API
+type Client struct {
+	baseURL url.URL
+	http.Client
+	Logger Logger
+}
 
 type transport struct {
 	apiKey string
@@ -32,6 +39,57 @@ func (t transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	r.Header.Set("X-Api-Key", t.apiKey)
 
 	return t.next.RoundTrip(r)
+}
+
+// NewHttpClient create a new Client, based on: https://clockify.me/developers-api
+func NewHttpClient(baseURL, apiKey string) (*Client, error) {
+	if len(apiKey) == 0 {
+		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
+	}
+
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, stackedErrors.WithStack(err)
+	}
+
+	c := &Client{
+		baseURL: *u,
+		Client: http.Client{
+			Transport: transport{
+				apiKey: apiKey,
+				next:   http.DefaultTransport,
+			},
+		},
+	}
+
+	return c, nil
+}
+
+type Logger interface {
+	Printf(string, ...interface{})
+}
+
+func (c *Client) logf(format string, v ...interface{}) {
+	if c.Logger == nil {
+		return
+	}
+
+	c.Logger.Printf(format, v)
+}
+
+// QueryAppender an interface to identify if the parameters should be sent through the query or body
+type QueryAppender interface {
+	AppendToQuery(url.URL) url.URL
+}
+
+// Error api errors
+type Error struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
+func (e Error) Error() string {
+	return fmt.Sprintf("%s (code: %d)", e.Message, e.Code)
 }
 
 // NewRequest to be used in Client
@@ -56,7 +114,7 @@ func (c *Client) NewRequest(method, uri string, body interface{}) (*http.Request
 		if err != nil {
 			return nil, err
 		}
-		c.debugf("request body: %s", buf.(*bytes.Buffer))
+		c.logf("request body: %s", buf.(*bytes.Buffer))
 	}
 
 	req, err := http.NewRequest(method, u.String(), buf)
@@ -84,10 +142,10 @@ func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 
 	_, err = io.Copy(buf, r.Body)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, stackedErrors.WithStack(err)
 	}
 
-	c.debugf("name: %s, method: %s, url: %s, status: %d, response: \"%s\"", name, req.Method, req.URL.String(), r.StatusCode, buf)
+	c.logf("name: %s, method: %s, url: %s, status: %d, response: \"%s\"", name, req.Method, req.URL.String(), r.StatusCode, buf)
 
 	decoder := json.NewDecoder(buf)
 
@@ -95,7 +153,7 @@ func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 		var apiErr dto.Error
 		err = decoder.Decode(&apiErr)
 		if err != nil && err != io.EOF {
-			return r, errors.WithStack(err)
+			return r, stackedErrors.WithStack(err)
 		}
 
 		if r.StatusCode == 404 && apiErr.Message == "" {
@@ -110,7 +168,7 @@ func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 			apiErr.Message = "No response"
 		}
 
-		return r, errors.WithStack(apiErr)
+		return r, stackedErrors.WithStack(apiErr)
 	}
 
 	if v == nil {
@@ -121,5 +179,5 @@ func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 		return r, nil
 	}
 
-	return r, errors.WithStack(decoder.Decode(v))
+	return r, stackedErrors.WithStack(decoder.Decode(v))
 }

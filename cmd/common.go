@@ -74,9 +74,7 @@ func getAPIClient() (*api.Client, error) {
 	}
 
 	if viper.GetBool("debug") {
-		c.SetDebugLogger(
-			log.New(os.Stdout, "DEBUG ", log.LstdFlags),
-		)
+		c.Logger = log.New(os.Stdout, "DEBUG ", log.LstdFlags)
 	}
 
 	return c, err

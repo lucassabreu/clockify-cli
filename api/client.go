@@ -1,54 +1,44 @@
 package api
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/api/http"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	stackedErrors "github.com/pkg/errors"
 )
 
-// Client will help to access Clockify API
-type Client struct {
-	baseURL *url.URL
-	http.Client
-	debugLogger Logger
-}
-
 // baseURL is the Clockify API base URL
 const baseURL = "https://api.clockify.me/api"
 
-// ErrorMissingAPIKey returned if X-Api-Key is missing
-var ErrorMissingAPIKey = errors.New("api Key must be informed")
+type Logger interface {
+	Printf(string, ...interface{})
+}
+
+// Client will help to access Clockify API
+type Client struct {
+	*http.Client
+}
 
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
-	if apiKey == "" {
-		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
-	}
-
-	u, err := url.Parse(baseURL)
+	h, err := http.NewHttpClient(baseURL, apiKey)
 	if err != nil {
-		return nil, stackedErrors.WithStack(err)
+		return nil, err
 	}
 
-	c := &Client{
-		baseURL: u,
-		Client: http.Client{
-			Transport: transport{
-				apiKey: apiKey,
-				next:   http.DefaultTransport,
-			},
-		},
-	}
+	return &Client{Client: h}, nil
+}
 
-	return c, nil
+func (c *Client) logf(format string, v ...interface{}) {
+	if c.Logger == nil {
+		return
+	}
+	c.Logger.Printf(format, v)
 }
 
 // GetWorkspaces will be used to filter the workspaces
@@ -194,7 +184,7 @@ type LogParam struct {
 
 // Log list time entries from a date
 func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
-	c.debugf("Log - Date Param: %s", p.Date)
+	c.logf("Log - Date Param: %s", p.Date)
 
 	d := p.Date.Round(time.Hour)
 	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
@@ -219,7 +209,7 @@ type LogRangeParam struct {
 
 // LogRange list time entries by date range
 func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
-	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
+	c.logf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
 	return c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
 		Workspace: p.Workspace,
@@ -310,7 +300,7 @@ func (c *Client) getUserTimeEntriesImpl(
 		}
 	}
 
-	c.debugf("GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s",
+	c.logf("GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s",
 		p.Workspace,
 		p.UserID,
 		inProgressFilter,
