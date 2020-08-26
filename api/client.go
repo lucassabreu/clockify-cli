@@ -15,10 +15,6 @@ import (
 // baseURL is the Clockify API base URL
 const baseURL = "https://api.clockify.me/api"
 
-type Logger interface {
-	Printf(string, ...interface{})
-}
-
 // Client will help to access Clockify API
 type Client struct {
 	*http.Client
@@ -312,10 +308,10 @@ func (c *Client) getUserTimeEntriesImpl(
 	}
 
 	if p.Start != nil {
-		r.Start = &dto.DateTime{Time: *p.Start}
+		r.Start = &http.DateTime{Time: *p.Start}
 	}
 	if p.End != nil {
-		r.End = &dto.DateTime{Time: *p.End}
+		r.End = &http.DateTime{Time: *p.End}
 	}
 
 	return c.paginate(
@@ -661,9 +657,9 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 		return t, err
 	}
 
-	var end *dto.DateTime
+	var end *http.DateTime
 	if p.End != nil {
-		end = &dto.DateTime{Time: *p.End}
+		end = &http.DateTime{Time: *p.End}
 	}
 
 	r, err := c.NewRequest(
@@ -673,7 +669,7 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 			p.Workspace,
 		),
 		dto.CreateTimeEntryRequest{
-			Start:       dto.DateTime{Time: p.Start},
+			Start:       http.DateTime{Time: p.Start},
 			End:         end,
 			Billable:    p.Billable,
 			Description: p.Description,
@@ -811,7 +807,7 @@ func (c *Client) Out(p OutParam) error {
 			p.UserID,
 		),
 		dto.OutTimeEntryRequest{
-			End: dto.DateTime{Time: p.End},
+			End: http.DateTime{Time: p.End},
 		},
 	)
 
@@ -848,9 +844,9 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 		return t, err
 	}
 
-	var end *dto.DateTime
+	var end *http.DateTime
 	if p.End != nil {
-		end = &dto.DateTime{Time: *p.End}
+		end = &http.DateTime{Time: *p.End}
 	}
 
 	r, err := c.NewRequest(
@@ -861,7 +857,7 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 			p.TimeEntryID,
 		),
 		dto.UpdateTimeEntryRequest{
-			Start:       dto.DateTime{Time: p.Start},
+			Start:       http.DateTime{Time: p.Start},
 			End:         end,
 			Billable:    p.Billable,
 			Description: p.Description,
