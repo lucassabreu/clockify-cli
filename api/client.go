@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/api/http"
+	"github.com/lucassabreu/clockify-cli/http"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	stackedErrors "github.com/pkg/errors"
 )
