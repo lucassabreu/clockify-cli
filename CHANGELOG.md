@@ -362,7 +362,9 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.12.1...HEAD
+[v0.12.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.12.1
+[v0.12.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.12.0
 [v0.11.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.11.0
 [v0.10.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.1
 [v0.10.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.10.0
