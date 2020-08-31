@@ -33,3 +33,13 @@ snapcrafts:
     apps:
       clockify-cli:
         plugs: ["network"]
+brews:
+  - tap:
+      owner: lucassabreu
+      name: clockify-cli-homebrew-tap
+    folder: Formula
+    homepage: https://github.com/lucassabreu/clockify-cli
+    description: Helps to interact with Clockfy's API
+    test: |
+      system "#{bin}/clockify-cli version"
+    dependencies:
