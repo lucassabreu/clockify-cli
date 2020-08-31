@@ -3,7 +3,7 @@ Clockify CLI
 
 A simple cli to manage your time entries on Clockify from terminal
 
-[![Release](https://img.shields.io/github/release/lucassabreu/clockify-cli.svg)](https://github.com/lucassabreu/clockify-cli/releases/latest)
+[![Release](https://img.shields.io/github/release/lucassabreu/clockify-cli.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
 [![clockify-cli](https://snapcraft.io//clockify-cli/badge.svg?classes=badges)](https://snapcraft.io/clockify-cli)
 [![Build Status](https://travis-ci.org/lucassabreu/clockify-cli.svg?branch=master&classes=badges)](https://travis-ci.org/lucassabreu/clockify-cli)
 [![Go Report Card](https://goreportcard.com/badge/github.com/lucassabreu/clockify-cli?classes=badges)](https://goreportcard.com/report/github.com/lucassabreu/clockify-cli)
@@ -36,7 +36,7 @@ Features
   * [X] Update individual configuration
   * [X] Show current configuration
 
-How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg)](https://github.com/goreleaser)
+How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?classes=badges)](https://github.com/goreleaser)
 --------------
 
 #### Using [`homebrew`](https://brew.sh/):
