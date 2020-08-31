@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.12.0] - 2020-08-31
+
+### Added
+
+- support to homebrew for macOs users.
+
 ## [v0.11.0] - 2020-08-22
 
 ### Added
