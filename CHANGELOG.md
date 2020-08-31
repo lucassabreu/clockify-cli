@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.12.1] - 2020-08-22
+
+### Added
+
+- "How to install" section on README to help new users to understand which options are available.
+
+### Fixed
+
+- improving the "homebrew tap" to allow installation using: `brew install lucassabreu/tap/clockify-cli`
+
 ## [v0.12.0] - 2020-08-31
 
 ### Added

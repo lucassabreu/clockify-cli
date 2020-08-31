@@ -36,7 +36,7 @@ snapcrafts:
 brews:
   - tap:
       owner: lucassabreu
-      name: clockify-cli-homebrew-tap
+      name: homebrew-tap
     folder: Formula
     homepage: https://github.com/lucassabreu/clockify-cli
     description: Helps to interact with Clockfy's API
