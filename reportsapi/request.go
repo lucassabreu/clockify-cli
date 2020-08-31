@@ -58,38 +58,68 @@ const (
 	AmountShownProfit     AmountShown = "PROFIT"
 )
 
-type SummaryUsersContains string
+type SummaryEntityFilterContains string
 
 const (
-	SummaryUsersContainsDefault        SummaryUsersContains = ""
-	SummaryUsersContainsContains       SummaryUsersContains = "CONTAINS"
-	SummaryUsersContainsDoesNotContain SummaryUsersContains = "DOES_NOT_CONTAIN"
-	SummaryUsersContainsContainsOnly   SummaryUsersContains = "CONTAINS_ONLY"
+	SummaryEntityFilterContainsDefault        SummaryEntityFilterContains = ""
+	SummaryEntityFilterContainsContains       SummaryEntityFilterContains = "CONTAINS"
+	SummaryEntityFilterContainsDoesNotContain SummaryEntityFilterContains = "DOES_NOT_CONTAIN"
+	SummaryEntityFilterContainsContainsOnly   SummaryEntityFilterContains = "CONTAINS_ONLY"
 )
 
-type SummaryUsersStatus string
+type SummaryEntityFilterStatus string
 
 const (
-	SummaryUsersStatusAll      SummaryUsersStatus = "ALL"
-	SummaryUsersStatusActive   SummaryUsersStatus = "ACTIVE"
-	SummaryUsersStatusArchived SummaryUsersStatus = "ARCHIVED"
-	SummaryUsersStatusInactive SummaryUsersStatus = "INACTIVE"
-	SummaryUsersStatusDone     SummaryUsersStatus = "DONE"
+	SummaryEntityFilterStatusAll      SummaryEntityFilterStatus = "ALL"
+	SummaryEntityFilterStatusActive   SummaryEntityFilterStatus = "ACTIVE"
+	SummaryEntityFilterStatusArchived SummaryEntityFilterStatus = "ARCHIVED"
+	SummaryEntityFilterStatusInactive SummaryEntityFilterStatus = "INACTIVE"
+	SummaryEntityFilterStatusDone     SummaryEntityFilterStatus = "DONE"
 )
 
-type SummaryUsers struct {
+type SummaryEntityFilter struct {
 	IDs      []string
-	Contains SummaryUsersContains
-	Status   SummaryUsersStatus
+	Contains SummaryEntityFilterContains
+	Status   SummaryEntityFilterStatus
+}
+
+type CustomFieldType string
+
+const (
+	CustomFieldTypeTXT              CustomFieldType = "TXT"
+	CustomFieldTypeNumber           CustomFieldType = "NUMBER"
+	CustomFieldTypeDropdownSingle   CustomFieldType = "DROPDOWN_SINGLE"
+	CustomFieldTypeDropdownMultiple CustomFieldType = "DROPDOWN_MULTIPLE"
+	CustomFieldTypeCheckbox         CustomFieldType = "CHECKBOX"
+	CustomFieldTypeLink             CustomFieldType = "LINK"
+)
+
+type CustomTypeNumberCondition string
+
+type SummaryCustomField struct {
+	ID              string
+	Value           string
+	Type            CustomFieldType
+	NumberCondition CustomTypeNumberCondition
+	Empty           bool
 }
 
 type SummaryRequest struct {
-	DateRangeStart http.DateTime
-	DateRangeEnd   http.DateTime
-	SummaryFilter  SummaryFilter
-	SortOrder      SortOrder
-	ExportType     ExportType
-	Rouding        bool
-	AmountShown    AmountShown
-	Users          SummaryUsers
+	DateRangeStart     http.DateTime
+	DateRangeEnd       http.DateTime
+	SummaryFilter      SummaryFilter
+	SortOrder          SortOrder
+	ExportType         ExportType
+	Rouding            bool
+	AmountShown        AmountShown
+	Users              SummaryEntityFilter
+	UserGroups         SummaryEntityFilter
+	Clients            SummaryEntityFilter
+	Projects           SummaryEntityFilter
+	Tasks              SummaryEntityFilter
+	Tags               SummaryEntityFilter
+	Billable           *bool
+	Description        string
+	WithoutDescription bool
+	CustomFields       []SummaryCustomField
 }
