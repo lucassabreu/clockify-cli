@@ -15,18 +15,18 @@ const (
 	FilterGroupTimeEntry FilterGroup = "TIMEENTRY"
 )
 
-type SummarySortColumn string
+type SortColumn string
 
 const (
-	SummarySortColumnDefault  SummarySortColumn = ""
-	SummarySortColumnGroup    SummarySortColumn = "GROUP"
-	SummarySortColumnDuration SummarySortColumn = "DURATION"
-	SummarySortColumnAmount   SummarySortColumn = "AMOUNT"
+	SortColumnDefault  SortColumn = ""
+	SortColumnGroup    SortColumn = "GROUP"
+	SortColumnDuration SortColumn = "DURATION"
+	SortColumnAmount   SortColumn = "AMOUNT"
 )
 
 type SummaryFilter struct {
 	Groups     []FilterGroup
-	SortColumn SummarySortColumn
+	SortColumn SortColumn
 }
 
 type SortOrder string
@@ -104,10 +104,9 @@ type SummaryCustomField struct {
 	Empty           bool
 }
 
-type SummaryRequest struct {
+type BaseRequest struct {
 	DateRangeStart     http.DateTime
 	DateRangeEnd       http.DateTime
-	SummaryFilter      SummaryFilter
 	SortOrder          SortOrder
 	ExportType         ExportType
 	Rouding            bool
@@ -122,4 +121,118 @@ type SummaryRequest struct {
 	Description        string
 	WithoutDescription bool
 	CustomFields       []SummaryCustomField
+}
+
+type SummaryRequest struct {
+	SummaryFilter SummaryFilter
+	BaseRequest
+}
+
+type Total struct {
+	TotalTime         int
+	TotalBillableTime int
+	EntriesCount      int
+	TotalAmount       float32
+}
+
+type SummaryGroup struct {
+	ID       string
+	Duration int
+	Amount   float32
+	Name     string
+	Children []SummaryGroup
+}
+
+type SummaryResponse struct {
+	Totals   []Total
+	GroupOne []SummaryGroup
+}
+
+type AuditFilter struct {
+	WithoutProject  bool
+	WithoutTask     bool
+	Duration        int
+	DurationShorter bool
+}
+
+type DetailedFilter struct {
+	Page        int
+	PageSize    int
+	SortColumn  SortColumn
+	AuditFilter AuditFilter
+}
+
+type DetailedRequest struct {
+	DetailedFilter DetailedFilter
+	BaseRequest
+}
+
+type TimeInterval struct {
+	Start    http.DateTime
+	End      http.DateTime
+	Duration int
+}
+
+type CustomField struct {
+	CustomFieldID string
+	TimeEntryID   string
+	Value         string
+	Name          string
+}
+
+type DetailedTimeEntry struct {
+	ID           string
+	Description  string
+	UserID       string
+	Billable     bool
+	TaskID       *string
+	ProjectID    *string
+	TimeInterval TimeInterval
+	Tags         []string
+	IsLocked     bool
+	CustomFields []CustomField
+	Amount       float32
+	Rate         float32
+	UserName     string
+	UserEmail    string
+}
+
+type DetailedResponse struct {
+	Totals      []Total
+	TimeEntries []DetailedTimeEntry
+}
+
+type WeeklyFilterGroup string
+
+const (
+	WeeklyFilterGroupProject WeeklyFilterGroup = "PROJECT"
+	WeeklyFilterGroupUser    WeeklyFilterGroup = "USER"
+)
+
+type WeeklyFilterSubGroup string
+
+const (
+	WeeklyFilterSubGroupTIME   WeeklyFilterSubGroup = "TIME"
+	WeeklyFilterSubGroupEARNED WeeklyFilterSubGroup = "EARNED"
+)
+
+type WeeklyFilter struct {
+	Group    WeeklyFilterGroup
+	SubGroup string
+}
+
+type WeeklyRequest struct {
+	WeeklyFilter
+	BaseRequest
+}
+
+type DayTotal struct {
+	Date     http.DateTime
+	Amount   float32
+	Duration int
+}
+
+type WeeklyResponse struct {
+	Totals      []Total
+	TotalsByDay []DayTotal
 }
