@@ -77,6 +77,8 @@ foo@bar:~$ clockify config init
 
 The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for future use.
 
+Now you’re ready to create your first Clockify entry:
+
 ```console
 foo@bar:~$ clockify-cli in -i
 ? Choose your project: project-id - Example Project
@@ -90,6 +92,8 @@ foo@bar:~$ clockify-cli in -i
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
+After finishing your work you can stop the last entry using `clockify-cli out`
+
 ```console
 foo@bar:~$ clockify-cli out  
 +------------------+----------+----------+---------+---------+-------------------+------+
@@ -98,6 +102,8 @@ foo@bar:~$ clockify-cli out
 |    project-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
+
+If you want to re-start the last entry in a project you can use `clone last -i`
 
 ```console
 foo@bar:~$ clone last -i
