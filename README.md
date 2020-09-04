@@ -67,7 +67,7 @@ Getting Started
 
 First you will need to obtain your api token [here](https://clockify.me/user/settings)
 
-```shell-session
+```console
 foo@bar:~$ clockify config init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: workspace-id - John Doe's workspace
@@ -75,7 +75,7 @@ foo@bar:~$ clockify config init
 ? Should try to find project by its name? (y/N) y
 ```
 
-```shell-session
+```console
 foo@bar:~$ clockify-cli in -i
 ? Choose your project: project-id - Example Project
 ? Description: Clockify CLI Test
@@ -88,7 +88,7 @@ foo@bar:~$ clockify-cli in -i
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
-```shell-session
+```console
 foo@bar:~$ clockify-cli out  
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
@@ -97,7 +97,7 @@ foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
-```shell-session
+```console
 foo@bar:~$ clone last -i
 ? Choose your project: 5f51589b9583641c4bf89e05 - Example Project
 ? Description: Clockify CLI Test
