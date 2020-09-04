@@ -65,7 +65,7 @@ binary that fits your system.
 Getting Started
 ----
 
-First you will need to obtain your api token [here](https://clockify.me/user/settings)
+After you install the CLI, run the `clockify config init` command to setup your environment variables. You’ll be prompted to enter your user information. You can get your clockify api token [here](https://clockify.me/user/settings).
 
 ```console
 foo@bar:~$ clockify config init
@@ -74,6 +74,8 @@ foo@bar:~$ clockify config init
 ? Choose your user: user-id - John Doe
 ? Should try to find project by its name? (y/N) Yes
 ```
+
+The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for future use.
 
 ```console
 foo@bar:~$ clockify-cli in -i
