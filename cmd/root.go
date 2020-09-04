@@ -68,8 +68,10 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clockify-cli.yaml)")
 
-	rootCmd.PersistentFlags().StringP("token", "t", "", `clockify's token (defaults to env $"+envPrefix+"_TOKEN)
-	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn`)
+	rootCmd.PersistentFlags().StringP("token", "t", "",
+		"clockify's token (defaults to env $"+envPrefix+"_TOKEN)\n"+
+			"\tCan be generated here: https://clockify.me/user/settings#generateApiKeyBtn",
+	)
 	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
 
 	rootCmd.PersistentFlags().StringP("workspace", "w", "", "workspace to be used (defaults to env $"+envPrefix+"_WORKSPACE)")

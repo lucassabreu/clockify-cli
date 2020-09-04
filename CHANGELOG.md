@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.12.2] - 2020-09-04
+
+### Fixed
+
+- flag `--token` help was not showing the right env var name.
+
+
 ## [v0.12.1] - 2020-08-22
 
 ### Added
