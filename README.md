@@ -68,7 +68,7 @@ Getting Started
 First you will need to obtain your api token [here](https://clockify.me/user/settings)
 
 ```console
-❯ clockify-cli config init
+foo@bar:~$ clockify config init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: workspace-id - John Doe's workspace
 ? Choose your user: user-id - John Doe
@@ -76,7 +76,7 @@ First you will need to obtain your api token [here](https://clockify.me/user/set
 ```
 
 ```console
-❯ clockify-cli in -i
+foo@bar:~$ clockify-cli in -i
 ? Choose your project: project-id - Example Project
 ? Description: Clockify CLI Test
 ? Start: (2020-09-04 16:02:45)
@@ -89,7 +89,7 @@ First you will need to obtain your api token [here](https://clockify.me/user/set
 ```
 
 ```console
-❯ clockify-cli out  
+foo@bar:~$ clockify-cli out  
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
@@ -97,7 +97,7 @@ First you will need to obtain your api token [here](https://clockify.me/user/set
 +------------------+----------+----------+---------+---------+-------------------+------+
 
 ```console
-❯ clockify-cli clone last -i
+foo@bar:~$ clone last -i
 ? Choose your project: 5f51589b9583641c4bf89e05 - Example Project
 ? Description: Clockify CLI Test
 ? Start: 2020-09-04 16:10:57
