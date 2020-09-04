@@ -72,7 +72,7 @@ foo@bar:~$ clockify config init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: workspace-id - John Doe's workspace
 ? Choose your user: user-id - John Doe
-? Should try to find project by its name? (y/N) y
+? Should try to find project by its name? (y/N) Yes
 ```
 
 ```console
@@ -99,7 +99,7 @@ foo@bar:~$ clockify-cli out
 
 ```console
 foo@bar:~$ clone last -i
-? Choose your project: 5f51589b9583641c4bf89e05 - Example Project
+? Choose your project: project-id - Example Project
 ? Description: Clockify CLI Test
 ? Start: 2020-09-04 16:10:57
 ? End (leave it blank for empty):
