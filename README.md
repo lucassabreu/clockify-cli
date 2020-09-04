@@ -92,7 +92,7 @@ foo@bar:~$ clockify-cli in -i
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
-After finishing your work you can stop the last entry using `clockify-cli out`
+After finishing your work you can stop the entry using `clockify-cli out`
 
 ```console
 foo@bar:~$ clockify-cli out  
