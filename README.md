@@ -62,6 +62,54 @@ go get -u github.com/lucassabreu/clockify-cli
 Go to the [releases page](https://github.com/lucassabreu/clockify-cli/releases) and download the pre-compiled
 binary that fits your system.
 
+Getting Started
+----
+
+First you will need to obtain your api token [here](https://clockify.me/user/settings)
+
+```console
+❯ clockify-cli config init
+? User Generated Token: <your-api-token>
+? Choose default Workspace: workspace-id - John Doe's workspace
+? Choose your user: user-id - John Doe
+? Should try to find project by its name? (y/N) y
+```
+
+```console
+❯ clockify-cli in -i
+? Choose your project: project-id - Example Project
+? Description: Clockify CLI Test
+? Start: (2020-09-04 16:02:45)
+? End (leave it blank for empty):
++------------------+----------+----------+---------+---------+-------------------+------+
+|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
++------------------+----------+----------+---------+---------+-------------------+------+
+|    project-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
++------------------+----------+----------+---------+---------+-------------------+------+
+```
+
+```console
+❯ clockify-cli out  
++------------------+----------+----------+---------+---------+-------------------+------+
+|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
++------------------+----------+----------+---------+---------+-------------------+------+
+|    project-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
++------------------+----------+----------+---------+---------+-------------------+------+
+
+```console
+❯ clockify-cli clone last -i
+? Choose your project: 5f51589b9583641c4bf89e05 - Example Project
+? Description: Clockify CLI Test
+? Start: 2020-09-04 16:10:57
+? End (leave it blank for empty):
++------------------+----------+----------+---------+---------+-------------------+------+
+|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
++------------------+----------+----------+---------+---------+-------------------+------+
+|    project-id    | 16:10:57 | 16:11:09 | 0:00:12 |         | Clockify CLI Test |      |
++------------------+----------+----------+---------+---------+-------------------+------+
+
+```
+
 Help
 ----
 
