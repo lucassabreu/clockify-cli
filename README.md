@@ -103,7 +103,7 @@ foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
-If you want to re-start the last entry in a project you can use `clockify-cli clone last`
+If you want to re-start the last entry you can use `clockify-cli clone last`
 
 ```console
 foo@bar:~$ clockify-cli clone last
