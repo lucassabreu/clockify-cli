@@ -103,14 +103,10 @@ foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
-If you want to re-start the last entry in a project you can use `clone last -i`
+If you want to re-start the last entry in a project you can use `clockify-cli clone last`
 
 ```console
-foo@bar:~$ clone last -i
-? Choose your project: project-id - Example Project
-? Description: Clockify CLI Test
-? Start: 2020-09-04 16:10:57
-? End (leave it blank for empty):
+foo@bar:~$ clockify-cli clone last
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
