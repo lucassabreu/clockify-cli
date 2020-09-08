@@ -137,6 +137,38 @@ var configInitCmd = &cobra.Command{
 
 		viper.Set("allow-project-name", allowProjectName)
 
+		autoClose := !viper.GetBool("no-closing")
+		err = survey.AskOne(
+			&survey.Confirm{
+				Message: `Should auto-close previous/current time entry before opening a new one?`,
+				Default: autoClose,
+			},
+			&autoClose,
+			nil,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		viper.Set("no-closing", !autoClose)
+
+		interactive := viper.GetBool("interactive")
+		err = survey.AskOne(
+			&survey.Confirm{
+				Message: `Should use "Interactive Mode" by default?`,
+				Default: interactive,
+			},
+			&interactive,
+			nil,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		viper.Set("interactive", interactive)
+
 		return saveConfigFile()
 	},
 }
