@@ -1,6 +1,10 @@
 package reportsapi
 
-import "github.com/lucassabreu/clockify-cli/http"
+import (
+	"time"
+
+	"github.com/lucassabreu/clockify-cli/http"
+)
 
 type FilterGroup string
 
@@ -128,26 +132,6 @@ type SummaryRequest struct {
 	BaseRequest
 }
 
-type Total struct {
-	TotalTime         int
-	TotalBillableTime int
-	EntriesCount      int
-	TotalAmount       float32
-}
-
-type SummaryGroup struct {
-	ID       string
-	Duration int
-	Amount   float32
-	Name     string
-	Children []SummaryGroup
-}
-
-type SummaryResponse struct {
-	Totals   []Total
-	GroupOne []SummaryGroup
-}
-
 type AuditFilter struct {
 	WithoutProject  bool
 	WithoutTask     bool
@@ -180,28 +164,6 @@ type CustomField struct {
 	Name          string
 }
 
-type DetailedTimeEntry struct {
-	ID           string
-	Description  string
-	UserID       string
-	Billable     bool
-	TaskID       *string
-	ProjectID    *string
-	TimeInterval TimeInterval
-	Tags         []string
-	IsLocked     bool
-	CustomFields []CustomField
-	Amount       float32
-	Rate         float32
-	UserName     string
-	UserEmail    string
-}
-
-type DetailedResponse struct {
-	Totals      []Total
-	TimeEntries []DetailedTimeEntry
-}
-
 type WeeklyFilterGroup string
 
 const (
@@ -226,13 +188,55 @@ type WeeklyRequest struct {
 	BaseRequest
 }
 
+type Total struct {
+	TotalTime         int
+	TotalBillableTime int
+	EntriesCount      int
+	TotalAmount       float32
+}
+
+type SummaryGroup struct {
+	ID       string
+	Duration int
+	Amount   float32
+	Name     string
+	Children []SummaryGroup
+}
+
+type SummaryReport struct {
+	Totals   []Total
+	GroupOne []SummaryGroup
+}
+
+type DetailedTimeEntry struct {
+	ID           string
+	Description  string
+	UserID       string
+	Billable     bool
+	TaskID       *string
+	ProjectID    *string
+	TimeInterval TimeInterval
+	Tags         []string
+	IsLocked     bool
+	CustomFields []CustomField
+	Amount       float32
+	Rate         float32
+	UserName     string
+	UserEmail    string
+}
+
+type DetailedReport struct {
+	Totals      []Total
+	TimeEntries []DetailedTimeEntry
+}
+
 type DayTotal struct {
-	Date     http.DateTime
+	Date     time.Time
 	Amount   float32
 	Duration int
 }
 
-type WeeklyResponse struct {
+type WeeklyReport struct {
 	Totals      []Total
 	TotalsByDay []DayTotal
 }
