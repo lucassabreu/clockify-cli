@@ -11,16 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- select and multi-select interactive now support "glob like" expressions to filter a option
+
 ### Changed
 
-- client name of a project is shown on interactive mode to help identify the project
+- client name of a project is shown on interactive mode to help identify the project.
+
+### Fixed
+
+- select and multi-select options now support "non-english" characters like "á" by converting then to a ASCII equivalent character.
 
 ## [v0.12.2] - 2020-09-04
 
 ### Fixed
 
 - flag `--token` help was not showing the right env var name.
-
 
 ## [v0.12.1] - 2020-08-22
 
