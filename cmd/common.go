@@ -6,8 +6,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -15,6 +18,9 @@ import (
 	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
@@ -239,6 +245,36 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 	return printTimeEntryImpl(c, tei, asJSON, format)
 }
 
+var t = transform.Chain(
+	norm.NFD,
+	runes.Remove(runes.In(unicode.Mn)),
+	norm.NFC,
+)
+
+func normalize(s string) string {
+	r, _, err := transform.String(t, strings.ToLower(s))
+	if err != nil {
+		return s
+	}
+	return r
+}
+
+func utf8FilterFn(filter string, options []string) (answer []string) {
+	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
+	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(normalize(filter), "")
+	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
+	filter = strings.ReplaceAll(filter, " ", ".*")
+	filter = strings.ReplaceAll(filter, "*", ".*")
+
+	regexp := regexp.MustCompile(filter)
+	for _, o := range options {
+		if regexp.Match([]byte(normalize(o))) {
+			answer = append(answer, o)
+		}
+	}
+	return answer
+}
+
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace: workspace,
@@ -250,12 +286,32 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 
 	projectsString := make([]string, len(projects))
 	found := false
+	projectNameSize := 0
+
 	for i, u := range projects {
 		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
-		if u.ID == projectID {
+		if projectNameSize < utf8.RuneCountInString(projectsString[i]) {
+			projectNameSize = utf8.RuneCountInString(projectsString[i])
+		}
+
+		if !found && u.ID == projectID {
 			projectID = projectsString[i]
 			found = true
 		}
+	}
+
+	format := fmt.Sprintf("%%-%ds| Client: %%s (%%s)", projectNameSize+1)
+	for i, u := range projects {
+		if u.ClientID == "" {
+			continue
+		}
+
+		projectsString[i] = fmt.Sprintf(
+			format,
+			projectsString[i],
+			u.ClientName,
+			u.ClientID,
+		)
 	}
 
 	if !found && projectID != "" {
@@ -265,9 +321,10 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 
 	err = survey.AskOne(
 		&survey.Select{
-			Message: "Choose your project:",
-			Options: projectsString,
-			Default: projectID,
+			Message:  "Choose your project:",
+			Options:  projectsString,
+			Default:  projectID,
+			FilterFn: utf8FilterFn,
 		},
 		&projectID,
 		nil,
@@ -323,9 +380,10 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 	var newTags []string
 	err = survey.AskOne(
 		&survey.MultiSelect{
-			Message: "Choose your tags:",
-			Options: tagsString,
-			Default: tagIDs,
+			Message:  "Choose your tags:",
+			Options:  tagsString,
+			Default:  tagIDs,
+			FilterFn: utf8FilterFn,
 		},
 		&newTags,
 		nil,
