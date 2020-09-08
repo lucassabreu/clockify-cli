@@ -134,16 +134,20 @@ type Task struct {
 // Project DTO
 type Project struct {
 	ID          string       `json:"id"`
-	Archived    bool         `json:"archived"`
-	Billable    bool         `json:"billable"`
+	Name        string       `json:"name"`
+	HourlyRate  HourlyRate   `json:"hourlyRate"`
 	ClientID    string       `json:"clientId"`
+	WorkspaceID string       `json:"workspaceId"`
+	Billable    bool         `json:"billable"`
+	Memberships []Membership `json:"memberships"`
 	Color       string       `json:"color"`
 	Estimate    Estimate     `json:"estimate"`
-	HourlyRate  HourlyRate   `json:"hourlyRate"`
-	Memberships []Membership `json:"memberships"`
-	Name        string       `json:"name"`
+	Archived    bool         `json:"archived"`
+	Duration    string       `json:"duration"`
+	ClientName  string       `json:"clientName"`
+	Note        string       `json:"note"`
+	Template    bool         `json:"template"`
 	Public      bool         `json:"public"`
-	WorkspaceID string       `json:"workspaceId"`
 }
 
 // EstimateType possible Estimate types

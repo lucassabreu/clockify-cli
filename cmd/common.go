@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -250,12 +251,32 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 
 	projectsString := make([]string, len(projects))
 	found := false
+	projectNameSize := 0
+
 	for i, u := range projects {
 		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
-		if u.ID == projectID {
+		if projectNameSize < utf8.RuneCountInString(projectsString[i]) {
+			projectNameSize = utf8.RuneCountInString(projectsString[i])
+		}
+
+		if !found && u.ID == projectID {
 			projectID = projectsString[i]
 			found = true
 		}
+	}
+
+	format := fmt.Sprintf("%%-%ds| Client: %%s (%%s)", projectNameSize+1)
+	for i, u := range projects {
+		if u.ClientID == "" {
+			continue
+		}
+
+		projectsString[i] = fmt.Sprintf(
+			format,
+			projectsString[i],
+			u.ClientName,
+			u.ClientID,
+		)
 	}
 
 	if !found && projectID != "" {

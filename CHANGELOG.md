@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- client name of a project is shown on interactive mode to help identify the project
+
 ## [v0.12.2] - 2020-09-04
 
 ### Fixed
