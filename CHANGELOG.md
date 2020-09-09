@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.14.1] - 2020-09-09
+
+### Fixed
+
+- the project select on interactive mode was not respecting the "default" project when cloning
+  or informed through flags/parameters
+
 ## [v0.14.0] - 2020-09-08
 
 ### Changed
@@ -388,7 +395,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.14.1...HEAD
+[v0.14.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.14.1
 [v0.14.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.14.0
 [v0.13.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.13.0
 [v0.12.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.12.1

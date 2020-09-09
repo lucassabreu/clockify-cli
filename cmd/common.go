@@ -285,7 +285,7 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 	}
 
 	projectsString := make([]string, len(projects))
-	found := false
+	found := -1
 	projectNameSize := 0
 
 	for i, u := range projects {
@@ -294,29 +294,34 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 			projectNameSize = utf8.RuneCountInString(projectsString[i])
 		}
 
-		if !found && u.ID == projectID {
+		if found == -1 && u.ID == projectID {
 			projectID = projectsString[i]
-			found = true
+			found = i
 		}
 	}
 
-	format := fmt.Sprintf("%%-%ds| Client: %%s (%%s)", projectNameSize+1)
+	format := fmt.Sprintf("%%-%ds| %%s", projectNameSize+1)
+
 	for i, u := range projects {
-		if u.ClientID == "" {
-			continue
+		client := "Without Client"
+		if u.ClientID != "" {
+			client = fmt.Sprintf("Client: %s (%s)", u.ClientName, u.ClientID)
 		}
 
 		projectsString[i] = fmt.Sprintf(
 			format,
 			projectsString[i],
-			u.ClientName,
-			u.ClientID,
+			client,
 		)
 	}
 
-	if !found && projectID != "" {
-		fmt.Printf("Project '%s' informed was not found.\n", projectID)
-		projectID = ""
+	if found == -1 {
+		if projectID != "" {
+			fmt.Printf("Project '%s' informed was not found.\n", projectID)
+			projectID = ""
+		}
+	} else {
+		projectID = projectsString[found]
 	}
 
 	err = survey.AskOne(
