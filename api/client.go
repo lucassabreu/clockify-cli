@@ -223,6 +223,10 @@ func (c *Client) paginate(method, uri string, p PaginationParam, request dto.Pag
 		page = 1
 	}
 
+	if p.PageSize == 0 {
+		p.PageSize = 50
+	}
+
 	stop := false
 	for !stop {
 		r, err := c.NewRequest(
@@ -245,7 +249,7 @@ func (c *Client) paginate(method, uri string, p PaginationParam, request dto.Pag
 			return err
 		}
 
-		stop = count == 0 || !p.AllPages
+		stop = count < p.PageSize || !p.AllPages
 		page++
 	}
 	return nil
@@ -464,26 +468,39 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 // GetTagsParam params to get all tags of a workspace
 type GetTagsParam struct {
 	Workspace string
+	Name      string
+	Archived  bool
+
+	PaginationParam
 }
 
 // GetTags get all tags of a workspace
 func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
-	var ps []dto.Tag
+	var ps, tmpl []dto.Tag
 
-	r, err := c.NewRequest(
+	err := c.paginate(
 		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/tags",
+			"v1/workspaces/%s/tags",
 			p.Workspace,
 		),
-		nil,
+		p.PaginationParam,
+		dto.GetTagsRequest{
+			Name:       p.Name,
+			Archived:   p.Archived,
+			Pagination: dto.NewPagination(p.Page, p.PageSize),
+		},
+		&tmpl,
+		func(res interface{}) (int, error) {
+			if res == nil {
+				return 0, nil
+			}
+			ls := *res.(*[]dto.Tag)
+
+			ps = append(ps, ls...)
+			return len(ls), nil
+		},
 	)
-
-	if err != nil {
-		return ps, err
-	}
-
-	_, err = c.Do(r, &ps)
 	return ps, err
 }
 
@@ -498,9 +515,8 @@ type GetProjectsParam struct {
 
 // GetProjects get all project of a workspace
 func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
-	var ps []dto.Project
+	var ps, tmpl []dto.Project
 
-	var tmpl []dto.Project
 	err := c.paginate(
 		"GET",
 		fmt.Sprintf(
