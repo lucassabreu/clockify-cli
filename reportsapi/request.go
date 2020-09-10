@@ -1,6 +1,8 @@
 package reportsapi
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/http"
@@ -29,8 +31,8 @@ const (
 )
 
 type SummaryFilter struct {
-	Groups     []FilterGroup
-	SortColumn SortColumn
+	Groups     []FilterGroup `json:"groups"`
+	SortColumn SortColumn    `json:"sortColumn,omitempty"`
 }
 
 type SortOrder string
@@ -62,29 +64,69 @@ const (
 	AmountShownProfit     AmountShown = "PROFIT"
 )
 
-type SummaryEntityFilterContains string
+type EntityFilterContains string
 
 const (
-	SummaryEntityFilterContainsDefault        SummaryEntityFilterContains = ""
-	SummaryEntityFilterContainsContains       SummaryEntityFilterContains = "CONTAINS"
-	SummaryEntityFilterContainsDoesNotContain SummaryEntityFilterContains = "DOES_NOT_CONTAIN"
-	SummaryEntityFilterContainsContainsOnly   SummaryEntityFilterContains = "CONTAINS_ONLY"
+	EntityFilterContainsDefault        EntityFilterContains = ""
+	EntityFilterContainsContains       EntityFilterContains = "CONTAINS"
+	EntityFilterContainsDoesNotContain EntityFilterContains = "DOES_NOT_CONTAIN"
+	EntityFilterContainsContainsOnly   EntityFilterContains = "CONTAINS_ONLY"
 )
 
-type SummaryEntityFilterStatus string
+type EntityFilterStatus string
 
 const (
-	SummaryEntityFilterStatusAll      SummaryEntityFilterStatus = "ALL"
-	SummaryEntityFilterStatusActive   SummaryEntityFilterStatus = "ACTIVE"
-	SummaryEntityFilterStatusArchived SummaryEntityFilterStatus = "ARCHIVED"
-	SummaryEntityFilterStatusInactive SummaryEntityFilterStatus = "INACTIVE"
-	SummaryEntityFilterStatusDone     SummaryEntityFilterStatus = "DONE"
+	EntityFilterStatusAll      EntityFilterStatus = "ALL"
+	EntityFilterStatusActive   EntityFilterStatus = "ACTIVE"
+	EntityFilterStatusArchived EntityFilterStatus = "ARCHIVED"
+	EntityFilterStatusInactive EntityFilterStatus = "INACTIVE"
+	EntityFilterStatusDone     EntityFilterStatus = "DONE"
 )
 
-type SummaryEntityFilter struct {
+type EntityFilter struct {
 	IDs      []string
-	Contains SummaryEntityFilterContains
-	Status   SummaryEntityFilterStatus
+	Contains EntityFilterContains
+	Status   EntityFilterStatus
+}
+
+func mapString(s []string, f func(string) string) []string {
+	ns := make([]string, len(s))
+	for i := range s {
+		ns[i] = f(s[i])
+	}
+	return ns
+}
+
+func quoteJoin(s []string) string {
+	return strings.Join(
+		mapString(s, strconv.Quote),
+		",",
+	)
+}
+
+// MarshalJSON converts DateTime correctly
+func (e EntityFilter) MarshalJSON() ([]byte, error) {
+	if len(e.IDs) == 0 {
+		return []byte("null"), nil
+	}
+
+	if e.Contains == EntityFilterContainsDefault {
+		e.Contains = EntityFilterContainsContains
+	}
+
+	if e.Status == EntityFilterStatus("") {
+		e.Status = EntityFilterStatusAll
+	}
+
+	b := []byte(
+		"{" +
+			`"ids":[` + quoteJoin(e.IDs) + "]," +
+			`"contains":"` + string(e.Contains) + `",` +
+			`"status":"` + string(e.Status) + `"` +
+			"}",
+	)
+
+	return b, nil
 }
 
 type CustomFieldType string
@@ -100,7 +142,7 @@ const (
 
 type CustomTypeNumberCondition string
 
-type SummaryCustomField struct {
+type CustomFieldFilter struct {
 	ID              string
 	Value           string
 	Type            CustomFieldType
@@ -109,26 +151,26 @@ type SummaryCustomField struct {
 }
 
 type BaseRequest struct {
-	DateRangeStart     http.DateTime
-	DateRangeEnd       http.DateTime
-	SortOrder          SortOrder
-	ExportType         ExportType
-	Rouding            bool
-	AmountShown        AmountShown
-	Users              SummaryEntityFilter
-	UserGroups         SummaryEntityFilter
-	Clients            SummaryEntityFilter
-	Projects           SummaryEntityFilter
-	Tasks              SummaryEntityFilter
-	Tags               SummaryEntityFilter
-	Billable           *bool
-	Description        string
-	WithoutDescription bool
-	CustomFields       []SummaryCustomField
+	DateRangeStart     http.DateTime       `json:"dateRangeStart"`
+	DateRangeEnd       http.DateTime       `json:"dateRangeEnd"`
+	SortOrder          SortOrder           `json:"sortOrder,omitempty"`
+	ExportType         ExportType          `json:"exportType,omitempty"`
+	Rouding            bool                `json:"rounding,omitempty"`
+	AmountShown        AmountShown         `json:"amountShown,omitempty"`
+	Users              EntityFilter        `json:"users,omitempty"`
+	UserGroups         EntityFilter        `json:"userGroups,omitempty"`
+	Clients            EntityFilter        `json:"clients,omitempty"`
+	Projects           EntityFilter        `json:"projects,omitempty"`
+	Tasks              EntityFilter        `json:"tasks,omitempty"`
+	Tags               EntityFilter        `json:"tags,omitempty"`
+	Billable           *bool               `json:"billable,omitempty"`
+	Description        string              `json:"description,omitempty"`
+	WithoutDescription bool                `json:"withoutDescription,omitempty"`
+	CustomFields       []CustomFieldFilter `json:"customFields,omitempty"`
 }
 
 type SummaryRequest struct {
-	SummaryFilter SummaryFilter
+	SummaryFilter SummaryFilter `json:"summaryFilter"`
 	BaseRequest
 }
 

@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+func NewDateTime(t time.Time) DateTime {
+	return DateTime{Time: t}
+}
+
 // DateTime is a time presentation for parameters
 type DateTime struct {
 	time.Time
