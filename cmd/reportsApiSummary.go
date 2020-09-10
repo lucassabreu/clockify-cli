@@ -15,7 +15,9 @@
 package cmd
 
 import (
-	"fmt"
+	"encoding/json"
+	"io"
+	"os"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/reportsapi"
@@ -36,10 +38,14 @@ var reportsApiSummaryCmd = &cobra.Command{
 			},
 		})
 
-		fmt.Printf("%#v", s)
+		summaryJSONPrint(s, os.Stdout)
 
 		return err
 	}),
+}
+
+func summaryJSONPrint(s reportsapi.SummaryReport, w io.Writer) error {
+	return json.NewEncoder(w).Encode(s)
 }
 
 func init() {

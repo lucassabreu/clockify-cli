@@ -39,8 +39,87 @@ type TimeEntryParam struct {
 	WithoutDescription bool
 }
 
+func (p TimeEntryParam) Fill(b BaseRequest) BaseRequest {
+	b.DateRangeStart = http.NewDateTime(p.DateRangeStart)
+	b.DateRangeEnd = http.NewDateTime(p.DateRangeEnd)
+	b.AmountShown = AmountShownHideAmount
+	return b
+}
+
+type entityStatus string
+
+const (
+	All      entityStatus = "ALL"
+	Active   entityStatus = "ACTIVE"
+	Inactive entityStatus = "INACTIVE"
+	Archived entityStatus = "ARCHIVED"
+	Done     entityStatus = "DONE"
+)
+
+type entityContains string
+
+const (
+	Contains       entityContains = "CONTAINS"
+	DoesNotContain entityContains = "DOES_NOT_CONTAIN"
+	ContainsOnly   entityContains = "CONTAINS_ONLY"
+)
+
+type EntityFilterParam struct {
+	IDs      []string
+	Status   entityStatus
+	Contains entityContains
+}
+
+func (p EntityFilterParam) ToEntityFilter() EntityFilter {
+	if len(p.IDs) == 0 {
+		return EntityFilter{}
+	}
+
+	e := EntityFilter{IDs: p.IDs}
+	switch p.Status {
+	case Active:
+		e.Status = EntityFilterStatusActive
+	case Inactive:
+		e.Status = EntityFilterStatusInactive
+	case Archived:
+		e.Status = EntityFilterStatusArchived
+	case Done:
+		e.Status = EntityFilterStatusDone
+	default:
+		e.Status = EntityFilterStatusAll
+	}
+
+	return e
+}
+
+type EntitiesParam struct {
+	Users      EntityFilterParam
+	UserGroups EntityFilterParam
+	Clients    EntityFilterParam
+	Projects   EntityFilterParam
+	Tasks      EntityFilterParam
+	Tags       EntityFilterParam
+}
+
+func (p EntitiesParam) Fill(b BaseRequest) BaseRequest {
+	if !p.Users.IsEmpty() {
+
+	}
+
+	return b
+}
+
 type SummaryParam struct {
 	TimeEntryParam
+	EntitiesParam
+}
+
+func fill(filler ...interface{ Fill(BaseRequest) BaseRequest }) BaseRequest {
+	b := BaseRequest{}
+	for i := range filler {
+		b = filler[i].Fill(b)
+	}
+	return b
 }
 
 func (c *ReportsClient) Summary(p SummaryParam) (SummaryReport, error) {
@@ -53,13 +132,12 @@ func (c *ReportsClient) Summary(p SummaryParam) (SummaryReport, error) {
 			p.Workspace,
 		),
 		SummaryRequest{
-			BaseRequest: BaseRequest{
-				DateRangeStart: http.NewDateTime(p.DateRangeStart),
-				DateRangeEnd:   http.NewDateTime(p.DateRangeEnd),
-				AmountShown:    AmountShownHideAmount,
-			},
+			BaseRequest: fill(
+				p.TimeEntryParam,
+				p.EntitiesParam,
+			),
 			SummaryFilter: SummaryFilter{
-				Groups: []FilterGroup{FilterGroupProject},
+				Groups: []FilterGroup{FilterGroupClient, FilterGroupProject},
 			},
 		},
 	)
