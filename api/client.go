@@ -51,13 +51,13 @@ func NewClient(apiKey string) (*Client, error) {
 	return c, nil
 }
 
-// WorkspacesFilter will be used to filter the workspaces
-type WorkspacesFilter struct {
+// GetWorkspaces will be used to filter the workspaces
+type GetWorkspaces struct {
 	Name string
 }
 
 // Workspaces list all the user's workspaces
-func (c *Client) Workspaces(f WorkspacesFilter) ([]dto.Workspace, error) {
+func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	var w []dto.Workspace
 
 	r, err := c.NewRequest("GET", "workspaces/", nil)

@@ -26,8 +26,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// workspaceUsersCmd represents the workspaceUsers command
-var workspaceUsersCmd = &cobra.Command{
+// usersCmd represents the workspaceUsers command
+var usersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List all users on a Workspace",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
@@ -35,10 +35,7 @@ var workspaceUsersCmd = &cobra.Command{
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
-		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-			Workspace: viper.GetString("workspace"),
-			Email:     email,
-		})
+		users, err := getUsers(c, email)
 
 		if err != nil {
 			return err
@@ -46,25 +43,32 @@ var workspaceUsersCmd = &cobra.Command{
 
 		var reportFn func([]dto.User, io.Writer) error
 
-		reportFn = reports.UserPrint
-		if format != "" {
+		switch true {
+		case format != "":
 			reportFn = reports.UserPrintWithTemplate(format)
-		}
-
-		if quiet {
+		case quiet:
 			reportFn = reports.UserPrintQuietly
+		default:
+			reportFn = reports.UserPrint
 		}
 
 		return reportFn(users, os.Stdout)
 	}),
 }
 
+func getUsers(c *api.Client, email string) ([]dto.User, error) {
+	return c.WorkspaceUsers(api.WorkspaceUsersParam{
+		Workspace: viper.GetString("workspace"),
+		Email:     email,
+	})
+}
+
 func init() {
-	workspacesCmd.AddCommand(workspaceUsersCmd)
+	workspacesCmd.AddCommand(usersCmd)
 
-	workspaceUsersCmd.Flags().StringP("email", "e", "", "will be used to filter the workspaces by email")
-	workspaceUsersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each workspace")
-	workspaceUsersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	usersCmd.Flags().StringP("email", "e", "", "will be used to filter the workspaces by email")
+	usersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each workspace")
+	usersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 
-	_ = workspaceUsersCmd.MarkFlagRequired("workspace")
+	_ = usersCmd.MarkFlagRequired("workspace")
 }

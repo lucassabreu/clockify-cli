@@ -36,13 +36,7 @@ var projectListCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		archived, _ := cmd.Flags().GetBool("archived")
 
-		projects, err := c.GetProjects(api.GetProjectsParam{
-			Workspace:       viper.GetString("workspace"),
-			Name:            name,
-			Archived:        archived,
-			PaginationParam: api.PaginationParam{AllPages: true},
-		})
-
+		projects, err := getProjects(c, name, archived)
 		if err != nil {
 			return err
 		}
@@ -60,6 +54,15 @@ var projectListCmd = &cobra.Command{
 
 		return reportFn(projects, os.Stdout)
 	}),
+}
+
+func getProjects(c *api.Client, name string, archived bool) ([]dto.Project, error) {
+	return c.GetProjects(api.GetProjectsParam{
+		Workspace:       viper.GetString("workspace"),
+		Name:            name,
+		Archived:        archived,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
 }
 
 func init() {

@@ -35,12 +35,7 @@ var tagsCmd = &cobra.Command{
 		archived, _ := cmd.Flags().GetBool("archived")
 		name, _ := cmd.Flags().GetString("name")
 
-		tags, err := c.GetTags(api.GetTagsParam{
-			Workspace: viper.GetString("workspace"),
-			Name:      name,
-			Archived:  archived,
-		})
-
+		tags, err := getTags(c, name, archived)
 		if err != nil {
 			return err
 		}
@@ -58,6 +53,15 @@ var tagsCmd = &cobra.Command{
 
 		return reportFn(tags, os.Stdout)
 	}),
+}
+
+func getTags(c *api.Client, name string, archived bool) ([]dto.Tag, error) {
+	return c.GetTags(api.GetTagsParam{
+		Workspace:       viper.GetString("workspace"),
+		Name:            name,
+		Archived:        archived,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
 }
 
 func init() {
