@@ -478,6 +478,10 @@ type GetTagsParam struct {
 func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 	var ps, tmpl []dto.Tag
 
+	if p.Workspace == "" {
+		return ps, errors.New("workspace needs to be informed to get tags")
+	}
+
 	err := c.paginate(
 		"GET",
 		fmt.Sprintf(
