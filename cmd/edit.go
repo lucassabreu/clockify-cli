@@ -18,16 +18,18 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 // editCmd represents the edit command
 var editCmd = &cobra.Command{
-	Use:     "edit <time-entry-id>",
-	Aliases: []string{"update"},
-	Args:    cobra.ExactArgs(1),
-	Short:   `Edit a time entry, use id "current" to apply to time entry in progress`,
+	Use:       "edit [current|last|<time-entry-id>]",
+	Aliases:   []string{"update"},
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"last", "current"},
+	Short:     `Edit a time entry, use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 		interactive := viper.GetBool("interactive")
@@ -128,6 +130,8 @@ func init() {
 	addTimeEntryFlags(editCmd)
 
 	editCmd.Flags().StringP("project", "p", "", "change the project")
+	_ = completion.AddSuggestionsToFlag(editCmd, "project", suggestWithClientAPI(suggestProjects))
+
 	editCmd.Flags().String("description", "", "change the description")
 	editCmd.Flags().String("end-at", "", "when the entry should end (if not set \"\" will be used)")
 

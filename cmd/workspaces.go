@@ -34,10 +34,7 @@ var workspacesCmd = &cobra.Command{
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 
-		w, err := c.Workspaces(api.WorkspacesFilter{
-			Name: name,
-		})
-
+		w, err := getWorkspaces(c, name)
 		if err != nil {
 			return err
 		}
@@ -55,6 +52,10 @@ var workspacesCmd = &cobra.Command{
 
 		return reportFn(w, os.Stdout)
 	}),
+}
+
+func getWorkspaces(c *api.Client, name string) ([]dto.Workspace, error) {
+	return c.GetWorkspaces(api.GetWorkspaces{Name: name})
 }
 
 func init() {

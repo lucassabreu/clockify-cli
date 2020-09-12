@@ -51,13 +51,13 @@ func NewClient(apiKey string) (*Client, error) {
 	return c, nil
 }
 
-// WorkspacesFilter will be used to filter the workspaces
-type WorkspacesFilter struct {
+// GetWorkspaces will be used to filter the workspaces
+type GetWorkspaces struct {
 	Name string
 }
 
 // Workspaces list all the user's workspaces
-func (c *Client) Workspaces(f WorkspacesFilter) ([]dto.Workspace, error) {
+func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	var w []dto.Workspace
 
 	r, err := c.NewRequest("GET", "workspaces/", nil)
@@ -477,6 +477,10 @@ type GetTagsParam struct {
 // GetTags get all tags of a workspace
 func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 	var ps, tmpl []dto.Tag
+
+	if p.Workspace == "" {
+		return ps, errors.New("workspace needs to be informed to get tags")
+	}
 
 	err := c.paginate(
 		"GET",

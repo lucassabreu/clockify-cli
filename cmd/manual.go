@@ -20,15 +20,17 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 // manualCmd represents the manual command
 var manualCmd = &cobra.Command{
-	Use:   "manual <project-id> <start> <end> <description>",
-	Short: "Creates a new completed time entry (does not stop on-going time entries)",
-	Args:  cobra.MaximumNArgs(4),
+	Use:               "manual <project-id> <start> <end> <description>",
+	Short:             "Creates a new completed time entry (does not stop on-going time entries)",
+	Args:              cobra.MaximumNArgs(4),
+	ValidArgsFunction: completion.CombineSuggestionsToArgs(suggestWithClientAPI(suggestProjects)),
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var whenToCloseDate time.Time
 		var err error
@@ -74,7 +76,10 @@ func init() {
 
 	manualCmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
 	manualCmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
+
 	manualCmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
+	_ = completion.AddSuggestionsToFlag(manualCmd, "tag", suggestWithClientAPI(suggestTags))
+
 	manualCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	manualCmd.Flags().BoolP("json", "j", false, "print as json")
 }

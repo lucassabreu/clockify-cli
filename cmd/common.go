@@ -6,22 +6,17 @@ import (
 	"io"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 	"time"
-	"unicode"
 	"unicode/utf8"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/ui"
 	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
-	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 var fullTimeFormat = "2006-01-02 15:04:05"
@@ -94,15 +89,7 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 
 	for {
-		_ = survey.AskOne(
-			&survey.Input{
-				Message: message,
-				Default: value,
-			},
-			&value,
-			nil,
-		)
-
+		value, _ = ui.AskForText(message, value)
 		if value == "" && !required {
 			return nil, nil
 		}
@@ -245,36 +232,6 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 	return printTimeEntryImpl(c, tei, asJSON, format)
 }
 
-var t = transform.Chain(
-	norm.NFD,
-	runes.Remove(runes.In(unicode.Mn)),
-	norm.NFC,
-)
-
-func normalize(s string) string {
-	r, _, err := transform.String(t, strings.ToLower(s))
-	if err != nil {
-		return s
-	}
-	return r
-}
-
-func utf8FilterFn(filter string, options []string) (answer []string) {
-	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
-	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(normalize(filter), "")
-	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
-	filter = strings.ReplaceAll(filter, " ", ".*")
-	filter = strings.ReplaceAll(filter, "*", ".*")
-
-	regexp := regexp.MustCompile(filter)
-	for _, o := range options {
-		if regexp.Match([]byte(normalize(o))) {
-			answer = append(answer, o)
-		}
-	}
-	return answer
-}
-
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace: workspace,
@@ -324,18 +281,7 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 		projectID = projectsString[found]
 	}
 
-	err = survey.AskOne(
-		&survey.Select{
-			Message:  "Choose your project:",
-			Options:  projectsString,
-			Default:  projectID,
-			FilterFn: utf8FilterFn,
-		},
-		&projectID,
-		nil,
-	)
-
-	if err != nil {
+	if projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID); err != nil {
 		return "", nil
 	}
 
@@ -343,15 +289,7 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 }
 
 func getDescription(description string) string {
-	_ = survey.AskOne(
-		&survey.Input{
-			Message: "Description:",
-			Default: description,
-		},
-		&description,
-		nil,
-	)
-
+	description, _ = ui.AskForText("Description:", description)
 	return description
 }
 
@@ -383,18 +321,7 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 	}
 
 	var newTags []string
-	err = survey.AskOne(
-		&survey.MultiSelect{
-			Message:  "Choose your tags:",
-			Options:  tagsString,
-			Default:  tagIDs,
-			FilterFn: utf8FilterFn,
-		},
-		&newTags,
-		nil,
-	)
-
-	if err != nil {
+	if newTags, err = ui.AskManyFromOptions("Choose your tags:", tagsString, tagIDs); err != nil {
 		return nil, nil
 	}
 
