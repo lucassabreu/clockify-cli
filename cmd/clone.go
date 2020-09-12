@@ -18,15 +18,17 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 // cloneCmd represents the clone command
 var cloneCmd = &cobra.Command{
-	Use:   "clone <time-entry-id>",
-	Short: "Copy a time entry and starts it (use \"last\" to copy the last one)",
-	Args:  cobra.ExactArgs(1),
+	Use:       "clone [last|<time-entry-id>]",
+	Short:     `Copy a time entry and starts it (use "last" to copy the last one)`,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"last"},
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 
@@ -84,8 +86,11 @@ func init() {
 	addTimeEntryFlags(cloneCmd)
 
 	cloneCmd.Flags().StringP("project", "", "", "use this project instead")
+	_ = completion.AddSuggestionsToFlag(cloneCmd, "project", suggestWithClientAPI(suggestProjects))
+
 	cloneCmd.Flags().StringP("description", "", "", "use this description instead")
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
+
 	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
 }

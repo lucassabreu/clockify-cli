@@ -19,6 +19,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -76,9 +77,11 @@ func init() {
 
 	rootCmd.PersistentFlags().StringP("workspace", "w", "", "workspace to be used (defaults to env $"+envPrefix+"_WORKSPACE)")
 	_ = viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
+	_ = completion.AddSuggestionsToFlag(rootCmd, "workspace", suggestWithClientAPI(suggestWorkspaces))
 
 	rootCmd.PersistentFlags().StringP("user-id", "u", "", "user id from the token (defaults to env $"+envPrefix+"_USER_ID)")
 	_ = viper.BindPFlag("user.id", rootCmd.PersistentFlags().Lookup("user-id"))
+	_ = completion.AddSuggestionsToFlag(rootCmd, "user-id", suggestWithClientAPI(suggestUsers))
 
 	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $"+envPrefix+"_DEBUG)")
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
