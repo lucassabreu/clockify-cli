@@ -11,9 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- support for command line completion on `fish`, `bash` and `zsh` for subcommands and flag name's
+- command line completion for arguments and flags for Tags, Projects, Workspaces and Users.
+- alias `remove` to command `delete`
+
 ### Changed
 
 - using the API `v1` version to get tags available to a workspace.
+- `api.Client.Workspaces` renamed to `api.Client.GetWorkspaces` to follow pattern used on other
+  functions.
+- command `config`, `config set` and `config init` combined to be only one command `config`
+- improvements on help of many commands to show usable values.
+- `github.com/spf13/cobra` updated to latest possible current version to use completion improvements
+  not yet released
+- "interactive mode" functions moved to a separate package.
 
 ## [v0.14.1] - 2020-09-09
 
