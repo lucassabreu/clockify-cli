@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- using the API `v1` version to get tags available to a workspace.
+
 ## [v0.14.1] - 2020-09-09
 
 ### Fixed

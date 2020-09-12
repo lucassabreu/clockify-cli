@@ -136,3 +136,31 @@ func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 
 	return u
 }
+
+type GetTagsRequest struct {
+	Name     string
+	Archived bool
+
+	Pagination pagination
+}
+
+// WithPagination add pagination to the GetTagsRequest
+func (r GetTagsRequest) WithPagination(page, size int) PaginatedRequest {
+	r.Pagination = NewPagination(page, size)
+	return r
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
+	u = r.Pagination.AppendToQuery(u)
+
+	v := u.Query()
+	v.Add("name", r.Name)
+	if r.Archived {
+		v.Add("archived", "true")
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}

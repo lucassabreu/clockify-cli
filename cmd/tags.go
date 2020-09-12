@@ -17,7 +17,6 @@ package cmd
 import (
 	"io"
 	"os"
-	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -33,17 +32,18 @@ var tagsCmd = &cobra.Command{
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		quiet, _ := cmd.Flags().GetBool("quiet")
+		archived, _ := cmd.Flags().GetBool("archived")
+		name, _ := cmd.Flags().GetString("name")
 
 		tags, err := c.GetTags(api.GetTagsParam{
 			Workspace: viper.GetString("workspace"),
+			Name:      name,
+			Archived:  archived,
 		})
 
 		if err != nil {
 			return err
 		}
-
-		name, _ := cmd.Flags().GetString("name")
-		tags = filterTags(name, tags)
 
 		var reportFn func([]dto.Tag, io.Writer) error
 
@@ -60,26 +60,11 @@ var tagsCmd = &cobra.Command{
 	}),
 }
 
-func filterTags(name string, tags []dto.Tag) []dto.Tag {
-	if name == "" {
-		return tags
-	}
-
-	ts := make([]dto.Tag, 0)
-
-	for _, t := range tags {
-		if strings.Contains(strings.ToLower(t.Name), strings.ToLower(name)) {
-			ts = append(ts, t)
-		}
-	}
-
-	return ts
-}
-
 func init() {
 	rootCmd.AddCommand(tagsCmd)
 
 	tagsCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
 	tagsCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Tag")
 	tagsCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	tagsCmd.Flags().BoolP("archived", "", false, "only display archived tags")
 }
