@@ -36,7 +36,7 @@ Features
   * [x] Update individual configuration
   * [x] Show current configuration
 
-## How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?classes=badges)](https://github.com/goreleaser)
+How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?classes=badges)](https://github.com/goreleaser)
 --------------
 
 #### Using [`homebrew`](https://brew.sh/):
@@ -62,8 +62,8 @@ go get -u github.com/lucassabreu/clockify-cli
 Go to the [releases page](https://github.com/lucassabreu/clockify-cli/releases) and download the pre-compiled
 binary that fits your system.
 
-## Getting Started
---------------
+Getting Started
+---------------
 
 After you install the CLI, run `clockify-cli config --init` to setup your environment variables. You’ll be prompted to enter your user information. You can get your clockify api token [here](https://clockify.me/user/settings).
 
@@ -117,12 +117,8 @@ foo@bar:~$ clockify-cli clone last
 
 ```
 
-
-
-## Help
---------------
-
-
+Help
+----
 
 ```
 Allow to integrate with Clockify through terminal
@@ -132,7 +128,9 @@ Usage:
 
 Available Commands:
   clone       Copy a time entry and starts it (use "last" to copy the last one)
+  completion  Generate completion script
   config      Manages configuration file parameters
+  delete      Delete a time entry, use id "current" to apply to time entry in progress
   edit        Edit a time entry, use id "current" to apply to time entry in progress
   gendocs     Generate Markdown documentation for the clockify-cli.
   help        Help about any command
@@ -144,17 +142,19 @@ Available Commands:
   project     List projects from a workspace
   report      List all time entries in the date ranges and with more data (format date as 2016-01-02)
   tags        List tags of workspace
+  version     Version of the command
   workspaces  List user's workspaces
 
 Flags:
-      --config string      config file (default is $HOME/.clockify-cli.yaml)
-      --debug              show debug log (defaults to env $CLOCKIFY_DEBUG)
-  -h, --help               help for clockify-cli
-  -i, --interactive        show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
-  -t, --token string       clockify's token (defaults to env $CLOCKIFY_TOKEN)
-                           	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
-  -u, --user-id string     user id from the token (defaults to env $CLOCKIFY_USER_ID)
-  -w, --workspace string   workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)
+      --allow-project-name   allow use of project name when id is asked (defaults to env $CLOCKIFY_ALLOW_PROJECT_NAME)
+      --config string        config file (default is $HOME/.clockify-cli.yaml)
+      --debug                show debug log (defaults to env $CLOCKIFY_DEBUG)
+  -h, --help                 help for clockify-cli
+  -i, --interactive          show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
+  -t, --token string         clockify's token (defaults to env $CLOCKIFY_TOKEN)
+                             	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
+  -u, --user-id string       user id from the token (defaults to env $CLOCKIFY_USER_ID)
+  -w, --workspace string     workspace to be used (defaults to env $CLOCKIFY_WORKSPACE)
 
 Use "clockify-cli [command] --help" for more information about a command.
 ```

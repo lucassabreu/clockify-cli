@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- "Getting Started" section on README.md to help new users to setup theirs environment.
+
 ## [v0.15.0] - 2020-09-12
 
 ### Added
