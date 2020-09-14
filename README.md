@@ -73,6 +73,8 @@ foo@bar:~$ clockify config init
 
 The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for future use.
 
+> :exclamation: If you have installed the client using `snap` this file will not be accessible to you, but the configs will still be persisted.
+
 Now you’re ready to create your first Clockify entry:
 
 ```console
@@ -84,7 +86,7 @@ foo@bar:~$ clockify-cli in -i
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
-|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
+|   time-entry-id  | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
@@ -95,7 +97,7 @@ foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
-|    time-entry-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
+|   time-entry-id  | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
