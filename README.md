@@ -83,11 +83,11 @@ foo@bar:~$ clockify-cli in -i
 ? Description: Clockify CLI Test
 ? Start: (2020-09-04 16:02:45)
 ? End (leave it blank for empty):
-+------------------+----------+----------+---------+---------+-------------------+------+
-|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
-+------------------+----------+----------+---------+---------+-------------------+------+
-|   time-entry-id  | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
-+------------------+----------+----------+---------+---------+-------------------+------+
++---------------------+----------+----------+---------+---------+-------------------+------+
+|         ID          |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
++---------------------+----------+----------+---------+---------+-------------------+------+
+|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
++---------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
 After finishing your work you can stop the entry using `clockify-cli out`
@@ -95,7 +95,7 @@ After finishing your work you can stop the entry using `clockify-cli out`
 ```console
 foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
-|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
+|         ID       |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
 |   time-entry-id  | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
@@ -106,7 +106,7 @@ If you want to re-start the last entry you can use `clockify-cli clone last`
 ```console
 foo@bar:~$ clockify-cli clone last
 +------------------+----------+----------+---------+---------+-------------------+------+
-|        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
+|         ID       |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
 |    time-entry    | 16:10:57 | 16:11:09 | 0:00:12 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
