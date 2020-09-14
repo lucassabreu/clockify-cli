@@ -1,5 +1,4 @@
-Clockify CLI
-============
+# Clockify CLI
 
 A simple cli to manage your time entries on Clockify from terminal
 
@@ -9,35 +8,33 @@ A simple cli to manage your time entries on Clockify from terminal
 [![Go Report Card](https://goreportcard.com/badge/github.com/lucassabreu/clockify-cli?classes=badges)](https://goreportcard.com/report/github.com/lucassabreu/clockify-cli)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/8667b9f6-4ca2-4ee4-865e-20b5848e7059/deploy-status?classes=badges)](https://app.netlify.com/sites/clockify-cli/deploys)
 
-Features
---------
+## Features
 
-* [X] List time entries from a day
-  * [X] List in progress entry
-* [X] Report time entries using a date range
-  * [X] Inform date range as parameters
-  * [X] "auto filter" for last month
-  * [X] "auto filter" for this month
-* [X] Start a new time entry
-  + [ ] Using a GitHub issue
-  + [ ] Using a Trello card
-  + [X] Cloning last time entry
-  + [X] Ask input interactively
-* [X] Stop the last entry
-* [X] List workspace projects
-* [ ] Link a Clockify Project with Github:Issues repository
-* [ ] Link a Clockify Project with Trello board
-* [X] List Clockify Workspaces
-* [X] List Clockify Workspaces Users
-* [X] List Clockify Tags
-* [X] Edit time entry
-* [X] Configuration management
-  * [X] Initialize configuration
-  * [X] Update individual configuration
-  * [X] Show current configuration
+- [x] List time entries from a day
+  - [x] List in progress entry
+- [x] Report time entries using a date range
+  - [x] Inform date range as parameters
+  - [x] "auto filter" for last month
+  - [x] "auto filter" for this month
+- [x] Start a new time entry
+  - [ ] Using a GitHub issue
+  - [ ] Using a Trello card
+  - [x] Cloning last time entry
+  - [x] Ask input interactively
+- [x] Stop the last entry
+- [x] List workspace projects
+- [ ] Link a Clockify Project with Github:Issues repository
+- [ ] Link a Clockify Project with Trello board
+- [x] List Clockify Workspaces
+- [x] List Clockify Workspaces Users
+- [x] List Clockify Tags
+- [x] Edit time entry
+- [x] Configuration management
+  - [x] Initialize configuration
+  - [x] Update individual configuration
+  - [x] Show current configuration
 
-How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?classes=badges)](https://github.com/goreleaser)
---------------
+## How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?classes=badges)](https://github.com/goreleaser)
 
 #### Using [`homebrew`](https://brew.sh/):
 
@@ -62,10 +59,9 @@ go get -u github.com/lucassabreu/clockify-cli
 Go to the [releases page](https://github.com/lucassabreu/clockify-cli/releases) and download the pre-compiled
 binary that fits your system.
 
-Getting Started
-----
+## Getting Started
 
-After you install the CLI, run the `clockify config init` command to setup your environment variables. You’ll be prompted to enter your user information. You can get your clockify api token [here](https://clockify.me/user/settings).
+After you install the CLI, run `clockify-cli config --init` to setup your environment variables. You’ll be prompted to enter your user information. You can get your clockify api token [here](https://clockify.me/user/settings).
 
 ```console
 foo@bar:~$ clockify config init
@@ -88,18 +84,18 @@ foo@bar:~$ clockify-cli in -i
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
-|    project-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
+|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
 After finishing your work you can stop the entry using `clockify-cli out`
 
 ```console
-foo@bar:~$ clockify-cli out  
+foo@bar:~$ clockify-cli out
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
-|    project-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
+|    time-entry-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 ```
 
@@ -110,13 +106,12 @@ foo@bar:~$ clockify-cli clone last
 +------------------+----------+----------+---------+---------+-------------------+------+
 |        ID        |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
 +------------------+----------+----------+---------+---------+-------------------+------+
-|    project-id    | 16:10:57 | 16:11:09 | 0:00:12 |         | Clockify CLI Test |      |
+|    time-entry    | 16:10:57 | 16:11:09 | 0:00:12 |         | Clockify CLI Test |      |
 +------------------+----------+----------+---------+---------+-------------------+------+
 
 ```
 
-Help
-----
+## Help
 
 ```
 Allow to integrate with Clockify through terminal
