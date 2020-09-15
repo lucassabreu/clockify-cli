@@ -156,8 +156,27 @@ type SortAndAggregateParam struct {
 	Rouding    bool
 }
 
+type group string
+
+const (
+	Project   group = "PROJECT"
+	Client    group = "CLIENT"
+	Task      group = "TASK"
+	Tag       group = "TAG"
+	Date      group = "DATE"
+	User      group = "USER"
+	UserGroup group = "USER_GROUP"
+	TimeEntry group = "TIMEENTRY"
+)
+
+func Groups(g ...group) []group {
+	return g
+}
+
 type SummaryParam struct {
 	TimeEntryParam
+	Groups []group
+
 	EntitiesParam
 }
 
