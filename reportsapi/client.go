@@ -71,7 +71,7 @@ type EntityFilterParam struct {
 }
 
 func (p EntityFilterParam) ToEntityFilter() EntityFilter {
-	if len(p.IDs) == 0 {
+	if p.IsEmpty() {
 		return EntityFilter{}
 	}
 
@@ -92,6 +92,10 @@ func (p EntityFilterParam) ToEntityFilter() EntityFilter {
 	return e
 }
 
+func (p EntityFilterParam) IsEmpty() bool {
+	return len(p.IDs) == 0
+}
+
 type EntitiesParam struct {
 	Users      EntityFilterParam
 	UserGroups EntityFilterParam
@@ -102,11 +106,54 @@ type EntitiesParam struct {
 }
 
 func (p EntitiesParam) Fill(b BaseRequest) BaseRequest {
-	if !p.Users.IsEmpty() {
-
+	fn := func(r *EntityFilter, p EntityFilterParam) {
+		if !p.IsEmpty() {
+			*r = p.ToEntityFilter()
+		}
 	}
 
+	fn(&b.Users, p.Users)
+	fn(&b.UserGroups, p.UserGroups)
+	fn(&b.Clients, p.Clients)
+	fn(&b.Projects, p.Projects)
+	fn(&b.Tasks, p.Tasks)
+	fn(&b.Tags, p.Tags)
+
 	return b
+}
+
+type sortOrder string
+
+const (
+	Ascending  sortOrder = "ASCENDING"
+	Descending sortOrder = "DESCENDING"
+)
+
+func (s sortOrder) ToRequestSortOrder() SortOrder {
+	switch s {
+	case Descending:
+		return SortOrderDescending
+	case Ascending:
+		return SortOrderAscending
+	default:
+		return SortOrderDefault
+	}
+}
+
+type amountShown string
+
+const (
+	ShowAmount amountShown = "SHOW_AMOUNT"
+	HideAmount amountShown = "HIDE_AMOUNT"
+	Earned     amountShown = "EARNED"
+	Cost       amountShown = "COST"
+	Profit     amountShown = "PROFIT"
+)
+
+type SortAndAggregateParam struct {
+	SortOrder  sortOrder
+	AmoutShown amountShown
+	Rouding    bool
 }
 
 type SummaryParam struct {
