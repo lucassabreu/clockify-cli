@@ -16,9 +16,7 @@ func SummaryPrintTable(sr reportsapi.SummaryReport, w io.Writer) error {
 		return fn(g[0].Children) + 1
 	}
 
-	gCount := fn(sr.GroupOne)
-
-	headers = 
+	// gCount := fn(sr.GroupOne)
 
 	return TotalsPrintTable(sr.Totals, w)
 }
