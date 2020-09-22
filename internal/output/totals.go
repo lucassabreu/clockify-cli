@@ -12,10 +12,10 @@ import (
 var messagePrinter = message.NewPrinter(language.English)
 
 func inttostr(i int) string {
-	return messagePrinter.Sprint("%d", i)
+	return messagePrinter.Sprintf("%d", i)
 }
 func dectostr(i float32) string {
-	return messagePrinter.Sprint("%.2f", i)
+	return messagePrinter.Sprintf("%.2f", i)
 }
 
 func TotalsPrintTable(ts []reportsapi.Total, w io.Writer) error {

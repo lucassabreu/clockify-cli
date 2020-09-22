@@ -70,3 +70,12 @@ func Unique(ss []string) []string {
 
 	return r
 }
+
+// Merge will combine all string slices into a single one
+func Merge(ss ...[]string) []string {
+	s := make([]string, 0)
+	for i := range ss {
+		s = append(s, ss[i]...)
+	}
+	return s
+}

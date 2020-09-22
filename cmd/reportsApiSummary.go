@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/lucassabreu/clockify-cli/reportsapi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -53,7 +54,7 @@ var reportsApiSummaryCmd = &cobra.Command{
 			},
 		})
 
-		summaryJSONPrint(s, os.Stdout)
+		output.SummaryPrintTable(gs, s, os.Stdout)
 
 		return err
 	}),

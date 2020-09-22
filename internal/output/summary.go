@@ -4,19 +4,44 @@ import (
 	"io"
 
 	"github.com/lucassabreu/clockify-cli/reportsapi"
+	"github.com/lucassabreu/clockify-cli/strhlp"
+	"github.com/olekukonko/tablewriter"
 )
 
-func SummaryPrintTable(sr reportsapi.SummaryReport, w io.Writer) error {
-	var fn func(g []reportsapi.SummaryGroup) int
-	fn = func(g []reportsapi.SummaryGroup) int {
-		if len(g) == 0 {
-			return 0
-		}
+func SummaryPrintTable(gs reportsapi.GroupSlice, sr reportsapi.SummaryReport, w io.Writer) error {
+	tw := tablewriter.NewWriter(w)
 
-		return fn(g[0].Children) + 1
+	headers := make([]string, 0)
+	for _, g := range gs {
+		headers = append(headers, string(g))
+	}
+	headers = append(headers, "Duration", "Amount")
+
+	tw.SetHeader(headers)
+	tw.SetRowLine(true)
+
+	tw.AppendBulk(recurSummaryTable(sr.GroupOne, len(gs), 0))
+
+	tw.Render()
+	return TotalsPrintTable(sr.Totals, w)
+}
+
+func recurSummaryTable(gs []reportsapi.SummaryGroup, groupCount, current int) (result [][]string) {
+	labels := make([]string, groupCount)
+	for _, g := range gs {
+		labels[current] = g.Name
+		result = append(result, strhlp.Merge(
+			labels,
+			[]string{
+				inttostr(g.Duration),
+				dectostr(g.Amount),
+			},
+		))
+
+		if len(g.Children) > 0 {
+			result = append(result, recurSummaryTable(g.Children, groupCount, current+1)...)
+		}
 	}
 
-	// gCount := fn(sr.GroupOne)
-
-	return TotalsPrintTable(sr.Totals, w)
+	return result
 }
