@@ -68,7 +68,7 @@ Getting Started
 After you install the CLI, run `clockify-cli config --init` to setup your environment variables. You’ll be prompted to enter your user information. You can get your clockify api token [here](https://clockify.me/user/settings).
 
 ```console
-foo@bar:~$ clockify config init
+foo@bar:~$ clockify-cli config --init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: workspace-id - John Doe's workspace
 ? Choose your user: user-id - John Doe
