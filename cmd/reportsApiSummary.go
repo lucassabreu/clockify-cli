@@ -54,9 +54,11 @@ var reportsApiSummaryCmd = &cobra.Command{
 			},
 		})
 
-		output.SummaryPrintTable(gs, s, os.Stdout)
+		if err != nil {
+			return err
+		}
 
-		return err
+		return output.SummaryPrintTable(gs, s, os.Stdout)
 	}),
 }
 
