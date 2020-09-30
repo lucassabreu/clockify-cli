@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.15.1] - 2020-09-30
+
 ### Fixed
 
 - if the workspace has more the one page of projects, in interactive mode, only the first page was
@@ -423,7 +425,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.15.1...HEAD
+[v0.15.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.15.1
 [v0.15.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.15.0
 [v0.14.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.14.1
 [v0.14.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.14.0
