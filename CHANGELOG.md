@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- if the workspace has more the one page of projects, in interactive mode, only the first page was
+  being shown. now fixed to run over all pages to fill the list.
+
 ### Added
 
 - "Getting Started" section on README.md to help new users to setup theirs environment.
