@@ -235,6 +235,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace: workspace,
+		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
 	if err != nil {
