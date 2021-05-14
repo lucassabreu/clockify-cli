@@ -32,6 +32,8 @@ var projectListCmd = &cobra.Command{
 	Short:   "List projects on Clockify and project links",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
+		asJSON, _ := cmd.Flags().GetBool("json")
+		asCSV, _ := cmd.Flags().GetBool("csv")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 		name, _ := cmd.Flags().GetString("name")
 		archived, _ := cmd.Flags().GetBool("archived")
@@ -44,6 +46,14 @@ var projectListCmd = &cobra.Command{
 		var reportFn func([]dto.Project, io.Writer) error
 
 		reportFn = reports.ProjectPrint
+		if asJSON {
+			reportFn = reports.ProjectsJSONPrint
+		}
+
+		if asCSV {
+			reportFn = reports.ProjectsCSVPrint
+		}
+
 		if format != "" {
 			reportFn = reports.ProjectPrintWithTemplate(format)
 		}
@@ -71,5 +81,7 @@ func init() {
 	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
 	projectListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
 	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
+	projectListCmd.Flags().BoolP("json", "j", false, "print as JSON")
+	projectListCmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	projectListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }
