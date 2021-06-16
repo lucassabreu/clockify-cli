@@ -234,7 +234,7 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 
 func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
-		Workspace: workspace,
+		Workspace:       workspace,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
@@ -248,8 +248,8 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 
 	for i, u := range projects {
 		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
-		if projectNameSize < utf8.RuneCountInString(projectsString[i]) {
-			projectNameSize = utf8.RuneCountInString(projectsString[i])
+		if c := utf8.RuneCountInString(projectsString[i]); projectNameSize < c {
+			projectNameSize = c
 		}
 
 		if found == -1 && u.ID == projectID {
@@ -282,7 +282,7 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 		projectID = projectsString[found]
 	}
 
-	if projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID); err != nil {
+	if projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID); err != nil || projectID == "" {
 		return "", nil
 	}
 

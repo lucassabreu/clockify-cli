@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- interactive selection of project would panic if the list were empty (filtering can empty the list)
+  and pressing enter. now will return as "no project selected".
+
 ### Changed
 
 - `workspaces` command is now named `workspace`, `workspaces` still supported
