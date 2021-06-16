@@ -134,15 +134,15 @@ func reportFlags(cmd *cobra.Command) *cobra.Command {
 }
 
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
-	first = ref.AddDate(0, 0, ref.Day()*-1+1).Truncate(time.Hour)
+	first = ref.AddDate(0, 0, ref.Day()*-1+1)
 	last = first.AddDate(0, 1, -1)
 
 	return
 }
 
 func getWeekRange(ref time.Time) (first time.Time, last time.Time) {
-	first = ref.AddDate(0, 0, int(ref.Weekday())*-1).Truncate(time.Hour)
-	last = first.AddDate(0, 0, 5)
+	first = ref.AddDate(0, 0, int(ref.Weekday())*-1)
+	last = first.AddDate(0, 0, 7)
 
 	return
 }
@@ -153,8 +153,8 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	asCSV, _ := cmd.Flags().GetBool("csv")
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 
-	start = start.Add(time.Duration(start.Hour()) * time.Hour * -1)
-	end = end.Add(time.Duration(24-start.Hour()) * time.Hour * 1)
+	start = truncateDate(start)
+	end = truncateDate(end).Add(time.Hour * 24)
 
 	userId, err := getUserId(c)
 	if err != nil {
@@ -224,4 +224,8 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	return fn(log, os.Stdout)
+}
+
+func truncateDate(t time.Time) time.Time {
+	return t.Truncate(time.Hour * 24)
 }
