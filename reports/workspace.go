@@ -19,23 +19,29 @@ func WorkspacePrintQuietly(ws []dto.Workspace, w io.Writer) error {
 }
 
 // WorkspacePrint will print more details
-func WorkspacePrint(ws []dto.Workspace, w io.Writer) error {
-	tw := tablewriter.NewWriter(w)
-	tw.SetHeader([]string{"ID", "Name", "Image"})
+func WorkspacePrint(wDefault string) func(ws []dto.Workspace, w io.Writer) error {
+	return func(ws []dto.Workspace, w io.Writer) error {
+		tw := tablewriter.NewWriter(w)
+		tw.SetHeader([]string{"ID", "Name", "Image"})
 
-	lines := make([][]string, len(ws))
-	for i, w := range ws {
-		lines[i] = []string{
-			w.ID,
-			w.Name,
-			w.ImageURL,
+		lines := make([][]string, len(ws))
+		for i, w := range ws {
+			name := w.Name
+			if wDefault == w.ID {
+				name = name + " (default)"
+			}
+			lines[i] = []string{
+				w.ID,
+				name,
+				w.ImageURL,
+			}
 		}
+
+		tw.AppendBulk(lines)
+		tw.Render()
+
+		return nil
 	}
-
-	tw.AppendBulk(lines)
-	tw.Render()
-
-	return nil
 }
 
 // WorkspacePrintWithTemplate will print each worspace using the format string

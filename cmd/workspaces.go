@@ -23,12 +23,14 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // workspacesCmd represents the workspaces command
 var workspacesCmd = &cobra.Command{
-	Use:   "workspaces",
-	Short: "List user's workspaces",
+	Use:     "workspace",
+	Aliases: []string{"workspaces"},
+	Short:   "List user's workspaces",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		name, _ := cmd.Flags().GetString("name")
 		format, _ := cmd.Flags().GetString("format")
@@ -41,7 +43,7 @@ var workspacesCmd = &cobra.Command{
 
 		var reportFn func([]dto.Workspace, io.Writer) error
 
-		reportFn = reports.WorkspacePrint
+		reportFn = reports.WorkspacePrint(viper.GetString("workspace"))
 		if format != "" {
 			reportFn = reports.WorkspacePrintWithTemplate(format)
 		}
