@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new command `report last-day`, this command will list time entries from the last day the user worked.
+
 ## [v0.16.1] - 2021-06-16
 
 ### Fixed

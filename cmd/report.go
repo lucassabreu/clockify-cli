@@ -86,6 +86,29 @@ var reportLastWeekCmd = &cobra.Command{
 	}),
 }
 
+// reportLastDayCmd represents the report last-day command
+var reportLastDayCmd = &cobra.Command{
+	Use:   "last-day",
+	Short: "List time entries from last day were a time entry exists",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		u, err := getUserId(c)
+		if err != nil {
+			return err
+		}
+		te, err := getTimeEntry(
+			"last",
+			viper.GetString("workspace"),
+			u,
+			c,
+		)
+		if err != nil {
+			return err
+		}
+
+		return reportWithRange(c, te.TimeInterval.Start, te.TimeInterval.Start, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
@@ -93,22 +116,21 @@ func init() {
 	_ = reportCmd.MarkFlagRequired("user-id")
 
 	reportFlags(reportCmd)
-	reportFlags(reportThisMonthCmd)
-	reportFlags(reportLastMonthCmd)
-	reportFlags(reportThisWeekCmd)
-	reportFlags(reportLastWeekCmd)
 
-	reportCmd.AddCommand(reportThisMonthCmd)
-	reportCmd.AddCommand(reportLastMonthCmd)
-	reportCmd.AddCommand(reportThisWeekCmd)
-	reportCmd.AddCommand(reportLastWeekCmd)
+	reportCmd.AddCommand(reportFlags(reportThisMonthCmd))
+	reportCmd.AddCommand(reportFlags(reportLastMonthCmd))
+	reportCmd.AddCommand(reportFlags(reportThisWeekCmd))
+	reportCmd.AddCommand(reportFlags(reportLastWeekCmd))
+	reportCmd.AddCommand(reportFlags(reportLastDayCmd))
 }
 
-func reportFlags(cmd *cobra.Command) {
+func reportFlags(cmd *cobra.Command) *cobra.Command {
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
+
+	return cmd
 }
 
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
