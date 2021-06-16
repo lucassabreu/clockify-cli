@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.16.1] - 2021-06-16
+
 ### Fixed
 
 - interactive selection of project would panic if the list were empty (filtering can empty the list)
@@ -442,7 +444,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.16.1...HEAD
+[v0.16.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.1
 [v0.16.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.0
 [v0.15.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.15.1
 [v0.15.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.15.0
