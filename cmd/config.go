@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/lucassabreu/clockify-cli/ui"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -38,7 +40,10 @@ var configValidArgs = completion.ValigsArgsMap{
 	"allow-project-name": "should allow use of project when id is asked",
 	"no-closing":         "should not close any active time entry",
 	"interactive":        "show interactive mode",
+	"workweek-days":      "days of the week were your expected to work (use comma to set multiple)",
 }
+
+var weekdays []string
 
 const FORMAT_YAML = "yaml"
 const FORMAT_JSON = "json"
@@ -69,6 +74,16 @@ func init() {
 
 	configCmd.Flags().StringP("format", "f", FORMAT_YAML, "output format (when not setting or initializing)")
 	_ = completion.AddFixedSuggestionsToFlag(configCmd, "format", completion.ValigsArgsSlide{FORMAT_YAML, FORMAT_JSON})
+
+	weekdays = []string{
+		time.Sunday:    strings.ToLower(time.Sunday.String()),
+		time.Monday:    strings.ToLower(time.Monday.String()),
+		time.Tuesday:   strings.ToLower(time.Tuesday.String()),
+		time.Wednesday: strings.ToLower(time.Wednesday.String()),
+		time.Thursday:  strings.ToLower(time.Thursday.String()),
+		time.Friday:    strings.ToLower(time.Friday.String()),
+		time.Saturday:  strings.ToLower(time.Saturday.String()),
+	}
 }
 
 func configShow(cmd *cobra.Command, args []string) error {
@@ -201,6 +216,16 @@ func configInit(cmd *cobra.Command, args []string) error {
 }
 
 func configSet(cmd *cobra.Command, args []string) error {
-	viper.Set(args[0], args[1])
+	switch args[0] {
+	case "workweek-days":
+		ws := strings.Split(strings.ToLower(args[1]), ",")
+		ws = strhlp.Filter(
+			func(s string) bool { return strhlp.Search(s, weekdays) != -1 },
+			ws,
+		)
+		viper.Set(args[0], ws)
+	default:
+		viper.Set(args[0], args[1])
+	}
 	return configSaveFile()
 }

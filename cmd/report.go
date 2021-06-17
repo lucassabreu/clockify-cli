@@ -15,14 +15,17 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -109,6 +112,38 @@ var reportLastDayCmd = &cobra.Command{
 	}),
 }
 
+// reportLastWeekDayCmd represents the report last working week day command
+var reportLastWeekDayCmd = &cobra.Command{
+	Use:   "last-week-day",
+	Short: "List time entries from last week day (use `clockify-cli config workweek-days` command to set then)",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		workweek := strhlp.Map(strings.ToLower, viper.GetStringSlice("workweek-days"))
+		if len(workweek) == 0 {
+			return errors.New("no workweek days were set")
+		}
+
+		day := truncateDate(time.Now()).Add(-1)
+		if strhlp.Search(strings.ToLower(day.Weekday().String()), workweek) != -1 {
+			return reportWithRange(c, day, day, cmd)
+		}
+
+		dayWeekday := int(day.Weekday())
+		if dayWeekday == int(time.Sunday) {
+			dayWeekday = int(time.Saturday + 1)
+		}
+
+		lastWeekDay := int(time.Sunday)
+		for _, w := range workweek {
+			if i := strhlp.Search(w, weekdays); i > lastWeekDay && i < dayWeekday {
+				lastWeekDay = i
+			}
+		}
+
+		day = day.Add(time.Duration(-24*(dayWeekday-lastWeekDay)) * time.Hour)
+		return reportWithRange(c, day, day, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
@@ -122,6 +157,7 @@ func init() {
 	reportCmd.AddCommand(reportFlags(reportThisWeekCmd))
 	reportCmd.AddCommand(reportFlags(reportLastWeekCmd))
 	reportCmd.AddCommand(reportFlags(reportLastDayCmd))
+	reportCmd.AddCommand(reportFlags(reportLastWeekDayCmd))
 }
 
 func reportFlags(cmd *cobra.Command) *cobra.Command {
