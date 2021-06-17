@@ -179,12 +179,13 @@ func configInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	userId := viper.GetString(USER_ID)
 	dUser := ""
 	usersString := make([]string, len(users))
 	for i, u := range users {
 		usersString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 
-		if u.ID == viper.GetString(USER_ID) {
+		if u.ID == userId {
 			dUser = usersString[i]
 		}
 	}
@@ -221,6 +222,16 @@ func configInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	viper.Set(INTERACTIVE, interactive)
+
+	workweekDays := viper.GetStringSlice(WORKWEEK_DAYS)
+	if workweekDays, err = ui.AskManyFromOptions(
+		"Which days of the week do you work?",
+		weekdays,
+		workweekDays,
+	); err != nil {
+		return err
+	}
+	viper.Set(WORKWEEK_DAYS, workweekDays)
 
 	return configSaveFile()
 }

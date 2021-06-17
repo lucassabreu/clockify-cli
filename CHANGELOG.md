@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - command `report last-day`, this command will list time entries from the last day the user worked.
 - command `report last-week-day`, this command will look for the last day were the user should
   have worked (based on the new config `workweek-days`) and list the time entries for that day.
-- config `workweek-days` for the user to set which days of the week they work.
+- config `workweek-days` for the user to set which days of the week they work. it can be set
+  interactively.
 
 ## [v0.16.1] - 2021-06-16
 
