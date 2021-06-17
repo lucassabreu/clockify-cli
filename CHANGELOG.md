@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.17.1] - 2021-06-16
+
+### Changed
+
+- changing travis ci for gihub actions, seens easier to use and one less login to handle
+
 ## [v0.17.0] - 2021-06-16
 
 ### Added
