@@ -34,7 +34,7 @@ jobs:
           snapcraft login --with <(echo "${{ secrets.SNAPCRAFT_LOGIN }}")
           make release "tag=${GITHUB_REF#refs/tags/}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_GORELEASER }}
       -
         if: startsWith(github.ref, 'refs/tags/') == false
         run: make release SNAPSHOT=1 tag=Unreleased
