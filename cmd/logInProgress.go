@@ -31,7 +31,7 @@ var logInProgressCmd = &cobra.Command{
 	Aliases: []string{"current", "open", "running"},
 	Short:   "Show time entry in progress (if any)",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		te, err := getTimeEntryInProgres(c, viper.GetString("workspace"))
+		te, err := getTimeEntryInProgres(c, viper.GetString(WORKSPACE))
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ func init() {
 	logCmd.AddCommand(logInProgressCmd)
 	setCommonFormats(logInProgressCmd)
 
-	_ = logInProgressCmd.MarkFlagRequired("workspace")
+	_ = logInProgressCmd.MarkFlagRequired(WORKSPACE)
 }
 
 func setCommonFormats(cmd *cobra.Command) {

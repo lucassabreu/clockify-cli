@@ -36,7 +36,7 @@ var cloneCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		workspace := viper.GetString("workspace")
+		workspace := viper.GetString(WORKSPACE)
 		tec, err := getTimeEntry(
 			args[0],
 			workspace,
@@ -76,7 +76,7 @@ var cloneCmd = &cobra.Command{
 		format, _ := cmd.Flags().GetString("format")
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(c, tec, viper.GetBool("interactive"), viper.GetBool("allow-project-name"), !noClosing, format, asJSON)
+		return newEntry(c, tec, viper.GetBool(INTERACTIVE), viper.GetBool(ALLOW_PROJECT_NAME), !noClosing, format, asJSON)
 	}),
 }
 

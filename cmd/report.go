@@ -15,14 +15,17 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -86,41 +89,96 @@ var reportLastWeekCmd = &cobra.Command{
 	}),
 }
 
+// reportLastDayCmd represents the report last-day command
+var reportLastDayCmd = &cobra.Command{
+	Use:   "last-day",
+	Short: "List time entries from last day were a time entry exists",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		u, err := getUserId(c)
+		if err != nil {
+			return err
+		}
+		te, err := getTimeEntry(
+			"last",
+			viper.GetString(WORKSPACE),
+			u,
+			c,
+		)
+		if err != nil {
+			return err
+		}
+
+		return reportWithRange(c, te.TimeInterval.Start, te.TimeInterval.Start, cmd)
+	}),
+}
+
+// reportLastWeekDayCmd represents the report last working week day command
+var reportLastWeekDayCmd = &cobra.Command{
+	Use:   "last-week-day",
+	Short: "List time entries from last week day (use `clockify-cli config workweek-days` command to set then)",
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		workweek := strhlp.Map(strings.ToLower, viper.GetStringSlice(WORKWEEK_DAYS))
+		if len(workweek) == 0 {
+			return errors.New("no workweek days were set")
+		}
+
+		day := truncateDate(time.Now()).Add(-1)
+		if strhlp.Search(strings.ToLower(day.Weekday().String()), workweek) != -1 {
+			return reportWithRange(c, day, day, cmd)
+		}
+
+		dayWeekday := int(day.Weekday())
+		if dayWeekday == int(time.Sunday) {
+			dayWeekday = int(time.Saturday + 1)
+		}
+
+		lastWeekDay := int(time.Sunday)
+		for _, w := range workweek {
+			if i := strhlp.Search(w, weekdays); i > lastWeekDay && i < dayWeekday {
+				lastWeekDay = i
+			}
+		}
+
+		day = day.Add(time.Duration(-24*(dayWeekday-lastWeekDay)) * time.Hour)
+		return reportWithRange(c, day, day, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
-	_ = reportCmd.MarkFlagRequired("workspace")
-	_ = reportCmd.MarkFlagRequired("user-id")
+	_ = reportCmd.MarkFlagRequired(WORKSPACE)
+	_ = reportCmd.MarkFlagRequired(USER_ID_FLAG)
 
 	reportFlags(reportCmd)
-	reportFlags(reportThisMonthCmd)
-	reportFlags(reportLastMonthCmd)
-	reportFlags(reportThisWeekCmd)
-	reportFlags(reportLastWeekCmd)
 
-	reportCmd.AddCommand(reportThisMonthCmd)
-	reportCmd.AddCommand(reportLastMonthCmd)
-	reportCmd.AddCommand(reportThisWeekCmd)
-	reportCmd.AddCommand(reportLastWeekCmd)
+	reportCmd.AddCommand(reportFlags(reportThisMonthCmd))
+	reportCmd.AddCommand(reportFlags(reportLastMonthCmd))
+	reportCmd.AddCommand(reportFlags(reportThisWeekCmd))
+	reportCmd.AddCommand(reportFlags(reportLastWeekCmd))
+	reportCmd.AddCommand(reportFlags(reportLastDayCmd))
+	reportCmd.AddCommand(reportFlags(reportLastWeekDayCmd))
 }
 
-func reportFlags(cmd *cobra.Command) {
+func reportFlags(cmd *cobra.Command) *cobra.Command {
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
+
+	return cmd
 }
 
 func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
-	first = ref.AddDate(0, 0, ref.Day()*-1+1).Truncate(time.Hour)
+	first = ref.AddDate(0, 0, ref.Day()*-1+1)
 	last = first.AddDate(0, 1, -1)
 
 	return
 }
 
 func getWeekRange(ref time.Time) (first time.Time, last time.Time) {
-	first = ref.AddDate(0, 0, int(ref.Weekday())*-1).Truncate(time.Hour)
-	last = first.AddDate(0, 0, 5)
+	first = ref.AddDate(0, 0, int(ref.Weekday())*-1)
+	last = first.AddDate(0, 0, 7)
 
 	return
 }
@@ -131,8 +189,8 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	asCSV, _ := cmd.Flags().GetBool("csv")
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 
-	start = start.Add(time.Duration(start.Hour()) * time.Hour * -1)
-	end = end.Add(time.Duration(24-start.Hour()) * time.Hour * 1)
+	start = truncateDate(start)
+	end = truncateDate(end).Add(time.Hour * 24)
 
 	userId, err := getUserId(c)
 	if err != nil {
@@ -140,7 +198,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	log, err := c.LogRange(api.LogRangeParam{
-		Workspace:       viper.GetString("workspace"),
+		Workspace:       viper.GetString(WORKSPACE),
 		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,
@@ -202,4 +260,8 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	return fn(log, os.Stdout)
+}
+
+func truncateDate(t time.Time) time.Time {
+	return t.Truncate(time.Hour * 24)
 }

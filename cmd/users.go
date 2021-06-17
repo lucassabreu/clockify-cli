@@ -58,7 +58,7 @@ var usersCmd = &cobra.Command{
 
 func getUsers(c *api.Client, email string) ([]dto.User, error) {
 	return c.WorkspaceUsers(api.WorkspaceUsersParam{
-		Workspace: viper.GetString("workspace"),
+		Workspace: viper.GetString(WORKSPACE),
 		Email:     email,
 	})
 }
@@ -70,5 +70,5 @@ func init() {
 	usersCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each workspace")
 	usersCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 
-	_ = usersCmd.MarkFlagRequired("workspace")
+	_ = usersCmd.MarkFlagRequired(WORKSPACE)
 }

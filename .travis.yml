@@ -1,4 +1,7 @@
 language: go
+os: linux
+dist: focal
+
 go:
 - 1.14.x
 addons:
@@ -19,9 +22,7 @@ install:
 
 jobs:
   include:
+    - if: branch = master and tag
     - script:
         - snapcraft cleanbuild || true
         - make release tag=${TRAVIS_TAG:-Unreleased}
-      on:
-        tags: true
-        condition: "$TRAVIS_OS_NAME = linux"

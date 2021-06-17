@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.17.0] - 2021-06-16
+
+### Added
+
+- command `report last-day`, this command will list time entries from the last day the user worked.
+- command `report last-week-day`, this command will look for the last day were the user should
+  have worked (based on the new config `workweek-days`) and list the time entries for that day.
+- config `workweek-days` for the user to set which days of the week they work. it can be set
+  interactively.
+
 ## [v0.16.1] - 2021-06-16
 
 ### Fixed
@@ -444,7 +454,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.16.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.17.0...HEAD
+[v0.17.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.17.0
 [v0.16.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.1
 [v0.16.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.0
 [v0.15.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.15.1

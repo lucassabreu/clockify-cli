@@ -65,7 +65,7 @@ func convertToTime(timeString string) (t time.Time, err error) {
 }
 
 func getAPIClient() (*api.Client, error) {
-	c, err := api.NewClient(viper.GetString("token"))
+	c, err := api.NewClient(viper.GetString(TOKEN))
 	if err != nil {
 		return c, err
 	}
@@ -295,7 +295,7 @@ func getDescription(description string) string {
 }
 
 func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, error) {
-	if len(tagIDs) > 0 && !viper.GetBool("interactive") {
+	if len(tagIDs) > 0 && !viper.GetBool(INTERACTIVE) {
 		return tagIDs, nil
 	}
 
@@ -334,7 +334,7 @@ func getTagIDs(tagIDs []string, workspace string, c *api.Client) ([]string, erro
 }
 
 func getUserId(c *api.Client) (string, error) {
-	userId := viper.GetString("user.id")
+	userId := viper.GetString(USER_ID)
 	if len(userId) > 0 {
 		return userId, nil
 	}

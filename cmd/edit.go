@@ -32,7 +32,7 @@ var editCmd = &cobra.Command{
 	Short:     `Edit a time entry, use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
-		interactive := viper.GetBool("interactive")
+		interactive := viper.GetBool(INTERACTIVE)
 
 		userID, err := getUserId(c)
 		if err != nil {
@@ -41,7 +41,7 @@ var editCmd = &cobra.Command{
 
 		tei, err := getTimeEntry(
 			args[0],
-			viper.GetString("workspace"),
+			viper.GetString(WORKSPACE),
 			userID,
 			c,
 		)
@@ -52,7 +52,7 @@ var editCmd = &cobra.Command{
 
 		if cmd.Flags().Changed("project") {
 			tei.ProjectID, _ = cmd.Flags().GetString("project")
-			if viper.GetBool("allow-project-name") && tei.ProjectID != "" {
+			if viper.GetBool(ALLOW_PROJECT_NAME) && tei.ProjectID != "" {
 				tei.ProjectID, err = getProjectByNameOrId(c, tei.WorkspaceID, tei.ProjectID)
 				if err != nil && !interactive {
 					return err

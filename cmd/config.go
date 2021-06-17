@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/lucassabreu/clockify-cli/ui"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -31,14 +33,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	WORKWEEK_DAYS      = "workweek-days"
+	INTERACTIVE        = "interactive"
+	NO_CLOSING         = "no-closing"
+	ALLOW_PROJECT_NAME = "allow-project-name"
+	USER_ID            = "user.id"
+	WORKSPACE          = "workspace"
+	TOKEN              = "token"
+)
+
 var configValidArgs = completion.ValigsArgsMap{
-	"token":              `clockify's token`,
-	"workspace":          "workspace to be used",
-	"user.id":            "user id from the token",
-	"allow-project-name": "should allow use of project when id is asked",
-	"no-closing":         "should not close any active time entry",
-	"interactive":        "show interactive mode",
+	TOKEN:              `clockify's token`,
+	WORKSPACE:          "workspace to be used",
+	USER_ID:            "user id from the token",
+	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
+	NO_CLOSING:         "should not close any active time entry",
+	INTERACTIVE:        "show interactive mode",
+	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
 }
+
+var weekdays []string
 
 const FORMAT_YAML = "yaml"
 const FORMAT_JSON = "json"
@@ -69,6 +84,16 @@ func init() {
 
 	configCmd.Flags().StringP("format", "f", FORMAT_YAML, "output format (when not setting or initializing)")
 	_ = completion.AddFixedSuggestionsToFlag(configCmd, "format", completion.ValigsArgsSlide{FORMAT_YAML, FORMAT_JSON})
+
+	weekdays = []string{
+		time.Sunday:    strings.ToLower(time.Sunday.String()),
+		time.Monday:    strings.ToLower(time.Monday.String()),
+		time.Tuesday:   strings.ToLower(time.Tuesday.String()),
+		time.Wednesday: strings.ToLower(time.Wednesday.String()),
+		time.Thursday:  strings.ToLower(time.Thursday.String()),
+		time.Friday:    strings.ToLower(time.Friday.String()),
+		time.Saturday:  strings.ToLower(time.Saturday.String()),
+	}
 }
 
 func configShow(cmd *cobra.Command, args []string) error {
@@ -115,10 +140,10 @@ func configSaveFile() error {
 func configInit(cmd *cobra.Command, args []string) error {
 	var err error
 	token := ""
-	if token, err = ui.AskForText("User Generated Token:", viper.GetString("token")); err != nil {
+	if token, err = ui.AskForText("User Generated Token:", viper.GetString(TOKEN)); err != nil {
 		return err
 	}
-	viper.Set("token", token)
+	viper.Set(TOKEN, token)
 
 	c, err := getAPIClient()
 	if err != nil {
@@ -135,7 +160,7 @@ func configInit(cmd *cobra.Command, args []string) error {
 	for i, w := range ws {
 		wsString[i] = fmt.Sprintf("%s - %s", w.ID, w.Name)
 
-		if w.ID == viper.GetString("workspace") {
+		if w.ID == viper.GetString(WORKSPACE) {
 			dWorkspace = wsString[i]
 		}
 	}
@@ -144,22 +169,23 @@ func configInit(cmd *cobra.Command, args []string) error {
 	if workspace, err = ui.AskFromOptions("Choose default Workspace:", wsString, dWorkspace); err != nil {
 		return err
 	}
-	viper.Set("workspace", strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
+	viper.Set(WORKSPACE, strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
 
 	users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-		Workspace: viper.GetString("workspace"),
+		Workspace: viper.GetString(WORKSPACE),
 	})
 
 	if err != nil {
 		return err
 	}
 
+	userId := viper.GetString(USER_ID)
 	dUser := ""
 	usersString := make([]string, len(users))
 	for i, u := range users {
 		usersString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 
-		if u.ID == viper.GetString("user.id") {
+		if u.ID == userId {
 			dUser = usersString[i]
 		}
 	}
@@ -168,39 +194,59 @@ func configInit(cmd *cobra.Command, args []string) error {
 	if userID, err = ui.AskFromOptions("Choose your user:", usersString, dUser); err != nil {
 		return err
 	}
-	viper.Set("user.id", strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
+	viper.Set(USER_ID, strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
-	allowProjectName := viper.GetBool("allow-project-name")
+	allowProjectName := viper.GetBool(ALLOW_PROJECT_NAME)
 	if allowProjectName, err = ui.Confirm(
 		"Should try to find project by its name?",
 		allowProjectName,
 	); err != nil {
 		return err
 	}
-	viper.Set("allow-project-name", allowProjectName)
+	viper.Set(ALLOW_PROJECT_NAME, allowProjectName)
 
-	autoClose := !viper.GetBool("no-closing")
+	autoClose := !viper.GetBool(NO_CLOSING)
 	if autoClose, err = ui.Confirm(
 		`Should auto-close previous/current time entry before opening a new one?`,
 		autoClose,
 	); err != nil {
 		return err
 	}
-	viper.Set("no-closing", !autoClose)
+	viper.Set(NO_CLOSING, !autoClose)
 
-	interactive := viper.GetBool("interactive")
+	interactive := viper.GetBool(INTERACTIVE)
 	if interactive, err = ui.Confirm(
 		`Should use "Interactive Mode" by default?`,
 		interactive,
 	); err != nil {
 		return err
 	}
-	viper.Set("interactive", interactive)
+	viper.Set(INTERACTIVE, interactive)
+
+	workweekDays := viper.GetStringSlice(WORKWEEK_DAYS)
+	if workweekDays, err = ui.AskManyFromOptions(
+		"Which days of the week do you work?",
+		weekdays,
+		workweekDays,
+	); err != nil {
+		return err
+	}
+	viper.Set(WORKWEEK_DAYS, workweekDays)
 
 	return configSaveFile()
 }
 
 func configSet(cmd *cobra.Command, args []string) error {
-	viper.Set(args[0], args[1])
+	switch args[0] {
+	case WORKWEEK_DAYS:
+		ws := strings.Split(strings.ToLower(args[1]), ",")
+		ws = strhlp.Filter(
+			func(s string) bool { return strhlp.Search(s, weekdays) != -1 },
+			ws,
+		)
+		viper.Set(args[0], ws)
+	default:
+		viper.Set(args[0], args[1])
+	}
 	return configSaveFile()
 }
