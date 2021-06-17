@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.17.2] - 2021-06-17
+
+### Fixed
+
+- goreleaser needs a GitHub token with more permissions to create the homebrew Formulae.
+
 ## [v0.17.1] - 2021-06-16
 
 ### Changed
