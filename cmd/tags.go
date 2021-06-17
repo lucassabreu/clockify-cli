@@ -57,7 +57,7 @@ var tagsCmd = &cobra.Command{
 
 func getTags(c *api.Client, name string, archived bool) ([]dto.Tag, error) {
 	return c.GetTags(api.GetTagsParam{
-		Workspace:       viper.GetString("workspace"),
+		Workspace:       viper.GetString(WORKSPACE),
 		Name:            name,
 		Archived:        archived,
 		PaginationParam: api.PaginationParam{AllPages: true},

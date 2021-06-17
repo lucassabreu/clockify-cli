@@ -56,7 +56,7 @@ var logCmd = &cobra.Command{
 		}
 
 		log, err := c.Log(api.LogParam{
-			Workspace:       viper.GetString("workspace"),
+			Workspace:       viper.GetString(WORKSPACE),
 			UserID:          userId,
 			Date:            filterDate,
 			PaginationParam: api.PaginationParam{AllPages: true},
@@ -95,6 +95,6 @@ func init() {
 	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	logCmd.Flags().BoolP("json", "j", false, "print as json")
 
-	_ = logCmd.MarkFlagRequired("workspace")
-	_ = logCmd.MarkFlagRequired("user-id")
+	_ = logCmd.MarkFlagRequired(WORKSPACE)
+	_ = logCmd.MarkFlagRequired(USER_ID)
 }

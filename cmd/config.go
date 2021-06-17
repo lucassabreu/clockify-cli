@@ -33,14 +33,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	WORKWEEK_DAYS      = "workweek-days"
+	INTERACTIVE        = "interactive"
+	NO_CLOSING         = "no-closing"
+	ALLOW_PROJECT_NAME = "allow-project-name"
+	USER_ID            = "user.id"
+	WORKSPACE          = "workspace"
+	TOKEN              = "token"
+)
+
 var configValidArgs = completion.ValigsArgsMap{
-	"token":              `clockify's token`,
-	"workspace":          "workspace to be used",
-	"user.id":            "user id from the token",
-	"allow-project-name": "should allow use of project when id is asked",
-	"no-closing":         "should not close any active time entry",
-	"interactive":        "show interactive mode",
-	"workweek-days":      "days of the week were your expected to work (use comma to set multiple)",
+	TOKEN:              `clockify's token`,
+	WORKSPACE:          "workspace to be used",
+	USER_ID:            "user id from the token",
+	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
+	NO_CLOSING:         "should not close any active time entry",
+	INTERACTIVE:        "show interactive mode",
+	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
 }
 
 var weekdays []string
@@ -130,10 +140,10 @@ func configSaveFile() error {
 func configInit(cmd *cobra.Command, args []string) error {
 	var err error
 	token := ""
-	if token, err = ui.AskForText("User Generated Token:", viper.GetString("token")); err != nil {
+	if token, err = ui.AskForText("User Generated Token:", viper.GetString(TOKEN)); err != nil {
 		return err
 	}
-	viper.Set("token", token)
+	viper.Set(TOKEN, token)
 
 	c, err := getAPIClient()
 	if err != nil {
@@ -150,7 +160,7 @@ func configInit(cmd *cobra.Command, args []string) error {
 	for i, w := range ws {
 		wsString[i] = fmt.Sprintf("%s - %s", w.ID, w.Name)
 
-		if w.ID == viper.GetString("workspace") {
+		if w.ID == viper.GetString(WORKSPACE) {
 			dWorkspace = wsString[i]
 		}
 	}
@@ -159,10 +169,10 @@ func configInit(cmd *cobra.Command, args []string) error {
 	if workspace, err = ui.AskFromOptions("Choose default Workspace:", wsString, dWorkspace); err != nil {
 		return err
 	}
-	viper.Set("workspace", strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
+	viper.Set(WORKSPACE, strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
 
 	users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-		Workspace: viper.GetString("workspace"),
+		Workspace: viper.GetString(WORKSPACE),
 	})
 
 	if err != nil {
@@ -174,7 +184,7 @@ func configInit(cmd *cobra.Command, args []string) error {
 	for i, u := range users {
 		usersString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 
-		if u.ID == viper.GetString("user.id") {
+		if u.ID == viper.GetString(USER_ID) {
 			dUser = usersString[i]
 		}
 	}
@@ -183,41 +193,41 @@ func configInit(cmd *cobra.Command, args []string) error {
 	if userID, err = ui.AskFromOptions("Choose your user:", usersString, dUser); err != nil {
 		return err
 	}
-	viper.Set("user.id", strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
+	viper.Set(USER_ID, strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
-	allowProjectName := viper.GetBool("allow-project-name")
+	allowProjectName := viper.GetBool(ALLOW_PROJECT_NAME)
 	if allowProjectName, err = ui.Confirm(
 		"Should try to find project by its name?",
 		allowProjectName,
 	); err != nil {
 		return err
 	}
-	viper.Set("allow-project-name", allowProjectName)
+	viper.Set(ALLOW_PROJECT_NAME, allowProjectName)
 
-	autoClose := !viper.GetBool("no-closing")
+	autoClose := !viper.GetBool(NO_CLOSING)
 	if autoClose, err = ui.Confirm(
 		`Should auto-close previous/current time entry before opening a new one?`,
 		autoClose,
 	); err != nil {
 		return err
 	}
-	viper.Set("no-closing", !autoClose)
+	viper.Set(NO_CLOSING, !autoClose)
 
-	interactive := viper.GetBool("interactive")
+	interactive := viper.GetBool(INTERACTIVE)
 	if interactive, err = ui.Confirm(
 		`Should use "Interactive Mode" by default?`,
 		interactive,
 	); err != nil {
 		return err
 	}
-	viper.Set("interactive", interactive)
+	viper.Set(INTERACTIVE, interactive)
 
 	return configSaveFile()
 }
 
 func configSet(cmd *cobra.Command, args []string) error {
 	switch args[0] {
-	case "workweek-days":
+	case WORKWEEK_DAYS:
 		ws := strings.Split(strings.ToLower(args[1]), ",")
 		ws = strhlp.Filter(
 			func(s string) bool { return strhlp.Search(s, weekdays) != -1 },

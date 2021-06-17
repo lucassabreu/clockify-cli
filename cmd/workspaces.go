@@ -28,7 +28,7 @@ import (
 
 // workspacesCmd represents the workspaces command
 var workspacesCmd = &cobra.Command{
-	Use:     "workspace",
+	Use:     WORKSPACE,
 	Aliases: []string{"workspaces"},
 	Short:   "List user's workspaces",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
@@ -43,7 +43,7 @@ var workspacesCmd = &cobra.Command{
 
 		var reportFn func([]dto.Workspace, io.Writer) error
 
-		reportFn = reports.WorkspacePrint(viper.GetString("workspace"))
+		reportFn = reports.WorkspacePrint(viper.GetString(WORKSPACE))
 		if format != "" {
 			reportFn = reports.WorkspacePrintWithTemplate(format)
 		}

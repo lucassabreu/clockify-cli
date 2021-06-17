@@ -100,7 +100,7 @@ var reportLastDayCmd = &cobra.Command{
 		}
 		te, err := getTimeEntry(
 			"last",
-			viper.GetString("workspace"),
+			viper.GetString(WORKSPACE),
 			u,
 			c,
 		)
@@ -117,7 +117,7 @@ var reportLastWeekDayCmd = &cobra.Command{
 	Use:   "last-week-day",
 	Short: "List time entries from last week day (use `clockify-cli config workweek-days` command to set then)",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		workweek := strhlp.Map(strings.ToLower, viper.GetStringSlice("workweek-days"))
+		workweek := strhlp.Map(strings.ToLower, viper.GetStringSlice(WORKWEEK_DAYS))
 		if len(workweek) == 0 {
 			return errors.New("no workweek days were set")
 		}
@@ -147,8 +147,8 @@ var reportLastWeekDayCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
-	_ = reportCmd.MarkFlagRequired("workspace")
-	_ = reportCmd.MarkFlagRequired("user-id")
+	_ = reportCmd.MarkFlagRequired(WORKSPACE)
+	_ = reportCmd.MarkFlagRequired(USER_ID_FLAG)
 
 	reportFlags(reportCmd)
 
@@ -198,7 +198,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	log, err := c.LogRange(api.LogRangeParam{
-		Workspace:       viper.GetString("workspace"),
+		Workspace:       viper.GetString(WORKSPACE),
 		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,

@@ -31,7 +31,7 @@ var deleteCmd = &cobra.Command{
 	Short:     `Delete a time entry, use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		param := api.DeleteTimeEntryParam{
-			Workspace:   viper.GetString("workspace"),
+			Workspace:   viper.GetString(WORKSPACE),
 			TimeEntryID: args[0],
 		}
 

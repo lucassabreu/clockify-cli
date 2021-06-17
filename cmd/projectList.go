@@ -68,7 +68,7 @@ var projectListCmd = &cobra.Command{
 
 func getProjects(c *api.Client, name string, archived bool) ([]dto.Project, error) {
 	return c.GetProjects(api.GetProjectsParam{
-		Workspace:       viper.GetString("workspace"),
+		Workspace:       viper.GetString(WORKSPACE),
 		Name:            name,
 		Archived:        archived,
 		PaginationParam: api.PaginationParam{AllPages: true},

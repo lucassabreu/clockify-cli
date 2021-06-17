@@ -36,7 +36,7 @@ var outCmd = &cobra.Command{
 			return err
 		}
 
-		workspace := viper.GetString("workspace")
+		workspace := viper.GetString(WORKSPACE)
 		te, err := getTimeEntryInProgres(c, workspace)
 		if te == nil && err == nil {
 			err = errors.New("no time entry in progress")

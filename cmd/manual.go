@@ -36,7 +36,7 @@ var manualCmd = &cobra.Command{
 		var err error
 
 		tei := dto.TimeEntryImpl{
-			WorkspaceID:  viper.GetString("workspace"),
+			WorkspaceID:  viper.GetString(WORKSPACE),
 			TagIDs:       tags,
 			TimeInterval: dto.TimeInterval{},
 		}
@@ -67,7 +67,7 @@ var manualCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(c, tei, viper.GetBool("interactive"), viper.GetBool("allow-project-name"), false, format, asJSON)
+		return newEntry(c, tei, viper.GetBool(INTERACTIVE), viper.GetBool(ALLOW_PROJECT_NAME), false, format, asJSON)
 	}),
 }
 
