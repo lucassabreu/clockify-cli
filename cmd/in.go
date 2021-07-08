@@ -78,7 +78,16 @@ var inCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(c, tei, viper.GetBool(INTERACTIVE), viper.GetBool(ALLOW_PROJECT_NAME), true, format, asJSON)
+		return newEntry(
+			c,
+			tei,
+			viper.GetBool(INTERACTIVE),
+			viper.GetBool(ALLOW_PROJECT_NAME),
+			true,
+			format,
+			asJSON,
+			!viper.GetBool(ALLOW_INCOMPLETE),
+		)
 	}),
 }
 
@@ -91,6 +100,10 @@ func addTimeEntryFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
 	cmd.Flags().StringVar(&whenToCloseString, "when-to-close", "", "when the entry should be closed, if not informed will let it open")
+
+	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
+	_ = viper.BindPFlag(ALLOW_INCOMPLETE, cmd.Flags().Lookup(ALLOW_INCOMPLETE))
+	_ = viper.BindEnv(ALLOW_INCOMPLETE, ENV_PREFIX+"_ALLOW_INCOMPLETE")
 }
 
 func init() {

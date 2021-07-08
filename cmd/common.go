@@ -125,12 +125,8 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
-	if err != nil {
-		return dto.TimeEntryImpl{}, err
-	}
-
+func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace) (dto.TimeEntryImpl, error) {
+	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
@@ -164,6 +160,23 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEnt
 	return te, nil
 }
 
+func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
+
+	if w.Settings.ForceProjects && te.ProjectID == "" {
+		return errors.New("workspace requires project")
+	}
+
+	if w.Settings.ForceDescription && strings.TrimSpace(te.Description) == "" {
+		return errors.New("workspace requires description")
+	}
+
+	if w.Settings.ForceTags && len(te.TagIDs) == 0 {
+		return errors.New("workspace requires at least one tag")
+	}
+
+	return nil
+}
+
 func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, format string) error {
 	fte, err := c.ConvertIntoFullTimeEntry(tei)
 	if err != nil {
@@ -185,7 +198,16 @@ func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, forma
 	return reportFn(&fte, os.Stdout)
 }
 
-func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByName, autoClose bool, format string, asJSON bool) error {
+func newEntry(
+	c *api.Client,
+	te dto.TimeEntryImpl,
+	interactive,
+	allowProjectByName,
+	autoClose bool,
+	format string,
+	asJSON bool,
+	validate bool,
+) error {
 	var err error
 
 	if allowProjectByName && te.ProjectID != "" {
@@ -195,10 +217,23 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 		}
 	}
 
-	if interactive {
-		te, err = confirmEntryInteractively(c, te)
+	if interactive || validate {
+		w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
 		if err != nil {
 			return err
+		}
+
+		if interactive {
+			te, err = confirmEntryInteractively(c, te, w)
+			if err != nil {
+				return err
+			}
+		}
+
+		if validate {
+			if err = validateTimeEntry(te, w); err != nil {
+				return err
+			}
 		}
 	}
 

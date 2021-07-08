@@ -76,7 +76,14 @@ var cloneCmd = &cobra.Command{
 		format, _ := cmd.Flags().GetString("format")
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(c, tec, viper.GetBool(INTERACTIVE), viper.GetBool(ALLOW_PROJECT_NAME), !noClosing, format, asJSON)
+		return newEntry(c,
+			tec,
+			viper.GetBool(INTERACTIVE),
+			viper.GetBool(ALLOW_PROJECT_NAME),
+			!noClosing,
+			format, asJSON,
+			!viper.GetBool(ALLOW_INCOMPLETE),
+		)
 	}),
 }
 

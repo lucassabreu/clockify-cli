@@ -95,10 +95,24 @@ var editCmd = &cobra.Command{
 			tei.TimeInterval.End = &v
 		}
 
-		if interactive {
-			tei, err = confirmEntryInteractively(c, tei)
+		validate := !viper.GetBool(ALLOW_INCOMPLETE)
+		if interactive || validate {
+			w, err := c.GetWorkspace(api.GetWorkspace{ID: tei.WorkspaceID})
 			if err != nil {
 				return err
+			}
+
+			if interactive {
+				tei, err = confirmEntryInteractively(c, tei, w)
+				if err != nil {
+					return err
+				}
+			}
+
+			if validate {
+				if err = validateTimeEntry(tei, w); err != nil {
+					return err
+				}
 			}
 		}
 

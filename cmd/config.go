@@ -40,6 +40,7 @@ const (
 	USER_ID            = "user.id"
 	WORKSPACE          = "workspace"
 	TOKEN              = "token"
+	ALLOW_INCOMPLETE   = "allow-incomplete"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
@@ -49,6 +50,7 @@ var configValidArgs = completion.ValigsArgsMap{
 	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
 	INTERACTIVE:        "show interactive mode",
 	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
+	ALLOW_INCOMPLETE:   "should allow starting time entries with missing required values",
 }
 
 var weekdays []string
@@ -221,6 +223,15 @@ func configInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	viper.Set(WORKWEEK_DAYS, workweekDays)
+
+	allowIncomplete := viper.GetBool(ALLOW_INCOMPLETE)
+	if allowIncomplete, err = ui.Confirm(
+		`Should allow starting time entries with incomplete data?`,
+		allowIncomplete,
+	); err != nil {
+		return err
+	}
+	viper.Set(ALLOW_INCOMPLETE, allowIncomplete)
 
 	return configSaveFile()
 }

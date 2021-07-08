@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - commands `in`, `clone` and `manual` will show a new "None" option on the projects list on the
   interactive mode if the workspace allows time entries without projects.
+- config `allow-incomplete` allows the user to set if they want to create "incomplete time entries"
+  or to validated then before creation. Flag `--allow-incomplete` and environment variable
+  `CLOCKIFY_ALLOW_INCOMPLETE` can be used for the same purpose. by default time entries will be
+  validated.
 
 ### Changed
 
