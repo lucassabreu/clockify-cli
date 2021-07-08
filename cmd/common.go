@@ -126,13 +126,14 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 }
 
 func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-	var err error
-	te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return dto.TimeEntryImpl{}, err
+	}
+
+	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
-	}
-	if te.ProjectID == "" {
-		return te, errors.New("project must be informed")
 	}
 
 	te.Description = getDescription(te.Description)
@@ -199,8 +200,6 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 		if err != nil {
 			return err
 		}
-	} else if te.ProjectID == "" {
-		return errors.New("project must be informed")
 	}
 
 	if autoClose {
@@ -232,9 +231,11 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 	return printTimeEntryImpl(c, tei, asJSON, format)
 }
 
-func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
+const noProject = "No Project"
+
+func getProjectID(projectID string, w dto.Workspace, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
-		Workspace:       workspace,
+		Workspace:       w.ID,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
@@ -282,8 +283,13 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 		projectID = projectsString[found]
 	}
 
-	if projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID); err != nil || projectID == "" {
-		return "", nil
+	if !w.Settings.ForceProjects {
+		projectsString = append([]string{noProject}, projectsString...)
+	}
+
+	projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID)
+	if err != nil || projectID == noProject || projectID == "" {
+		return "", err
 	}
 
 	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil

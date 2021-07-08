@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- commands `in`, `clone` and `manual` will show a new "None" option on the projects list on the
+  interactive mode if the workspace allows time entries without projects.
+
+### Changed
+
+- commands `in` and `clone` when creating an "open" time entry will not validate if the workspace
+  requires a project or not, allowing the creation of open incomplete/invalid time entries, similar
+  to the browser application.
+
 ## [v0.17.2] - 2021-06-17
 
 ### Fixed
