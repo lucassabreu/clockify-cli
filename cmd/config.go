@@ -36,7 +36,6 @@ import (
 const (
 	WORKWEEK_DAYS      = "workweek-days"
 	INTERACTIVE        = "interactive"
-	NO_CLOSING         = "no-closing"
 	ALLOW_PROJECT_NAME = "allow-project-name"
 	USER_ID            = "user.id"
 	WORKSPACE          = "workspace"
@@ -48,7 +47,6 @@ var configValidArgs = completion.ValigsArgsMap{
 	WORKSPACE:          "workspace to be used",
 	USER_ID:            "user id from the token",
 	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
-	NO_CLOSING:         "should not close any active time entry",
 	INTERACTIVE:        "show interactive mode",
 	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
 }
@@ -204,15 +202,6 @@ func configInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	viper.Set(ALLOW_PROJECT_NAME, allowProjectName)
-
-	autoClose := !viper.GetBool(NO_CLOSING)
-	if autoClose, err = ui.Confirm(
-		`Should auto-close previous/current time entry before opening a new one?`,
-		autoClose,
-	); err != nil {
-		return err
-	}
-	viper.Set(NO_CLOSING, !autoClose)
 
 	interactive := viper.GetBool(INTERACTIVE)
 	if interactive, err = ui.Confirm(

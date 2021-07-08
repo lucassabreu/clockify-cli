@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   requires a project or not, allowing the creation of open incomplete/invalid time entries, similar
   to the browser application.
 
+### Fixed
+
+- `no-closing` configuration was removed, because was not used anymore.
+
 ## [v0.17.2] - 2021-06-17
 
 ### Fixed
