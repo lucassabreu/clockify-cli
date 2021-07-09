@@ -86,6 +86,25 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	return ws, nil
 }
 
+type GetWorkspace struct {
+	ID string
+}
+
+func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
+	ws, err := c.GetWorkspaces(GetWorkspaces{})
+	if err != nil {
+		return dto.Workspace{}, err
+	}
+
+	for _, w := range ws {
+		if w.ID == p.ID {
+			return w, nil
+		}
+	}
+
+	return dto.Workspace{}, dto.Error{Message: "not found", Code: 404}
+}
+
 // WorkspaceUsersParam params to query workspace users
 type WorkspaceUsersParam struct {
 	Workspace string

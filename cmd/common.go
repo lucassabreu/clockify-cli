@@ -125,14 +125,11 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace) (dto.TimeEntryImpl, error) {
 	var err error
-	te.ProjectID, err = getProjectID(te.ProjectID, te.WorkspaceID, c)
+	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
-	}
-	if te.ProjectID == "" {
-		return te, errors.New("project must be informed")
 	}
 
 	te.Description = getDescription(te.Description)
@@ -163,6 +160,23 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl) (dto.TimeEnt
 	return te, nil
 }
 
+func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
+
+	if w.Settings.ForceProjects && te.ProjectID == "" {
+		return errors.New("workspace requires project")
+	}
+
+	if w.Settings.ForceDescription && strings.TrimSpace(te.Description) == "" {
+		return errors.New("workspace requires description")
+	}
+
+	if w.Settings.ForceTags && len(te.TagIDs) == 0 {
+		return errors.New("workspace requires at least one tag")
+	}
+
+	return nil
+}
+
 func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, format string) error {
 	fte, err := c.ConvertIntoFullTimeEntry(tei)
 	if err != nil {
@@ -184,7 +198,17 @@ func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, forma
 	return reportFn(&fte, os.Stdout)
 }
 
-func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByName, autoClose bool, format string, asJSON bool) error {
+func manageEntry(
+	c *api.Client,
+	te dto.TimeEntryImpl,
+	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
+	interactive,
+	allowProjectByName,
+	autoClose bool,
+	format string,
+	asJSON bool,
+	validate bool,
+) error {
 	var err error
 
 	if allowProjectByName && te.ProjectID != "" {
@@ -194,37 +218,33 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 		}
 	}
 
-	if interactive {
-		te, err = confirmEntryInteractively(c, te)
+	if interactive || validate {
+		w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
 		if err != nil {
 			return err
 		}
-	} else if te.ProjectID == "" {
-		return errors.New("project must be informed")
+
+		if interactive {
+			te, err = confirmEntryInteractively(c, te, w)
+			if err != nil {
+				return err
+			}
+		}
+
+		if validate {
+			if err = validateTimeEntry(te, w); err != nil {
+				return err
+			}
+		}
 	}
 
 	if autoClose {
-		err = c.Out(api.OutParam{
-			Workspace: te.WorkspaceID,
-			End:       te.TimeInterval.Start,
-		})
-
-		if err != nil {
+		if err = c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
 			return err
 		}
 	}
 
-	tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
-		Workspace:   te.WorkspaceID,
-		Billable:    te.Billable,
-		Start:       te.TimeInterval.Start,
-		End:         te.TimeInterval.End,
-		ProjectID:   te.ProjectID,
-		Description: te.Description,
-		TagIDs:      te.TagIDs,
-		TaskID:      te.TaskID,
-	})
-
+	tei, err := callback(te)
 	if err != nil {
 		return err
 	}
@@ -232,9 +252,26 @@ func newEntry(c *api.Client, te dto.TimeEntryImpl, interactive, allowProjectByNa
 	return printTimeEntryImpl(c, tei, asJSON, format)
 }
 
-func getProjectID(projectID string, workspace string, c *api.Client) (string, error) {
+func createTimeEntry(c *api.Client) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return c.CreateTimeEntry(api.CreateTimeEntryParam{
+			Workspace:   te.WorkspaceID,
+			Billable:    te.Billable,
+			Start:       te.TimeInterval.Start,
+			End:         te.TimeInterval.End,
+			ProjectID:   te.ProjectID,
+			Description: te.Description,
+			TagIDs:      te.TagIDs,
+			TaskID:      te.TaskID,
+		})
+	}
+}
+
+const noProject = "No Project"
+
+func getProjectID(projectID string, w dto.Workspace, c *api.Client) (string, error) {
 	projects, err := c.GetProjects(api.GetProjectsParam{
-		Workspace:       workspace,
+		Workspace:       w.ID,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
@@ -282,8 +319,13 @@ func getProjectID(projectID string, workspace string, c *api.Client) (string, er
 		projectID = projectsString[found]
 	}
 
-	if projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID); err != nil || projectID == "" {
-		return "", nil
+	if !w.Settings.ForceProjects {
+		projectsString = append([]string{noProject}, projectsString...)
+	}
+
+	projectID, err = ui.AskFromOptions("Choose your project:", projectsString, projectID)
+	if err != nil || projectID == noProject || projectID == "" {
+		return "", err
 	}
 
 	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil

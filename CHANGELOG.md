@@ -11,6 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.18.0] - 2021-07-08
+
+### Added
+
+- commands `in`, `clone` and `manual` will show a new "None" option on the projects list on the
+  interactive mode if the workspace allows time entries without projects.
+- config `allow-incomplete` allows the user to set if they want to create "incomplete time entries"
+  or to validated then before creation. Flag `--allow-incomplete` and environment variable
+  `CLOCKIFY_ALLOW_INCOMPLETE` can be used for the same purpose. by default time entries will be
+  validated.
+
+### Changed
+
+- commands `in` and `clone` when creating an "open" time entry will not validate if the workspace
+  requires a project or not, allowing the creation of open incomplete/invalid time entries, similar
+  to the browser application.
+- `newEntry` function changed to `manageEntry` and will allow a callback to deal with the filled and
+  validated time entry instead of always creating a new one, that way same code that were duplicated
+  between it and the `edit` command can be united.
+
+### Fixed
+
+- `no-closing` configuration was removed, because was not used anymore.
+
 ## [v0.17.2] - 2021-06-17
 
 ### Fixed

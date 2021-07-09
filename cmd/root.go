@@ -59,12 +59,12 @@ func Execute(v, c, d string) {
 }
 
 const USER_ID_FLAG = "user-id"
+const ENV_PREFIX = "CLOCKIFY"
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	envPrefix := "CLOCKIFY"
-	viper.SetEnvPrefix(envPrefix)
+	viper.SetEnvPrefix(ENV_PREFIX)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -72,28 +72,28 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clockify-cli.yaml)")
 
 	rootCmd.PersistentFlags().StringP(TOKEN, "t", "",
-		"clockify's token (defaults to env $"+envPrefix+"_TOKEN)\n"+
+		"clockify's token (defaults to env $"+ENV_PREFIX+"_TOKEN)\n"+
 			"\tCan be generated here: https://clockify.me/user/settings#generateApiKeyBtn",
 	)
 	_ = viper.BindPFlag(TOKEN, rootCmd.PersistentFlags().Lookup(TOKEN))
 
-	rootCmd.PersistentFlags().StringP(WORKSPACE, "w", "", "workspace to be used (defaults to env $"+envPrefix+"_WORKSPACE)")
+	rootCmd.PersistentFlags().StringP(WORKSPACE, "w", "", "workspace to be used (defaults to env $"+ENV_PREFIX+"_WORKSPACE)")
 	_ = viper.BindPFlag(WORKSPACE, rootCmd.PersistentFlags().Lookup(WORKSPACE))
 	_ = completion.AddSuggestionsToFlag(rootCmd, WORKSPACE, suggestWithClientAPI(suggestWorkspaces))
 
-	rootCmd.PersistentFlags().StringP(USER_ID_FLAG, "u", "", "user id from the token (defaults to env $"+envPrefix+"_USER_ID)")
+	rootCmd.PersistentFlags().StringP(USER_ID_FLAG, "u", "", "user id from the token (defaults to env $"+ENV_PREFIX+"_USER_ID)")
 	_ = viper.BindPFlag(USER_ID, rootCmd.PersistentFlags().Lookup(USER_ID_FLAG))
 	_ = completion.AddSuggestionsToFlag(rootCmd, USER_ID, suggestWithClientAPI(suggestUsers))
 
-	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $"+envPrefix+"_DEBUG)")
+	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $"+ENV_PREFIX+"_DEBUG)")
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
-	rootCmd.PersistentFlags().BoolP(INTERACTIVE, "i", false, "show interactive log (defaults to env $"+envPrefix+"_INTERACTIVE)")
+	rootCmd.PersistentFlags().BoolP(INTERACTIVE, "i", false, "show interactive log (defaults to env $"+ENV_PREFIX+"_INTERACTIVE)")
 	_ = viper.BindPFlag(INTERACTIVE, rootCmd.PersistentFlags().Lookup(INTERACTIVE))
 
-	rootCmd.PersistentFlags().BoolP(ALLOW_PROJECT_NAME, "", false, "allow use of project name when id is asked (defaults to env $"+envPrefix+"_ALLOW_PROJECT_NAME)")
+	rootCmd.PersistentFlags().BoolP(ALLOW_PROJECT_NAME, "", false, "allow use of project name when id is asked (defaults to env $"+ENV_PREFIX+"_ALLOW_PROJECT_NAME)")
 	_ = viper.BindPFlag(ALLOW_PROJECT_NAME, rootCmd.PersistentFlags().Lookup(ALLOW_PROJECT_NAME))
-	_ = viper.BindEnv(ALLOW_PROJECT_NAME, envPrefix+"_ALLOW_PROJECT_NAME")
+	_ = viper.BindEnv(ALLOW_PROJECT_NAME, ENV_PREFIX+"_ALLOW_PROJECT_NAME")
 
 	_ = rootCmd.MarkFlagRequired(TOKEN)
 

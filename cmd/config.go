@@ -36,11 +36,11 @@ import (
 const (
 	WORKWEEK_DAYS      = "workweek-days"
 	INTERACTIVE        = "interactive"
-	NO_CLOSING         = "no-closing"
 	ALLOW_PROJECT_NAME = "allow-project-name"
 	USER_ID            = "user.id"
 	WORKSPACE          = "workspace"
 	TOKEN              = "token"
+	ALLOW_INCOMPLETE   = "allow-incomplete"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
@@ -48,9 +48,9 @@ var configValidArgs = completion.ValigsArgsMap{
 	WORKSPACE:          "workspace to be used",
 	USER_ID:            "user id from the token",
 	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
-	NO_CLOSING:         "should not close any active time entry",
 	INTERACTIVE:        "show interactive mode",
 	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
+	ALLOW_INCOMPLETE:   "should allow starting time entries with missing required values",
 }
 
 var weekdays []string
@@ -205,15 +205,6 @@ func configInit(cmd *cobra.Command, args []string) error {
 	}
 	viper.Set(ALLOW_PROJECT_NAME, allowProjectName)
 
-	autoClose := !viper.GetBool(NO_CLOSING)
-	if autoClose, err = ui.Confirm(
-		`Should auto-close previous/current time entry before opening a new one?`,
-		autoClose,
-	); err != nil {
-		return err
-	}
-	viper.Set(NO_CLOSING, !autoClose)
-
 	interactive := viper.GetBool(INTERACTIVE)
 	if interactive, err = ui.Confirm(
 		`Should use "Interactive Mode" by default?`,
@@ -232,6 +223,15 @@ func configInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	viper.Set(WORKWEEK_DAYS, workweekDays)
+
+	allowIncomplete := viper.GetBool(ALLOW_INCOMPLETE)
+	if allowIncomplete, err = ui.Confirm(
+		`Should allow starting time entries with incomplete data?`,
+		allowIncomplete,
+	); err != nil {
+		return err
+	}
+	viper.Set(ALLOW_INCOMPLETE, allowIncomplete)
 
 	return configSaveFile()
 }
