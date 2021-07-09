@@ -198,9 +198,10 @@ func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, forma
 	return reportFn(&fte, os.Stdout)
 }
 
-func newEntry(
+func manageEntry(
 	c *api.Client,
 	te dto.TimeEntryImpl,
+	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
 	interactive,
 	allowProjectByName,
 	autoClose bool,
@@ -238,32 +239,32 @@ func newEntry(
 	}
 
 	if autoClose {
-		err = c.Out(api.OutParam{
-			Workspace: te.WorkspaceID,
-			End:       te.TimeInterval.Start,
-		})
-
-		if err != nil {
+		if err = c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
 			return err
 		}
 	}
 
-	tei, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
-		Workspace:   te.WorkspaceID,
-		Billable:    te.Billable,
-		Start:       te.TimeInterval.Start,
-		End:         te.TimeInterval.End,
-		ProjectID:   te.ProjectID,
-		Description: te.Description,
-		TagIDs:      te.TagIDs,
-		TaskID:      te.TaskID,
-	})
-
+	tei, err := callback(te)
 	if err != nil {
 		return err
 	}
 
 	return printTimeEntryImpl(c, tei, asJSON, format)
+}
+
+func createTimeEntry(c *api.Client) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return c.CreateTimeEntry(api.CreateTimeEntryParam{
+			Workspace:   te.WorkspaceID,
+			Billable:    te.Billable,
+			Start:       te.TimeInterval.Start,
+			End:         te.TimeInterval.End,
+			ProjectID:   te.ProjectID,
+			Description: te.Description,
+			TagIDs:      te.TagIDs,
+			TaskID:      te.TaskID,
+		})
+	}
 }
 
 const noProject = "No Project"

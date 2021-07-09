@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - commands `in` and `clone` when creating an "open" time entry will not validate if the workspace
   requires a project or not, allowing the creation of open incomplete/invalid time entries, similar
   to the browser application.
+- `newEntry` function changed to `manageEntry` and will allow a callback to deal with the filled and
+  validated time entry instead of always creating a new one, that way same code that were duplicated
+  between it and the `edit` command can be united.
 
 ### Fixed
 

@@ -67,9 +67,10 @@ var manualCmd = &cobra.Command{
 
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return newEntry(
+		return manageEntry(
 			c,
 			tei,
+			createTimeEntry(c),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
 			false,

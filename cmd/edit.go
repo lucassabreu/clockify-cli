@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -32,7 +33,6 @@ var editCmd = &cobra.Command{
 	Short:     `Edit a time entry, use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
-		interactive := viper.GetBool(INTERACTIVE)
 
 		userID, err := getUserId(c)
 		if err != nil {
@@ -52,12 +52,6 @@ var editCmd = &cobra.Command{
 
 		if cmd.Flags().Changed("project") {
 			tei.ProjectID, _ = cmd.Flags().GetString("project")
-			if viper.GetBool(ALLOW_PROJECT_NAME) && tei.ProjectID != "" {
-				tei.ProjectID, err = getProjectByNameOrId(c, tei.WorkspaceID, tei.ProjectID)
-				if err != nil && !interactive {
-					return err
-				}
-			}
 		}
 
 		if cmd.Flags().Changed("description") {
@@ -95,46 +89,31 @@ var editCmd = &cobra.Command{
 			tei.TimeInterval.End = &v
 		}
 
-		validate := !viper.GetBool(ALLOW_INCOMPLETE)
-		if interactive || validate {
-			w, err := c.GetWorkspace(api.GetWorkspace{ID: tei.WorkspaceID})
-			if err != nil {
-				return err
-			}
-
-			if interactive {
-				tei, err = confirmEntryInteractively(c, tei, w)
-				if err != nil {
-					return err
-				}
-			}
-
-			if validate {
-				if err = validateTimeEntry(tei, w); err != nil {
-					return err
-				}
-			}
-		}
-
-		tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-			Workspace:   tei.WorkspaceID,
-			TimeEntryID: tei.ID,
-			Description: tei.Description,
-			Start:       tei.TimeInterval.Start,
-			End:         tei.TimeInterval.End,
-			Billable:    tei.Billable,
-			ProjectID:   tei.ProjectID,
-			TaskID:      tei.TaskID,
-			TagIDs:      tei.TagIDs,
-		})
-
-		if err != nil {
-			return err
-		}
-
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
-		return printTimeEntryImpl(c, tei, asJSON, format)
+		return manageEntry(
+			c,
+			tei,
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+					Workspace:   tei.WorkspaceID,
+					TimeEntryID: tei.ID,
+					Description: tei.Description,
+					Start:       tei.TimeInterval.Start,
+					End:         tei.TimeInterval.End,
+					Billable:    tei.Billable,
+					ProjectID:   tei.ProjectID,
+					TaskID:      tei.TaskID,
+					TagIDs:      tei.TagIDs,
+				})
+			},
+			viper.GetBool(INTERACTIVE),
+			viper.GetBool(ALLOW_PROJECT_NAME),
+			false,
+			format,
+			asJSON,
+			!viper.GetBool(ALLOW_INCOMPLETE),
+		)
 	}),
 }
 
