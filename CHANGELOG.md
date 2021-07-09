@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - library `github.com/AlecAivazis/survey` updated to the latest version.
+- `README` updated to show new configurations.
 
 ## [v0.18.0] - 2021-07-08
 

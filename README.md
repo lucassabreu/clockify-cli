@@ -70,9 +70,12 @@ After you install the CLI, run `clockify-cli config --init` to setup your enviro
 ```console
 foo@bar:~$ clockify-cli config --init
 ? User Generated Token: <your-api-token>
-? Choose default Workspace: workspace-id - John Doe's workspace
-? Choose your user: user-id - John Doe
-? Should try to find project by its name? (y/N) Yes
+? Choose default Workspace: <workspace-id> - John Doe's workspace
+? Choose your user: <user-id> - John Doe
+? Should try to find project by its name? Yes
+? Should use "Interactive Mode" by default? Yes
+? Which days of the week do you work? monday, tuesday, wednesday, thursday, friday
+? Should allow starting time entries with incomplete data? No
 ```
 
 The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for future use.
@@ -87,11 +90,11 @@ foo@bar:~$ clockify-cli in -i
 ? Description: Clockify CLI Test
 ? Start: (2020-09-04 16:02:45)
 ? End (leave it blank for empty):
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|         ID          |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |         | Clockify CLI Test |      |
-+---------------------+----------+----------+---------+---------+-------------------+------+
++---------------------+----------+----------+---------+-------------------------------+-------------------+------+
+|         ID          |  START   |   END    |   DUR   |            PROJECT            |    DESCRIPTION    | TAGS |
++---------------------+----------+----------+---------+-------------------------------+-------------------+------+
+|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |  project-id - Example Project | Clockify CLI Test |      |
++---------------------+----------+----------+---------+-------------------------------+-------------------+------+
 ```
 
 After finishing your work you can stop the entry using `clockify-cli out`
