@@ -4,24 +4,18 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/lucassabreu/clockify-cli/strhlp"
-	"gopkg.in/AlecAivazis/survey.v1"
 )
 
-func selectFilter(filter string, options []string) (answer []string) {
+func selectFilter(filter string, value string, index int) bool {
 	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
 	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(strhlp.Normalize(filter), "")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
 	filter = strings.ReplaceAll(filter, " ", ".*")
 	filter = strings.ReplaceAll(filter, "*", ".*")
 
-	regexp := regexp.MustCompile(filter)
-	for _, o := range options {
-		if regexp.Match([]byte(strhlp.Normalize(o))) {
-			answer = append(answer, o)
-		}
-	}
-	return answer
+	return regexp.MustCompile(filter).Match([]byte(strhlp.Normalize(value)))
 }
 
 func askString(p survey.Prompt) (string, error) {
@@ -40,10 +34,10 @@ func AskForText(message, d string) (string, error) {
 // AskFromOptions interactively ask the user to choose one option or none
 func AskFromOptions(message string, options []string, d string) (string, error) {
 	return askString(&survey.Select{
-		Message:  message,
-		Options:  options,
-		Default:  d,
-		FilterFn: selectFilter,
+		Message: message,
+		Options: options,
+		Default: d,
+		Filter:  selectFilter,
 	})
 }
 
@@ -52,10 +46,10 @@ func AskManyFromOptions(message string, options, d []string) ([]string, error) {
 	var choices []string
 	return choices, survey.AskOne(
 		&survey.MultiSelect{
-			Message:  message,
-			Options:  options,
-			Default:  d,
-			FilterFn: selectFilter,
+			Message: message,
+			Options: options,
+			Default: d,
+			Filter:  selectFilter,
 		},
 		&choices,
 		nil,

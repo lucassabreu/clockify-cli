@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- library `github.com/AlecAivazis/survey` updated to the latest version.
+
 ## [v0.18.0] - 2021-07-08
 
 ### Added
