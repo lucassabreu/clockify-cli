@@ -89,12 +89,16 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 
 	for {
-		value, _ = ui.AskForText(message, value)
+		value, err = ui.AskForText(message, value)
+		if err != nil {
+			return nil, err
+		}
+
 		if value == "" && !required {
 			return nil, nil
 		}
 
-		if t, err = convertToTime(value); err != nil {
+		if t, err = convert(value); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			continue
 		}

@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.18.1] - 2021-07-12
+
+### Fixed
+
+- when the input for start time is cancelled (ctrl+c), clockify-cli was blocking the user by looping
+  on the field until a valid date-time string was used, or the process were killed.
+
 ### Changed
 
 - library `github.com/AlecAivazis/survey` updated to the latest version.
@@ -495,7 +502,11 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.18.1...HEAD
+[v0.18.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.18.1
+[v0.18.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.18.0
+[v0.17.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.17.2
+[v0.17.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.17.1
 [v0.17.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.17.0
 [v0.16.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.1
 [v0.16.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.16.0
