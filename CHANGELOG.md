@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- when the input for start time is cancelled (ctrl+c), clockify-cli was blocking the user by looping
+  on the field until a valid date-time string was used, or the process were killed.
+
 ### Changed
 
 - library `github.com/AlecAivazis/survey` updated to the latest version.
