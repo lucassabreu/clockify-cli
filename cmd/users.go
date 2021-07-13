@@ -19,7 +19,7 @@ import (
 	"os"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
@@ -45,11 +45,11 @@ var usersCmd = &cobra.Command{
 
 		switch true {
 		case format != "":
-			reportFn = reports.UserPrintWithTemplate(format)
+			reportFn = output.UserPrintWithTemplate(format)
 		case quiet:
-			reportFn = reports.UserPrintQuietly
+			reportFn = output.UserPrintQuietly
 		default:
-			reportFn = reports.UserPrint
+			reportFn = output.UserPrint
 		}
 
 		return reportFn(users, os.Stdout)

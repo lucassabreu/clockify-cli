@@ -1,19 +1,8 @@
 package dto
 
 import (
-	"fmt"
 	"time"
 )
-
-// Error api errors
-type Error struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-}
-
-func (e Error) Error() string {
-	return fmt.Sprintf("%s (code: %d)", e.Message, e.Code)
-}
 
 // Workspace DTO
 type Workspace struct {

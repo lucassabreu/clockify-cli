@@ -22,7 +22,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -73,14 +73,14 @@ var logCmd = &cobra.Command{
 		}
 
 		var reportFn func([]dto.TimeEntry, io.Writer) error
-		reportFn = reports.TimeEntriesPrint
+		reportFn = output.TimeEntriesPrint
 
 		if asJSON {
-			reportFn = reports.TimeEntriesJSONPrint
+			reportFn = output.TimeEntriesJSONPrint
 		}
 
 		if format != "" {
-			reportFn = reports.TimeEntriesPrintWithTemplate(format)
+			reportFn = output.TimeEntriesPrintWithTemplate(format)
 		}
 
 		return reportFn(log, os.Stdout)

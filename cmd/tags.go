@@ -20,7 +20,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -42,13 +42,13 @@ var tagsCmd = &cobra.Command{
 
 		var reportFn func([]dto.Tag, io.Writer) error
 
-		reportFn = reports.TagPrint
+		reportFn = output.TagPrint
 		if format != "" {
-			reportFn = reports.TagPrintWithTemplate(format)
+			reportFn = output.TagPrintWithTemplate(format)
 		}
 
 		if quiet {
-			reportFn = reports.TagPrintQuietly
+			reportFn = output.TagPrintQuietly
 		}
 
 		return reportFn(tags, os.Stdout)

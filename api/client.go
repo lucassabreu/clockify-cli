@@ -1,54 +1,40 @@
 package api
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	stackedErrors "github.com/pkg/errors"
+	"github.com/lucassabreu/clockify-cli/http"
+	"github.com/pkg/errors"
 )
-
-// Client will help to access Clockify API
-type Client struct {
-	baseURL *url.URL
-	http.Client
-	debugLogger Logger
-}
 
 // baseURL is the Clockify API base URL
 const baseURL = "https://api.clockify.me/api"
 
-// ErrorMissingAPIKey returned if X-Api-Key is missing
-var ErrorMissingAPIKey = errors.New("api Key must be informed")
+// Client will help to access Clockify API
+type Client struct {
+	*http.Client
+}
 
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
-	if len(apiKey) == 0 {
-		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
-	}
-
-	u, err := url.Parse(baseURL)
+	h, err := http.NewHttpClient(baseURL, apiKey)
 	if err != nil {
-		return nil, stackedErrors.WithStack(err)
+		return nil, err
 	}
 
-	c := &Client{
-		baseURL: u,
-		Client: http.Client{
-			Transport: transport{
-				apiKey: apiKey,
-				next:   http.DefaultTransport,
-			},
-		},
-	}
+	return &Client{Client: h}, nil
+}
 
-	return c, nil
+func (c *Client) logf(format string, v ...interface{}) {
+	if c.Logger == nil {
+		return
+	}
+	c.Logger.Printf(format, v)
 }
 
 // GetWorkspaces will be used to filter the workspaces
@@ -160,7 +146,7 @@ type LogParam struct {
 
 // Log list time entries from a date
 func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
-	c.debugf("Log - Date Param: %s", p.Date)
+	c.logf("Log - Date Param: %s", p.Date)
 
 	d := p.Date.Round(time.Hour)
 	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
@@ -185,18 +171,18 @@ type LogRangeParam struct {
 
 // LogRange list time entries by date range
 func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
-	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
+	c.logf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
 	var timeEntries []dto.TimeEntry
 
 	b := true
 	filter := dto.TimeEntryStartEndRequest{
-		Start:    dto.DateTime{Time: p.FirstDate},
-		End:      dto.DateTime{Time: p.LastDate},
+		Start:    http.DateTime{Time: p.FirstDate},
+		End:      http.DateTime{Time: p.LastDate},
 		Hydrated: &b,
 	}
 
-	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
+	c.logf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
 
 	var tes []dto.TimeEntry
 	err := c.paginate(
@@ -348,7 +334,7 @@ func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
 		}
 	}
 
-	return nil, stackedErrors.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
+	return nil, errors.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
 }
 
 // GetProjectParam params to get a Project
@@ -454,9 +440,9 @@ type CreateTimeEntryParam struct {
 func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, error) {
 	var t dto.TimeEntryImpl
 
-	var end *dto.DateTime
+	var end *http.DateTime
 	if p.End != nil {
-		end = &dto.DateTime{Time: *p.End}
+		end = &http.DateTime{Time: *p.End}
 	}
 
 	r, err := c.NewRequest(
@@ -466,7 +452,7 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 			p.Workspace,
 		),
 		dto.CreateTimeEntryRequest{
-			Start:       dto.DateTime{Time: p.Start},
+			Start:       http.DateTime{Time: p.Start},
 			End:         end,
 			Billable:    p.Billable,
 			Description: p.Description,
@@ -582,7 +568,7 @@ func (c *Client) Out(p OutParam) error {
 			p.Workspace,
 		),
 		dto.OutTimeEntryRequest{
-			End: dto.DateTime{Time: p.End},
+			End: http.DateTime{Time: p.End},
 		},
 	)
 
@@ -611,9 +597,9 @@ type UpdateTimeEntryParam struct {
 func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, error) {
 	var t dto.TimeEntryImpl
 
-	var end *dto.DateTime
+	var end *http.DateTime
 	if p.End != nil {
-		end = &dto.DateTime{Time: *p.End}
+		end = &http.DateTime{Time: *p.End}
 	}
 
 	r, err := c.NewRequest(
@@ -624,7 +610,7 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 			p.TimeEntryID,
 		),
 		dto.UpdateTimeEntryRequest{
-			Start:       dto.DateTime{Time: p.Start},
+			Start:       http.DateTime{Time: p.Start},
 			End:         end,
 			Billable:    p.Billable,
 			Description: p.Description,

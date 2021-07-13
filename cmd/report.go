@@ -24,13 +24,13 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// reportsCmd represents the reports command
+// reportCmd represents the output command
 var reportCmd = &cobra.Command{
 	Use:   "report <start> <end>",
 	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
@@ -246,17 +246,17 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 	}
 
 	var fn func([]dto.TimeEntry, io.Writer) error
-	fn = reports.TimeEntriesPrintWithTimeFormat(reports.TIME_FORMAT_FULL)
+	fn = output.TimeEntriesPrintWithTimeFormat(output.TIME_FORMAT_FULL)
 	if asJSON {
-		fn = reports.TimeEntriesJSONPrint
+		fn = output.TimeEntriesJSONPrint
 	}
 
 	if asCSV {
-		fn = reports.TimeEntriesCSVPrint
+		fn = output.TimeEntriesCSVPrint
 	}
 
 	if format != "" {
-		fn = reports.TimeEntriesPrintWithTemplate(format)
+		fn = output.TimeEntriesPrintWithTemplate(format)
 	}
 
 	return fn(log, os.Stdout)

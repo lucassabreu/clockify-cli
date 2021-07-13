@@ -20,7 +20,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/spf13/cobra"
 )
 
@@ -39,16 +39,16 @@ var meCmd = &cobra.Command{
 
 		var reportFn func(dto.User, io.Writer) error
 		reportFn = func(u dto.User, w io.Writer) error {
-			return reports.UserPrint([]dto.User{u}, w)
+			return output.UserPrint([]dto.User{u}, w)
 		}
 
 		if asJSON {
-			reportFn = reports.UserJSONPrint
+			reportFn = output.UserJSONPrint
 		}
 
 		if format != "" {
 			reportFn = func(u dto.User, w io.Writer) error {
-				return reports.UserPrintWithTemplate(format)(
+				return output.UserPrintWithTemplate(format)(
 					[]dto.User{u},
 					w,
 				)

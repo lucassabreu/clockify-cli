@@ -20,7 +20,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
+	"github.com/lucassabreu/clockify-cli/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -58,14 +58,14 @@ func getTimeEntryInProgres(c *api.Client, workspace string) (*dto.TimeEntry, err
 func formatTimeEntry(te *dto.TimeEntry, asJSON bool, format string) error {
 	var reportFn func(*dto.TimeEntry, io.Writer) error
 
-	reportFn = reports.TimeEntryPrint
+	reportFn = output.TimeEntryPrint
 
 	if asJSON {
-		reportFn = reports.TimeEntryJSONPrint
+		reportFn = output.TimeEntryJSONPrint
 	}
 
 	if format != "" {
-		reportFn = reports.TimeEntryPrintWithTemplate(format)
+		reportFn = output.TimeEntryPrintWithTemplate(format)
 	}
 
 	return reportFn(te, os.Stdout)

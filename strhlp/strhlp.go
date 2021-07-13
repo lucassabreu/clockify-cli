@@ -58,3 +58,12 @@ func Filter(f func(string) bool, s []string) []string {
 	}
 	return ns
 }
+
+// Merge will combine all string slices into a single one
+func Merge(ss ...[]string) []string {
+	s := make([]string, 0)
+	for i := range ss {
+		s = append(s, ss[i]...)
+	}
+	return s
+}
