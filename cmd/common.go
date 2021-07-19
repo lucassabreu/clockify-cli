@@ -183,25 +183,27 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 	return nil
 }
 
-func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, format string) error {
-	fte, err := c.ConvertIntoFullTimeEntry(tei)
-	if err != nil {
-		return err
+func printTimeEntryImpl(c *api.Client, format string, asJSON bool) func(dto.TimeEntryImpl) error {
+	return func(tei dto.TimeEntryImpl) error {
+		fte, err := c.ConvertIntoFullTimeEntry(tei)
+		if err != nil {
+			return err
+		}
+
+		var reportFn func(*dto.TimeEntry, io.Writer) error
+
+		reportFn = reports.TimeEntryPrint
+
+		if asJSON {
+			reportFn = reports.TimeEntryJSONPrint
+		}
+
+		if format != "" {
+			reportFn = reports.TimeEntryPrintWithTemplate(format)
+		}
+
+		return reportFn(&fte, os.Stdout)
 	}
-
-	var reportFn func(*dto.TimeEntry, io.Writer) error
-
-	reportFn = reports.TimeEntryPrint
-
-	if asJSON {
-		reportFn = reports.TimeEntryJSONPrint
-	}
-
-	if format != "" {
-		reportFn = reports.TimeEntryPrintWithTemplate(format)
-	}
-
-	return reportFn(&fte, os.Stdout)
 }
 
 func manageEntry(
@@ -210,8 +212,7 @@ func manageEntry(
 	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
 	interactive,
 	allowProjectByName bool,
-	format string,
-	asJSON bool,
+	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
 ) error {
 	var err error
@@ -248,7 +249,7 @@ func manageEntry(
 		return err
 	}
 
-	return printTimeEntryImpl(c, te, asJSON, format)
+	return printFn(te)
 }
 
 func createTimeEntry(c *api.Client, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {

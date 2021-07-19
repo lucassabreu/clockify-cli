@@ -58,7 +58,7 @@ var cloneCmd = &cobra.Command{
 			createTimeEntry(c, !noClosing),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			format, asJSON,
+			printTimeEntryImpl(c, format, asJSON),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 		)
 	}),

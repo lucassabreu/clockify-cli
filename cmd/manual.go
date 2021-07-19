@@ -76,8 +76,7 @@ var manualCmd = &cobra.Command{
 			createTimeEntry(c, false),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			format,
-			asJSON,
+			printTimeEntryImpl(c, format, asJSON),
 			true,
 		)
 	}),
