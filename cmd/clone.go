@@ -60,6 +60,7 @@ var cloneCmd = &cobra.Command{
 			viper.GetBool(ALLOW_PROJECT_NAME),
 			printTimeEntryImpl(c, format, asJSON),
 			!viper.GetBool(ALLOW_INCOMPLETE),
+			true,
 		)
 	}),
 }

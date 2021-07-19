@@ -131,7 +131,7 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace) (dto.TimeEntryImpl, error) {
+func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace, askDates bool) (dto.TimeEntryImpl, error) {
 	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
@@ -143,6 +143,10 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Worksp
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 	if err != nil {
 		return te, err
+	}
+
+	if !askDates {
+		return te, nil
 	}
 
 	var date *time.Time
@@ -214,6 +218,7 @@ func manageEntry(
 	allowProjectByName bool,
 	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
+	askDates bool,
 ) error {
 	var err error
 
@@ -231,7 +236,7 @@ func manageEntry(
 		}
 
 		if interactive {
-			te, err = confirmEntryInteractively(c, te, w)
+			te, err = confirmEntryInteractively(c, te, w, askDates)
 			if err != nil {
 				return err
 			}
@@ -454,7 +459,7 @@ func addFlagsForTimeEntryCreation(cmd *cobra.Command, withDates ...bool) {
 	// deprecations
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
-	cmd.Flags().MarkDeprecated("tags", "use tag instead")
+	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
 }
 
 func addFlagsForTimeEntryEdit(cmd *cobra.Command) {

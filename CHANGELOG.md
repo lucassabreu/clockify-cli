@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- subcommand `edit-multiple` allows the user to edit all properties (except for the time interval) of multiple time entries
+  simultaneously. when not in interactive mode the user can choose exactly which properties to change and to keep.
+
 ### Changed
 
 - flags used for creation and edition of time entries are now centralized into three functions `addFlagsForTimeEntryCreation`

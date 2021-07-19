@@ -78,6 +78,7 @@ var manualCmd = &cobra.Command{
 			viper.GetBool(ALLOW_PROJECT_NAME),
 			printTimeEntryImpl(c, format, asJSON),
 			true,
+			true,
 		)
 	}),
 }
