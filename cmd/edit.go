@@ -15,11 +15,8 @@
 package cmd
 
 import (
-	"time"
-
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -50,43 +47,9 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		if cmd.Flags().Changed("project") {
-			tei.ProjectID, _ = cmd.Flags().GetString("project")
-		}
-
-		if cmd.Flags().Changed("description") {
-			tei.Description, _ = cmd.Flags().GetString("description")
-		}
-
-		if cmd.Flags().Changed("task") {
-			tei.TaskID, _ = cmd.Flags().GetString("task")
-		}
-
-		if cmd.Flags().Changed("tag") {
-			tei.TagIDs, _ = cmd.Flags().GetStringSlice("tag")
-		}
-
-		if cmd.Flags().Changed("not-billable") {
-			b, _ := cmd.Flags().GetBool("not-billable")
-			tei.Billable = !b
-		}
-
-		if cmd.Flags().Changed("when") {
-			whenString, _ = cmd.Flags().GetString("when")
-			var v time.Time
-			if v, err = convertToTime(whenString); err != nil {
-				return err
-			}
-			tei.TimeInterval.Start = v
-		}
-
-		if cmd.Flags().Changed("end-at") {
-			whenString, _ = cmd.Flags().GetString("end-at")
-			var v time.Time
-			if v, err = convertToTime(whenString); err != nil {
-				return err
-			}
-			tei.TimeInterval.End = &v
+		tei, err = fillTimeEntryWithFlags(tei, cmd.Flags())
+		if err != nil {
+			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
@@ -109,10 +72,9 @@ var editCmd = &cobra.Command{
 			},
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			false,
-			format,
-			asJSON,
+			printTimeEntryImpl(c, format, asJSON),
 			!viper.GetBool(ALLOW_INCOMPLETE),
+			true,
 		)
 	}),
 }
@@ -120,14 +82,9 @@ var editCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	addTimeEntryFlags(editCmd)
+	addFlagsForTimeEntryCreation(editCmd)
+	addFlagsForTimeEntryEdit(editCmd)
 
-	editCmd.Flags().StringP("project", "p", "", "change the project")
-	_ = completion.AddSuggestionsToFlag(editCmd, "project", suggestWithClientAPI(suggestProjects))
-
-	editCmd.Flags().String("description", "", "change the description")
-	editCmd.Flags().String("end-at", "", "when the entry should end (if not set \"\" will be used)")
-
-	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	editCmd.Flags().BoolP("json", "j", false, "print as json")
+	editCmd.Flags().String("end-at", "", `when the entry should end (if not set "" will be used)`)
+	_ = editCmd.Flags().MarkDeprecated("end-at", "use `when-to-close` flag instead")
 }

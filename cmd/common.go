@@ -12,10 +12,12 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/lucassabreu/clockify-cli/ui"
 	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -129,7 +131,7 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace) (dto.TimeEntryImpl, error) {
+func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace, askDates bool) (dto.TimeEntryImpl, error) {
 	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
@@ -141,6 +143,10 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Worksp
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 	if err != nil {
 		return te, err
+	}
+
+	if !askDates {
+		return te, nil
 	}
 
 	var date *time.Time
@@ -181,25 +187,27 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 	return nil
 }
 
-func printTimeEntryImpl(c *api.Client, tei dto.TimeEntryImpl, asJSON bool, format string) error {
-	fte, err := c.ConvertIntoFullTimeEntry(tei)
-	if err != nil {
-		return err
+func printTimeEntryImpl(c *api.Client, format string, asJSON bool) func(dto.TimeEntryImpl) error {
+	return func(tei dto.TimeEntryImpl) error {
+		fte, err := c.ConvertIntoFullTimeEntry(tei)
+		if err != nil {
+			return err
+		}
+
+		var reportFn func(*dto.TimeEntry, io.Writer) error
+
+		reportFn = reports.TimeEntryPrint
+
+		if asJSON {
+			reportFn = reports.TimeEntryJSONPrint
+		}
+
+		if format != "" {
+			reportFn = reports.TimeEntryPrintWithTemplate(format)
+		}
+
+		return reportFn(&fte, os.Stdout)
 	}
-
-	var reportFn func(*dto.TimeEntry, io.Writer) error
-
-	reportFn = reports.TimeEntryPrint
-
-	if asJSON {
-		reportFn = reports.TimeEntryJSONPrint
-	}
-
-	if format != "" {
-		reportFn = reports.TimeEntryPrintWithTemplate(format)
-	}
-
-	return reportFn(&fte, os.Stdout)
 }
 
 func manageEntry(
@@ -207,11 +215,10 @@ func manageEntry(
 	te dto.TimeEntryImpl,
 	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
 	interactive,
-	allowProjectByName,
-	autoClose bool,
-	format string,
-	asJSON bool,
+	allowProjectByName bool,
+	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
+	askDates bool,
 ) error {
 	var err error
 
@@ -229,7 +236,7 @@ func manageEntry(
 		}
 
 		if interactive {
-			te, err = confirmEntryInteractively(c, te, w)
+			te, err = confirmEntryInteractively(c, te, w, askDates)
 			if err != nil {
 				return err
 			}
@@ -242,22 +249,21 @@ func manageEntry(
 		}
 	}
 
-	if autoClose {
-		if err = c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
-			return err
-		}
-	}
-
-	tei, err := callback(te)
+	te, err = callback(te)
 	if err != nil {
 		return err
 	}
 
-	return printTimeEntryImpl(c, tei, asJSON, format)
+	return printFn(te)
 }
 
-func createTimeEntry(c *api.Client) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func createTimeEntry(c *api.Client, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		if autoClose {
+			if err := c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
+				return te, err
+			}
+		}
 		return c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   te.WorkspaceID,
 			Billable:    te.Billable,
@@ -429,4 +435,98 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	}
 
 	return list.TimeEntriesList[0], err
+}
+
+func addFlagsForTimeEntryCreation(cmd *cobra.Command, withDates ...bool) {
+	if len(withDates) == 0 || withDates[0] {
+		cmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+		cmd.Flags().String("when-to-close", "", "when the entry should be closed, if not informed will let it open")
+	}
+
+	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
+	cmd.Flags().String("task", "", "add a task to the entry")
+
+	cmd.Flags().StringSlice("tag", []string{}, "add tags to the entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "tag", suggestWithClientAPI(suggestTags))
+
+	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
+	_ = viper.BindPFlag(ALLOW_INCOMPLETE, cmd.Flags().Lookup(ALLOW_INCOMPLETE))
+	_ = viper.BindEnv(ALLOW_INCOMPLETE, ENV_PREFIX+"_ALLOW_INCOMPLETE")
+
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cmd.Flags().BoolP("json", "j", false, "print as json")
+
+	// deprecations
+	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
+	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
+}
+
+func addFlagsForTimeEntryEdit(cmd *cobra.Command) {
+	cmd.Flags().StringP("project", "p", "", "change the project")
+	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
+
+	cmd.Flags().String("description", "", "change the description")
+
+}
+
+func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {
+	changed := func(name string) bool {
+		return flags.Lookup(name) != nil && flags.Changed(name)
+	}
+
+	if changed("project") {
+		tei.ProjectID, _ = flags.GetString("project")
+	}
+
+	if changed("description") {
+		tei.Description, _ = flags.GetString("description")
+	}
+
+	if changed("task") {
+		tei.TaskID, _ = flags.GetString("task")
+	}
+
+	if changed("tag") {
+		tei.TagIDs, _ = flags.GetStringSlice("tag")
+	}
+
+	if changed("tags") {
+		tei.TagIDs, _ = flags.GetStringSlice("tags")
+	}
+
+	if changed("not-billable") {
+		b, _ := flags.GetBool("not-billable")
+		tei.Billable = !b
+	}
+
+	var err error
+	if changed("when") {
+		whenString, _ := flags.GetString("when")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.Start = v
+	}
+
+	if changed("end-at") {
+		whenString, _ := flags.GetString("end-at")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.End = &v
+	}
+
+	if changed("when-to-close") {
+		whenString, _ := flags.GetString("when-to-close")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.End = &v
+	}
+
+	return tei, nil
 }
