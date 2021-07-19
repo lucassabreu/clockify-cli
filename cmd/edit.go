@@ -89,6 +89,15 @@ var editCmd = &cobra.Command{
 			tei.TimeInterval.End = &v
 		}
 
+		if cmd.Flags().Changed("when-to-close") {
+			whenString, _ = cmd.Flags().GetString("when-to-close")
+			var v time.Time
+			if v, err = convertToTime(whenString); err != nil {
+				return err
+			}
+			tei.TimeInterval.End = &v
+		}
+
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		return manageEntry(
@@ -126,7 +135,8 @@ func init() {
 	_ = completion.AddSuggestionsToFlag(editCmd, "project", suggestWithClientAPI(suggestProjects))
 
 	editCmd.Flags().String("description", "", "change the description")
-	editCmd.Flags().String("end-at", "", "when the entry should end (if not set \"\" will be used)")
+	editCmd.Flags().String("end-at", "", `when the entry should end (if not set "" will be used)`)
+	_ = editCmd.Flags().MarkDeprecated("end-at", "use `when-to-close` flag instead")
 
 	editCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	editCmd.Flags().BoolP("json", "j", false, "print as json")

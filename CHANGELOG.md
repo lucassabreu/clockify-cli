@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- flag `end-at` on edit subcommand will be removed in favor of `when-to-close` to be consistent with other subcommands.
+
 ## [v0.18.1] - 2021-07-12
 
 ### Fixed
