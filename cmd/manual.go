@@ -70,10 +70,9 @@ var manualCmd = &cobra.Command{
 		return manageEntry(
 			c,
 			tei,
-			createTimeEntry(c),
+			createTimeEntry(c, false),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			false,
 			format,
 			asJSON,
 			true,

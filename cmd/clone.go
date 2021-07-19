@@ -79,10 +79,9 @@ var cloneCmd = &cobra.Command{
 		return manageEntry(
 			c,
 			tec,
-			createTimeEntry(c),
+			createTimeEntry(c, !noClosing),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			!noClosing,
 			format, asJSON,
 			!viper.GetBool(ALLOW_INCOMPLETE),
 		)

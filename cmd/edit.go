@@ -118,7 +118,6 @@ var editCmd = &cobra.Command{
 			},
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			false,
 			format,
 			asJSON,
 			!viper.GetBool(ALLOW_INCOMPLETE),

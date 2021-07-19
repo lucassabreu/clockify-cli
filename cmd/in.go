@@ -81,10 +81,9 @@ var inCmd = &cobra.Command{
 		return manageEntry(
 			c,
 			tei,
-			createTimeEntry(c),
+			createTimeEntry(c, true),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			true,
 			format,
 			asJSON,
 			!viper.GetBool(ALLOW_INCOMPLETE),

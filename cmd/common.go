@@ -207,8 +207,7 @@ func manageEntry(
 	te dto.TimeEntryImpl,
 	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
 	interactive,
-	allowProjectByName,
-	autoClose bool,
+	allowProjectByName bool,
 	format string,
 	asJSON bool,
 	validate bool,
@@ -242,22 +241,21 @@ func manageEntry(
 		}
 	}
 
-	if autoClose {
-		if err = c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
-			return err
-		}
-	}
-
-	tei, err := callback(te)
+	te, err = callback(te)
 	if err != nil {
 		return err
 	}
 
-	return printTimeEntryImpl(c, tei, asJSON, format)
+	return printTimeEntryImpl(c, te, asJSON, format)
 }
 
-func createTimeEntry(c *api.Client) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func createTimeEntry(c *api.Client, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		if autoClose {
+			if err := c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
+				return te, err
+			}
+		}
 		return c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   te.WorkspaceID,
 			Billable:    te.Billable,
