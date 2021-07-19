@@ -15,9 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/spf13/viper"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -27,13 +24,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tags []string
-var notBillable bool
-var task string
-
-var whenString string
-var whenToCloseString string
-
 // inCmd represents the in command
 var inCmd = &cobra.Command{
 	Use:               "in <project-id> <description>",
@@ -42,15 +32,11 @@ var inCmd = &cobra.Command{
 	ValidArgsFunction: completion.CombineSuggestionsToArgs(suggestWithClientAPI(suggestProjects)),
 	Aliases:           []string{"start"},
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-
-		var whenToCloseDate time.Time
 		var err error
 
 		tei := dto.TimeEntryImpl{
 			WorkspaceID:  viper.GetString(WORKSPACE),
-			TagIDs:       tags,
 			TimeInterval: dto.TimeInterval{},
-			Billable:     !notBillable,
 		}
 
 		if len(args) > 0 {
@@ -61,19 +47,8 @@ var inCmd = &cobra.Command{
 			tei.Description = args[1]
 		}
 
-		if whenString != "" {
-			tei.TimeInterval.Start, err = convertToTime(whenString)
-			if err != nil {
-				return fmt.Errorf("Fail to convert when to start: %s", err.Error())
-			}
-		}
-
-		if whenToCloseString != "" {
-			whenToCloseDate, err = convertToTime(whenToCloseString)
-			if err != nil {
-				return fmt.Errorf("Fail to convert when to end: %s", err.Error())
-			}
-			tei.TimeInterval.End = &whenToCloseDate
+		if tei, err = fillTimeEntryWithFlags(tei, cmd.Flags()); err != nil {
+			return err
 		}
 
 		format, _ := cmd.Flags().GetString("format")
@@ -91,26 +66,8 @@ var inCmd = &cobra.Command{
 	}),
 }
 
-func addTimeEntryFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "this time entry is not billable")
-	cmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
-
-	cmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
-	_ = completion.AddSuggestionsToFlag(cmd, "tag", suggestWithClientAPI(suggestTags))
-
-	cmd.Flags().StringVar(&whenString, "when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
-	cmd.Flags().StringVar(&whenToCloseString, "when-to-close", "", "when the entry should be closed, if not informed will let it open")
-
-	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
-	_ = viper.BindPFlag(ALLOW_INCOMPLETE, cmd.Flags().Lookup(ALLOW_INCOMPLETE))
-	_ = viper.BindEnv(ALLOW_INCOMPLETE, ENV_PREFIX+"_ALLOW_INCOMPLETE")
-}
-
 func init() {
 	rootCmd.AddCommand(inCmd)
 
-	addTimeEntryFlags(inCmd)
-
-	inCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	inCmd.Flags().BoolP("json", "j", false, "print as json")
+	addFlagsForTimeEntryCreation(inCmd)
 }

@@ -11,9 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- flags used for creation and edition of time entries are now centralized into three functions `addFlagsForTimeEntryCreation`
+  to add flags used to create time entries, `addFlagsForTimeEntryEdit` for flags used on edition, and
+  `fillTimeEntryWithFlags` to replicated the flag values into the time entry.
+
 ### Deprecated
 
 - flag `end-at` on edit subcommand will be removed in favor of `when-to-close` to be consistent with other subcommands.
+- flag `tags` on many subcommands will be removed in favor of `tag` to imply that its one by flag.
 
 ## [v0.18.1] - 2021-07-12
 

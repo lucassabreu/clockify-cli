@@ -15,10 +15,7 @@
 package cmd
 
 import (
-	"time"
-
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -48,29 +45,8 @@ var cloneCmd = &cobra.Command{
 			return err
 		}
 
-		if tec.TimeInterval.Start, err = convertToTime(whenString); err != nil {
+		if tec, err = fillTimeEntryWithFlags(tec, cmd.Flags()); err != nil {
 			return err
-		}
-
-		tec.TimeInterval.End = nil
-		if whenToCloseString != "" {
-			var whenToCloseDate time.Time
-			if whenToCloseDate, err = convertToTime(whenToCloseString); err != nil {
-				return err
-			}
-			tec.TimeInterval.End = &whenToCloseDate
-		}
-
-		if cmd.Flags().Changed("tags") {
-			tec.TagIDs, _ = cmd.Flags().GetStringArray("tags")
-		}
-
-		if cmd.Flags().Changed("project") {
-			tec.ProjectID, _ = cmd.Flags().GetString("project")
-		}
-
-		if cmd.Flags().Changed("description") {
-			tec.Description, _ = cmd.Flags().GetString("description")
 		}
 
 		format, _ := cmd.Flags().GetString("format")
@@ -91,14 +67,8 @@ var cloneCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cloneCmd)
 
-	addTimeEntryFlags(cloneCmd)
+	addFlagsForTimeEntryCreation(cloneCmd)
+	addFlagsForTimeEntryEdit(cloneCmd)
 
-	cloneCmd.Flags().StringP("project", "", "", "use this project instead")
-	_ = completion.AddSuggestionsToFlag(cloneCmd, "project", suggestWithClientAPI(suggestProjects))
-
-	cloneCmd.Flags().StringP("description", "", "", "use this description instead")
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
-
-	cloneCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	cloneCmd.Flags().BoolP("json", "j", false, "print as json")
 }

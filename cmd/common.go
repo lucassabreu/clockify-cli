@@ -12,10 +12,12 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/lucassabreu/clockify-cli/ui"
 	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -427,4 +429,98 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	}
 
 	return list.TimeEntriesList[0], err
+}
+
+func addFlagsForTimeEntryCreation(cmd *cobra.Command, withDates ...bool) {
+	if len(withDates) == 0 || withDates[0] {
+		cmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+		cmd.Flags().String("when-to-close", "", "when the entry should be closed, if not informed will let it open")
+	}
+
+	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
+	cmd.Flags().String("task", "", "add a task to the entry")
+
+	cmd.Flags().StringSlice("tag", []string{}, "add tags to the entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "tag", suggestWithClientAPI(suggestTags))
+
+	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
+	_ = viper.BindPFlag(ALLOW_INCOMPLETE, cmd.Flags().Lookup(ALLOW_INCOMPLETE))
+	_ = viper.BindEnv(ALLOW_INCOMPLETE, ENV_PREFIX+"_ALLOW_INCOMPLETE")
+
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cmd.Flags().BoolP("json", "j", false, "print as json")
+
+	// deprecations
+	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
+	cmd.Flags().MarkDeprecated("tags", "use tag instead")
+}
+
+func addFlagsForTimeEntryEdit(cmd *cobra.Command) {
+	cmd.Flags().StringP("project", "p", "", "change the project")
+	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
+
+	cmd.Flags().String("description", "", "change the description")
+
+}
+
+func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {
+	changed := func(name string) bool {
+		return flags.Lookup(name) != nil && flags.Changed(name)
+	}
+
+	if changed("project") {
+		tei.ProjectID, _ = flags.GetString("project")
+	}
+
+	if changed("description") {
+		tei.Description, _ = flags.GetString("description")
+	}
+
+	if changed("task") {
+		tei.TaskID, _ = flags.GetString("task")
+	}
+
+	if changed("tag") {
+		tei.TagIDs, _ = flags.GetStringSlice("tag")
+	}
+
+	if changed("tags") {
+		tei.TagIDs, _ = flags.GetStringSlice("tags")
+	}
+
+	if changed("not-billable") {
+		b, _ := flags.GetBool("not-billable")
+		tei.Billable = !b
+	}
+
+	var err error
+	if changed("when") {
+		whenString, _ := flags.GetString("when")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.Start = v
+	}
+
+	if changed("end-at") {
+		whenString, _ := flags.GetString("end-at")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.End = &v
+	}
+
+	if changed("when-to-close") {
+		whenString, _ := flags.GetString("when-to-close")
+		var v time.Time
+		if v, err = convertToTime(whenString); err != nil {
+			return tei, err
+		}
+		tei.TimeInterval.End = &v
+	}
+
+	return tei, nil
 }

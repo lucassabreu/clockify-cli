@@ -37,7 +37,6 @@ var manualCmd = &cobra.Command{
 
 		tei := dto.TimeEntryImpl{
 			WorkspaceID:  viper.GetString(WORKSPACE),
-			TagIDs:       tags,
 			TimeInterval: dto.TimeInterval{},
 		}
 
@@ -65,6 +64,10 @@ var manualCmd = &cobra.Command{
 			tei.Description = args[3]
 		}
 
+		if tei, err = fillTimeEntryWithFlags(tei, cmd.Flags()); err != nil {
+			return err
+		}
+
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		return manageEntry(
@@ -83,12 +86,5 @@ var manualCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(manualCmd)
 
-	manualCmd.Flags().BoolVarP(&notBillable, "not-billable", "n", false, "is this time entry not billable")
-	manualCmd.Flags().StringVar(&task, "task", "", "add a task to the entry")
-
-	manualCmd.Flags().StringSliceVar(&tags, "tag", []string{}, "add tags to the entry")
-	_ = completion.AddSuggestionsToFlag(manualCmd, "tag", suggestWithClientAPI(suggestTags))
-
-	manualCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	manualCmd.Flags().BoolP("json", "j", false, "print as json")
+	addFlagsForTimeEntryCreation(manualCmd, false)
 }
