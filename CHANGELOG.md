@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.19.0] - 2021-07-19
+
 ### Added
 
 - subcommand `edit-multiple` allows the user to edit all properties (except for the time interval) of multiple time entries
@@ -518,7 +520,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.18.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.19.0...HEAD
+[v0.19.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.0
 [v0.18.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.18.1
 [v0.18.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.18.0
 [v0.17.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.17.2
