@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `delete` command accepts multiple ids instead of just one.
+
 ## [v0.19.2] - 2021-07-20
 
 ### Fixed
