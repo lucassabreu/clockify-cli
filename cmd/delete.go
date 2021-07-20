@@ -24,34 +24,39 @@ import (
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
-	Use:       "delete [current|<time-entry-id>]",
+	Use:       "delete [current|<time-entry-id>]...",
 	Aliases:   []string{"del", "rm", "remove"},
-	Args:      cobra.ExactArgs(1),
+	Args:      cobra.MinimumNArgs(1),
 	ValidArgs: []string{"current"},
-	Short:     `Delete a time entry, use id "current" to apply to time entry in progress`,
+	Short:     `Delete time entry(ies), use id "current" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		param := api.DeleteTimeEntryParam{
-			Workspace:   viper.GetString(WORKSPACE),
-			TimeEntryID: args[0],
-		}
+		for i := range args {
+			param := api.DeleteTimeEntryParam{
+				Workspace:   viper.GetString(WORKSPACE),
+				TimeEntryID: args[i],
+			}
 
-		if param.TimeEntryID == "current" {
-			te, err := c.LogInProgress(api.LogInProgressParam{
-				Workspace: param.Workspace,
-			})
+			if param.TimeEntryID == "current" {
+				te, err := c.LogInProgress(api.LogInProgressParam{
+					Workspace: param.Workspace,
+				})
 
-			if err != nil {
+				if err != nil {
+					return err
+				}
+
+				if te == nil {
+					return errors.New("there is no time entry in progress")
+				}
+
+				param.TimeEntryID = te.ID
+			}
+
+			if err := c.DeleteTimeEntry(param); err != nil {
 				return err
 			}
-
-			if te == nil {
-				return errors.New("there is no time entry in progress")
-			}
-
-			param.TimeEntryID = te.ID
 		}
-
-		return c.DeleteTimeEntry(param)
+		return nil
 	}),
 }
 

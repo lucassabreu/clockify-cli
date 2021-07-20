@@ -40,6 +40,7 @@ var cloneCmd = &cobra.Command{
 			userId,
 			c,
 		)
+		tec.TimeInterval.End = nil
 
 		if err != nil {
 			return err
