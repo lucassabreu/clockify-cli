@@ -501,7 +501,7 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 	}
 
 	var err error
-	if changed("when") {
+	if flags.Lookup("when") != nil {
 		whenString, _ := flags.GetString("when")
 		var v time.Time
 		if v, err = convertToTime(whenString); err != nil {
