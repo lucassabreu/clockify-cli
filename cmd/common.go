@@ -467,7 +467,6 @@ func addFlagsForTimeEntryEdit(cmd *cobra.Command) {
 	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
 
 	cmd.Flags().String("description", "", "change the description")
-
 }
 
 func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {
@@ -501,7 +500,8 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 	}
 
 	var err error
-	if flags.Lookup("when") != nil {
+	whenFlag := flags.Lookup("when")
+	if whenFlag != nil && (whenFlag.Changed || whenFlag.DefValue != "") {
 		whenString, _ := flags.GetString("when")
 		var v time.Time
 		if v, err = convertToTime(whenString); err != nil {

@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.19.4] - 2021-07-21
+
+### Fixed
+
+- `edit` command were resetting the start time to "now" if the user didn't set the `--when` flag.
+- `when` and `when-to-close` flags on `edit` help had the wrong description.
+
 ## [v0.19.3] - 2021-07-20
 
 ### Fixed
