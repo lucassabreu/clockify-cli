@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- select UI component can fail to return a valid option if the default value were not in the list, to prevent
+  that if the default value is empty or not in the list, no default value will be set.
+
 ## [v0.19.4] - 2021-07-21
 
 ### Fixed

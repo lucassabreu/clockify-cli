@@ -33,12 +33,17 @@ func AskForText(message, d string) (string, error) {
 
 // AskFromOptions interactively ask the user to choose one option or none
 func AskFromOptions(message string, options []string, d string) (string, error) {
-	return askString(&survey.Select{
+	p := &survey.Select{
 		Message: message,
 		Options: options,
-		Default: d,
 		Filter:  selectFilter,
-	})
+	}
+
+	if d != "" && strhlp.Search(d, options) != -1 {
+		p.Default = d
+	}
+
+	return askString(p)
 }
 
 // AskManyFromOptions interactively ask the user to choose none or many option
