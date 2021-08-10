@@ -165,6 +165,5 @@ Start and end fields can't be mass-edited.`,
 func init() {
 	rootCmd.AddCommand(editMultipleCmd)
 
-	addFlagsForTimeEntryCreation(editMultipleCmd, false)
-	addFlagsForTimeEntryEdit(editMultipleCmd)
+	addTimeEntryFlags(editMultipleCmd, false)
 }

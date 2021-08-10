@@ -69,8 +69,7 @@ var cloneCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cloneCmd)
 
-	addFlagsForTimeEntryCreation(cloneCmd)
-	addFlagsForTimeEntryEdit(cloneCmd)
+	addTimeEntryFlags(cloneCmd)
 
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
 }
