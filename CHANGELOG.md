@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.20.0] - 2021-08-10
+
+### Changed
+
+- `manual` and `in` commands now support the use of `--project`, `--description`, `--when` and `--when-to-close`
+  flags besides existing positional arguments (now optional even without interactive mode).
+
+### Added
+- shorthand names for flags `when`, `when-to-close`, `description`, `project` and `tag`
+
 ## [v0.19.5] - 2021-08-03
 
 ### Fixed
@@ -557,7 +567,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.19.5...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.20.0...HEAD
+[v0.20.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.20.0
 [v0.19.5]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.5
 [v0.19.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.4
 [v0.19.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.3

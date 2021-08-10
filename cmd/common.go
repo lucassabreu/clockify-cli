@@ -437,21 +437,26 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	return list.TimeEntriesList[0], err
 }
 
-func addFlagsForTimeEntryCreation(cmd *cobra.Command, withDates ...bool) {
+func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 	if len(withDates) == 0 || withDates[0] {
-		cmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
-		cmd.Flags().String("when-to-close", "", "when the entry should be closed, if not informed will let it open")
+		cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+		cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
 	}
 
 	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
 
-	cmd.Flags().StringSlice("tag", []string{}, "add tags to the entry")
+	cmd.Flags().StringSliceP("tag", "T", []string{}, "add tags to the entry (can be used multiple times)")
 	_ = completion.AddSuggestionsToFlag(cmd, "tag", suggestWithClientAPI(suggestTags))
 
-	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
+	cmd.Flags().BoolP(ALLOW_INCOMPLETE, "A", false, "allow creation of incomplete time entries to be edited later (defaults to env $"+ENV_PREFIX+"_ALLOW_INCOMPLETE)")
 	_ = viper.BindPFlag(ALLOW_INCOMPLETE, cmd.Flags().Lookup(ALLOW_INCOMPLETE))
 	_ = viper.BindEnv(ALLOW_INCOMPLETE, ENV_PREFIX+"_ALLOW_INCOMPLETE")
+
+	cmd.Flags().StringP("project", "p", "", "project to use for time entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
+
+	cmd.Flags().StringP("description", "d", "", "time entry description")
 
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as json")
@@ -460,13 +465,6 @@ func addFlagsForTimeEntryCreation(cmd *cobra.Command, withDates ...bool) {
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
 	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
-}
-
-func addFlagsForTimeEntryEdit(cmd *cobra.Command) {
-	cmd.Flags().StringP("project", "p", "", "change the project")
-	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
-
-	cmd.Flags().String("description", "", "change the description")
 }
 
 func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {

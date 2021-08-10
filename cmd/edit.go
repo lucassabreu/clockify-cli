@@ -82,11 +82,10 @@ var editCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	addFlagsForTimeEntryCreation(editCmd, false)
-	addFlagsForTimeEntryEdit(editCmd)
+	addTimeEntryFlags(editCmd, false)
 
-	editCmd.Flags().String("when", "", "when the entry should be started")
-	editCmd.Flags().String("when-to-close", "", "when the entry should be closed")
+	editCmd.Flags().StringP("when", "s", "", "when the entry should be started")
+	editCmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed")
 
 	editCmd.Flags().String("end-at", "", `when the entry should end (if not set "" will be used)`)
 	_ = editCmd.Flags().MarkDeprecated("end-at", "use `when-to-close` flag instead")

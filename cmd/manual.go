@@ -27,7 +27,7 @@ import (
 
 // manualCmd represents the manual command
 var manualCmd = &cobra.Command{
-	Use:               "manual <project-id> <start> <end> <description>",
+	Use:               "manual [<project-id>] [<start>] [<end>] [<description>]",
 	Short:             "Creates a new completed time entry (does not stop on-going time entries)",
 	Args:              cobra.MaximumNArgs(4),
 	ValidArgsFunction: completion.CombineSuggestionsToArgs(suggestWithClientAPI(suggestProjects)),
@@ -86,5 +86,5 @@ var manualCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(manualCmd)
 
-	addFlagsForTimeEntryCreation(manualCmd, false)
+	addTimeEntryFlags(manualCmd)
 }

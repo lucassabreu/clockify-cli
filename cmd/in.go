@@ -26,7 +26,7 @@ import (
 
 // inCmd represents the in command
 var inCmd = &cobra.Command{
-	Use:               "in <project-id> <description>",
+	Use:               "in [<project-id>] [<description>]",
 	Short:             "Create a new time entry and starts it (will close time entries not closed)",
 	Args:              cobra.MaximumNArgs(2),
 	ValidArgsFunction: completion.CombineSuggestionsToArgs(suggestWithClientAPI(suggestProjects)),
@@ -69,5 +69,5 @@ var inCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(inCmd)
 
-	addFlagsForTimeEntryCreation(inCmd)
+	addTimeEntryFlags(inCmd)
 }
