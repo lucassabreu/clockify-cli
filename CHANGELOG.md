@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `--interactive` flag now describes how to disable it (suggestion from [#115](https://github.com/lucassabreu/clockify-cli/issues/115))
+
 ## [v0.20.0] - 2021-08-10
 
 ### Changed

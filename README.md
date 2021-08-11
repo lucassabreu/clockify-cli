@@ -133,7 +133,7 @@ Available Commands:
   clone         Copy a time entry and starts it (use "last" to copy the last one)
   completion    Generate completion script
   config        Manages configuration file parameters
-  delete        Delete a time entry, use id "current" to apply to time entry in progress
+  delete        Delete time entry(ies), use id "current" to apply to time entry in progress
   edit          Edit a time entry, use id "current" to apply to time entry in progress
   edit-multiple Edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.
   gendocs       Generate Markdown documentation for the clockify-cli.
@@ -154,7 +154,8 @@ Flags:
       --config string        config file (default is $HOME/.clockify-cli.yaml)
       --debug                show debug log (defaults to env $CLOCKIFY_DEBUG)
   -h, --help                 help for clockify-cli
-  -i, --interactive          show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
+  -i, --interactive          will prompt you to confirm/complement commands input before executing the action (defaults to env $CLOCKIFY_INTERACTIVE).
+                             	You can be disable it temporally by setting it to 0 (-i=0 or CLOCKIFY_INTERACTIVE=0)
   -t, --token string         clockify's token (defaults to env $CLOCKIFY_TOKEN)
                              	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
   -u, --user-id string       user id from the token (defaults to env $CLOCKIFY_USER_ID)
