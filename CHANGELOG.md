@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - improved output examples to better resemble real output.
 - updated go dependencies
+- `reports` package renamed to `internal/output`, to prevent usage from other packages and solve ambiguity
+  with `report` command and `report api` (to come)
 
 ## [v0.20.0] - 2021-08-10
 
