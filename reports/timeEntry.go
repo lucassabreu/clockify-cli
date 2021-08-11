@@ -63,7 +63,7 @@ func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writ
 			}
 		}
 
-		if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+		if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
 			tw.SetColWidth(width / 3)
 		}
 

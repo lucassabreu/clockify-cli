@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - deploy to Netlify was not being triggered after release build, making the html documentation always wrong.
+- using terminal size of stdout file descriptor, this may fix problems on windows to print reports.
 
 ### Added
 
