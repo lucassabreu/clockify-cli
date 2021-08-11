@@ -15,14 +15,10 @@
 package cmd
 
 import (
-	"io"
-	"os"
 	"sort"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -37,8 +33,6 @@ var logCmd = &cobra.Command{
 	Aliases: []string{"logs"},
 	Short:   "List the entries from a specific day",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
 		var filterDate time.Time
 
 		var err error
@@ -72,18 +66,7 @@ var logCmd = &cobra.Command{
 			return err
 		}
 
-		var reportFn func([]dto.TimeEntry, io.Writer) error
-		reportFn = output.TimeEntriesPrint
-
-		if asJSON {
-			reportFn = output.TimeEntriesJSONPrint
-		}
-
-		if format != "" {
-			reportFn = output.TimeEntriesPrintWithTemplate(format)
-		}
-
-		return reportFn(log, os.Stdout)
+		return printTimeEntries(log, cmd)
 	}),
 }
 
@@ -92,8 +75,7 @@ func init() {
 
 	logCmd.Flags().StringVarP(&dateString, "date", "d", time.Now().Format(dateFormat), "set the date to be logged in the format: YYYY-MM-DD")
 	logCmd.Flags().BoolVarP(&yesterday, "yesterday", "y", false, "list the yesterday's entries")
-	logCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	logCmd.Flags().BoolP("json", "j", false, "print as json")
+	addPrintTimeEntriesFlags(logCmd)
 
 	_ = logCmd.MarkFlagRequired(WORKSPACE)
 	_ = logCmd.MarkFlagRequired(USER_ID)

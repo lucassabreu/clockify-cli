@@ -50,16 +50,15 @@ var cloneCmd = &cobra.Command{
 			return err
 		}
 
-		format, _ := cmd.Flags().GetString("format")
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
-		asJSON, _ := cmd.Flags().GetBool("json")
+
 		return manageEntry(
 			c,
 			tec,
 			createTimeEntry(c, !noClosing),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			printTimeEntryImpl(c, format, asJSON),
+			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
 		)

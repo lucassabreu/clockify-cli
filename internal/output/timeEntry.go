@@ -182,6 +182,17 @@ func TimeEntryJSONPrint(t *dto.TimeEntry, w io.Writer) error {
 	return json.NewEncoder(w).Encode(t)
 }
 
+// TimeEntryCSVPrint will print as CSV
+func TimeEntryCSVPrint(t *dto.TimeEntry, w io.Writer) error {
+	entries := []dto.TimeEntry{}
+
+	if t != nil {
+		entries = append(entries, *t)
+	}
+
+	return TimeEntriesCSVPrint(entries, w)
+}
+
 // TimeEntryPrintQuietly will only print the IDs
 func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
 	fmt.Fprintln(w, timeEntry.ID)

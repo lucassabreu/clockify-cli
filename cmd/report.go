@@ -16,15 +16,12 @@ package cmd
 
 import (
 	"errors"
-	"io"
-	"os"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -161,9 +158,7 @@ func init() {
 }
 
 func reportFlags(cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	addPrintTimeEntriesFlags(cmd)
 	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
 
 	return cmd
@@ -184,9 +179,6 @@ func getWeekRange(ref time.Time) (first time.Time, last time.Time) {
 }
 
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
-	format, _ := cmd.Flags().GetString("format")
-	asJSON, _ := cmd.Flags().GetBool("json")
-	asCSV, _ := cmd.Flags().GetBool("csv")
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 
 	start = truncateDate(start)
@@ -245,21 +237,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 		log = append(newLog, fillMissing(log[0].User, nextDay, end)...)
 	}
 
-	var fn func([]dto.TimeEntry, io.Writer) error
-	fn = output.TimeEntriesPrintWithTimeFormat(output.TIME_FORMAT_FULL)
-	if asJSON {
-		fn = output.TimeEntriesJSONPrint
-	}
-
-	if asCSV {
-		fn = output.TimeEntriesCSVPrint
-	}
-
-	if format != "" {
-		fn = output.TimeEntriesPrintWithTemplate(format)
-	}
-
-	return fn(log, os.Stdout)
+	return printTimeEntries(log, cmd)
 }
 
 func truncateDate(t time.Time) time.Time {

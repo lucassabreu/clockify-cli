@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -187,26 +186,14 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 	return nil
 }
 
-func printTimeEntryImpl(c *api.Client, format string, asJSON bool) func(dto.TimeEntryImpl) error {
+func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
 		fte, err := c.ConvertIntoFullTimeEntry(tei)
 		if err != nil {
 			return err
 		}
 
-		var reportFn func(*dto.TimeEntry, io.Writer) error
-
-		reportFn = output.TimeEntryPrint
-
-		if asJSON {
-			reportFn = output.TimeEntryJSONPrint
-		}
-
-		if format != "" {
-			reportFn = output.TimeEntryPrintWithTemplate(format)
-		}
-
-		return reportFn(&fte, os.Stdout)
+		return formatTimeEntry(&fte, cmd)
 	}
 }
 
@@ -458,8 +445,7 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 
 	cmd.Flags().StringP("description", "d", "", "time entry description")
 
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
-	cmd.Flags().BoolP("json", "j", false, "print as json")
+	addPrintTimeEntriesFlags(cmd)
 
 	// deprecations
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
@@ -527,4 +513,55 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 	}
 
 	return tei, nil
+}
+
+func addPrintTimeEntriesFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cmd.Flags().BoolP("json", "j", false, "print as JSON")
+	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	cmd.Flags().BoolP("quiet", "q", false, "print as json")
+}
+
+func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
+	reportFn := output.TimeEntriesPrint
+
+	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
+		reportFn = output.TimeEntriesJSONPrint
+	}
+
+	if asCSV, _ := cmd.Flags().GetBool("csv"); asCSV {
+		reportFn = output.TimeEntriesCSVPrint
+	}
+
+	if format, _ := cmd.Flags().GetString("format"); format != "" {
+		reportFn = output.TimeEntriesPrintWithTemplate(format)
+	}
+
+	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
+		reportFn = output.TimeEntriesPrintQuietly
+	}
+
+	return reportFn(tes, cmd.OutOrStdout())
+}
+
+func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command) error {
+	reportFn := output.TimeEntryPrint
+
+	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
+		reportFn = output.TimeEntryJSONPrint
+	}
+
+	if asCSV, _ := cmd.Flags().GetBool("csv"); asCSV {
+		reportFn = output.TimeEntryCSVPrint
+	}
+
+	if format, _ := cmd.Flags().GetString("format"); format != "" {
+		reportFn = output.TimeEntryPrintWithTemplate(format)
+	}
+
+	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
+		reportFn = output.TimeEntryPrintQuietly
+	}
+
+	return reportFn(te, cmd.OutOrStdout())
 }

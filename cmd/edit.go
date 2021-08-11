@@ -52,8 +52,6 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
 		return manageEntry(
 			c,
 			tei,
@@ -72,7 +70,7 @@ var editCmd = &cobra.Command{
 			},
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			printTimeEntryImpl(c, format, asJSON),
+			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
 		)

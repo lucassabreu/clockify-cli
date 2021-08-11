@@ -68,15 +68,13 @@ var manualCmd = &cobra.Command{
 			return err
 		}
 
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
 		return manageEntry(
 			c,
 			tei,
 			createTimeEntry(c, false),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_PROJECT_NAME),
-			printTimeEntryImpl(c, format, asJSON),
+			printTimeEntryImpl(c, cmd),
 			true,
 			true,
 		)

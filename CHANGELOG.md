@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `--interactive` flag now describes how to disable it (suggestion from [#115](https://github.com/lucassabreu/clockify-cli/issues/115))
 - example to create a time entry using only flags no README.
+- keep the same options to print/output on all commands that show time entries.
 
 ### Changed
 
