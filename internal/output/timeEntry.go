@@ -1,4 +1,4 @@
-package reports
+package output
 
 import (
 	"encoding/csv"
@@ -63,7 +63,7 @@ func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writ
 			}
 		}
 
-		if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+		if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
 			tw.SetColWidth(width / 3)
 		}
 
@@ -180,6 +180,17 @@ func TimeEntriesPrintWithTemplate(format string) func([]dto.TimeEntry, io.Writer
 // TimeEntryJSONPrint will print as JSON
 func TimeEntryJSONPrint(t *dto.TimeEntry, w io.Writer) error {
 	return json.NewEncoder(w).Encode(t)
+}
+
+// TimeEntryCSVPrint will print as CSV
+func TimeEntryCSVPrint(t *dto.TimeEntry, w io.Writer) error {
+	entries := []dto.TimeEntry{}
+
+	if t != nil {
+		entries = append(entries, *t)
+	}
+
+	return TimeEntriesCSVPrint(entries, w)
 }
 
 // TimeEntryPrintQuietly will only print the IDs

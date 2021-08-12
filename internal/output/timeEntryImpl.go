@@ -1,4 +1,4 @@
-package reports
+package output
 
 import (
 	"encoding/json"
@@ -33,7 +33,7 @@ func TimeEntryImplPrint(t *dto.TimeEntryImpl, w io.Writer) error {
 		wP = len(t.ProjectID)
 	}
 
-	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+	if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
 		width = width - 30 - wP
 		if width < wD {
 			wD = width

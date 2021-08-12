@@ -14,15 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - deploy to Netlify was not being triggered after release build, making the html documentation always wrong.
+- using terminal size of stdout file descriptor, this may fix problems on windows to print reports.
 
 ### Added
 
 - `--interactive` flag now describes how to disable it (suggestion from [#115](https://github.com/lucassabreu/clockify-cli/issues/115))
 - example to create a time entry using only flags no README.
+- keep the same options to print/output on all commands that show time entries.
 
 ### Changed
 
 - improved output examples to better resemble real output.
+- updated go dependencies
+- `reports` package renamed to `internal/output`, to prevent usage from other packages and solve ambiguity
+  with `report` command and `report api` (to come)
 
 ## [v0.20.0] - 2021-08-10
 

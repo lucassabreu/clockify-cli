@@ -1,4 +1,4 @@
-package reports
+package output
 
 import (
 	"encoding/csv"
@@ -42,7 +42,7 @@ func ProjectPrint(ws []dto.Project, w io.Writer) error {
 		}
 	}
 
-	if width, _, err := terminal.GetSize(int(os.Stdin.Fd())); err == nil {
+	if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
 		tw.SetColWidth(width / 3)
 	}
 	tw.AppendBulk(lines)

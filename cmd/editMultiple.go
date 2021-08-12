@@ -15,12 +15,8 @@
 package cmd
 
 import (
-	"io"
-	"os"
-
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/reports"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -125,20 +121,6 @@ Start and end fields can't be mass-edited.`,
 			}
 		}
 
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
-
-		var reportFn func([]dto.TimeEntry, io.Writer) error
-		reportFn = reports.TimeEntriesPrint
-
-		if asJSON {
-			reportFn = reports.TimeEntriesJSONPrint
-		}
-
-		if format != "" {
-			reportFn = reports.TimeEntriesPrintWithTemplate(format)
-		}
-
 		return manageEntry(
 			c,
 			tei,
@@ -154,7 +136,7 @@ Start and end fields can't be mass-edited.`,
 					}
 				}
 
-				return reportFn(tes, os.Stdout)
+				return printTimeEntries(tes, cmd)
 			},
 			shouldValidate,
 			false,

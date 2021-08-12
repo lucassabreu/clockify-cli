@@ -61,17 +61,14 @@ var outCmd = &cobra.Command{
 		}
 
 		te.TimeInterval.End = &whenDate
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
 
-		return formatTimeEntry(te, asJSON, format)
+		return formatTimeEntry(te, cmd)
 	}),
 }
 
 func init() {
 	rootCmd.AddCommand(outCmd)
-	setCommonFormats(outCmd)
+	addPrintTimeEntriesFlags(outCmd)
 
 	outCmd.Flags().String("when", time.Now().Format(fullTimeFormat), "when the entry should be closed, if not informed will use current time")
-	outCmd.Flags().BoolP("quiet", "q", false, "print nothing")
 }

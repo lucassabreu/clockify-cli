@@ -10,6 +10,10 @@ clean: ## clean all buildable files
 install-deps: ## install golang dependencies
 	go mod download
 
+update-deps: ## update go dependencies
+	go get -u -v
+	go mod tidy
+
 build: dist
 
 dist: install-deps dist/darwin dist/linux dist/windows ## build all cli versions (default)
@@ -26,7 +30,7 @@ dist/windows:
 	mkdir -p dist/windows
 	GOOS=windows GOARCH=amd64 go build -o dist/windows/clockify-cli
 
-go-install: ## install dev version
+go-install: install-deps ## install dev version
 	go install
 
 goreleaser-test: tag=Unreleased
