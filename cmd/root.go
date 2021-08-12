@@ -88,7 +88,10 @@ func init() {
 	rootCmd.PersistentFlags().Bool("debug", false, "show debug log (defaults to env $"+ENV_PREFIX+"_DEBUG)")
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
-	rootCmd.PersistentFlags().BoolP(INTERACTIVE, "i", false, "show interactive log (defaults to env $"+ENV_PREFIX+"_INTERACTIVE)")
+	rootCmd.PersistentFlags().BoolP(INTERACTIVE, "i", false,
+		"will prompt you to confirm/complement commands input before executing the action (defaults to env $"+ENV_PREFIX+"_INTERACTIVE).\n"+
+			"\tYou can be disable it temporally by setting it to 0 (-i=0 or "+ENV_PREFIX+"_INTERACTIVE=0)",
+	)
 	_ = viper.BindPFlag(INTERACTIVE, rootCmd.PersistentFlags().Lookup(INTERACTIVE))
 
 	rootCmd.PersistentFlags().BoolP(ALLOW_PROJECT_NAME, "", false, "allow use of project name when id is asked (defaults to env $"+ENV_PREFIX+"_ALLOW_PROJECT_NAME)")

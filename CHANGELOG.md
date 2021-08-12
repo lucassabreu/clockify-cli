@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- deploy to Netlify was not being triggered after release build, making the html documentation always wrong.
+
+### Added
+
+- `--interactive` flag now describes how to disable it (suggestion from [#115](https://github.com/lucassabreu/clockify-cli/issues/115))
+- example to create a time entry using only flags no README.
+
+### Changed
+
+- improved output examples to better resemble real output.
+
 ## [v0.20.0] - 2021-08-10
 
 ### Changed

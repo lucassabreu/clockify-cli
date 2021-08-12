@@ -85,39 +85,52 @@ The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for
 Now you’re ready to create your first Clockify entry:
 
 ```console
-foo@bar:~$ clockify-cli in -i
-? Choose your project: project-id - Example Project
-? Description: Clockify CLI Test
-? Start: (2020-09-04 16:02:45)
+foo@bar:~$ clockify-cli in --interactive
+? Choose your project: dddddddddddddddddddddddd - Clockify Cli | Without Client
+? Description: Daily Meetting
+? Choose your tags: eeeeeeeeeeeeeeeeeeeeeeee - Meetting
+? Start: 08:45
 ? End (leave it blank for empty):
-+---------------------+----------+----------+---------+-------------------------------+-------------------+------+
-|         ID          |  START   |   END    |   DUR   |            PROJECT            |    DESCRIPTION    | TAGS |
-+---------------------+----------+----------+---------+-------------------------------+-------------------+------+
-|    time-entry-id    | 16:02:45 | 16:03:47 | 0:01:02 |  project-id - Example Project | Clockify CLI Test |      |
-+---------------------+----------+----------+---------+-------------------------------+-------------------+------+
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+|            ID            |  START   |   END    |   DUR   |   PROJECT    |  DESCRIPTION   |                TAGS                 |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+| ffffffffffffffffffffffff | 08:45:00 | 09:16:44 | 0:31:44 | Clockify Cli | Daily Meetting | Meetting (eeeeeeeeeeeeeeeeeeeeeeee) |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+```
+
+The same result can be done without interactive mode using flags (these flags are valid for `in`, `manual`, `clone`, `edit` and `edit-multiple`):
+
+```console
+foo@bar:~$ clockify-cli in -i=false \
+  --allow-project-name --project "clockify cli" --description "Daily Metting" \
+  --when "08:45" --tag eeeeeeeeeeeeeeeeeeeeeeee
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+|            ID            |  START   |   END    |   DUR   |   PROJECT    |  DESCRIPTION   |                TAGS                 |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+| ffffffffffffffffffffffff | 08:45:00 | 09:16:44 | 0:31:44 | Clockify Cli | Daily Meetting | Meetting (eeeeeeeeeeeeeeeeeeeeeeee) |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
 ```
 
 After finishing your work you can stop the entry using `clockify-cli out`
 
 ```console
 foo@bar:~$ clockify-cli out
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|         ID          |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|    time-entry-id    | 16:02:45 | 16:08:06 | 0:05:21 |         | Clockify CLI Test |      |
-+---------------------+----------+----------+---------+---------+-------------------+------+
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+|            ID            |  START   |   END    |   DUR   |   PROJECT    |  DESCRIPTION   |                TAGS                 |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+| ffffffffffffffffffffffff | 08:45:00 | 09:17:22 | 0:32:22 | Clockify Cli | Daily Meetting | Meetting (eeeeeeeeeeeeeeeeeeeeeeee) |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
 ```
 
 If you want to re-start the last entry you can use `clockify-cli clone last`
 
 ```console
 foo@bar:~$ clockify-cli clone last
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|         ID          |  START   |   END    |   DUR   | PROJECT |    DESCRIPTION    | TAGS |
-+---------------------+----------+----------+---------+---------+-------------------+------+
-|    time-entry-id    | 16:10:57 | 16:11:09 | 0:00:12 |         | Clockify CLI Test |      |
-+---------------------+----------+----------+---------+---------+-------------------+------+
-
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+|            ID            |  START   |   END    |   DUR   |   PROJECT    |  DESCRIPTION   |                TAGS                 |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+| ffffffffffffffffffffffff | 08:45:00 | 09:16:44 | 0:31:44 | Clockify Cli | Daily Meetting | Meetting (eeeeeeeeeeeeeeeeeeeeeeee) |
++--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
 ```
 
 Help
@@ -133,7 +146,7 @@ Available Commands:
   clone         Copy a time entry and starts it (use "last" to copy the last one)
   completion    Generate completion script
   config        Manages configuration file parameters
-  delete        Delete a time entry, use id "current" to apply to time entry in progress
+  delete        Delete time entry(ies), use id "current" to apply to time entry in progress
   edit          Edit a time entry, use id "current" to apply to time entry in progress
   edit-multiple Edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.
   gendocs       Generate Markdown documentation for the clockify-cli.
@@ -154,7 +167,8 @@ Flags:
       --config string        config file (default is $HOME/.clockify-cli.yaml)
       --debug                show debug log (defaults to env $CLOCKIFY_DEBUG)
   -h, --help                 help for clockify-cli
-  -i, --interactive          show interactive log (defaults to env $CLOCKIFY_INTERACTIVE)
+  -i, --interactive          will prompt you to confirm/complement commands input before executing the action (defaults to env $CLOCKIFY_INTERACTIVE).
+                             	You can be disable it temporally by setting it to 0 (-i=0 or CLOCKIFY_INTERACTIVE=0)
   -t, --token string         clockify's token (defaults to env $CLOCKIFY_TOKEN)
                              	Can be generated here: https://clockify.me/user/settings#generateApiKeyBtn
   -u, --user-id string       user id from the token (defaults to env $CLOCKIFY_USER_ID)
