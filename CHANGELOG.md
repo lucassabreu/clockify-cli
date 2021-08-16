@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--interactive` flag now describes how to disable it (suggestion from [#115](https://github.com/lucassabreu/clockify-cli/issues/115))
 - example to create a time entry using only flags no README.
 - keep the same options to print/output on all commands that show time entries.
+- support for names for id for tags
 
 ### Changed
 
@@ -28,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - updated go dependencies
 - `reports` package renamed to `internal/output`, to prevent usage from other packages and solve ambiguity
   with `report` command and `report api` (to come)
+- flag `allow-project-name` now will be called `allow-name-for-id` to account for other entities that would
+  benefit from using their names instead of their ids
 
 ### Removed
 
