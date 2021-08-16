@@ -13,6 +13,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/internal/output"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/lucassabreu/clockify-cli/ui"
 	stackedErrors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -108,8 +109,43 @@ func getDateTimeParam(name string, required bool, value string, convert func(str
 	}
 }
 
+func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string, error) {
+	dtos, err := c.GetTags(api.GetTagsParam{
+		Workspace:       workspace,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
+
+	if err != nil {
+		return tags, err
+	}
+
+	for i, id := range tags {
+		id = strhlp.Normalize(strings.TrimSpace(id))
+		found := false
+		for _, dto := range dtos {
+			if strings.ToLower(dto.ID) == id {
+				tags[i] = dto.ID
+				found = true
+				break
+			}
+
+			if strings.Contains(strhlp.Normalize(dto.Name), id) {
+				tags[i] = dto.ID
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return tags, stackedErrors.Errorf("No tag with id or name containing: %s", id)
+		}
+	}
+
+	return tags, nil
+}
+
 func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
-	project = strings.ToLower(strings.TrimSpace(project))
+	project = strhlp.Normalize(strings.TrimSpace(project))
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       workspace,
 		PaginationParam: api.PaginationParam{AllPages: true},
@@ -122,7 +158,7 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 		if strings.ToLower(p.ID) == project {
 			return p.ID, nil
 		}
-		if strings.Contains(strings.ToLower(p.Name), project) {
+		if strings.Contains(strhlp.Normalize(p.Name), project) {
 			return p.ID, nil
 		}
 	}
@@ -202,15 +238,22 @@ func manageEntry(
 	te dto.TimeEntryImpl,
 	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
 	interactive,
-	allowProjectByName bool,
+	allowNameForID bool,
 	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
 	askDates bool,
 ) error {
 	var err error
 
-	if allowProjectByName && te.ProjectID != "" {
+	if allowNameForID && te.ProjectID != "" {
 		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
+		if err != nil && !interactive {
+			return err
+		}
+	}
+
+	if allowNameForID && len(te.TagIDs) > 0 {
+		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
 		if err != nil && !interactive {
 			return err
 		}

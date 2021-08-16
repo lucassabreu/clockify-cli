@@ -56,7 +56,7 @@ var inCmd = &cobra.Command{
 			tei,
 			createTimeEntry(c, true),
 			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_PROJECT_NAME),
+			viper.GetBool(ALLOW_NAME_FOR_ID),
 			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,

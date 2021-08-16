@@ -94,9 +94,20 @@ func init() {
 	)
 	_ = viper.BindPFlag(INTERACTIVE, rootCmd.PersistentFlags().Lookup(INTERACTIVE))
 
-	rootCmd.PersistentFlags().BoolP(ALLOW_PROJECT_NAME, "", false, "allow use of project name when id is asked (defaults to env $"+ENV_PREFIX+"_ALLOW_PROJECT_NAME)")
-	_ = viper.BindPFlag(ALLOW_PROJECT_NAME, rootCmd.PersistentFlags().Lookup(ALLOW_PROJECT_NAME))
-	_ = viper.BindEnv(ALLOW_PROJECT_NAME, ENV_PREFIX+"_ALLOW_PROJECT_NAME")
+	viper.RegisterAlias(ALLOW_NAME_FOR_ID, "allow-project-name")
+
+	rootCmd.PersistentFlags().BoolP("allow-project-name", "", false, "allow use of project name when id is asked (defaults to env $"+ENV_PREFIX+"_ALLOW_PROJECT_NAME)")
+	_ = rootCmd.Flags().MarkDeprecated("allow-project-name", "use `allow-name-for-id` flag instead")
+	_ = viper.BindPFlag("allow-project-name", rootCmd.PersistentFlags().Lookup("allow-project-name"))
+
+	rootCmd.PersistentFlags().BoolP(ALLOW_NAME_FOR_ID, "", false, "allow use of project/tag's name when id is asked (defaults to env $"+ENV_PREFIX+"_ALLOW_NAME_FOR_ID)")
+	_ = viper.BindPFlag(ALLOW_NAME_FOR_ID, rootCmd.PersistentFlags().Lookup(ALLOW_NAME_FOR_ID))
+
+	_ = viper.BindEnv(
+		ALLOW_NAME_FOR_ID,
+		ENV_PREFIX+"_ALLOW_NAME_FOR_ID",
+		ENV_PREFIX+"_ALLOW_PROJECT_NAME",
+	)
 
 	_ = rootCmd.MarkFlagRequired(TOKEN)
 

@@ -34,23 +34,23 @@ import (
 )
 
 const (
-	WORKWEEK_DAYS      = "workweek-days"
-	INTERACTIVE        = "interactive"
-	ALLOW_PROJECT_NAME = "allow-project-name"
-	USER_ID            = "user.id"
-	WORKSPACE          = "workspace"
-	TOKEN              = "token"
-	ALLOW_INCOMPLETE   = "allow-incomplete"
+	WORKWEEK_DAYS     = "workweek-days"
+	INTERACTIVE       = "interactive"
+	ALLOW_NAME_FOR_ID = "allow-name-for-id"
+	USER_ID           = "user.id"
+	WORKSPACE         = "workspace"
+	TOKEN             = "token"
+	ALLOW_INCOMPLETE  = "allow-incomplete"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
-	TOKEN:              `clockify's token`,
-	WORKSPACE:          "workspace to be used",
-	USER_ID:            "user id from the token",
-	ALLOW_PROJECT_NAME: "should allow use of project when id is asked",
-	INTERACTIVE:        "show interactive mode",
-	WORKWEEK_DAYS:      "days of the week were your expected to work (use comma to set multiple)",
-	ALLOW_INCOMPLETE:   "should allow starting time entries with missing required values",
+	TOKEN:             `clockify's token`,
+	WORKSPACE:         "workspace to be used",
+	USER_ID:           "user id from the token",
+	ALLOW_NAME_FOR_ID: "allow to input the name of the entity instead of its ID (projects and tags)",
+	INTERACTIVE:       "show interactive mode",
+	WORKWEEK_DAYS:     "days of the week were your expected to work (use comma to set multiple)",
+	ALLOW_INCOMPLETE:  "should allow starting time entries with missing required values",
 }
 
 var weekdays []string
@@ -196,14 +196,14 @@ func configInit(cmd *cobra.Command, args []string) error {
 	}
 	viper.Set(USER_ID, strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
-	allowProjectName := viper.GetBool(ALLOW_PROJECT_NAME)
-	if allowProjectName, err = ui.Confirm(
-		"Should try to find project by its name?",
-		allowProjectName,
+	allowNameForID := viper.GetBool(ALLOW_NAME_FOR_ID)
+	if allowNameForID, err = ui.Confirm(
+		"Should try to find projects/tags by their names?",
+		allowNameForID,
 	); err != nil {
 		return err
 	}
-	viper.Set(ALLOW_PROJECT_NAME, allowProjectName)
+	viper.Set(ALLOW_NAME_FOR_ID, allowNameForID)
 
 	interactive := viper.GetBool(INTERACTIVE)
 	if interactive, err = ui.Confirm(
