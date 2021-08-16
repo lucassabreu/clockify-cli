@@ -43,7 +43,7 @@ jobs:
         name: trigger Netlify deploy with new release
         run: |
           curl -vs -X POST "https://api.netlify.com/build_hooks/${NETLIFY_HOOK}" \
-            --data-urlencode "trigger_title=triggered+by github actions (tag: ${GITHUB_REF#refs/tags/})"
+            --data-urlencode "trigger_title=triggered+by github actions (tag: ${GITHUB_REF#refs/tags/})" \
             --data-urlencode "trigger_branch=main"
         env:
           NETLIFY_HOOK: ${{ secrets.NETLIFY_HOOK }}
