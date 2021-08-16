@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.21.0] - 2021-08-16
+
 ### Fixed
 
 - deploy to Netlify was not being triggered after release build, making the html documentation always wrong.
@@ -594,7 +596,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.21.0...HEAD
+[v0.21.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.21.0
 [v0.20.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.20.0
 [v0.19.5]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.5
 [v0.19.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.19.4
