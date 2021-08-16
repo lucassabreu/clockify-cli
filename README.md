@@ -19,14 +19,10 @@ Features
   * [x] "auto filter" for last month
   * [x] "auto filter" for this month
 * [x] Start a new time entry
-  * [ ] Using a GitHub issue
-  * [ ] Using a Trello card
   * [x] Cloning last time entry
   * [x] Ask input interactively
 * [x] Stop the last entry
 * [x] List workspace projects
-* [ ] Link a Clockify Project with Github:Issues repository
-* [ ] Link a Clockify Project with Trello board
 * [x] List Clockify Workspaces
 * [x] List Clockify Workspaces Users
 * [x] List Clockify Tags
