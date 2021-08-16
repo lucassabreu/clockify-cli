@@ -145,7 +145,7 @@ func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string
 }
 
 func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
-	project = strings.ToLower(strings.TrimSpace(project))
+	project = strhlp.Normalize(strings.TrimSpace(project))
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       workspace,
 		PaginationParam: api.PaginationParam{AllPages: true},
@@ -158,7 +158,7 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 		if strings.ToLower(p.ID) == project {
 			return p.ID, nil
 		}
-		if strings.Contains(strings.ToLower(p.Name), project) {
+		if strings.Contains(strhlp.Normalize(p.Name), project) {
 			return p.ID, nil
 		}
 	}
