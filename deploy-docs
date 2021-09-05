@@ -11,7 +11,7 @@ set -e
 download
 
 rm -rf site/content/commands/* || true
-./clockify-cli gensite site/content/commands
+./clockify-cli gendocs site/content/commands
 
 # fix root command to be "chapter root"
 mv site/content/commands/clockify-cli.md site/content/commands/_index.md
