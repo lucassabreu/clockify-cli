@@ -224,7 +224,7 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 
 func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
-		fte, err := c.GetFullTimeEntry(api.GetTimeEntryParam{
+		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
 			Workspace:   tei.WorkspaceID,
 			TimeEntryID: tei.ID,
 		})

@@ -37,7 +37,7 @@ var outCmd = &cobra.Command{
 		}
 
 		workspace := viper.GetString(WORKSPACE)
-		te, err := c.GetFullTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+		te, err := c.GetHydratedTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 			Workspace: workspace,
 			UserID:    viper.GetString(USER_ID),
 		})

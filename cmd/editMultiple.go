@@ -135,7 +135,7 @@ Start and end fields can't be mass-edited.`,
 				var err error
 				var t *dto.TimeEntry
 				for i, tei := range teis {
-					t, err = c.GetFullTimeEntry(api.GetTimeEntryParam{
+					t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
 						TimeEntryID: tei.ID,
 						Workspace:   tei.WorkspaceID,
 					})

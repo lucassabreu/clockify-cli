@@ -26,7 +26,7 @@ var logInProgressCmd = &cobra.Command{
 	Aliases: []string{"current", "open", "running"},
 	Short:   "Show time entry in progress (if any)",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		te, err := c.GetFullTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+		te, err := c.GetHydratedTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 			Workspace: viper.GetString(WORKSPACE),
 			UserID:    viper.GetString(USER_ID),
 		})

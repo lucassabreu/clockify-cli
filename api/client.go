@@ -306,8 +306,8 @@ func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntr
 	return
 }
 
-// GetFullTimeEntryInProgress show hydrated time entry in progress (if any)
-func (c *Client) GetFullTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
+// GetHydratedTimeEntryInProgress show hydrated time entry in progress (if any)
+func (c *Client) GetHydratedTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
 	var b = true
 	r, err := c.NewRequest(
 		"GET",
@@ -363,7 +363,7 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 	return timeEntry, err
 }
 
-func (c *Client) GetFullTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
+func (c *Client) GetHydratedTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
 	b := true
 	r, err := c.NewRequest(
 		"GET",
