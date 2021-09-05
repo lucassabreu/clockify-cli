@@ -233,10 +233,12 @@ func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImp
 	}
 }
 
+type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
+
 func manageEntry(
 	c *api.Client,
 	te dto.TimeEntryImpl,
-	callback func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error),
+	callback CallbackFn,
 	interactive,
 	allowNameForID bool,
 	printFn func(dto.TimeEntryImpl) error,
@@ -497,31 +499,27 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 }
 
 func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {
-	changed := func(name string) bool {
-		return flags.Lookup(name) != nil && flags.Changed(name)
-	}
-
-	if changed("project") {
+	if flags.Changed("project") {
 		tei.ProjectID, _ = flags.GetString("project")
 	}
 
-	if changed("description") {
+	if flags.Changed("description") {
 		tei.Description, _ = flags.GetString("description")
 	}
 
-	if changed("task") {
+	if flags.Changed("task") {
 		tei.TaskID, _ = flags.GetString("task")
 	}
 
-	if changed("tag") {
+	if flags.Changed("tag") {
 		tei.TagIDs, _ = flags.GetStringSlice("tag")
 	}
 
-	if changed("tags") {
+	if flags.Changed("tags") {
 		tei.TagIDs, _ = flags.GetStringSlice("tags")
 	}
 
-	if changed("not-billable") {
+	if flags.Changed("not-billable") {
 		b, _ := flags.GetBool("not-billable")
 		tei.Billable = !b
 	}
@@ -537,7 +535,7 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 		tei.TimeInterval.Start = v
 	}
 
-	if changed("end-at") {
+	if flags.Changed("end-at") {
 		whenString, _ := flags.GetString("end-at")
 		var v time.Time
 		if v, err = convertToTime(whenString); err != nil {
@@ -546,7 +544,7 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 		tei.TimeInterval.End = &v
 	}
 
-	if changed("when-to-close") {
+	if flags.Changed("when-to-close") {
 		whenString, _ := flags.GetString("when-to-close")
 		var v time.Time
 		if v, err = convertToTime(whenString); err != nil {

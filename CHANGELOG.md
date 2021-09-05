@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - use new go version (1.17)
+- custom `changed` function is the same as using `Flags.Changed`, changed to use just the later
 
 ### Fixed
 
