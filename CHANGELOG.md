@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - use new go version (1.17)
 - custom `changed` function is the same as using `Flags.Changed`, changed to use just the later
 - use `hydrated` parameter on "get time entry" endpoint instead of getting details individually
+- change in progress time entry using the current api
 
 ### Fixed
 

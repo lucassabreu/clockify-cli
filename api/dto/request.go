@@ -103,6 +103,27 @@ func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
 	return u
 }
 
+// GetTimeEntryInProgressRequest to get only the time entry in progress
+type GetTimeEntryInProgressRequest struct {
+	Hydrated       *bool
+	OnlyInProgress bool
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetTimeEntryInProgressRequest) AppendToQuery(u url.URL) url.URL {
+	v := u.Query()
+	if r.Hydrated != nil && *r.Hydrated {
+		v.Add("hydrated", "true")
+	}
+	if r.OnlyInProgress {
+		v.Add("in-progress", "true")
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}
+
 // OutTimeEntryRequest to end the current time entry
 type OutTimeEntryRequest struct {
 	End DateTime `json:"end"`
