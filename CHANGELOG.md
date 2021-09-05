@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- use new go version (1.17)
+
 ## [v0.21.0] - 2021-08-16
 
 ### Fixed
