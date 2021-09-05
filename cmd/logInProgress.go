@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,28 +26,17 @@ var logInProgressCmd = &cobra.Command{
 	Aliases: []string{"current", "open", "running"},
 	Short:   "Show time entry in progress (if any)",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		te, err := getTimeEntryInProgres(c, viper.GetString(WORKSPACE))
+		te, err := c.GetFullTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+			Workspace: viper.GetString(WORKSPACE),
+			UserID:    viper.GetString(USER_ID),
+		})
+
 		if err != nil {
 			return err
 		}
 
 		return formatTimeEntry(te, cmd)
 	}),
-}
-
-func getTimeEntryInProgres(c *api.Client, workspace string) (*dto.TimeEntry, error) {
-	tei, err := c.LogInProgress(api.LogInProgressParam{
-		Workspace: workspace,
-	})
-
-	if err != nil || tei == nil {
-		return nil, err
-	}
-
-	return c.GetFullTimeEntry(api.GetTimeEntryParam{
-		Workspace:   tei.WorkspaceID,
-		TimeEntryID: tei.ID,
-	})
 }
 
 func init() {

@@ -37,7 +37,10 @@ var outCmd = &cobra.Command{
 		}
 
 		workspace := viper.GetString(WORKSPACE)
-		te, err := getTimeEntryInProgres(c, workspace)
+		te, err := c.GetFullTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+			Workspace: workspace,
+			UserID:    viper.GetString(USER_ID),
+		})
 		if te == nil && err == nil {
 			err = errors.New("no time entry in progress")
 		}

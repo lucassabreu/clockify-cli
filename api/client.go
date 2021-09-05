@@ -274,30 +274,64 @@ func (c *Client) paginate(method, uri string, p PaginationParam, request dto.Pag
 	return nil
 }
 
-// LogInProgressParam params to query entries
-type LogInProgressParam struct {
+// GetTimeEntryInProgressParam params to query entries
+type GetTimeEntryInProgressParam struct {
 	Workspace string
+	UserID    string
 }
 
-// LogInProgress show time entry in progress (if any)
-func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error) {
-	var timeEntryImpl *dto.TimeEntryImpl
-
+// GetTimeEntryInProgress show time entry in progress (if any)
+func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
 	r, err := c.NewRequest(
 		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/inProgress",
+			"v1/workspaces/%s/user/%s/time-entries",
 			p.Workspace,
+			p.UserID,
 		),
-		nil,
+		dto.GetTimeEntryInProgressRequest{
+			OnlyInProgress: true,
+		},
 	)
 
 	if err != nil {
-		return timeEntryImpl, err
+		return
 	}
 
-	_, err = c.Do(r, &timeEntryImpl)
-	return timeEntryImpl, err
+	var ts []dto.TimeEntryImpl
+	_, err = c.Do(r, &ts)
+	if err == nil && len(ts) > 0 {
+		timeEntryImpl = &ts[0]
+	}
+	return
+}
+
+// GetFullTimeEntryInProgress show hydrated time entry in progress (if any)
+func (c *Client) GetFullTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
+	var b = true
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/user/%s/time-entries",
+			p.Workspace,
+			p.UserID,
+		),
+		dto.GetTimeEntryInProgressRequest{
+			OnlyInProgress: true,
+			Hydrated:       &b,
+		},
+	)
+
+	if err != nil {
+		return
+	}
+
+	var ts []dto.TimeEntry
+	_, err = c.Do(r, &ts)
+	if err == nil && len(ts) > 0 {
+		timeEntry = &ts[0]
+	}
+	return
 }
 
 // GetTimeEntryParam params to get a Time Entry

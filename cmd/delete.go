@@ -37,8 +37,9 @@ var deleteCmd = &cobra.Command{
 			}
 
 			if param.TimeEntryID == "current" {
-				te, err := c.LogInProgress(api.LogInProgressParam{
+				te, err := c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 					Workspace: param.Workspace,
+					UserID:    viper.GetString(USER_ID),
 				})
 
 				if err != nil {
