@@ -45,8 +45,10 @@ func getTimeEntryInProgres(c *api.Client, workspace string) (*dto.TimeEntry, err
 		return nil, err
 	}
 
-	tef, err := c.ConvertIntoFullTimeEntry(*tei)
-	return &tef, err
+	return c.GetFullTimeEntry(api.GetTimeEntryParam{
+		Workspace:   tei.WorkspaceID,
+		TimeEntryID: tei.ID,
+	})
 }
 
 func init() {

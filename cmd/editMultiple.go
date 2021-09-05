@@ -82,42 +82,45 @@ Start and end fields can't be mass-edited.`,
 				teis[i] = tei
 			}
 
-			return tei, err
+			return input, err
+		}
+
+		tei, err = fillTimeEntryWithFlags(tei, cmd.Flags())
+		if err != nil {
+			return err
 		}
 
 		interactive := viper.GetBool(INTERACTIVE)
 		shouldValidate := !viper.GetBool(ALLOW_INCOMPLETE)
-		if interactive {
-			tei, err = fillTimeEntryWithFlags(tei, cmd.Flags())
-			if err != nil {
-				return err
-			}
-		} else {
-			fn = func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-				w, err := c.GetWorkspace(api.GetWorkspace{ID: tei.WorkspaceID})
-				if err != nil {
-					return tei, err
-				}
-
-				for i := range teis {
-					if teis[i], err = fillTimeEntryWithFlags(teis[i], cmd.Flags()); err != nil {
-						return teis[i], err
+		if !interactive {
+			fn = func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				for i, tei := range teis {
+					if cmd.Flags().Changed("project") {
+						tei.ProjectID = input.ProjectID
 					}
 
-					if shouldValidate {
-						if err = validateTimeEntry(teis[i], w); err != nil {
-							return teis[i], err
-						}
+					if cmd.Flags().Changed("description") {
+						tei.Description = input.Description
 					}
-				}
 
-				for _, tei := range teis {
+					if cmd.Flags().Changed("task") {
+						tei.TaskID = input.TaskID
+					}
+
+					if cmd.Flags().Changed("tag") || cmd.Flags().Changed("tags") {
+						tei.TagIDs = input.TagIDs
+					}
+
+					if cmd.Flags().Changed("not-billable") {
+						tei.Billable = input.Billable
+					}
+
+					teis[i] = tei
 					if _, err = editFn(tei); err != nil {
 						return tei, err
 					}
 				}
-
-				return tei, nil
+				return input, nil
 			}
 		}
 
@@ -130,10 +133,17 @@ Start and end fields can't be mass-edited.`,
 			func(_ dto.TimeEntryImpl) error {
 				tes := make([]dto.TimeEntry, len(teis))
 				var err error
+				var t *dto.TimeEntry
 				for i, tei := range teis {
-					if tes[i], err = c.ConvertIntoFullTimeEntry(tei); err != nil {
+					t, err = c.GetFullTimeEntry(api.GetTimeEntryParam{
+						TimeEntryID: tei.ID,
+						Workspace:   tei.WorkspaceID,
+					})
+
+					if err != nil {
 						return err
 					}
+					tes[i] = *t
 				}
 
 				return printTimeEntries(tes, cmd)

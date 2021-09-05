@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - use new go version (1.17)
+- custom `changed` function is the same as using `Flags.Changed`, changed to use just the later
+- use `hydrated` parameter on "get time entry" endpoint instead of getting details individually
+
+### Fixed
+
+- remove default message for 404 errors from the api
+- `edit-multiple` without interactive mode were not working with the `allow-name-for-id` flag.
 
 ## [v0.21.0] - 2021-08-16
 
@@ -584,7 +591,7 @@ time entry.
 - `--debug` option to allow better understanding of the requests
 - Command `clockify-cli log in-progress` implemented, with options to format the
   output, and in the TimeEntry format, instead of TimeEntryImpl
-- Command `clockify-cli log` implemented, with options to format the  output,
+- Command `clockify-cli log` implemented, with options to format the output,
   will require the user for now
 - Package `dto` created to hold all payload objects
 - Package `api.Client` to call Clockfy's API

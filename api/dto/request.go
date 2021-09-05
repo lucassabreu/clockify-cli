@@ -52,6 +52,27 @@ type PaginatedRequest interface {
 	WithPagination(page, size int) PaginatedRequest
 }
 
+// TimeEntryStartEndRequest to get a time entry
+type GetTimeEntryRequest struct {
+	Hydrated               *bool
+	ConsiderDurationFormat *bool
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetTimeEntryRequest) AppendToQuery(u url.URL) url.URL {
+	v := u.Query()
+	if r.Hydrated != nil && *r.Hydrated {
+		v.Add("hydrated", "true")
+	}
+	if r.ConsiderDurationFormat != nil && *r.ConsiderDurationFormat {
+		v.Add("consider-duration-format", "true")
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}
+
 // TimeEntryStartEndRequest to get entries by range
 type TimeEntryStartEndRequest struct {
 	Start    DateTime
