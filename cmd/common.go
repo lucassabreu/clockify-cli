@@ -224,12 +224,15 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 
 func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
-		fte, err := c.ConvertIntoFullTimeEntry(tei)
+		fte, err := c.GetFullTimeEntry(api.GetTimeEntryParam{
+			Workspace:   tei.WorkspaceID,
+			TimeEntryID: tei.ID,
+		})
 		if err != nil {
 			return err
 		}
 
-		return formatTimeEntry(&fte, cmd)
+		return formatTimeEntry(fte, cmd)
 	}
 }
 

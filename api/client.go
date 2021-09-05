@@ -302,8 +302,9 @@ func (c *Client) LogInProgress(p LogInProgressParam) (*dto.TimeEntryImpl, error)
 
 // GetTimeEntryParam params to get a Time Entry
 type GetTimeEntryParam struct {
-	Workspace   string
-	TimeEntryID string
+	Workspace              string
+	TimeEntryID            string
+	ConsiderDurationFormat bool
 }
 
 // GetTimeEntry will retrieve a Time Entry using its Workspace and ID
@@ -315,7 +316,32 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 			p.Workspace,
 			p.TimeEntryID,
 		),
-		nil,
+		dto.GetTimeEntryRequest{
+			ConsiderDurationFormat: &p.ConsiderDurationFormat,
+		},
+	)
+
+	if err != nil {
+		return timeEntry, err
+	}
+
+	_, err = c.Do(r, &timeEntry)
+	return timeEntry, err
+}
+
+func (c *Client) GetFullTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
+	b := true
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/time-entries/%s",
+			p.Workspace,
+			p.TimeEntryID,
+		),
+		dto.GetTimeEntryRequest{
+			ConsiderDurationFormat: &p.ConsiderDurationFormat,
+			Hydrated:               &b,
+		},
 	)
 
 	if err != nil {
