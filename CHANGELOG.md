@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- site specific files moved from `docs/` to `site/` to free docs folder for actual documentation.
+
 ## [v0.22.0] - 2021-09-05
 
 ### Changed

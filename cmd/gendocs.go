@@ -48,7 +48,7 @@ for rendering in Hugo.`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		docdir := "docs/content/en/commands"
+		docdir := "site/content/en/commands"
 		if len(args) >= 1 {
 			docdir = args[0]
 		}
