@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - use new go version (1.17)
 
+### Fixed
+
+- remove default message for 404 errors from the api
+
 ## [v0.21.0] - 2021-08-16
 
 ### Fixed
@@ -584,7 +588,7 @@ time entry.
 - `--debug` option to allow better understanding of the requests
 - Command `clockify-cli log in-progress` implemented, with options to format the
   output, and in the TimeEntry format, instead of TimeEntryImpl
-- Command `clockify-cli log` implemented, with options to format the  output,
+- Command `clockify-cli log` implemented, with options to format the output,
   will require the user for now
 - Package `dto` created to hold all payload objects
 - Package `api.Client` to call Clockfy's API

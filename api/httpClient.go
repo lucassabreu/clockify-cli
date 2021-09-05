@@ -86,10 +86,6 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
 
-	if r.StatusCode == 404 {
-		return r, errors.WithStack(ErrorNotFound)
-	}
-
 	decoder := json.NewDecoder(buf)
 
 	if r.StatusCode < 200 || r.StatusCode > 300 {
@@ -98,6 +94,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		if err != nil {
 			return r, errors.WithStack(err)
 		}
+
+		if r.StatusCode == 404 && apiErr.Message == "" {
+			apiErr = ErrorNotFound
+		}
+
 		return r, errors.WithStack(apiErr)
 	}
 
