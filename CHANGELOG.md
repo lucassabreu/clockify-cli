@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - remove default message for 404 errors from the api
+- `edit-multiple` without interactive mode were not working with the `allow-name-for-id` flag.
 
 ## [v0.21.0] - 2021-08-16
 
