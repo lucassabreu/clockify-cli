@@ -14,7 +14,11 @@ update-deps: ## update go dependencies
 	go get -u -v
 	go mod tidy
 
-build: dist
+build-linux: clean dist/linux ## builds only for linux
+build-darwin: clean dist/linux ## builds only for darwin
+build-windows: clean dist/linux ## builds only for windows
+
+build: dist ## build all
 
 dist: install-deps dist/darwin dist/linux dist/windows ## build all cli versions (default)
 
