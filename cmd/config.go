@@ -198,7 +198,7 @@ func configInit(cmd *cobra.Command, args []string) error {
 
 	allowNameForID := viper.GetBool(ALLOW_NAME_FOR_ID)
 	if allowNameForID, err = ui.Confirm(
-		"Should try to find projects/tags by their names?",
+		"Should try to find projects/tasks/tags by their names?",
 		allowNameForID,
 	); err != nil {
 		return err

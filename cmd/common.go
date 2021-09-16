@@ -166,11 +166,41 @@ func getProjectByNameOrId(c *api.Client, workspace, project string) (string, err
 	return "", stackedErrors.Errorf("No project with id or name containing: %s", project)
 }
 
+func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, error) {
+	task = strhlp.Normalize(strings.TrimSpace(task))
+	tasks, err := c.GetTasks(api.GetTasksParam{
+		Workspace:       workspace,
+		ProjectID:       project,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	for _, p := range tasks {
+		if strings.ToLower(p.ID) == task {
+			return p.ID, nil
+		}
+		if strings.Contains(strhlp.Normalize(p.Name), task) {
+			return p.ID, nil
+		}
+	}
+
+	return "", stackedErrors.Errorf("No task with id or name containing: %s", task)
+}
+
 func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace, askDates bool) (dto.TimeEntryImpl, error) {
 	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
+	}
+
+	if te.ProjectID != "" {
+		te.TaskID, err = getTaskID(te.TaskID, te.ProjectID, w, c)
+		if err != nil {
+			return te, err
+		}
 	}
 
 	te.Description = getDescription(te.Description)
@@ -252,6 +282,13 @@ func manageEntry(
 
 	if allowNameForID && te.ProjectID != "" {
 		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
+		if err != nil && !interactive {
+			return err
+		}
+	}
+
+	if allowNameForID && te.TaskID != "" {
+		te.TaskID, err = getTaskByNameOrId(c, te.WorkspaceID, te.ProjectID, te.TaskID)
 		if err != nil && !interactive {
 			return err
 		}
@@ -376,6 +413,56 @@ func getProjectID(projectID string, w dto.Workspace, c *api.Client) (string, err
 	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil
 }
 
+const noTask = "No Task"
+
+func getTaskID(taskID, projectID string, w dto.Workspace, c *api.Client) (string, error) {
+	tasks, err := c.GetTasks(api.GetTasksParam{
+		Workspace:       w.ID,
+		ProjectID:       projectID,
+		PaginationParam: api.PaginationParam{AllPages: true},
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(tasks) == 0 {
+		return "", nil
+	}
+
+	tasksString := make([]string, len(tasks))
+	found := -1
+
+	for i, u := range tasks {
+		tasksString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+
+		if found == -1 && u.ID == taskID {
+			taskID = tasksString[i]
+			found = i
+		}
+	}
+
+	if found == -1 {
+		if taskID != "" {
+			fmt.Printf("Task '%s' informed was not found.\n", taskID)
+			taskID = ""
+		}
+	} else {
+		taskID = tasksString[found]
+	}
+
+	if !w.Settings.ForceTasks {
+		tasksString = append([]string{noTask}, tasksString...)
+	}
+
+	taskID, err = ui.AskFromOptions("Choose your task:", tasksString, taskID)
+	if err != nil || taskID == noTask || taskID == "" {
+		return "", err
+	}
+
+	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
+}
+
 func getDescription(description string) string {
 	description, _ = ui.AskForText("Description:", description)
 	return description
@@ -480,6 +567,7 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 
 	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
+	_ = completion.AddSuggestionsToFlag(cmd, "task", suggestWithClientAPI(suggestTasks))
 
 	cmd.Flags().StringSliceP("tag", "T", []string{}, "add tags to the entry (can be used multiple times)")
 	_ = completion.AddSuggestionsToFlag(cmd, "tag", suggestWithClientAPI(suggestTags))

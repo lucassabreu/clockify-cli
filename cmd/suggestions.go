@@ -7,6 +7,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func suggestWithClientAPI(
@@ -35,6 +36,41 @@ func suggestTags(cmd *cobra.Command, args []string, toComplete string, c *api.Cl
 			continue
 		}
 		va.Set(tag.ID, tag.Name)
+	}
+
+	return va, nil
+}
+
+func suggestTasks(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+	project, err := cmd.Flags().GetString("project")
+	if err != nil {
+		return completion.EmptyValidArgs(), err
+	}
+
+	w := viper.GetString(WORKSPACE)
+	if viper.GetBool(ALLOW_NAME_FOR_ID) {
+		project, err = getProjectByNameOrId(c, w, project)
+		if err != nil {
+			return completion.EmptyValidArgs(), err
+		}
+	}
+
+	tasks, err := c.GetTasks(api.GetTasksParam{
+		Workspace: w,
+		ProjectID: project,
+	})
+
+	if err != nil || len(tasks) == 0 {
+		return completion.EmptyValidArgs(), err
+	}
+
+	va := make(completion.ValigsArgsMap)
+	toComplete = strings.ToLower(toComplete)
+	for _, task := range tasks {
+		if toComplete != "" && !strings.Contains(task.ID, toComplete) {
+			continue
+		}
+		va.Set(task.ID, task.Name)
 	}
 
 	return va, nil
