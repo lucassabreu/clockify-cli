@@ -10,7 +10,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/olekukonko/tablewriter"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // ProjectPrintQuietly will only print the IDs
@@ -42,7 +42,7 @@ func ProjectPrint(ws []dto.Project, w io.Writer) error {
 		}
 	}
 
-	if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
+	if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
 		tw.SetColWidth(width / 3)
 	}
 	tw.AppendBulk(lines)

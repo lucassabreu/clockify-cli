@@ -12,7 +12,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/olekukonko/tablewriter"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // TimeEntriesJSONPrint will print as JSON
@@ -84,7 +84,7 @@ func TimeEntriesPrintWithTimeFormat(format string, showTasks bool) func([]dto.Ti
 			lines[i] = line
 		}
 
-		if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
+		if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
 			tw.SetColWidth(width / 3)
 		}
 

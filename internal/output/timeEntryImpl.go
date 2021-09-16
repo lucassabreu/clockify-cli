@@ -10,7 +10,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/olekukonko/tablewriter"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // TimeEntryImplJSONPrint will print as JSON
@@ -33,7 +33,7 @@ func TimeEntryImplPrint(t *dto.TimeEntryImpl, w io.Writer) error {
 		wP = len(t.ProjectID)
 	}
 
-	if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
+	if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
 		width = width - 30 - wP
 		if width < wD {
 			wD = width
