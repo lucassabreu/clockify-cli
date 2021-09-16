@@ -470,32 +470,53 @@ func (c *Client) GetMe() (dto.User, error) {
 	return user, err
 }
 
-// GetTaskParam params to get a Task
-type GetTaskParam struct {
+// GetTasksParam param to find tasks of a project
+type GetTasksParam struct {
 	Workspace string
-	TaskID    string
+	ProjectID string
+	Active    bool
+	Name      string
+
+	PaginationParam
 }
 
-// GetTask get a single Task, if exists
-func (c *Client) GetTask(p GetTaskParam) (*dto.Task, error) {
-	var task *dto.Task
+// GetTasks get tasks of a project
+func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
+	var ps, tmpl []dto.Task
 
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"workspaces/%s/tasks/%s",
-			p.Workspace,
-			p.TaskID,
-		),
-		nil,
-	)
-
-	if err != nil {
-		return task, err
+	if p.Workspace == "" {
+		return ps, errors.New("workspace needs to be informed to get tasks")
 	}
 
-	_, err = c.Do(r, &task)
-	return task, err
+	if p.ProjectID == "" {
+		return ps, errors.New("project needs to be informed to get tasks")
+	}
+
+	err := c.paginate(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks",
+			p.Workspace,
+			p.ProjectID,
+		),
+		p.PaginationParam,
+		dto.GetTasksRequest{
+			Name:       p.Name,
+			Active:     p.Active,
+			Pagination: dto.NewPagination(p.Page, p.PageSize),
+		},
+		&tmpl,
+		func(res interface{}) (int, error) {
+			if res == nil {
+				return 0, nil
+			}
+			ls := *res.(*[]dto.Task)
+
+			ps = append(ps, ls...)
+			return len(ls), nil
+		},
+	)
+	return ps, err
 }
 
 // CreateTimeEntryParam params to create a new time entry
