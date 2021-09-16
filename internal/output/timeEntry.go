@@ -35,10 +35,20 @@ const (
 )
 
 // TimeEntriesPrintWithTimeFormat will print more details
-func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writer) error {
+func TimeEntriesPrintWithTimeFormat(format string, showTasks bool) func([]dto.TimeEntry, io.Writer) error {
+
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
-		tw.SetHeader([]string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"})
+		header := []string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"}
+		if showTasks {
+			header = append(
+				header[:5],
+				header[5:]...,
+			)
+			header[5] = "Task"
+		}
+
+		tw.SetHeader(header)
 
 		lines := make([][]string, len(timeEntries))
 
@@ -52,7 +62,8 @@ func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writ
 			if t.Project != nil {
 				projectName = t.Project.Name
 			}
-			lines[i] = []string{
+
+			line := []string{
 				t.ID,
 				t.TimeInterval.Start.In(time.Local).Format(format),
 				end.In(time.Local).Format(format),
@@ -61,6 +72,16 @@ func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writ
 				t.Description,
 				strings.Join(tagsToStringSlice(t.Tags), ", "),
 			}
+
+			if showTasks {
+				line = append(line[:5], line[5:]...)
+				line[5] = ""
+				if t.Task != nil {
+					line[5] = fmt.Sprintf("%s (%s)", t.Task.Name, t.Task.ID)
+				}
+			}
+
+			lines[i] = line
 		}
 
 		if width, _, err := terminal.GetSize(int(os.Stdout.Fd())); err == nil {
@@ -76,8 +97,8 @@ func TimeEntriesPrintWithTimeFormat(format string) func([]dto.TimeEntry, io.Writ
 }
 
 // TimeEntriesPrint will print more details
-func TimeEntriesPrint(timeEntries []dto.TimeEntry, w io.Writer) error {
-	return TimeEntriesPrintWithTimeFormat(TIME_FORMAT_SIMPLE)(timeEntries, w)
+func TimeEntriesPrint(showTasks bool) func([]dto.TimeEntry, io.Writer) error {
+	return TimeEntriesPrintWithTimeFormat(TIME_FORMAT_SIMPLE, showTasks)
 }
 
 func tagsToStringSlice(tags []dto.Tag) []string {
@@ -99,6 +120,8 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 		"description",
 		"project.id",
 		"project.name",
+		"task.id",
+		"task.name",
 		"start",
 		"end",
 		"duration",
@@ -135,11 +158,18 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 			te.User = &u
 		}
 
+		if te.Task == nil {
+			t := dto.Task{}
+			te.Task = &t
+		}
+
 		arr := []string{
 			te.ID,
 			te.Description,
 			p.ID,
 			p.Name,
+			te.Task.ID,
+			te.Task.Name,
 			format(&te.TimeInterval.Start),
 			format(te.TimeInterval.End),
 			durationToString(end.Sub(te.TimeInterval.Start)),
@@ -200,14 +230,16 @@ func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
 }
 
 // TimeEntryPrint will print more details
-func TimeEntryPrint(timeEntry *dto.TimeEntry, w io.Writer) error {
-	entries := []dto.TimeEntry{}
+func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
+	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
+		entries := []dto.TimeEntry{}
 
-	if timeEntry != nil {
-		entries = append(entries, *timeEntry)
+		if timeEntry != nil {
+			entries = append(entries, *timeEntry)
+		}
+
+		return TimeEntriesPrint(showTasks)(entries, w)
 	}
-
-	return TimeEntriesPrint(entries, w)
 }
 
 // TimeEntryPrintWithTemplate will print each time entry using the format string

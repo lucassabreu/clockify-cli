@@ -41,6 +41,7 @@ const (
 	WORKSPACE         = "workspace"
 	TOKEN             = "token"
 	ALLOW_INCOMPLETE  = "allow-incomplete"
+	SHOW_TASKS        = "show-task"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
@@ -51,6 +52,7 @@ var configValidArgs = completion.ValigsArgsMap{
 	INTERACTIVE:       "show interactive mode",
 	WORKWEEK_DAYS:     "days of the week were your expected to work (use comma to set multiple)",
 	ALLOW_INCOMPLETE:  "should allow starting time entries with missing required values",
+	SHOW_TASKS:        "should show an extra column with the task description",
 }
 
 var weekdays []string
@@ -233,6 +235,14 @@ func configInit(cmd *cobra.Command, args []string) error {
 	}
 	viper.Set(ALLOW_INCOMPLETE, allowIncomplete)
 
+	showTasks := viper.GetBool(SHOW_TASKS)
+	if showTasks, err = ui.Confirm(
+		`Should show task on time entries as a separated column?`,
+		showTasks,
+	); err != nil {
+		return err
+	}
+	viper.Set(SHOW_TASKS, showTasks)
 	return configSaveFile()
 }
 

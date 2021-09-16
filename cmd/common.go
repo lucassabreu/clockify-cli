@@ -655,7 +655,7 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 }
 
 func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntriesPrint
+	reportFn := output.TimeEntriesPrint(viper.GetBool(SHOW_TASKS))
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntriesJSONPrint
@@ -677,7 +677,7 @@ func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
 }
 
 func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntryPrint
+	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS))
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntryJSONPrint
