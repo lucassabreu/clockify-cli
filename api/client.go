@@ -750,13 +750,16 @@ func (c *Client) GetRecentTimeEntries(p GetRecentTimeEntries) (dto.TimeEntriesLi
 		nil,
 	)
 
+	q := r.URL.Query()
 	if p.Page != 0 {
-		r.URL.Query().Add("page", strconv.Itoa(p.Page))
+		q.Add("page", strconv.Itoa(p.Page))
 	}
 
 	if p.ItemsPerPage != 0 {
-		r.URL.Query().Add("limit", strconv.Itoa(p.ItemsPerPage))
+		q.Add("limit", strconv.Itoa(p.ItemsPerPage))
 	}
+
+	r.URL.RawQuery = q.Encode()
 
 	if err != nil {
 		return resp, err
