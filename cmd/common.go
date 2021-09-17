@@ -544,8 +544,8 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
 		Workspace:    workspace,
 		UserID:       userID,
-		Page:         1,
-		ItemsPerPage: 1,
+		Page:         0,
+		ItemsPerPage: 2,
 	})
 
 	if err != nil {
