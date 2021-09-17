@@ -38,6 +38,7 @@ var cloneCmd = &cobra.Command{
 			args[0],
 			workspace,
 			userId,
+			true,
 			c,
 		)
 		tec.TimeInterval.End = nil

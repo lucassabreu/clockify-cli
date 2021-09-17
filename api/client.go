@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -187,38 +186,56 @@ type LogRangeParam struct {
 func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
+	return c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
+		Workspace: p.Workspace,
+		UserID:    p.UserID,
+		Start:     &p.FirstDate,
+		End:       &p.LastDate,
+	})
+}
+
+type GetUserTimeEntriesParam struct {
+	Workspace      string
+	UserID         string
+	OnlyInProgress *bool
+	Start          *time.Time
+	End            *time.Time
+
+	PaginationParam
+}
+
+// GetUserTimeEntries will list the time entries of a user on a workspace, can be paginated
+func (c *Client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error) {
+	var timeEntries []dto.TimeEntryImpl
+	var tes []dto.TimeEntryImpl
+
+	err := c.getUserTimeEntries(p, false, &tes, func(res interface{}) (int, error) {
+		if res == nil {
+			return 0, nil
+		}
+
+		tes := res.(*[]dto.TimeEntryImpl)
+		timeEntries = append(timeEntries, *tes...)
+		return len(*tes), nil
+	})
+
+	return timeEntries, err
+}
+
+// GetUsersHydratedTimeEntries will list hydrated time entries of a user on a workspace, can be paginated
+func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntry, error) {
 	var timeEntries []dto.TimeEntry
-
-	b := true
-	filter := dto.TimeEntryStartEndRequest{
-		Start:    dto.DateTime{Time: p.FirstDate},
-		End:      dto.DateTime{Time: p.LastDate},
-		Hydrated: &b,
-	}
-
-	c.debugf("Log Filter Params: Start: %s, End: %s", filter.Start, filter.End)
-
 	var tes []dto.TimeEntry
-	err := c.paginate(
-		"GET",
-		fmt.Sprintf(
-			"v1/workspaces/%s/user/%s/time-entries",
-			p.Workspace,
-			p.UserID,
-		),
-		p.PaginationParam,
-		filter,
-		&tes,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
 
-			tes := res.(*[]dto.TimeEntry)
-			timeEntries = append(timeEntries, *tes...)
-			return len(*tes), nil
-		},
-	)
+	err := c.getUserTimeEntries(p, false, &tes, func(res interface{}) (int, error) {
+		if res == nil {
+			return 0, nil
+		}
+
+		tes := res.(*[]dto.TimeEntry)
+		timeEntries = append(timeEntries, *tes...)
+		return len(*tes), nil
+	})
 
 	if err != nil {
 		return timeEntries, err
@@ -234,6 +251,55 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	}
 
 	return timeEntries, err
+}
+
+func (c *Client) getUserTimeEntries(
+	p GetUserTimeEntriesParam,
+	hydrated bool,
+	tmpl interface{},
+	reducer func(interface{}) (int, error),
+) error {
+	inProgressFilter := "nil"
+	if p.OnlyInProgress != nil {
+		if *p.OnlyInProgress {
+			inProgressFilter = "true"
+		} else {
+			inProgressFilter = "false"
+		}
+	}
+
+	c.debugf("GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s",
+		p.Workspace,
+		p.UserID,
+		inProgressFilter,
+	)
+
+	r := dto.UserTimeEntriesRequest{
+		OnlyInProgress: p.OnlyInProgress,
+		Hydrated:       &hydrated,
+	}
+
+	if p.Start != nil {
+		r.Start = &dto.DateTime{Time: *p.Start}
+	}
+	if p.End != nil {
+		r.End = &dto.DateTime{Time: *p.End}
+	}
+
+	err := c.paginate(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/user/%s/time-entries",
+			p.Workspace,
+			p.UserID,
+		),
+		p.PaginationParam,
+		r,
+		tmpl,
+		reducer,
+	)
+
+	return err
 }
 
 func (c *Client) paginate(method, uri string, p PaginationParam, request dto.PaginatedRequest, bodyTempl interface{}, reducer func(interface{}) (int, error)) error {
@@ -282,24 +348,17 @@ type GetTimeEntryInProgressParam struct {
 
 // GetTimeEntryInProgress show time entry in progress (if any)
 func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"v1/workspaces/%s/user/%s/time-entries",
-			p.Workspace,
-			p.UserID,
-		),
-		dto.GetTimeEntryInProgressRequest{
-			OnlyInProgress: true,
-		},
-	)
+	b := true
+	ts, err := c.GetUserTimeEntries(GetUserTimeEntriesParam{
+		Workspace:      p.Workspace,
+		UserID:         p.UserID,
+		OnlyInProgress: &b,
+	})
 
 	if err != nil {
 		return
 	}
 
-	var ts []dto.TimeEntryImpl
-	_, err = c.Do(r, &ts)
 	if err == nil && len(ts) > 0 {
 		timeEntryImpl = &ts[0]
 	}
@@ -308,26 +367,12 @@ func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntr
 
 // GetHydratedTimeEntryInProgress show hydrated time entry in progress (if any)
 func (c *Client) GetHydratedTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
-	var b = true
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"v1/workspaces/%s/user/%s/time-entries",
-			p.Workspace,
-			p.UserID,
-		),
-		dto.GetTimeEntryInProgressRequest{
-			OnlyInProgress: true,
-			Hydrated:       &b,
-		},
-	)
-
-	if err != nil {
-		return
-	}
-
-	var ts []dto.TimeEntry
-	_, err = c.Do(r, &ts)
+	b := true
+	ts, err := c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
+		Workspace:      p.Workspace,
+		UserID:         p.UserID,
+		OnlyInProgress: &b,
+	})
 	if err == nil && len(ts) > 0 {
 		timeEntry = &ts[0]
 	}
@@ -747,45 +792,4 @@ func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) error {
 
 	_, err = c.Do(r, nil)
 	return err
-}
-
-// GetRecentTimeEntries params to get recent time entries
-type GetRecentTimeEntries struct {
-	Workspace    string
-	UserID       string
-	Page         int
-	ItemsPerPage int
-}
-
-// GetRecentTimeEntries will return the recent time entries of the user, paginated
-func (c *Client) GetRecentTimeEntries(p GetRecentTimeEntries) (dto.TimeEntriesList, error) {
-	var resp dto.TimeEntriesList
-
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf(
-			"workspaces/%s/timeEntries/user/%s",
-			p.Workspace,
-			p.UserID,
-		),
-		nil,
-	)
-
-	q := r.URL.Query()
-	if p.Page != 0 {
-		q.Add("page", strconv.Itoa(p.Page))
-	}
-
-	if p.ItemsPerPage != 0 {
-		q.Add("limit", strconv.Itoa(p.ItemsPerPage))
-	}
-
-	r.URL.RawQuery = q.Encode()
-
-	if err != nil {
-		return resp, err
-	}
-
-	_, err = c.Do(r, &resp)
-	return resp, err
 }
