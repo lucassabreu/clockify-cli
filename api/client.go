@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	stackedErrors "github.com/pkg/errors"
 )
 
@@ -59,7 +60,7 @@ type GetWorkspaces struct {
 func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	var w []dto.Workspace
 
-	r, err := c.NewRequest("GET", "workspaces/", nil)
+	r, err := c.NewRequest("GET", "v1/workspaces", nil)
 	if err != nil {
 		return w, err
 	}
@@ -76,8 +77,9 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 
 	ws := []dto.Workspace{}
 
+	n := strhlp.Normalize(strings.TrimSpace(f.Name))
 	for _, i := range w {
-		if strings.Contains(strings.ToLower(i.Name), strings.ToLower(f.Name)) {
+		if strings.Contains(strhlp.Normalize(i.Name), n) {
 			ws = append(ws, i)
 		}
 	}

@@ -51,22 +51,41 @@ const MembershipStatusInactive = MembershipStatus("INACTIVE")
 
 // WorkspaceSettings DTO
 type WorkspaceSettings struct {
-	CanSeeTimeSheet                    bool   `json:"canSeeTimeSheet"`
-	DefaultBillableProjects            bool   `json:"defaultBillableProjects"`
-	ForceDescription                   bool   `json:"forceDescription"`
-	ForceProjects                      bool   `json:"forceProjects"`
-	ForceTags                          bool   `json:"forceTags"`
-	ForceTasks                         bool   `json:"forceTasks"`
-	LockTimeEntries                    string `json:"lockTimeEntries"`
-	OnlyAdminsCreateProject            bool   `json:"onlyAdminsCreateProject"`
-	OnlyAdminsSeeAllTimeEntries        bool   `json:"onlyAdminsSeeAllTimeEntries"`
-	OnlyAdminsSeeBillableRates         bool   `json:"onlyAdminsSeeBillableRates"`
-	OnlyAdminsSeeDashboard             bool   `json:"onlyAdminsSeeDashboard"`
-	OnlyAdminsSeePublicProjectsEntries bool   `json:"onlyAdminsSeePublicProjectsEntries"`
-	ProjectFavorites                   bool   `json:"projectFavorites"`
-	ProjectPickerSpecialFilter         bool   `json:"projectPickerSpecialFilter"`
-	Round                              Round  `json:"round"`
-	TimeRoundingInReports              bool   `json:"timeRoundingInReports"`
+	AdminOnlyPages                     []string      `json:"adminOnlyPages"`
+	AutomaticLock                      AutomaticLock `json:"automaticLock"`
+	CanSeeTimeSheet                    bool          `json:"canSeeTimeSheet"`
+	DefaultBillableProjects            bool          `json:"defaultBillableProjects"`
+	ForceDescription                   bool          `json:"forceDescription"`
+	ForceProjects                      bool          `json:"forceProjects"`
+	ForceTags                          bool          `json:"forceTags"`
+	ForceTasks                         bool          `json:"forceTasks"`
+	LockTimeEntries                    time.Time     `json:"lockTimeEntries"`
+	OnlyAdminsCreateProject            bool          `json:"onlyAdminsCreateProject"`
+	OnlyAdminsCreateTag                bool          `json:"onlyAdminsCreateTag"`
+	OnlyAdminsCreateTask               bool          `json:"onlyAdminsCreateTask"`
+	OnlyAdminsSeeAllTimeEntries        bool          `json:"onlyAdminsSeeAllTimeEntries"`
+	OnlyAdminsSeeBillableRates         bool          `json:"onlyAdminsSeeBillableRates"`
+	OnlyAdminsSeeDashboard             bool          `json:"onlyAdminsSeeDashboard"`
+	OnlyAdminsSeePublicProjectsEntries bool          `json:"onlyAdminsSeePublicProjectsEntries"`
+	ProjectFavorites                   bool          `json:"projectFavorites"`
+	ProjectGroupingLabel               string        `json:"projectGroupingLabel"`
+	ProjectPickerSpecialFilter         bool          `json:"projectPickerSpecialFilter"`
+	Round                              Round         `json:"round"`
+	TimeRoundingInReports              bool          `json:"timeRoundingInReports"`
+	TrackTimeDownToSecond              bool          `json:"trackTimeDownToSecond"`
+	IsProjectPublicByDefault           bool          `json:"isProjectPublicByDefault"`
+	CanSeeTracker                      bool          `json:"canSeeTracker"`
+	FeatureSubscriptionType            string        `json:"featureSubscriptionType"`
+}
+
+// AutomaticLock DTO
+type AutomaticLock struct {
+	ChangeDay       string `json:"changeDay"`
+	DayOfMonth      int    `json:"dayOfMonth"`
+	FirstDay        string `json:"firstDay"`
+	OlderThanPeriod string `json:"olderThanPeriod"`
+	OlderThanValue  int    `json:"olderThanValue"`
+	Type            string `json:"type"`
 }
 
 // Round DTO
