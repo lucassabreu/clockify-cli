@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.23.1] - 2021-09-17
+
+### Fixed
+
+- `last` and `current` aliases were failing to find and select the right time entry, it is a problem
+  with the old api for getting "recent time entries", fixed by [@zerodahero](https://github.com/zerodahero)
+
 ## [v0.23.0] - 2021-09-16
 
 ### Added
@@ -629,7 +636,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.23.1...HEAD
+[v0.23.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.23.0
 [v0.22.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.22.0
 [v0.21.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.21.0
 [v0.20.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.20.0
