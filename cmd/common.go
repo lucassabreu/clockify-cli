@@ -566,7 +566,7 @@ func getFirstRunningEntry(list []dto.TimeEntryImpl, running bool) (dto.TimeEntry
 		}
 	}
 
-	return list[0], nil
+	return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
 }
 
 func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
