@@ -68,10 +68,11 @@ foo@bar:~$ clockify-cli config --init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: <workspace-id> - John Doe's workspace
 ? Choose your user: <user-id> - John Doe
-? Should try to find project by its name? Yes
+? Should try to find projects/tasks/tags by their names? Yes
 ? Should use "Interactive Mode" by default? Yes
 ? Which days of the week do you work? monday, tuesday, wednesday, thursday, friday
 ? Should allow starting time entries with incomplete data? No
+? Should show task on time entries as a separated column? Yes
 ```
 
 The CLI saves your workspace info and an API token to `~/.clockify-cli.yaml` for future use.
