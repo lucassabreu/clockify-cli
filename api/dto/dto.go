@@ -263,14 +263,15 @@ type TimeEntriesList struct {
 
 // TimeEntryImpl DTO
 type TimeEntryImpl struct {
-	Billable     bool         `json:"billable"`
-	Description  string       `json:"description"`
-	ID           string       `json:"id"`
-	IsLocked     bool         `json:"isLocked"`
-	ProjectID    string       `json:"projectId"`
-	TagIDs       []string     `json:"tagIds"`
-	TaskID       string       `json:"taskId"`
-	TimeInterval TimeInterval `json:"timeInterval"`
-	UserID       string       `json:"userId"`
-	WorkspaceID  string       `json:"workspaceId"`
+	Billable         bool         `json:"billable"`
+	Description      string       `json:"description"`
+	ID               string       `json:"id"`
+	IsLocked         bool         `json:"isLocked"`
+	CurrentlyRunning bool         `json:"currentlyRunning"`
+	ProjectID        string       `json:"projectId"`
+	TagIDs           []string     `json:"tagIds"`
+	TaskID           string       `json:"taskId"`
+	TimeInterval     TimeInterval `json:"timeInterval"`
+	UserID           string       `json:"userId"`
+	WorkspaceID      string       `json:"workspaceId"`
 }

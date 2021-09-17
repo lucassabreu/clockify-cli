@@ -544,8 +544,8 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 	list, err := c.GetRecentTimeEntries(api.GetRecentTimeEntries{
 		Workspace:    workspace,
 		UserID:       userID,
-		Page:         1,
-		ItemsPerPage: 1,
+		Page:         0,
+		ItemsPerPage: 2,
 	})
 
 	if err != nil {
@@ -556,7 +556,17 @@ func getTimeEntry(id, workspace, userID string, c *api.Client) (dto.TimeEntryImp
 		return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
 	}
 
-	return list.TimeEntriesList[0], err
+	return getFirstRunningEntry(list.TimeEntriesList, id == "current")
+}
+
+func getFirstRunningEntry(list []dto.TimeEntryImpl, running bool) (dto.TimeEntryImpl, error) {
+	for _, entry := range list {
+		if entry.CurrentlyRunning == running {
+			return entry, nil
+		}
+	}
+
+	return dto.TimeEntryImpl{}, errors.New("there is no previous time entry")
 }
 
 func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
