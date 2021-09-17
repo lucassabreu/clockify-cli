@@ -206,3 +206,31 @@ func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
 
 	return u
 }
+
+type GetTasksRequest struct {
+	Name   string
+	Active bool
+
+	Pagination pagination
+}
+
+// WithPagination add pagination to the GetTasksRequest
+func (r GetTasksRequest) WithPagination(page, size int) PaginatedRequest {
+	r.Pagination = NewPagination(page, size)
+	return r
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
+	u = r.Pagination.AppendToQuery(u)
+
+	v := u.Query()
+	v.Add("name", r.Name)
+	if r.Active {
+		v.Add("active", "true")
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}

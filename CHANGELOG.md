@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- client uses current api to retrieve all tasks of a project
+- interactive mode support to select tasks
+- name or id support for tasks
+- terminal auto-complete support for `task` flag
+- new config `show-task` that sets the reports/output of time entries to show its task, if exists
+
+### Fixed
+
+- package `golang.org/x/crypto/ssh/terminal` was deprecated, substituted by `golang.org/x/term`
+
+### Removed
+
+- output formatters for `dto.TimeEntryImpl` were not being used.
+
 ## [v0.22.0] - 2021-09-05
 
 ### Changed

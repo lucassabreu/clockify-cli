@@ -21,13 +21,13 @@ type Workspace struct {
 	Name        string            `json:"name"`
 	ImageURL    string            `json:"imageUrl"`
 	Settings    WorkspaceSettings `json:"workspaceSettings"`
-	HourlyRate  HourlyRate        `json:"hourlyRate"`
+	HourlyRate  Rate              `json:"hourlyRate"`
 	Memberships []Membership
 }
 
 // Membership DTO
 type Membership struct {
-	HourlyRate HourlyRate       `json:"hourlyRate"`
+	HourlyRate Rate             `json:"hourlyRate"`
 	Status     MembershipStatus `json:"membershipStatus"`
 	Type       string           `json:"membershipType"`
 	Target     string           `json:"target"`
@@ -75,8 +75,8 @@ type Round struct {
 	Round   string `json:"round"`
 }
 
-// HourlyRate DTO
-type HourlyRate struct {
+// Rate DTO
+type Rate struct {
 	Amount   int32  `json:"amount"`
 	Currency string `json:"currency"`
 }
@@ -86,7 +86,7 @@ type TimeEntry struct {
 	ID            string       `json:"id"`
 	Billable      bool         `json:"billable"`
 	Description   string       `json:"description"`
-	HourlyRate    HourlyRate   `json:"hourlyRate"`
+	HourlyRate    Rate         `json:"hourlyRate"`
 	IsLocked      bool         `json:"isLocked"`
 	Project       *Project     `json:"project"`
 	ProjectID     string       `json:"projectId"`
@@ -123,19 +123,22 @@ const TaskStatusDone = TaskStatus("DONE")
 
 // Task DTO
 type Task struct {
-	ID         string     `json:"id"`
-	AssigneeID string     `json:"assigneeId"`
-	Estimate   string     `json:"estimate"`
-	Name       string     `json:"name"`
-	ProjectID  string     `json:"projectId"`
-	Status     TaskStatus `json:"status"`
+	AssigneeIDs []string   `json:"assigneeIds"`
+	Estimate    string     `json:"estimate"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	ProjectID   string     `json:"projectId"`
+	Billable    bool       `json:"billable"`
+	HourlyRate  Rate       `json:"hourlyRate"`
+	CostRate    Rate       `json:"costRate"`
+	Status      TaskStatus `json:"status"`
 }
 
 // Project DTO
 type Project struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
-	HourlyRate  HourlyRate   `json:"hourlyRate"`
+	HourlyRate  Rate         `json:"hourlyRate"`
 	ClientID    string       `json:"clientId"`
 	WorkspaceID string       `json:"workspaceId"`
 	Billable    bool         `json:"billable"`
