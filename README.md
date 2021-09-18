@@ -140,26 +140,29 @@ Usage:
   clockify-cli [command]
 
 Available Commands:
-  clone         Copy a time entry and starts it (use "last" to copy the last one)
-  completion    Generate completion script
-  config        Manages configuration file parameters
-  delete        Delete time entry(ies), use id "current" to apply to time entry in progress
-  edit          Edit a time entry, use id "current" to apply to time entry in progress
-  edit-multiple Edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.
-  gendocs       Generate Markdown documentation for the clockify-cli.
-  help          Help about any command
-  in            Create a new time entry and starts it (will close time entries not closed)
-  log           List the entries from a specific day
-  manual        Creates a new completed time entry (does not stop on-going time entries)
-  me            Show the user info
-  out           Stops the last time entry
-  project       List projects from a workspace
-  report        List all time entries in the date ranges and with more data (format date as 2016-01-02)
-  tags          List tags of workspace
-  version       Version of the command
-  workspace     List user's workspaces
+  clone             Copy a time entry and starts it (use "last" to copy the last one)
+  completion        Generate completion script
+  config            Manages configuration file parameters
+  delete            Delete time entry(ies), use id "current" to apply to time entry in progress
+  edit              Edit a time entry, use id "current" to apply to time entry in progress
+  edit-multiple     Edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.
+  gendocs           Generate Markdown documentation for the clockify-cli.
+  help              Help about any command
+  in                Create a new time entry and starts it (will close time entries not closed)
+  log               List the entries from a specific day
+  manual            Creates a new completed time entry (does not stop on-going time entries)
+  mark-invoiced     Marks times entries as invoiced
+  mark-not-invoiced Mark times entries as not invoiced
+  me                Show the user info
+  out               Stops the last time entry
+  project           List projects from a workspace
+  report            List all time entries in the date ranges and with more data (format date as 2016-01-02)
+  tags              List tags of workspace
+  version           Version of the command
+  workspace         List user's workspaces
 
 Flags:
+      --allow-name-for-id    allow use of project/tag's name when id is asked (defaults to env $CLOCKIFY_ALLOW_NAME_FOR_ID)
       --allow-project-name   allow use of project name when id is asked (defaults to env $CLOCKIFY_ALLOW_PROJECT_NAME)
       --config string        config file (default is $HOME/.clockify-cli.yaml)
       --debug                show debug log (defaults to env $CLOCKIFY_DEBUG)
