@@ -18,7 +18,10 @@ type QueryAppender interface {
 }
 
 // ErrorNotFound Not Found
-var ErrorNotFound = dto.Error{Message: "Nothing was found"}
+var ErrorNotFound = dto.Error{Message: "Nothing was found", Code: 404}
+
+// ErrorForbidden Forbidden
+var ErrorForbidden = dto.Error{Message: "Forbidden", Code: 403}
 
 type transport struct {
 	apiKey string
@@ -91,12 +94,20 @@ func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 	if r.StatusCode < 200 || r.StatusCode > 300 {
 		var apiErr dto.Error
 		err = decoder.Decode(&apiErr)
-		if err != nil {
+		if err != nil && err != io.EOF {
 			return r, errors.WithStack(err)
 		}
 
 		if r.StatusCode == 404 && apiErr.Message == "" {
 			apiErr = ErrorNotFound
+		}
+
+		if r.StatusCode == 403 && apiErr.Message == "" {
+			apiErr = ErrorForbidden
+		}
+
+		if apiErr.Message == "" {
+			apiErr.Message = "No response"
 		}
 
 		return r, errors.WithStack(apiErr)

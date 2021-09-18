@@ -807,3 +807,31 @@ func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) error {
 	_, err = c.Do(r, nil, "DeleteTimeEntry")
 	return err
 }
+
+type ChangeInvoicedParam struct {
+	Workspace    string
+	TimeEntryIDs []string
+	Invoiced     bool
+}
+
+// ChangeInvoiced changes time entries to invoiced or not
+func (c *Client) ChangeInvoiced(p ChangeInvoicedParam) error {
+	r, err := c.NewRequest(
+		"PATCH",
+		fmt.Sprintf(
+			"v1/workspaces/%s/time-entries/invoiced",
+			p.Workspace,
+		),
+		dto.ChangeTimeEntriesInvoicedRequest{
+			TimeEntryIDs: p.TimeEntryIDs,
+			Invoiced:     p.Invoiced,
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Do(r, nil, "ChangeInvoiced")
+	return err
+}
