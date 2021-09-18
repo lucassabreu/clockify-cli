@@ -38,6 +38,7 @@ var cloneCmd = &cobra.Command{
 			args[0],
 			workspace,
 			userId,
+			true,
 			c,
 		)
 		tec.TimeInterval.End = nil
@@ -55,7 +56,7 @@ var cloneCmd = &cobra.Command{
 		return manageEntry(
 			c,
 			tec,
-			createTimeEntry(c, !noClosing),
+			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_NAME_FOR_ID),
 			printTimeEntryImpl(c, cmd),

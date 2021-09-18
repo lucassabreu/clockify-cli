@@ -99,6 +99,7 @@ var reportLastDayCmd = &cobra.Command{
 			"last",
 			viper.GetString(WORKSPACE),
 			u,
+			true,
 			c,
 		)
 		if err != nil {

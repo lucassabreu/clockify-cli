@@ -18,7 +18,10 @@ type QueryAppender interface {
 }
 
 // ErrorNotFound Not Found
-var ErrorNotFound = dto.Error{Message: "Nothing was found"}
+var ErrorNotFound = dto.Error{Message: "Nothing was found", Code: 404}
+
+// ErrorForbidden Forbidden
+var ErrorForbidden = dto.Error{Message: "Forbidden", Code: 403}
 
 type transport struct {
 	apiKey string
@@ -70,7 +73,7 @@ func (c *Client) NewRequest(method, uri string, body interface{}) (*http.Request
 }
 
 // Do executes a http.Request inside the Clockify's Client
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, v interface{}, name string) (*http.Response, error) {
 	r, err := c.Client.Do(req)
 	if err != nil {
 		return r, err
@@ -84,19 +87,27 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
+	c.debugf("name: %s, method: %s, url: %s, status: %d, response: \"%s\"", name, req.Method, req.URL.String(), r.StatusCode, buf)
 
 	decoder := json.NewDecoder(buf)
 
 	if r.StatusCode < 200 || r.StatusCode > 300 {
 		var apiErr dto.Error
 		err = decoder.Decode(&apiErr)
-		if err != nil {
+		if err != nil && err != io.EOF {
 			return r, errors.WithStack(err)
 		}
 
 		if r.StatusCode == 404 && apiErr.Message == "" {
 			apiErr = ErrorNotFound
+		}
+
+		if r.StatusCode == 403 && apiErr.Message == "" {
+			apiErr = ErrorForbidden
+		}
+
+		if apiErr.Message == "" {
+			apiErr.Message = "No response"
 		}
 
 		return r, errors.WithStack(apiErr)

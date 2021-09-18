@@ -58,3 +58,15 @@ func Filter(f func(string) bool, s []string) []string {
 	}
 	return ns
 }
+
+// Unique will remove all duplicated strings from the slice
+func Unique(ss []string) []string {
+	r := make([]string, 0)
+	for _, s := range ss {
+		if Search(s, r) == -1 {
+			r = append(r, s)
+		}
+	}
+
+	return r
+}

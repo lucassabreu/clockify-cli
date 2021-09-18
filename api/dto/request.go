@@ -73,50 +73,76 @@ func (r GetTimeEntryRequest) AppendToQuery(u url.URL) url.URL {
 	return u
 }
 
-// TimeEntryStartEndRequest to get entries by range
-type TimeEntryStartEndRequest struct {
-	Start    DateTime
-	End      DateTime
-	Hydrated *bool
+// UserTimeEntriesRequest to get entries of a user
+type UserTimeEntriesRequest struct {
+	Description string
+	Start       *DateTime
+	End         *DateTime
+	Project     string
+	Task        string
+	TagIDs      []string
+
+	ProjectRequired        *bool
+	TaskRequired           *bool
+	ConsiderDurationFormat *bool
+	Hydrated               *bool
+	OnlyInProgress         *bool
 
 	Pagination pagination
 }
 
-// WithPagination add pagination to the TimeEntryStartEndRequest
-func (r TimeEntryStartEndRequest) WithPagination(page, size int) PaginatedRequest {
+// WithPagination add pagination to the UserTimeEntriesRequest
+func (r UserTimeEntriesRequest) WithPagination(page, size int) PaginatedRequest {
 	r.Pagination = NewPagination(page, size)
 	return r
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r TimeEntryStartEndRequest) AppendToQuery(u url.URL) url.URL {
+func (r UserTimeEntriesRequest) AppendToQuery(u url.URL) url.URL {
 	u = r.Pagination.AppendToQuery(u)
 	v := u.Query()
-	v.Add("start", r.Start.String())
-	v.Add("end", r.End.String())
-	if r.Hydrated != nil && *r.Hydrated {
-		v.Add("hydrated", "true")
+
+	if r.Start != nil {
+		v.Add("start", r.Start.String())
 	}
 
-	u.RawQuery = v.Encode()
-
-	return u
-}
-
-// GetTimeEntryInProgressRequest to get only the time entry in progress
-type GetTimeEntryInProgressRequest struct {
-	Hydrated       *bool
-	OnlyInProgress bool
-}
-
-// AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetTimeEntryInProgressRequest) AppendToQuery(u url.URL) url.URL {
-	v := u.Query()
-	if r.Hydrated != nil && *r.Hydrated {
-		v.Add("hydrated", "true")
+	if r.End != nil {
+		v.Add("end", r.End.String())
 	}
-	if r.OnlyInProgress {
-		v.Add("in-progress", "true")
+
+	addNotNil := func(b *bool, p string) {
+		if b == nil {
+			return
+		}
+
+		if *b {
+			v.Add(p, "1")
+		} else {
+			v.Add(p, "0")
+		}
+
+	}
+
+	addNotNil(r.ProjectRequired, "project-required")
+	addNotNil(r.TaskRequired, "task-required")
+	addNotNil(r.ConsiderDurationFormat, "consider-duration-format")
+	addNotNil(r.Hydrated, "hydrated")
+	addNotNil(r.OnlyInProgress, "in-progress")
+
+	addNotEmpty := func(s string, p string) {
+		if s == "" {
+			return
+		}
+
+		v.Add(p, s)
+	}
+
+	addNotEmpty(r.Description, "description")
+	addNotEmpty(r.Project, "project")
+	addNotEmpty(r.Task, "task")
+
+	for _, t := range r.TagIDs {
+		addNotEmpty(t, "tags")
 	}
 
 	u.RawQuery = v.Encode()
@@ -131,24 +157,32 @@ type OutTimeEntryRequest struct {
 
 // CreateTimeEntryRequest to create a time entry is created
 type CreateTimeEntryRequest struct {
-	Start       DateTime  `json:"start,omitempty"`
-	End         *DateTime `json:"end,omitempty"`
-	Billable    bool      `json:"billable,omitempty"`
-	Description string    `json:"description,omitempty"`
-	ProjectID   string    `json:"projectId,omitempty"`
-	TaskID      string    `json:"taskId,omitempty"`
-	TagIDs      []string  `json:"tagIds,omitempty"`
+	Start        DateTime      `json:"start,omitempty"`
+	End          *DateTime     `json:"end,omitempty"`
+	Billable     bool          `json:"billable,omitempty"`
+	Description  string        `json:"description,omitempty"`
+	ProjectID    string        `json:"projectId,omitempty"`
+	TaskID       string        `json:"taskId,omitempty"`
+	TagIDs       []string      `json:"tagIds,omitempty"`
+	CustomFields []CustomField `json:"customFields,omitempty"`
+}
+
+// CustomField DTO
+type CustomField struct {
+	CustomFieldID string `json:"customFieldId"`
+	Value         string `json:"value"`
 }
 
 // UpdateTimeEntryRequest to update a time entry
 type UpdateTimeEntryRequest struct {
-	Start       DateTime  `json:"start,omitempty"`
-	End         *DateTime `json:"end,omitempty"`
-	Billable    bool      `json:"billable,omitempty"`
-	Description string    `json:"description,omitempty"`
-	ProjectID   string    `json:"projectId,omitempty"`
-	TaskID      string    `json:"taskId,omitempty"`
-	TagIDs      []string  `json:"tagIds,omitempty"`
+	Start        DateTime      `json:"start,omitempty"`
+	End          *DateTime     `json:"end,omitempty"`
+	Billable     bool          `json:"billable,omitempty"`
+	Description  string        `json:"description,omitempty"`
+	ProjectID    string        `json:"projectId,omitempty"`
+	TaskID       string        `json:"taskId,omitempty"`
+	TagIDs       []string      `json:"tagIds,omitempty"`
+	CustomFields []CustomField `json:"customFields,omitempty"`
 }
 
 type GetProjectRequest struct {
@@ -233,4 +267,9 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 	u.RawQuery = v.Encode()
 
 	return u
+}
+
+type ChangeTimeEntriesInvoicedRequest struct {
+	TimeEntryIDs []string `json:"timeEntryIds"`
+	Invoiced     bool     `json:"invoiced"`
 }
