@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new commands `mask-invoiced` and `mark-not-invoiced` created to allow users to set this
+  information using the cli.
+
+### Changed
+
+- creation/update/out of time entries is made using the current api, instead of the old one
+- listing of workspaces and users is made using the current api, instead of the old one
+- all specific calls for the api for listing time entries were refactored to use a main function to
+  request then, the client methods still exist and maintain the same inputs/outputs, but are calling
+  the same function instead of reimplementing the call every time
+- getting of a project now uses the current api
+- debug messages of requests now show a "name" on it to help identify what where the intention of
+  the call
+
+### Removed
+
+- client method for recent time entries was not listed as a valid api, so its is now removed.
+
 ## [v0.23.1] - 2021-09-17
 
 ### Fixed
