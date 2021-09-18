@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.24.0] - 2021-09-18
+
 ### Added
 
 - new commands `mask-invoiced` and `mark-not-invoiced` created to allow users to set this
@@ -656,7 +658,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.23.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.24.0...HEAD
+[v0.23.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.23.1
 [v0.23.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.23.0
 [v0.22.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.22.0
 [v0.21.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.21.0
