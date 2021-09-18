@@ -175,13 +175,14 @@ type CustomField struct {
 
 // UpdateTimeEntryRequest to update a time entry
 type UpdateTimeEntryRequest struct {
-	Start       DateTime  `json:"start,omitempty"`
-	End         *DateTime `json:"end,omitempty"`
-	Billable    bool      `json:"billable,omitempty"`
-	Description string    `json:"description,omitempty"`
-	ProjectID   string    `json:"projectId,omitempty"`
-	TaskID      string    `json:"taskId,omitempty"`
-	TagIDs      []string  `json:"tagIds,omitempty"`
+	Start        DateTime      `json:"start,omitempty"`
+	End          *DateTime     `json:"end,omitempty"`
+	Billable     bool          `json:"billable,omitempty"`
+	Description  string        `json:"description,omitempty"`
+	ProjectID    string        `json:"projectId,omitempty"`
+	TaskID       string        `json:"taskId,omitempty"`
+	TagIDs       []string      `json:"tagIds,omitempty"`
+	CustomFields []CustomField `json:"customFields,omitempty"`
 }
 
 type GetProjectRequest struct {

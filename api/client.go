@@ -747,7 +747,7 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 	r, err := c.NewRequest(
 		"PUT",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/%s",
+			"v1/workspaces/%s/time-entries/%s",
 			p.Workspace,
 			p.TimeEntryID,
 		),
