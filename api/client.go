@@ -65,7 +65,7 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 		return w, err
 	}
 
-	_, err = c.Do(r, &w)
+	_, err = c.Do(r, &w, "GetWorkspaces")
 
 	if err != nil {
 		return w, err
@@ -125,7 +125,7 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 		return users, err
 	}
 
-	_, err = c.Do(r, &users)
+	_, err = c.Do(r, &users, "WorkspaceUsers")
 	if err != nil {
 		return users, err
 	}
@@ -299,12 +299,13 @@ func (c *Client) getUserTimeEntries(
 		r,
 		tmpl,
 		reducer,
+		"GetUserTimeEntries",
 	)
 
 	return err
 }
 
-func (c *Client) paginate(method, uri string, p PaginationParam, request dto.PaginatedRequest, bodyTempl interface{}, reducer func(interface{}) (int, error)) error {
+func (c *Client) paginate(method, uri string, p PaginationParam, request dto.PaginatedRequest, bodyTempl interface{}, reducer func(interface{}) (int, error), name string) error {
 	page := p.Page
 	if p.AllPages {
 		page = 1
@@ -326,7 +327,7 @@ func (c *Client) paginate(method, uri string, p PaginationParam, request dto.Pag
 		}
 
 		response := reflect.New(reflect.TypeOf(bodyTempl).Elem()).Interface()
-		_, err = c.Do(r, &response)
+		_, err = c.Do(r, &response, name)
 		if err != nil {
 			return err
 		}
@@ -406,7 +407,7 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 		return timeEntry, err
 	}
 
-	_, err = c.Do(r, &timeEntry)
+	_, err = c.Do(r, &timeEntry, "GetTimeEntry")
 	return timeEntry, err
 }
 
@@ -429,7 +430,7 @@ func (c *Client) GetHydratedTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeE
 		return timeEntry, err
 	}
 
-	_, err = c.Do(r, &timeEntry)
+	_, err = c.Do(r, &timeEntry, "GetHydratedTimeEntry")
 	return timeEntry, err
 }
 
@@ -482,7 +483,7 @@ func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
 		return project, err
 	}
 
-	_, err = c.Do(r, &project)
+	_, err = c.Do(r, &project, "GetProject")
 	return project, err
 }
 
@@ -519,7 +520,7 @@ func (c *Client) GetMe() (dto.User, error) {
 	}
 
 	var user dto.User
-	_, err = c.Do(r, &user)
+	_, err = c.Do(r, &user, "GetMe")
 	return user, err
 }
 
@@ -568,6 +569,7 @@ func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 			ps = append(ps, ls...)
 			return len(ls), nil
 		},
+		"GetTasks",
 	)
 	return ps, err
 }
@@ -614,7 +616,7 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 		return t, err
 	}
 
-	_, err = c.Do(r, &t)
+	_, err = c.Do(r, &t, "CreateTimeEntry")
 	return t, err
 }
 
@@ -657,6 +659,7 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 			ps = append(ps, ls...)
 			return len(ls), nil
 		},
+		"GetTags",
 	)
 	return ps, err
 }
@@ -696,6 +699,7 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 			ps = append(ps, ls...)
 			return len(ls), nil
 		},
+		"GetProjects",
 	)
 
 	return ps, err
@@ -726,7 +730,7 @@ func (c *Client) Out(p OutParam) error {
 		return err
 	}
 
-	_, err = c.Do(r, nil)
+	_, err = c.Do(r, nil, "Out")
 	return err
 }
 
@@ -774,7 +778,7 @@ func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, err
 		return t, err
 	}
 
-	_, err = c.Do(r, &t)
+	_, err = c.Do(r, &t, "UpdateTimeEntry")
 	return t, err
 }
 
@@ -800,6 +804,6 @@ func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) error {
 		return err
 	}
 
-	_, err = c.Do(r, nil)
+	_, err = c.Do(r, nil, "DeleteTimeEntry")
 	return err
 }
