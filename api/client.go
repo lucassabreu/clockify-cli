@@ -696,16 +696,18 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 // OutParam params to end the current time entry
 type OutParam struct {
 	Workspace string
+	UserID    string
 	End       time.Time
 }
 
 // Out create a new time entry
 func (c *Client) Out(p OutParam) error {
 	r, err := c.NewRequest(
-		"PUT",
+		"PATCH",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/endStarted",
+			"v1/workspaces/%s/user/%s/time-entries",
 			p.Workspace,
+			p.UserID,
 		),
 		dto.OutTimeEntryRequest{
 			End: dto.DateTime{Time: p.End},

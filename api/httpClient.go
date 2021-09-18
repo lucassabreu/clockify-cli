@@ -84,7 +84,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	c.debugf("url: %s, status: %d, body: \"%s\"", req.URL.String(), r.StatusCode, buf)
+	c.debugf("method: %s, url: %s, status: %d, response: \"%s\"", req.Method, req.URL.String(), r.StatusCode, buf)
 
 	decoder := json.NewDecoder(buf)
 

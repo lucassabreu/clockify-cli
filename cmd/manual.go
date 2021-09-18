@@ -71,7 +71,7 @@ var manualCmd = &cobra.Command{
 		return manageEntry(
 			c,
 			tei,
-			createTimeEntry(c, false),
+			createTimeEntry(c, viper.GetString(USER_ID), false),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_NAME_FOR_ID),
 			printTimeEntryImpl(c, cmd),

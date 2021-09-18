@@ -329,10 +329,28 @@ func manageEntry(
 	return printFn(te)
 }
 
-func createTimeEntry(c *api.Client, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func getErrorCode(err error) int {
+	if e, ok := err.(dto.Error); ok {
+		return e.Code
+	}
+
+	if e, ok := err.(interface{ Unwrap() error }); ok {
+		return getErrorCode(e.Unwrap())
+	}
+
+	return 0
+}
+
+func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if autoClose {
-			if err := c.Out(api.OutParam{Workspace: te.WorkspaceID, End: te.TimeInterval.Start}); err != nil {
+			err := c.Out(api.OutParam{
+				Workspace: te.WorkspaceID,
+				UserID:    userID,
+				End:       te.TimeInterval.Start,
+			})
+
+			if err != nil && getErrorCode(err) != 404 {
 				return te, err
 			}
 		}
