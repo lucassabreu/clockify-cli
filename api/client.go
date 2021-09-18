@@ -471,7 +471,7 @@ func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
 	r, err := c.NewRequest(
 		"GET",
 		fmt.Sprintf(
-			"workspaces/%s/projects/%s",
+			"v1/workspaces/%s/projects/%s",
 			p.Workspace,
 			p.ProjectID,
 		),

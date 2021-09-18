@@ -155,21 +155,22 @@ type Task struct {
 
 // Project DTO
 type Project struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	HourlyRate  Rate         `json:"hourlyRate"`
-	ClientID    string       `json:"clientId"`
-	WorkspaceID string       `json:"workspaceId"`
-	Billable    bool         `json:"billable"`
-	Memberships []Membership `json:"memberships"`
-	Color       string       `json:"color"`
-	Estimate    Estimate     `json:"estimate"`
-	Archived    bool         `json:"archived"`
-	Duration    string       `json:"duration"`
-	ClientName  string       `json:"clientName"`
-	Note        string       `json:"note"`
-	Template    bool         `json:"template"`
-	Public      bool         `json:"public"`
+	ID             string         `json:"id"`
+	Name           string         `json:"name"`
+	HourlyRate     Rate           `json:"hourlyRate"`
+	ClientID       string         `json:"clientId"`
+	WorkspaceID    string         `json:"workspaceId"`
+	Billable       bool           `json:"billable"`
+	Memberships    []Membership   `json:"memberships"`
+	Color          string         `json:"color"`
+	TimeEstimate   TimeEstimate   `json:"timeEstimate"`
+	BudgetEstimate BudgetEstimate `json:"budgetEstimate"`
+	Archived       bool           `json:"archived"`
+	Duration       string         `json:"duration"`
+	ClientName     string         `json:"clientName"`
+	Note           string         `json:"note"`
+	Template       bool           `json:"template"`
+	Public         bool           `json:"public"`
 }
 
 // EstimateType possible Estimate types
@@ -181,10 +182,23 @@ const EstimateTypeAuto = EstimateType("AUTO")
 // EstimateTypeManual estimate is Manual
 const EstimateTypeManual = EstimateType("MANUAL")
 
-// Estimate DTO
-type Estimate struct {
-	Estimate string       `json:"estimate"`
-	Type     EstimateType `json:"type"`
+// EstimateBase DTO
+type EstimateBase struct {
+	Type         EstimateType `json:"type"`
+	Active       bool         `json:"active"`
+	ResetOptions *string      `json:"resetOptions"`
+}
+
+// TimeEstimate DTO
+type TimeEstimate struct {
+	EstimateBase
+	Estimate string `json:"estimate"`
+}
+
+// BudgetEstimate DTO
+type BudgetEstimate struct {
+	EstimateBase
+	Estimate int `json:"estimate"`
 }
 
 // UserStatus possible user status
