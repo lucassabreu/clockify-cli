@@ -210,6 +210,18 @@ type User struct {
 	ProfilePicture   string       `json:"profilePicture"`
 	Settings         UserSettings `json:"settings"`
 	Status           UserStatus   `json:"status"`
+	Roles            *[]Role      `json:"roles"`
+}
+
+// Role DTO
+type Role struct {
+	Role     string       `json:"role"`
+	Entities []RoleEntity `json:"entities"`
+}
+
+type RoleEntity struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // WeekStart when the week starts

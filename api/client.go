@@ -118,7 +118,7 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 
 	r, err := c.NewRequest(
 		"GET",
-		fmt.Sprintf("workspaces/%s/users", p.Workspace),
+		fmt.Sprintf("v1/workspaces/%s/users", p.Workspace),
 		nil,
 	)
 	if err != nil {
@@ -243,13 +243,13 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	user, err := c.GetUser(p.UserID)
+	user, err := c.GetUser(GetUser{p.Workspace, p.UserID})
 	if err != nil {
 		return timeEntries, err
 	}
 
 	for i := range timeEntries {
-		timeEntries[i].User = user
+		timeEntries[i].User = &user
 	}
 
 	return timeEntries, err
@@ -486,22 +486,28 @@ func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
 	return project, err
 }
 
-// GetUser get a specific user by its id
-func (c *Client) GetUser(id string) (*dto.User, error) {
-	var user *dto.User
+// GetUser params to get a user
+type GetUser struct {
+	Workspace string
+	UserID    string
+}
 
-	r, err := c.NewRequest(
-		"GET",
-		fmt.Sprintf("users/%s", id),
-		nil,
-	)
-
+// GetUser filters the wanted user from the workspace users
+func (c *Client) GetUser(p GetUser) (dto.User, error) {
+	us, err := c.WorkspaceUsers(WorkspaceUsersParam{
+		Workspace: p.Workspace,
+	})
 	if err != nil {
-		return user, err
+		return dto.User{}, err
 	}
 
-	_, err = c.Do(r, &user)
-	return user, err
+	for _, u := range us {
+		if u.ID == p.UserID {
+			return u, nil
+		}
+	}
+
+	return dto.User{}, dto.Error{Message: "not found", Code: 404}
 }
 
 // GetMe get details about the user who created the token
