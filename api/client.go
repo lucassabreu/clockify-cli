@@ -588,7 +588,7 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, err
 	r, err := c.NewRequest(
 		"POST",
 		fmt.Sprintf(
-			"workspaces/%s/timeEntries/",
+			"v1/workspaces/%s/time-entries",
 			p.Workspace,
 		),
 		dto.CreateTimeEntryRequest{
