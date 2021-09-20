@@ -262,7 +262,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	var timeEntries []dto.TimeEntry
 	var tes []dto.TimeEntry
 
-	err := c.getUserTimeEntries(p, false, &tes, func(res interface{}) (int, error) {
+	err := c.getUserTimeEntries(p, true, &tes, func(res interface{}) (int, error) {
 		if res == nil {
 			return 0, nil
 		}
