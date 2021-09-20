@@ -87,11 +87,37 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	return ws, nil
 }
 
+type field string
+
+const (
+	workspaceField   = field("workspace")
+	userIDField      = field("user id")
+	projectField     = field("project id")
+	timeEntryIDField = field("time entry id")
+)
+
+func required(action string, values map[field]string) error {
+	for f := range values {
+		if values[f] == "" {
+			return fmt.Errorf("%s is required to %s", f, action)
+		}
+	}
+
+	return nil
+}
+
 type GetWorkspace struct {
 	ID string
 }
 
 func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
+	err := required("get workspace", map[field]string{
+		workspaceField: p.ID,
+	})
+	if err != nil {
+		return dto.Workspace{}, err
+	}
+
 	ws, err := c.GetWorkspaces(GetWorkspaces{})
 	if err != nil {
 		return dto.Workspace{}, err
@@ -115,6 +141,13 @@ type WorkspaceUsersParam struct {
 // WorkspaceUsers all users in a Workspace
 func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) ([]dto.User, error) {
 	var users []dto.User
+
+	err := required("get workspace users", map[field]string{
+		workspaceField: p.Workspace,
+	})
+	if err != nil {
+		return users, err
+	}
 
 	r, err := c.NewRequest(
 		"GET",
@@ -229,7 +262,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	var timeEntries []dto.TimeEntry
 	var tes []dto.TimeEntry
 
-	err := c.getUserTimeEntries(p, false, &tes, func(res interface{}) (int, error) {
+	err := c.getUserTimeEntries(p, true, &tes, func(res interface{}) (int, error) {
 		if res == nil {
 			return 0, nil
 		}
@@ -261,6 +294,13 @@ func (c *Client) getUserTimeEntries(
 	tmpl interface{},
 	reducer func(interface{}) (int, error),
 ) error {
+	err := required("get time entries", map[field]string{
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	})
+	if err != nil {
+		return err
+	}
 	inProgressFilter := "nil"
 	if p.OnlyInProgress != nil {
 		if *p.OnlyInProgress {
@@ -288,7 +328,7 @@ func (c *Client) getUserTimeEntries(
 		r.End = &dto.DateTime{Time: *p.End}
 	}
 
-	err := c.paginate(
+	return c.paginate(
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/user/%s/time-entries",
@@ -301,8 +341,6 @@ func (c *Client) getUserTimeEntries(
 		reducer,
 		"GetUserTimeEntries",
 	)
-
-	return err
 }
 
 func (c *Client) paginate(method, uri string, p PaginationParam, request dto.PaginatedRequest, bodyTempl interface{}, reducer func(interface{}) (int, error), name string) error {
@@ -391,6 +429,15 @@ type GetTimeEntryParam struct {
 
 // GetTimeEntry will retrieve a Time Entry using its Workspace and ID
 func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl, err error) {
+	err = required("get time entry", map[field]string{
+		workspaceField:   p.Workspace,
+		timeEntryIDField: p.TimeEntryID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	r, err := c.NewRequest(
 		"GET",
 		fmt.Sprintf(
@@ -412,6 +459,15 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 }
 
 func (c *Client) GetHydratedTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
+	err = required("get time entry (hydrated)", map[field]string{
+		workspaceField:   p.Workspace,
+		timeEntryIDField: p.TimeEntryID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	b := true
 	r, err := c.NewRequest(
 		"GET",
@@ -468,6 +524,14 @@ type GetProjectParam struct {
 // GetProject get a single Project, if exists
 func (c *Client) GetProject(p GetProjectParam) (*dto.Project, error) {
 	var project *dto.Project
+	err := required("get project", map[field]string{
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return project, err
+	}
 
 	r, err := c.NewRequest(
 		"GET",
@@ -495,6 +559,15 @@ type GetUser struct {
 
 // GetUser filters the wanted user from the workspace users
 func (c *Client) GetUser(p GetUser) (dto.User, error) {
+	err := required("get user", map[field]string{
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	})
+
+	if err != nil {
+		return dto.User{}, err
+	}
+
 	us, err := c.WorkspaceUsers(WorkspaceUsersParam{
 		Workspace: p.Workspace,
 	})
@@ -538,15 +611,16 @@ type GetTasksParam struct {
 func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 	var ps, tmpl []dto.Task
 
-	if p.Workspace == "" {
-		return ps, errors.New("workspace needs to be informed to get tasks")
+	err := required("get tasks", map[field]string{
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return ps, err
 	}
 
-	if p.ProjectID == "" {
-		return ps, errors.New("project needs to be informed to get tasks")
-	}
-
-	err := c.paginate(
+	err = c.paginate(
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/projects/%s/tasks",
@@ -589,6 +663,14 @@ type CreateTimeEntryParam struct {
 // CreateTimeEntry create a new time entry
 func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (dto.TimeEntryImpl, error) {
 	var t dto.TimeEntryImpl
+
+	err := required("create time entry", map[field]string{
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return t, err
+	}
 
 	var end *dto.DateTime
 	if p.End != nil {
@@ -633,11 +715,15 @@ type GetTagsParam struct {
 func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 	var ps, tmpl []dto.Tag
 
-	if p.Workspace == "" {
-		return ps, errors.New("workspace needs to be informed to get tags")
+	err := required("get tags", map[field]string{
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return ps, err
 	}
 
-	err := c.paginate(
+	err = c.paginate(
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/tags",
@@ -677,7 +763,15 @@ type GetProjectsParam struct {
 func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 	var ps, tmpl []dto.Project
 
-	err := c.paginate(
+	err := required("get projects", map[field]string{
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return ps, err
+	}
+
+	err = c.paginate(
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/projects",
@@ -701,7 +795,6 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 		},
 		"GetProjects",
 	)
-
 	return ps, err
 }
 
@@ -714,6 +807,15 @@ type OutParam struct {
 
 // Out create a new time entry
 func (c *Client) Out(p OutParam) error {
+	err := required("end running time entry", map[field]string{
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	})
+
+	if err != nil {
+		return err
+	}
+
 	r, err := c.NewRequest(
 		"PATCH",
 		fmt.Sprintf(
@@ -750,6 +852,14 @@ type UpdateTimeEntryParam struct {
 // UpdateTimeEntry update a time entry
 func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (dto.TimeEntryImpl, error) {
 	var t dto.TimeEntryImpl
+	err := required("update time entry", map[field]string{
+		workspaceField:   p.Workspace,
+		timeEntryIDField: p.TimeEntryID,
+	})
+
+	if err != nil {
+		return t, err
+	}
 
 	var end *dto.DateTime
 	if p.End != nil {
@@ -790,6 +900,15 @@ type DeleteTimeEntryParam struct {
 
 // DeleteTimeEntry deletes a time entry
 func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) error {
+	err := required("delete time entry", map[field]string{
+		workspaceField:   p.Workspace,
+		timeEntryIDField: p.TimeEntryID,
+	})
+
+	if err != nil {
+		return err
+	}
+
 	r, err := c.NewRequest(
 		"DELETE",
 		fmt.Sprintf(

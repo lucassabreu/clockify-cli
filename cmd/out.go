@@ -51,6 +51,7 @@ var outCmd = &cobra.Command{
 
 		err = c.Out(api.OutParam{
 			Workspace: workspace,
+			UserID:    viper.GetString(USER_ID),
 			End:       whenDate,
 		})
 

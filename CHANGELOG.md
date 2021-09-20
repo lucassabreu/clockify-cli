@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `out` subcommand was not setting the user to look on ending the time entry.
+- listing subcommands didn't show "hydrated" information about time entries,
+  `GetUsersHydratedTimeEntries` was not telling the api to return hydrated data.
+
+### Added
+
+- all client method calls now validated for required fields, this makes easier to see bugs and
+  prevent errors to creping up into releases.
+
 ## [v0.24.0] - 2021-09-18
 
 ### Added
