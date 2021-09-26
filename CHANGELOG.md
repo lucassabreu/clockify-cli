@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- project color is used to "render" project name on the terminal, if the output is being piped or
+  redirected then colors will be ignored to prevent problems and miss-interpretation of the output.
+
 ## [v0.24.1] - 2021-09-20
 
 ### Fixed

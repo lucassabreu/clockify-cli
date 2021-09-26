@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/ui"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 )
@@ -34,12 +35,34 @@ const (
 	TIME_FORMAT_SIMPLE = "15:04:05"
 )
 
-// TimeEntriesPrintWithTimeFormat will print more details
-func TimeEntriesPrintWithTimeFormat(format string, showTasks bool) func([]dto.TimeEntry, io.Writer) error {
+func colorToTermColor(hex string) []int {
+	if len(hex) == 0 {
+		return []int{}
+	}
 
+	fi, _ := os.Stdout.Stat()
+	if fi.Mode()&os.ModeCharDevice == 0 {
+		return []int{}
+	}
+
+	if c, err := ui.HEX(hex[1:]); err == nil {
+		return append(
+			[]int{38, 2},
+			c.Values()...,
+		)
+	}
+
+	return []int{}
+}
+
+// TimeEntriesPrintWithTimeFormat will print more details
+func TimeEntriesPrintWithTimeFormat(
+	format string, showTasks bool,
+) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
-		header := []string{"ID", "Start", "End", "Dur", "Project", "Description", "Tags"}
+		header := []string{"ID", "Start", "End", "Dur",
+			"Project", "Description", "Tags"}
 		if showTasks {
 			header = append(
 				header[:5],
@@ -49,17 +72,22 @@ func TimeEntriesPrintWithTimeFormat(format string, showTasks bool) func([]dto.Ti
 		}
 
 		tw.SetHeader(header)
+		tw.SetRowLine(true)
+		if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
+			tw.SetColWidth(width / 3)
+		}
 
-		lines := make([][]string, len(timeEntries))
-
-		for i, t := range timeEntries {
+		colors := make([]tablewriter.Colors, len(header))
+		for _, t := range timeEntries {
 			end := time.Now()
 			if t.TimeInterval.End != nil {
 				end = *t.TimeInterval.End
 			}
 
 			projectName := ""
+			colors[4] = []int{}
 			if t.Project != nil {
+				colors[4] = colorToTermColor(t.Project.Color)
 				projectName = t.Project.Name
 			}
 
@@ -81,15 +109,9 @@ func TimeEntriesPrintWithTimeFormat(format string, showTasks bool) func([]dto.Ti
 				}
 			}
 
-			lines[i] = line
+			tw.Rich(line, colors)
 		}
 
-		if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
-			tw.SetColWidth(width / 3)
-		}
-
-		tw.SetRowLine(true)
-		tw.AppendBulk(lines)
 		tw.Render()
 
 		return nil
@@ -189,8 +211,11 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 	return w.Error()
 }
 
-// TimeEntriesPrintWithTemplate will print each time entry using the format string
-func TimeEntriesPrintWithTemplate(format string) func([]dto.TimeEntry, io.Writer) error {
+// TimeEntriesPrintWithTemplate will print each time entry using the format
+// string
+func TimeEntriesPrintWithTemplate(
+	format string,
+) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		t, err := template.New("tmpl").Parse(format)
 		if err != nil {
@@ -243,7 +268,9 @@ func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
 }
 
 // TimeEntryPrintWithTemplate will print each time entry using the format string
-func TimeEntryPrintWithTemplate(format string) func(*dto.TimeEntry, io.Writer) error {
+func TimeEntryPrintWithTemplate(
+	format string,
+) func(*dto.TimeEntry, io.Writer) error {
 	fn := TimeEntriesPrintWithTemplate(format)
 	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
 		entries := []dto.TimeEntry{}
@@ -257,5 +284,6 @@ func TimeEntryPrintWithTemplate(format string) func(*dto.TimeEntry, io.Writer) e
 }
 
 func durationToString(d time.Duration) string {
-	return fmt.Sprintf("%d:%02d:%02d", int64(d.Hours()), int64(d.Minutes())%60, int64(d.Seconds())%60)
+	return fmt.Sprintf("%d:%02d:%02d",
+		int64(d.Hours()), int64(d.Minutes())%60, int64(d.Seconds())%60)
 }
