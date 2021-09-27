@@ -1,6 +1,7 @@
 package output
 
 import (
+	"embed"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -53,6 +54,28 @@ func colorToTermColor(hex string) []int {
 	}
 
 	return []int{}
+}
+
+//go:embed resources
+var res embed.FS
+
+// TimeEntriesMarkdownPrint will print time entries in "markdown blocks"
+func TimeEntriesMarkdownPrint(tes []dto.TimeEntry, w io.Writer) error {
+	b, err := res.ReadFile("resources/timeEntry.gotmpl.md")
+	if err != nil {
+		return err
+	}
+
+	return TimeEntriesPrintWithTemplate(string(b))(tes, w)
+}
+
+// TimeEntryMarkdownPrint will print time entries in "markdown blocks"
+func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
+	if te == nil {
+		return nil
+	}
+
+	return TimeEntriesMarkdownPrint([]dto.TimeEntry{*te}, w)
 }
 
 // TimeEntriesPrint will print more details
@@ -209,19 +232,33 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 	return w.Error()
 }
 
+var funcMap = template.FuncMap{
+	"formatDateTime": func(t time.Time) string {
+		return t.Format(TIME_FORMAT_FULL)
+	},
+}
+
 // TimeEntriesPrintWithTemplate will print each time entry using the format
 // string
 func TimeEntriesPrintWithTemplate(
 	format string,
 ) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
-		t, err := template.New("tmpl").Parse(format)
+		t, err := template.New("tmpl").Funcs(funcMap).Parse(format)
 		if err != nil {
 			return err
 		}
 
-		for _, i := range timeEntries {
-			if err := t.Execute(w, i); err != nil {
+		for i, te := range timeEntries {
+			if err := t.Execute(w, struct {
+				dto.TimeEntry
+				First bool
+				Last  bool
+			}{
+				TimeEntry: te,
+				First:     i == 0,
+				Last:      i == (len(timeEntries) - 1),
+			}); err != nil {
 				return err
 			}
 			fmt.Fprintln(w)

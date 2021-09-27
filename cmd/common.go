@@ -717,6 +717,7 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
+	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
 }
 
 func printTimeEntries(
@@ -726,6 +727,10 @@ func printTimeEntries(
 		viper.GetBool(SHOW_TASKS),
 		timeFormat...,
 	)
+
+	if b, _ := cmd.Flags().GetBool("md"); b {
+		reportFn = output.TimeEntriesMarkdownPrint
+	}
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntriesJSONPrint
@@ -748,6 +753,10 @@ func printTimeEntries(
 
 func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string) error {
 	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS), timeFormat...)
+
+	if b, _ := cmd.Flags().GetBool("md"); b {
+		reportFn = output.TimeEntryMarkdownPrint
+	}
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntryJSONPrint
