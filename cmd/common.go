@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -541,7 +542,7 @@ func getUserId(c *api.Client) (string, error) {
 	return u.ID, nil
 }
 
-var noTimeEntryErr = errors.New("there is no previous time entry")
+var noTimeEntryErr = errors.New("time entry was not found")
 
 func getTimeEntry(
 	id,
@@ -564,7 +565,14 @@ func getTimeEntry(
 		return *tei, nil
 	}
 
-	if id != "last" && id != "current" {
+	switch strings.ToLower(id) {
+	case "^0", "current":
+		id = "current"
+	case "^1", "last":
+		id = "last"
+	}
+
+	if id != "last" && id != "current" && !strings.HasPrefix(id, "^") {
 		return mayNotFound(c.GetTimeEntry(api.GetTimeEntryParam{
 			Workspace:   workspace,
 			TimeEntryID: id,
@@ -584,12 +592,24 @@ func getTimeEntry(
 		b = nil
 	}
 
+	page := 1
+	if strings.HasPrefix(id, "^") {
+		var err error
+		if page, err = strconv.Atoi(id[1:]); err != nil {
+			return dto.TimeEntryImpl{}, fmt.Errorf(
+				`n on "^n" must be a unsigned integer, you sent: %s`,
+				id[1:],
+			)
+		}
+	}
+
 	list, err := c.GetUserTimeEntries(api.GetUserTimeEntriesParam{
 		Workspace:      workspace,
 		UserID:         userID,
 		OnlyInProgress: b,
 		PaginationParam: api.PaginationParam{
 			PageSize: 1,
+			Page:     page,
 		},
 	})
 

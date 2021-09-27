@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - project color is used to "render" project name on the terminal, if the output is being piped or
   redirected then colors will be ignored to prevent problems and miss-interpretation of the output.
+- `show` subcommand prints details about time entries without having to list of the time entries of
+  a given date.
+- `edit`, `edit-multiple`, `show`, `clone` support "^n" expression to select a time entry to act
+  on, "^0" is the same as "current", "^1" is the same as "last", "^2" chooses the time entry before
+  the last one, etc.
 
 ## [v0.24.1] - 2021-09-20
 
