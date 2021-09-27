@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `report` subcommands were showing only the time not the date when the time entry was created.
+
 ### Added
 
 - project color is used to "render" project name on the terminal, if the output is being piped or

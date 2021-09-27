@@ -252,7 +252,9 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 	return nil
 }
 
-func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImpl) error {
+func printTimeEntryImpl(
+	c *api.Client, cmd *cobra.Command, timeFormat ...string,
+) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
 		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
 			Workspace:   tei.WorkspaceID,
@@ -262,7 +264,7 @@ func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImp
 			return err
 		}
 
-		return formatTimeEntry(fte, cmd)
+		return formatTimeEntry(fte, cmd, timeFormat...)
 	}
 }
 
@@ -697,8 +699,13 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("quiet", "q", false, "print as json")
 }
 
-func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntriesPrint(viper.GetBool(SHOW_TASKS))
+func printTimeEntries(
+	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat ...string,
+) error {
+	reportFn := output.TimeEntriesPrint(
+		viper.GetBool(SHOW_TASKS),
+		timeFormat...,
+	)
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntriesJSONPrint
@@ -719,8 +726,8 @@ func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
 	return reportFn(tes, cmd.OutOrStdout())
 }
 
-func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS))
+func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string) error {
+	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS), timeFormat...)
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntryJSONPrint

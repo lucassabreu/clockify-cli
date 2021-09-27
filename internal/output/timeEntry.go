@@ -55,10 +55,13 @@ func colorToTermColor(hex string) []int {
 	return []int{}
 }
 
-// TimeEntriesPrintWithTimeFormat will print more details
-func TimeEntriesPrintWithTimeFormat(
-	format string, showTasks bool,
-) func([]dto.TimeEntry, io.Writer) error {
+// TimeEntriesPrint will print more details
+func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry, io.Writer) error {
+	format := TIME_FORMAT_SIMPLE
+	if len(timeFormat) > 0 {
+		format = timeFormat[0]
+	}
+
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
 		header := []string{"ID", "Start", "End", "Dur",
@@ -116,11 +119,6 @@ func TimeEntriesPrintWithTimeFormat(
 
 		return nil
 	}
-}
-
-// TimeEntriesPrint will print more details
-func TimeEntriesPrint(showTasks bool) func([]dto.TimeEntry, io.Writer) error {
-	return TimeEntriesPrintWithTimeFormat(TIME_FORMAT_SIMPLE, showTasks)
 }
 
 func tagsToStringSlice(tags []dto.Tag) []string {
@@ -255,7 +253,9 @@ func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
 }
 
 // TimeEntryPrint will print more details
-func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
+func TimeEntryPrint(
+	showTasks bool, timeFormat ...string,
+) func(*dto.TimeEntry, io.Writer) error {
 	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
 		entries := []dto.TimeEntry{}
 
@@ -263,7 +263,7 @@ func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
 			entries = append(entries, *timeEntry)
 		}
 
-		return TimeEntriesPrint(showTasks)(entries, w)
+		return TimeEntriesPrint(showTasks, timeFormat...)(entries, w)
 	}
 }
 

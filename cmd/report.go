@@ -238,7 +238,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 		log = append(newLog, fillMissing(log[0].User, nextDay, end)...)
 	}
 
-	return printTimeEntries(log, cmd)
+	return printTimeEntries(log, cmd, fullTimeFormat)
 }
 
 func truncateDate(t time.Time) time.Time {
