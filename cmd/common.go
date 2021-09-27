@@ -716,7 +716,7 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "print as json")
+	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
 }
 
 func printTimeEntries(

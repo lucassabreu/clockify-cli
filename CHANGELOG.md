@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `report` subcommands were showing only the time not the date when the time entry was created.
+- `--quiet` help was wrong, it said "print as json", but it prints only the id.
 
 ### Added
 
