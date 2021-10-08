@@ -158,6 +158,7 @@ Available Commands:
   out               Stops the last time entry
   project           List projects from a workspace
   report            List all time entries in the date ranges and with more data (format date as 2016-01-02)
+  show              Show detailed information about one time entry
   tags              List tags of workspace
   version           Version of the command
   workspace         List user's workspaces

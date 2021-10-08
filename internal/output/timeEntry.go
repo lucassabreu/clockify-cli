@@ -1,6 +1,7 @@
 package output
 
 import (
+	"embed"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -55,10 +56,35 @@ func colorToTermColor(hex string) []int {
 	return []int{}
 }
 
-// TimeEntriesPrintWithTimeFormat will print more details
-func TimeEntriesPrintWithTimeFormat(
-	format string, showTasks bool,
-) func([]dto.TimeEntry, io.Writer) error {
+//go:embed resources
+var res embed.FS
+
+// TimeEntriesMarkdownPrint will print time entries in "markdown blocks"
+func TimeEntriesMarkdownPrint(tes []dto.TimeEntry, w io.Writer) error {
+	b, err := res.ReadFile("resources/timeEntry.gotmpl.md")
+	if err != nil {
+		return err
+	}
+
+	return TimeEntriesPrintWithTemplate(string(b))(tes, w)
+}
+
+// TimeEntryMarkdownPrint will print time entries in "markdown blocks"
+func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
+	if te == nil {
+		return nil
+	}
+
+	return TimeEntriesMarkdownPrint([]dto.TimeEntry{*te}, w)
+}
+
+// TimeEntriesPrint will print more details
+func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry, io.Writer) error {
+	format := TIME_FORMAT_SIMPLE
+	if len(timeFormat) > 0 {
+		format = timeFormat[0]
+	}
+
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
 		header := []string{"ID", "Start", "End", "Dur",
@@ -116,11 +142,6 @@ func TimeEntriesPrintWithTimeFormat(
 
 		return nil
 	}
-}
-
-// TimeEntriesPrint will print more details
-func TimeEntriesPrint(showTasks bool) func([]dto.TimeEntry, io.Writer) error {
-	return TimeEntriesPrintWithTimeFormat(TIME_FORMAT_SIMPLE, showTasks)
 }
 
 func tagsToStringSlice(tags []dto.Tag) []string {
@@ -211,19 +232,33 @@ func TimeEntriesCSVPrint(timeEntries []dto.TimeEntry, out io.Writer) error {
 	return w.Error()
 }
 
+var funcMap = template.FuncMap{
+	"formatDateTime": func(t time.Time) string {
+		return t.Format(TIME_FORMAT_FULL)
+	},
+}
+
 // TimeEntriesPrintWithTemplate will print each time entry using the format
 // string
 func TimeEntriesPrintWithTemplate(
 	format string,
 ) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
-		t, err := template.New("tmpl").Parse(format)
+		t, err := template.New("tmpl").Funcs(funcMap).Parse(format)
 		if err != nil {
 			return err
 		}
 
-		for _, i := range timeEntries {
-			if err := t.Execute(w, i); err != nil {
+		for i, te := range timeEntries {
+			if err := t.Execute(w, struct {
+				dto.TimeEntry
+				First bool
+				Last  bool
+			}{
+				TimeEntry: te,
+				First:     i == 0,
+				Last:      i == (len(timeEntries) - 1),
+			}); err != nil {
 				return err
 			}
 			fmt.Fprintln(w)
@@ -255,7 +290,9 @@ func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
 }
 
 // TimeEntryPrint will print more details
-func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
+func TimeEntryPrint(
+	showTasks bool, timeFormat ...string,
+) func(*dto.TimeEntry, io.Writer) error {
 	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
 		entries := []dto.TimeEntry{}
 
@@ -263,7 +300,7 @@ func TimeEntryPrint(showTasks bool) func(*dto.TimeEntry, io.Writer) error {
 			entries = append(entries, *timeEntry)
 		}
 
-		return TimeEntriesPrint(showTasks)(entries, w)
+		return TimeEntriesPrint(showTasks, timeFormat...)(entries, w)
 	}
 }
 

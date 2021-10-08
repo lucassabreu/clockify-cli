@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -252,7 +253,9 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 	return nil
 }
 
-func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImpl) error {
+func printTimeEntryImpl(
+	c *api.Client, cmd *cobra.Command, timeFormat ...string,
+) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
 		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
 			Workspace:   tei.WorkspaceID,
@@ -262,7 +265,7 @@ func printTimeEntryImpl(c *api.Client, cmd *cobra.Command) func(dto.TimeEntryImp
 			return err
 		}
 
-		return formatTimeEntry(fte, cmd)
+		return formatTimeEntry(fte, cmd, timeFormat...)
 	}
 }
 
@@ -539,7 +542,7 @@ func getUserId(c *api.Client) (string, error) {
 	return u.ID, nil
 }
 
-var noTimeEntryErr = errors.New("there is no previous time entry")
+var noTimeEntryErr = errors.New("time entry was not found")
 
 func getTimeEntry(
 	id,
@@ -562,7 +565,14 @@ func getTimeEntry(
 		return *tei, nil
 	}
 
-	if id != "last" && id != "current" {
+	switch strings.ToLower(id) {
+	case "^0", "current":
+		id = "current"
+	case "^1", "last":
+		id = "last"
+	}
+
+	if id != "last" && id != "current" && !strings.HasPrefix(id, "^") {
 		return mayNotFound(c.GetTimeEntry(api.GetTimeEntryParam{
 			Workspace:   workspace,
 			TimeEntryID: id,
@@ -582,12 +592,24 @@ func getTimeEntry(
 		b = nil
 	}
 
+	page := 1
+	if strings.HasPrefix(id, "^") {
+		var err error
+		if page, err = strconv.Atoi(id[1:]); err != nil {
+			return dto.TimeEntryImpl{}, fmt.Errorf(
+				`n on "^n" must be a unsigned integer, you sent: %s`,
+				id[1:],
+			)
+		}
+	}
+
 	list, err := c.GetUserTimeEntries(api.GetUserTimeEntriesParam{
 		Workspace:      workspace,
 		UserID:         userID,
 		OnlyInProgress: b,
 		PaginationParam: api.PaginationParam{
 			PageSize: 1,
+			Page:     page,
 		},
 	})
 
@@ -694,11 +716,21 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "print as json")
+	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
+	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
 }
 
-func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntriesPrint(viper.GetBool(SHOW_TASKS))
+func printTimeEntries(
+	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat ...string,
+) error {
+	reportFn := output.TimeEntriesPrint(
+		viper.GetBool(SHOW_TASKS),
+		timeFormat...,
+	)
+
+	if b, _ := cmd.Flags().GetBool("md"); b {
+		reportFn = output.TimeEntriesMarkdownPrint
+	}
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntriesJSONPrint
@@ -719,8 +751,12 @@ func printTimeEntries(tes []dto.TimeEntry, cmd *cobra.Command) error {
 	return reportFn(tes, cmd.OutOrStdout())
 }
 
-func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command) error {
-	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS))
+func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string) error {
+	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS), timeFormat...)
+
+	if b, _ := cmd.Flags().GetBool("md"); b {
+		reportFn = output.TimeEntryMarkdownPrint
+	}
 
 	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
 		reportFn = output.TimeEntryJSONPrint
