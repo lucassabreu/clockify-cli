@@ -8,7 +8,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/strhlp"
 )
 
-func selectFilter(filter string, value string, index int) bool {
+func selectFilter(filter string, value string, _ int) bool {
 	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
 	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(strhlp.Normalize(filter), "")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
