@@ -37,7 +37,7 @@ func AddSuggestionsToFlag(cmd *cobra.Command, flagName string, suggestFn suggest
 	)
 }
 
-func EmptySuggestionFuncion(cmd *cobra.Command, args []string, toComplete string) (ValidArgs, error) {
+func EmptySuggestionFuncion(_ *cobra.Command, _ []string, _ string) (ValidArgs, error) {
 	return EmptyValidArgs(), nil
 }
 

@@ -23,7 +23,7 @@ func suggestWithClientAPI(
 	}
 }
 
-func suggestTags(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+func suggestTags(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
 	tags, err := getTags(c, "", false)
 	if err != nil {
 		return completion.EmptyValidArgs(), err
@@ -41,7 +41,7 @@ func suggestTags(cmd *cobra.Command, args []string, toComplete string, c *api.Cl
 	return va, nil
 }
 
-func suggestTasks(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+func suggestTasks(cmd *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
 	project, err := cmd.Flags().GetString("project")
 	if err != nil {
 		return completion.EmptyValidArgs(), err
@@ -76,7 +76,7 @@ func suggestTasks(cmd *cobra.Command, args []string, toComplete string, c *api.C
 	return va, nil
 }
 
-func suggestProjects(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+func suggestProjects(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
 	projects, err := getProjects(c, "", false)
 	if err != nil {
 		return completion.EmptyValidArgs(), err
@@ -94,7 +94,7 @@ func suggestProjects(cmd *cobra.Command, args []string, toComplete string, c *ap
 	return va, nil
 }
 
-func suggestWorkspaces(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+func suggestWorkspaces(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
 	workspaces, err := getWorkspaces(c, "")
 
 	if err != nil {
@@ -113,7 +113,7 @@ func suggestWorkspaces(cmd *cobra.Command, args []string, toComplete string, c *
 	return va, nil
 }
 
-func suggestUsers(cmd *cobra.Command, args []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+func suggestUsers(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
 	users, err := getUsers(c, "")
 
 	if err != nil {

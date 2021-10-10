@@ -139,7 +139,7 @@ func configSaveFile() error {
 	return viper.WriteConfigAs(filename)
 }
 
-func configInit(cmd *cobra.Command, args []string) error {
+func configInit(_ *cobra.Command, _ []string) error {
 	var err error
 	token := ""
 	if token, err = ui.AskForText("User Generated Token:", viper.GetString(TOKEN)); err != nil {
@@ -246,7 +246,7 @@ func configInit(cmd *cobra.Command, args []string) error {
 	return configSaveFile()
 }
 
-func configSet(cmd *cobra.Command, args []string) error {
+func configSet(_ *cobra.Command, args []string) error {
 	switch args[0] {
 	case WORKWEEK_DAYS:
 		ws := strings.Split(strings.ToLower(args[1]), ",")
