@@ -6,12 +6,12 @@ import (
 )
 
 // Error api errors
-type Error struct {
+type error struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
 }
 
-func (e Error) Error() string {
+func (e error) error() string {
 	return fmt.Sprintf("%s (code: %d)", e.Message, e.Code)
 }
 

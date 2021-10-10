@@ -47,7 +47,7 @@ var manualCmd = &cobra.Command{
 		if len(args) > 1 {
 			tei.TimeInterval.Start, err = convertToTime(args[1])
 			if err != nil {
-				return fmt.Errorf("Fail to convert when to start: %s", err.Error())
+				return fmt.Errorf("Fail to convert when to start: %s", err.error())
 
 			}
 		}
@@ -55,7 +55,7 @@ var manualCmd = &cobra.Command{
 		if len(args) > 2 {
 			whenToCloseDate, err = convertToTime(args[2])
 			if err != nil {
-				return fmt.Errorf("Fail to convert when to end: %s", err.Error())
+				return fmt.Errorf("Fail to convert when to end: %s", err.error())
 			}
 			tei.TimeInterval.End = &whenToCloseDate
 		}
