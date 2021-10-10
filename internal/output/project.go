@@ -31,7 +31,7 @@ func ProjectPrint(ws []dto.Project, w io.Writer) error {
 	for i, w := range ws {
 
 		client := ""
-		if len(w.ClientID) != 0 {
+		if w.ClientID != "" {
 			client = fmt.Sprintf("%s (%s)", w.ClientName, w.ClientID)
 		}
 
