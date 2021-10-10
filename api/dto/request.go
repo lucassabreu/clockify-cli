@@ -25,7 +25,7 @@ type pagination struct {
 	pageSize int
 }
 
-func NewPagination(page, size int) pagination {
+func newPagination(page, size int) pagination {
 	return pagination{
 		page:     page,
 		pageSize: size,
@@ -88,18 +88,18 @@ type UserTimeEntriesRequest struct {
 	Hydrated               *bool
 	OnlyInProgress         *bool
 
-	Pagination pagination
+	pagination
 }
 
 // WithPagination add pagination to the UserTimeEntriesRequest
 func (r UserTimeEntriesRequest) WithPagination(page, size int) PaginatedRequest {
-	r.Pagination = NewPagination(page, size)
+	r.pagination = newPagination(page, size)
 	return r
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
 func (r UserTimeEntriesRequest) AppendToQuery(u url.URL) url.URL {
-	u = r.Pagination.AppendToQuery(u)
+	u = r.pagination.AppendToQuery(u)
 	v := u.Query()
 
 	if r.Start != nil {
@@ -189,18 +189,18 @@ type GetProjectRequest struct {
 	Name     string
 	Archived bool
 
-	Pagination pagination
+	pagination
 }
 
 // WithPagination add pagination to the GetProjectRequest
 func (r GetProjectRequest) WithPagination(page, size int) PaginatedRequest {
-	r.Pagination = NewPagination(page, size)
+	r.pagination = newPagination(page, size)
 	return r
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
 func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
-	u = r.Pagination.AppendToQuery(u)
+	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
 	v.Add("name", r.Name)
@@ -217,18 +217,18 @@ type GetTagsRequest struct {
 	Name     string
 	Archived bool
 
-	Pagination pagination
+	pagination
 }
 
 // WithPagination add pagination to the GetTagsRequest
 func (r GetTagsRequest) WithPagination(page, size int) PaginatedRequest {
-	r.Pagination = NewPagination(page, size)
+	r.pagination = newPagination(page, size)
 	return r
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
 func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
-	u = r.Pagination.AppendToQuery(u)
+	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
 	v.Add("name", r.Name)
@@ -245,18 +245,18 @@ type GetTasksRequest struct {
 	Name   string
 	Active bool
 
-	Pagination pagination
+	pagination
 }
 
 // WithPagination add pagination to the GetTasksRequest
 func (r GetTasksRequest) WithPagination(page, size int) PaginatedRequest {
-	r.Pagination = NewPagination(page, size)
+	r.pagination = newPagination(page, size)
 	return r
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
 func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
-	u = r.Pagination.AppendToQuery(u)
+	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
 	v.Add("name", r.Name)

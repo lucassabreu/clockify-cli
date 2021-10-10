@@ -629,9 +629,8 @@ func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 		),
 		p.PaginationParam,
 		dto.GetTasksRequest{
-			Name:       p.Name,
-			Active:     p.Active,
-			Pagination: dto.NewPagination(p.Page, p.PageSize),
+			Name:   p.Name,
+			Active: p.Active,
 		},
 		&tmpl,
 		func(res interface{}) (int, error) {
@@ -731,9 +730,8 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 		),
 		p.PaginationParam,
 		dto.GetTagsRequest{
-			Name:       p.Name,
-			Archived:   p.Archived,
-			Pagination: dto.NewPagination(p.Page, p.PageSize),
+			Name:     p.Name,
+			Archived: p.Archived,
 		},
 		&tmpl,
 		func(res interface{}) (int, error) {
@@ -779,9 +777,8 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 		),
 		p.PaginationParam,
 		dto.GetProjectRequest{
-			Name:       p.Name,
-			Archived:   p.Archived,
-			Pagination: dto.NewPagination(p.Page, p.PageSize),
+			Name:     p.Name,
+			Archived: p.Archived,
 		},
 		&tmpl,
 		func(res interface{}) (int, error) {
