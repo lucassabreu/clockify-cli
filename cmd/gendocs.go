@@ -62,7 +62,7 @@ for rendering in Hugo.`,
 			name := filepath.Base(filename)
 			base := strings.TrimSuffix(name, path.Ext(name))
 			url := "/en/commands/" + strings.ToLower(base) + "/"
-			return fmt.Sprintf(gendocFrontmatterTemplate, now, strings.Replace(base, "_", " ", -1), base, url)
+			return fmt.Sprintf(gendocFrontmatterTemplate, now, strings.ReplaceAll(base, "_", " "), base, url)
 		}
 
 		linkHandler := func(name string) string {
