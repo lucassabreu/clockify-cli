@@ -29,7 +29,7 @@ var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
-	if len(apiKey) == 0 {
+	if apiKey == "" {
 		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
 	}
 
