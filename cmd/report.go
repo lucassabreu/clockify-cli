@@ -165,14 +165,14 @@ func reportFlags(cmd *cobra.Command) *cobra.Command {
 	return cmd
 }
 
-func getMonthRange(ref time.Time) (first time.Time, last time.Time) {
+func getMonthRange(ref time.Time) (first, last time.Time) {
 	first = ref.AddDate(0, 0, ref.Day()*-1+1)
 	last = first.AddDate(0, 1, -1)
 
 	return
 }
 
-func getWeekRange(ref time.Time) (first time.Time, last time.Time) {
+func getWeekRange(ref time.Time) (first, last time.Time) {
 	first = ref.AddDate(0, 0, int(ref.Weekday())*-1)
 	last = first.AddDate(0, 0, 7)
 
