@@ -34,25 +34,29 @@ import (
 )
 
 const (
-	WORKWEEK_DAYS     = "workweek-days"
-	INTERACTIVE       = "interactive"
-	ALLOW_NAME_FOR_ID = "allow-name-for-id"
-	USER_ID           = "user.id"
-	WORKSPACE         = "workspace"
-	TOKEN             = "token"
-	ALLOW_INCOMPLETE  = "allow-incomplete"
-	SHOW_TASKS        = "show-task"
+	WORKWEEK_DAYS       = "workweek-days"
+	INTERACTIVE         = "interactive"
+	ALLOW_NAME_FOR_ID   = "allow-name-for-id"
+	USER_ID             = "user.id"
+	WORKSPACE           = "workspace"
+	TOKEN               = "token"
+	ALLOW_INCOMPLETE    = "allow-incomplete"
+	SHOW_TASKS          = "show-task"
+	DESCR_AUTOCOMP      = "description-autocomplete"
+	DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
-	TOKEN:             `clockify's token`,
-	WORKSPACE:         "workspace to be used",
-	USER_ID:           "user id from the token",
-	ALLOW_NAME_FOR_ID: "allow to input the name of the entity instead of its ID (projects and tags)",
-	INTERACTIVE:       "show interactive mode",
-	WORKWEEK_DAYS:     "days of the week were your expected to work (use comma to set multiple)",
-	ALLOW_INCOMPLETE:  "should allow starting time entries with missing required values",
-	SHOW_TASKS:        "should show an extra column with the task description",
+	TOKEN:               `clockify's token`,
+	WORKSPACE:           "workspace to be used",
+	USER_ID:             "user id from the token",
+	ALLOW_NAME_FOR_ID:   "allow to input the name of the entity instead of its ID (projects and tags)",
+	INTERACTIVE:         "show interactive mode",
+	WORKWEEK_DAYS:       "days of the week were your expected to work (use comma to set multiple)",
+	ALLOW_INCOMPLETE:    "should allow starting time entries with missing required values",
+	SHOW_TASKS:          "should show an extra column with the task description",
+	DESCR_AUTOCOMP:      "autocomplete description looking at recent time entries",
+	DESCR_AUTOCOMP_DAYS: "how many days should be considered for the description autocomplete",
 }
 
 var weekdays []string
@@ -198,23 +202,19 @@ func configInit(_ *cobra.Command, _ []string) error {
 	}
 	viper.Set(USER_ID, strings.TrimSpace(userID[0:strings.Index(userID, " - ")]))
 
-	allowNameForID := viper.GetBool(ALLOW_NAME_FOR_ID)
-	if allowNameForID, err = ui.Confirm(
+	if err := updateFlag(
+		ALLOW_NAME_FOR_ID,
 		"Should try to find projects/tasks/tags by their names?",
-		allowNameForID,
 	); err != nil {
 		return err
 	}
-	viper.Set(ALLOW_NAME_FOR_ID, allowNameForID)
 
-	interactive := viper.GetBool(INTERACTIVE)
-	if interactive, err = ui.Confirm(
+	if err := updateFlag(
+		INTERACTIVE,
 		`Should use "Interactive Mode" by default?`,
-		interactive,
 	); err != nil {
 		return err
 	}
-	viper.Set(INTERACTIVE, interactive)
 
 	workweekDays := viper.GetStringSlice(WORKWEEK_DAYS)
 	if workweekDays, err = ui.AskManyFromOptions(
@@ -226,24 +226,52 @@ func configInit(_ *cobra.Command, _ []string) error {
 	}
 	viper.Set(WORKWEEK_DAYS, workweekDays)
 
-	allowIncomplete := viper.GetBool(ALLOW_INCOMPLETE)
-	if allowIncomplete, err = ui.Confirm(
+	if err := updateFlag(
+		ALLOW_INCOMPLETE,
 		`Should allow starting time entries with incomplete data?`,
-		allowIncomplete,
 	); err != nil {
 		return err
 	}
-	viper.Set(ALLOW_INCOMPLETE, allowIncomplete)
 
-	showTasks := viper.GetBool(SHOW_TASKS)
-	if showTasks, err = ui.Confirm(
+	if err := updateFlag(
+		SHOW_TASKS,
 		`Should show task on time entries as a separated column?`,
-		showTasks,
 	); err != nil {
 		return err
 	}
-	viper.Set(SHOW_TASKS, showTasks)
+
+	if err := updateFlag(
+		DESCR_AUTOCOMP,
+		`Allow description suggestions using recent time entries' descriptions?`,
+	); err != nil {
+		return err
+	}
+
+	daysToConsider := viper.GetInt(DESCR_AUTOCOMP_DAYS)
+	if viper.GetBool(DESCR_AUTOCOMP) {
+		daysToConsider, err = ui.AskForInt(
+			`How many days should be used for a time entry to be "recent"?`,
+			daysToConsider,
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		daysToConsider = 0
+	}
+
+	viper.Set(DESCR_AUTOCOMP_DAYS, daysToConsider)
+
 	return configSaveFile()
+}
+
+func updateFlag(config string, description string) (err error) {
+	b := viper.GetBool(config)
+	if b, err = ui.Confirm(description, b); err != nil {
+		return
+	}
+	viper.Set(config, b)
+	return
 }
 
 func configSet(_ *cobra.Command, args []string) error {

@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -23,12 +25,47 @@ func askString(p survey.Prompt) (string, error) {
 	return answer, survey.AskOne(p, &answer, nil)
 }
 
+// WithSuggestion applies the suggestion function to the input question
+func WithSuggestion(fn func(toComplete string) []string) func(*survey.Input) {
+	return func(i *survey.Input) {
+		i.Suggest = fn
+	}
+}
+
+// InputOption represets a funcion the customizes a survey.Input object
+type InputOption func(*survey.Input)
+
 // AskForText interactively ask for one string from the user
-func AskForText(message, d string) (string, error) {
-	return askString(&survey.Input{
+func AskForText(message, d string, opts ...InputOption) (string, error) {
+	i := &survey.Input{
 		Message: message,
 		Default: d,
-	})
+	}
+
+	for _, o := range opts {
+		o(i)
+	}
+
+	return askString(i)
+}
+
+// AskForInt interactively ask for one int from the user
+func AskForInt(message string, d int) (int, error) {
+	return d, survey.AskOne(
+		&survey.Input{
+			Message: message,
+			Default: strconv.Itoa(d),
+		}, &d,
+		survey.WithValidator(func(ans interface{}) error {
+			v, ok := ans.(string)
+			if !ok {
+				return fmt.Errorf("needs to be a string")
+			}
+
+			_, err := strconv.Atoi(v)
+			return err
+		}),
+	)
 }
 
 // AskFromOptions interactively ask the user to choose one option or none

@@ -36,6 +36,7 @@ var inCmd = &cobra.Command{
 
 		tei := dto.TimeEntryImpl{
 			WorkspaceID:  viper.GetString(WORKSPACE),
+			UserID:       viper.GetString(USER_ID),
 			TimeInterval: dto.TimeInterval{},
 		}
 
@@ -51,6 +52,16 @@ var inCmd = &cobra.Command{
 			return err
 		}
 
+		var dc *descriptionCompleter
+		if viper.GetBool(DESCR_AUTOCOMP) {
+			dc = newDescriptionCompleter(
+				c,
+				tei.WorkspaceID,
+				tei.UserID,
+				viper.GetInt(DESCR_AUTOCOMP_DAYS),
+			)
+		}
+
 		return manageEntry(
 			c,
 			tei,
@@ -60,6 +71,7 @@ var inCmd = &cobra.Command{
 			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
+			dc,
 		)
 	}),
 }

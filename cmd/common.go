@@ -190,7 +190,13 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 	return "", stackedErrors.Errorf("No task with id or name containing: %s", task)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace, askDates bool) (dto.TimeEntryImpl, error) {
+func confirmEntryInteractively(
+	c *api.Client,
+	te dto.TimeEntryImpl,
+	w dto.Workspace,
+	dc *descriptionCompleter,
+	askDates bool,
+) (dto.TimeEntryImpl, error) {
 	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
@@ -204,7 +210,7 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Worksp
 		}
 	}
 
-	te.Description = getDescription(te.Description)
+	te.Description = getDescription(te.Description, dc)
 
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 	if err != nil {
@@ -280,6 +286,7 @@ func manageEntry(
 	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
 	askDates bool,
+	dc *descriptionCompleter,
 ) error {
 	var err error
 
@@ -311,7 +318,7 @@ func manageEntry(
 		}
 
 		if interactive {
-			te, err = confirmEntryInteractively(c, te, w, askDates)
+			te, err = confirmEntryInteractively(c, te, w, dc, askDates)
 			if err != nil {
 				return err
 			}
@@ -484,8 +491,13 @@ func getTaskID(taskID, projectID string, w dto.Workspace, c *api.Client) (string
 	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
 }
 
-func getDescription(description string) string {
-	description, _ = ui.AskForText("Description:", description)
+func getDescription(description string, dc *descriptionCompleter) string {
+	var opts []ui.InputOption
+	if dc != nil {
+		opts = append(opts, ui.WithSuggestion(dc.suggestFn))
+	}
+
+	description, _ = ui.AskForText("Description:", description, opts...)
 	return description
 }
 
@@ -640,6 +652,11 @@ func addTimeEntryFlags(cmd *cobra.Command) {
 	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
 
 	cmd.Flags().StringP("description", "d", "", "time entry description")
+	_ = completion.AddSuggestionsToFlag(
+		cmd,
+		"description",
+		suggestWithClientAPI(suggestDescription),
+	)
 
 	addPrintTimeEntriesFlags(cmd)
 

@@ -68,6 +68,16 @@ var manualCmd = &cobra.Command{
 			return err
 		}
 
+		var dc *descriptionCompleter
+		if viper.GetBool(DESCR_AUTOCOMP) {
+			dc = newDescriptionCompleter(
+				c,
+				tei.WorkspaceID,
+				tei.UserID,
+				viper.GetInt(DESCR_AUTOCOMP_DAYS),
+			)
+		}
+
 		return manageEntry(
 			c,
 			tei,
@@ -77,6 +87,7 @@ var manualCmd = &cobra.Command{
 			printTimeEntryImpl(c, cmd),
 			true,
 			true,
+			dc,
 		)
 	}),
 }

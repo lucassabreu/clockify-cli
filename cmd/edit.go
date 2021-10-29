@@ -53,6 +53,16 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
+		var dc *descriptionCompleter
+		if viper.GetBool(DESCR_AUTOCOMP) {
+			dc = newDescriptionCompleter(
+				c,
+				tei.WorkspaceID,
+				tei.UserID,
+				viper.GetInt(DESCR_AUTOCOMP_DAYS),
+			)
+		}
+
 		return manageEntry(
 			c,
 			tei,
@@ -74,6 +84,7 @@ var editCmd = &cobra.Command{
 			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
+			dc,
 		)
 	}),
 }

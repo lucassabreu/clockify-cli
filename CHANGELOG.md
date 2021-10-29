@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- add description suggestion using the recent time entries.
+
 ### Changed
 
 - some code and style fixes detected by [deepsource](https://deepsource.io/)
