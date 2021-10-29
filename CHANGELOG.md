@@ -694,6 +694,7 @@ time entry.
 - Makefile to help setup actions
 
 [Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.25.0...HEAD
+[v0.25.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.25.0
 [v0.24.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.24.1
 [v0.24.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.24.0
 [v0.23.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.23.1
