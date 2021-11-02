@@ -244,7 +244,7 @@ func (c *Client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryI
 	var timeEntries []dto.TimeEntryImpl
 	var tes []dto.TimeEntryImpl
 
-	err := c.getUserTimeEntries(p, false, &tes, func(res interface{}) (int, error) {
+	err := c.getUserTimeEntriesImpl(p, false, &tes, func(res interface{}) (int, error) {
 		if res == nil {
 			return 0, nil
 		}
@@ -262,7 +262,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	var timeEntries []dto.TimeEntry
 	var tes []dto.TimeEntry
 
-	err := c.getUserTimeEntries(p, true, &tes, func(res interface{}) (int, error) {
+	err := c.getUserTimeEntriesImpl(p, true, &tes, func(res interface{}) (int, error) {
 		if res == nil {
 			return 0, nil
 		}
@@ -288,7 +288,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	return timeEntries, err
 }
 
-func (c *Client) getUserTimeEntries(
+func (c *Client) getUserTimeEntriesImpl(
 	p GetUserTimeEntriesParam,
 	hydrated bool,
 	tmpl interface{},

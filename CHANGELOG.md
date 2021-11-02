@@ -11,9 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- add description suggestion using the recent time entries.
+
 ### Changed
 
 - some code and style fixes detected by [deepsource](https://deepsource.io/)
+- refactored date-time flags into its own function.
+- refactored ask for date-time helper function to not have control flags.
 
 ## [v0.25.0] - 2021-10-08
 

@@ -53,6 +53,16 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
+		var dc *descriptionCompleter
+		if viper.GetBool(DESCR_AUTOCOMP) {
+			dc = newDescriptionCompleter(
+				c,
+				tei.WorkspaceID,
+				tei.UserID,
+				viper.GetInt(DESCR_AUTOCOMP_DAYS),
+			)
+		}
+
 		return manageEntry(
 			c,
 			tei,
@@ -74,6 +84,7 @@ var editCmd = &cobra.Command{
 			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
+			dc,
 		)
 	}),
 }
@@ -81,7 +92,7 @@ var editCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	addTimeEntryFlags(editCmd, false)
+	addTimeEntryFlags(editCmd)
 
 	editCmd.Flags().StringP("when", "s", "", "when the entry should be started")
 	editCmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed")

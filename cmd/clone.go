@@ -53,6 +53,16 @@ var cloneCmd = &cobra.Command{
 
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 
+		var dc *descriptionCompleter
+		if viper.GetBool(DESCR_AUTOCOMP) {
+			dc = newDescriptionCompleter(
+				c,
+				tec.WorkspaceID,
+				tec.UserID,
+				viper.GetInt(DESCR_AUTOCOMP_DAYS),
+			)
+		}
+
 		return manageEntry(
 			c,
 			tec,
@@ -62,6 +72,7 @@ var cloneCmd = &cobra.Command{
 			printTimeEntryImpl(c, cmd),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
+			dc,
 		)
 	}),
 }
@@ -70,6 +81,7 @@ func init() {
 	rootCmd.AddCommand(cloneCmd)
 
 	addTimeEntryFlags(cloneCmd)
+	addTimeEntryDateFlags(cloneCmd)
 
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
 }

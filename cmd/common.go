@@ -82,34 +82,6 @@ func getAPIClient() (*api.Client, error) {
 	return c, err
 }
 
-func getDateTimeParam(name string, required bool, value string, convert func(string) (time.Time, error)) (*time.Time, error) {
-	var t time.Time
-	var err error
-
-	message := fmt.Sprintf("%s (leave it blank for empty):", name)
-	if required {
-		message = fmt.Sprintf("%s:", name)
-	}
-
-	for {
-		value, err = ui.AskForText(message, value)
-		if err != nil {
-			return nil, err
-		}
-
-		if value == "" && !required {
-			return nil, nil
-		}
-
-		if t, err = convert(value); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			continue
-		}
-
-		return &t, err
-	}
-}
-
 func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string, error) {
 	dtos, err := c.GetTags(api.GetTagsParam{
 		Workspace:       workspace,
@@ -190,7 +162,13 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 	return "", stackedErrors.Errorf("No task with id or name containing: %s", task)
 }
 
-func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Workspace, askDates bool) (dto.TimeEntryImpl, error) {
+func confirmEntryInteractively(
+	c *api.Client,
+	te dto.TimeEntryImpl,
+	w dto.Workspace,
+	dc *descriptionCompleter,
+	askDates bool,
+) (dto.TimeEntryImpl, error) {
 	var err error
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
@@ -204,7 +182,7 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Worksp
 		}
 	}
 
-	te.Description = getDescription(te.Description)
+	te.Description = getDescription(te.Description, dc)
 
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
 	if err != nil {
@@ -215,23 +193,19 @@ func confirmEntryInteractively(c *api.Client, te dto.TimeEntryImpl, w dto.Worksp
 		return te, nil
 	}
 
-	var date *time.Time
 	dateString := te.TimeInterval.Start.In(time.Local).Format(fullTimeFormat)
-
-	if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
+	if te.TimeInterval.Start, err = ui.AskForDateTime("Start", dateString, convertToTime); err != nil {
 		return te, err
 	}
-	te.TimeInterval.Start = *date
 
 	dateString = ""
 	if te.TimeInterval.End != nil {
 		dateString = te.TimeInterval.End.In(time.Local).Format(fullTimeFormat)
 	}
 
-	if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
+	if te.TimeInterval.End, err = ui.AskForDateTimeOrNil("End", dateString, convertToTime); err != nil {
 		return te, err
 	}
-	te.TimeInterval.End = date
 
 	return te, nil
 }
@@ -280,6 +254,7 @@ func manageEntry(
 	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
 	askDates bool,
+	dc *descriptionCompleter,
 ) error {
 	var err error
 
@@ -311,7 +286,7 @@ func manageEntry(
 		}
 
 		if interactive {
-			te, err = confirmEntryInteractively(c, te, w, askDates)
+			te, err = confirmEntryInteractively(c, te, w, dc, askDates)
 			if err != nil {
 				return err
 			}
@@ -484,8 +459,13 @@ func getTaskID(taskID, projectID string, w dto.Workspace, c *api.Client) (string
 	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
 }
 
-func getDescription(description string) string {
-	description, _ = ui.AskForText("Description:", description)
+func getDescription(description string, dc *descriptionCompleter) string {
+	var opts []ui.InputOption
+	if dc != nil {
+		opts = append(opts, ui.WithSuggestion(dc.suggestFn))
+	}
+
+	description, _ = ui.AskForText("Description:", description, opts...)
 	return description
 }
 
@@ -624,12 +604,7 @@ func getTimeEntry(
 	return list[0], err
 }
 
-func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
-	if len(withDates) == 0 || withDates[0] {
-		cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
-		cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
-	}
-
+func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "task", suggestWithClientAPI(suggestTasks))
@@ -645,6 +620,11 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
 
 	cmd.Flags().StringP("description", "d", "", "time entry description")
+	_ = completion.AddSuggestionsToFlag(
+		cmd,
+		"description",
+		suggestWithClientAPI(suggestDescription),
+	)
 
 	addPrintTimeEntriesFlags(cmd)
 
@@ -652,6 +632,11 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
 	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
+}
+
+func addTimeEntryDateFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+	cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
 }
 
 func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {

@@ -1,10 +1,14 @@
 package ui
 
 import (
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 )
 
@@ -23,12 +27,118 @@ func askString(p survey.Prompt) (string, error) {
 	return answer, survey.AskOne(p, &answer, nil)
 }
 
+// WithSuggestion applies the suggestion function to the input question
+func WithSuggestion(fn func(toComplete string) []string) func(*survey.Input) {
+	return func(i *survey.Input) {
+		i.Suggest = fn
+	}
+}
+
+// InputOption represets a funcion the customizes a survey.Input object
+type InputOption func(*survey.Input)
+
 // AskForText interactively ask for one string from the user
-func AskForText(message, d string) (string, error) {
-	return askString(&survey.Input{
+func AskForText(message, d string, opts ...InputOption) (string, error) {
+	i := &survey.Input{
 		Message: message,
 		Default: d,
-	})
+	}
+
+	for _, o := range opts {
+		o(i)
+	}
+
+	return askString(i)
+}
+
+type timeAnswer struct {
+	*time.Time
+	convert func(string) (time.Time, error)
+}
+
+func (ans timeAnswer) validate(v interface{}) error {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return nil
+	}
+
+	_, err := ans.convert(s)
+	return err
+}
+
+func (ans *timeAnswer) WriteAnswer(_ string, v interface{}) error {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return nil
+	}
+
+	t, err := ans.convert(s)
+	if err != nil {
+		return err
+	}
+
+	ans.Time = &t
+	return nil
+}
+
+// AskForDateTime interactively ask for one date and time from the user
+func AskForDateTime(
+	name,
+	value string,
+	convert func(string) (time.Time, error),
+) (time.Time, error) {
+	i := &survey.Input{
+		Message: name + ":",
+		Default: value,
+	}
+
+	t := timeAnswer{convert: convert}
+	opts := []survey.AskOpt{
+		survey.WithValidator(survey.Required),
+		survey.WithValidator(t.validate),
+	}
+
+	for {
+		err := survey.AskOne(i, &t, opts...)
+		if err == terminal.InterruptErr || t.Time != nil {
+			return *t.Time, err
+		}
+	}
+}
+
+func AskForDateTimeOrNil(
+	name,
+	value string,
+	convert func(string) (time.Time, error),
+) (*time.Time, error) {
+	t := timeAnswer{convert: convert}
+	return t.Time, survey.AskOne(
+		&survey.Input{
+			Message: name + " (leave it blank for empty):",
+			Default: value,
+		},
+		&t,
+		survey.WithValidator(t.validate),
+	)
+}
+
+// AskForInt interactively ask for one int from the user
+func AskForInt(message string, d int) (int, error) {
+	return d, survey.AskOne(
+		&survey.Input{
+			Message: message,
+			Default: strconv.Itoa(d),
+		}, &d,
+		survey.WithValidator(func(ans interface{}) error {
+			v, ok := ans.(string)
+			if !ok {
+				return fmt.Errorf("needs to be a string")
+			}
+
+			_, err := strconv.Atoi(v)
+			return err
+		}),
+	)
 }
 
 // AskFromOptions interactively ask the user to choose one option or none
