@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - some code and style fixes detected by [deepsource](https://deepsource.io/)
+- refactored date-time flags into its own function.
 
 ## [v0.25.0] - 2021-10-08
 

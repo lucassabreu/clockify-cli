@@ -624,12 +624,7 @@ func getTimeEntry(
 	return list[0], err
 }
 
-func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
-	if len(withDates) == 0 || withDates[0] {
-		cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
-		cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
-	}
-
+func addTimeEntryFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("not-billable", "n", false, "this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "task", suggestWithClientAPI(suggestTasks))
@@ -652,6 +647,11 @@ func addTimeEntryFlags(cmd *cobra.Command, withDates ...bool) {
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
 	_ = completion.AddSuggestionsToFlag(cmd, "tags", suggestWithClientAPI(suggestTags))
 	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
+}
+
+func addTimeEntryDateFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
+	cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
 }
 
 func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.TimeEntryImpl, error) {

@@ -70,6 +70,7 @@ func init() {
 	rootCmd.AddCommand(cloneCmd)
 
 	addTimeEntryFlags(cloneCmd)
+	addTimeEntryDateFlags(cloneCmd)
 
 	cloneCmd.Flags().BoolP("no-closing", "", false, "don't close any active time entry")
 }

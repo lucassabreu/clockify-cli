@@ -68,4 +68,5 @@ func init() {
 	rootCmd.AddCommand(inCmd)
 
 	addTimeEntryFlags(inCmd)
+	addTimeEntryDateFlags(inCmd)
 }

@@ -81,7 +81,7 @@ var editCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	addTimeEntryFlags(editCmd, false)
+	addTimeEntryFlags(editCmd)
 
 	editCmd.Flags().StringP("when", "s", "", "when the entry should be started")
 	editCmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed")
