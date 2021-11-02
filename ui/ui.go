@@ -5,8 +5,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 )
 
@@ -47,6 +49,77 @@ func AskForText(message, d string, opts ...InputOption) (string, error) {
 	}
 
 	return askString(i)
+}
+
+type timeAnswer struct {
+	*time.Time
+	convert func(string) (time.Time, error)
+}
+
+func (ans timeAnswer) validate(v interface{}) error {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return nil
+	}
+
+	_, err := ans.convert(s)
+	return err
+}
+
+func (ans *timeAnswer) WriteAnswer(_ string, v interface{}) error {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return nil
+	}
+
+	t, err := ans.convert(s)
+	if err != nil {
+		return err
+	}
+
+	ans.Time = &t
+	return nil
+}
+
+// AskForDateTime interactively ask for one date and time from the user
+func AskForDateTime(
+	name,
+	value string,
+	convert func(string) (time.Time, error),
+) (time.Time, error) {
+	i := &survey.Input{
+		Message: name + ":",
+		Default: value,
+	}
+
+	t := timeAnswer{convert: convert}
+	opts := []survey.AskOpt{
+		survey.WithValidator(survey.Required),
+		survey.WithValidator(t.validate),
+	}
+
+	for {
+		err := survey.AskOne(i, &t, opts...)
+		if err == terminal.InterruptErr || t.Time != nil {
+			return *t.Time, err
+		}
+	}
+}
+
+func AskForDateTimeOrNil(
+	name,
+	value string,
+	convert func(string) (time.Time, error),
+) (*time.Time, error) {
+	t := timeAnswer{convert: convert}
+	return t.Time, survey.AskOne(
+		&survey.Input{
+			Message: name + " (leave it blank for empty):",
+			Default: value,
+		},
+		&t,
+		survey.WithValidator(t.validate),
+	)
 }
 
 // AskForInt interactively ask for one int from the user

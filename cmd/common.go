@@ -82,34 +82,6 @@ func getAPIClient() (*api.Client, error) {
 	return c, err
 }
 
-func getDateTimeParam(name string, required bool, value string, convert func(string) (time.Time, error)) (*time.Time, error) {
-	var t time.Time
-	var err error
-
-	message := fmt.Sprintf("%s (leave it blank for empty):", name)
-	if required {
-		message = fmt.Sprintf("%s:", name)
-	}
-
-	for {
-		value, err = ui.AskForText(message, value)
-		if err != nil {
-			return nil, err
-		}
-
-		if value == "" && !required {
-			return nil, nil
-		}
-
-		if t, err = convert(value); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			continue
-		}
-
-		return &t, err
-	}
-}
-
 func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string, error) {
 	dtos, err := c.GetTags(api.GetTagsParam{
 		Workspace:       workspace,
@@ -221,23 +193,19 @@ func confirmEntryInteractively(
 		return te, nil
 	}
 
-	var date *time.Time
 	dateString := te.TimeInterval.Start.In(time.Local).Format(fullTimeFormat)
-
-	if date, err = getDateTimeParam("Start", true, dateString, convertToTime); err != nil {
+	if te.TimeInterval.Start, err = ui.AskForDateTime("Start", dateString, convertToTime); err != nil {
 		return te, err
 	}
-	te.TimeInterval.Start = *date
 
 	dateString = ""
 	if te.TimeInterval.End != nil {
 		dateString = te.TimeInterval.End.In(time.Local).Format(fullTimeFormat)
 	}
 
-	if date, err = getDateTimeParam("End", false, dateString, convertToTime); err != nil {
+	if te.TimeInterval.End, err = ui.AskForDateTimeOrNil("End", dateString, convertToTime); err != nil {
 		return te, err
 	}
-	te.TimeInterval.End = date
 
 	return te, nil
 }
