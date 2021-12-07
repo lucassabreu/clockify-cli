@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- removed `println` in the code breaking the component.
+
 ## [v0.26.0] - 2021-11-02
 
 ### Added

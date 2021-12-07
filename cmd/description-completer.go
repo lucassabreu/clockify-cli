@@ -63,8 +63,6 @@ func (dc *descriptionCompleter) getDescriptions() []string {
 // suggestFn returns a list of suggested descriptions based on a input string
 func (dc *descriptionCompleter) suggestFn(toComplete string) []string {
 	toComplete = strings.TrimSpace(toComplete)
-	println(toComplete)
-
 	if toComplete == "" {
 		return dc.getDescriptions()
 	}
