@@ -19,6 +19,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -49,6 +50,11 @@ func Execute(v, c, d string) {
 	buildDate = d
 
 	if err := rootCmd.Execute(); err != nil {
+		if err == terminal.InterruptErr {
+			os.Exit(1)
+			return
+		}
+
 		if viper.GetBool("debug") {
 			fmt.Fprintf(os.Stderr, "%+v\n", err)
 		} else {

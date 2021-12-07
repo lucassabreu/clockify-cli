@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- hide "interrupted" error from the output
+
 ### Fixed
 
 - removed `println` in the code breaking the component.
