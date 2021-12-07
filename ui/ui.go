@@ -100,7 +100,11 @@ func AskForDateTime(
 
 	for {
 		err := survey.AskOne(i, &t, opts...)
-		if err == terminal.InterruptErr || t.Time != nil {
+		if err == terminal.InterruptErr {
+			return time.Time{}, err
+		}
+
+		if t.Time != nil {
 			return *t.Time, err
 		}
 	}

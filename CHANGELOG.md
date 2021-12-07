@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- hide "interrupted" error from the output
+
+### Fixed
+
+- removed `println` in the code breaking the component.
+- prevent error when no time has been chosen as output for `AskForDateTime`
+
 ## [v0.26.0] - 2021-11-02
 
 ### Added
