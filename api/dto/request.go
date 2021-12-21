@@ -139,7 +139,7 @@ func (r UserTimeEntriesRequest) AppendToQuery(u url.URL) url.URL {
 
 // OutTimeEntryRequest to end the current time entry
 type OutTimeEntryRequest struct {
-	End http.http.DateTime `json:"end"`
+	End http.DateTime `json:"end"`
 }
 
 // CreateTimeEntryRequest to create a time entry is created
