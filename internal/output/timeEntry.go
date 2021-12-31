@@ -22,6 +22,71 @@ func TimeEntriesJSONPrint(t []dto.TimeEntry, w io.Writer) error {
 	return json.NewEncoder(w).Encode(t)
 }
 
+func timeEntriesTotalDurationOnly(
+	f func(time.Duration) string,
+	timeEntries []dto.TimeEntry,
+	w io.Writer,
+) error {
+	_, err := fmt.Fprintln(w, f(sumTimeEntriesDuration(timeEntries)))
+	return err
+}
+
+func sumTimeEntriesDuration(timeEntries []dto.TimeEntry) time.Duration {
+	s := time.Duration(0)
+	for _, t := range timeEntries {
+		end := time.Now()
+		if t.TimeInterval.End != nil {
+			end = *t.TimeInterval.End
+		}
+
+		d := end.Sub(t.TimeInterval.Start)
+		s = s + d
+	}
+	return s
+}
+
+// TimeEntryTotalDurationOnlyAsFloat will only print the total duration as
+// float
+func TimeEntryTotalDurationOnlyAsFloat(t *dto.TimeEntry, w io.Writer) error {
+	tes := []dto.TimeEntry{}
+	if t != nil {
+		tes = append(tes, *t)
+	}
+
+	return TimeEntriesTotalDurationOnlyAsFloat(tes, w)
+}
+
+// TimeEntriesTotalDurationOnlyAsFloat will only print the total duration as
+// float
+func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Writer) error {
+	return timeEntriesTotalDurationOnly(
+		func(d time.Duration) string { return fmt.Sprintf("%f", d.Hours()) },
+		timeEntries,
+		w,
+	)
+}
+
+// TimeEntryTotalDurationOnlyFormatted will only print the total duration as
+// float
+func TimeEntryTotalDurationOnlyFormatted(t *dto.TimeEntry, w io.Writer) error {
+	tes := []dto.TimeEntry{}
+	if t != nil {
+		tes = append(tes, *t)
+	}
+
+	return TimeEntriesTotalDurationOnlyFormatted(tes, w)
+}
+
+// TimeEntryTotalDurationOnlyFormatted will only print the total duration as
+// float
+func TimeEntriesTotalDurationOnlyFormatted(timeEntries []dto.TimeEntry, w io.Writer) error {
+	return timeEntriesTotalDurationOnly(
+		durationToString,
+		timeEntries,
+		w,
+	)
+}
+
 // TimeEntriesPrintQuietly will only print the IDs
 func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
 	for _, u := range timeEntries {
@@ -147,7 +212,6 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 		}
 
 		colors := make([]tablewriter.Colors, len(header))
-		sumDuration := time.Duration(0)
 		for _, t := range timeEntries {
 			end := time.Now()
 			if t.TimeInterval.End != nil {
@@ -161,14 +225,11 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 				projectName = t.Project.Name
 			}
 
-			d := end.Sub(t.TimeInterval.Start)
-			sumDuration = sumDuration + d
-
 			line := []string{
 				t.ID,
 				t.TimeInterval.Start.In(time.Local).Format(options.TimeFormat),
 				end.In(time.Local).Format(options.TimeFormat),
-				durationToString(d),
+				durationToString(end.Sub(t.TimeInterval.Start)),
 				projectName,
 				t.Description,
 				strings.Join(tagsToStringSlice(t.Tags), ", "),
@@ -188,7 +249,7 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 		if options.ShowTotalDuration {
 			line := make([]string, len(header))
 			line[0] = "TOTAL"
-			line[3] = durationToString(sumDuration)
+			line[3] = durationToString(sumTimeEntriesDuration(timeEntries))
 			tw.Append(line)
 		}
 

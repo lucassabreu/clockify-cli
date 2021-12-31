@@ -708,12 +708,16 @@ func addPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
 }
 
 func addPrintTimeEntriesFlags(cmd *cobra.Command) {
-
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cmd.Flags().StringP("format", "f", "",
+		"golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
 	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
+	cmd.Flags().BoolP("duration-formatted", "D", false,
+		"prints only the sum of duration formatted")
+	cmd.Flags().BoolP("duration-float", "F", false,
+		`prints only the sum of duration as a "float hour"`)
 }
 
 func getOpts(timeFormat string) []output.TimeEntryOutputOpt {
@@ -755,6 +759,14 @@ func printTimeEntries(
 		reportFn = output.TimeEntriesPrintQuietly
 	}
 
+	if b, _ := cmd.Flags().GetBool("duration-float"); b {
+		reportFn = output.TimeEntriesTotalDurationOnlyAsFloat
+	}
+
+	if b, _ := cmd.Flags().GetBool("duration-formatted"); b {
+		reportFn = output.TimeEntriesTotalDurationOnlyFormatted
+	}
+
 	if reportFn == nil {
 		reportFn = output.TimeEntriesPrint(getOpts(timeFormat)...)
 	}
@@ -783,6 +795,14 @@ func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat string) e
 
 	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
 		reportFn = output.TimeEntryPrintQuietly
+	}
+
+	if b, _ := cmd.Flags().GetBool("duration-float"); b {
+		reportFn = output.TimeEntryTotalDurationOnlyAsFloat
+	}
+
+	if b, _ := cmd.Flags().GetBool("duration-formattd"); b {
+		reportFn = output.TimeEntryTotalDurationOnlyFormatted
 	}
 
 	if reportFn == nil {

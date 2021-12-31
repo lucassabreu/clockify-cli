@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   listing, this can be disabled with the `config` subcommand.
 - `report` subcommands now have a `description` flag to filter time entries that contains text on
   its description.
+- all subcommands that output time entries now have two new formats: `duration-formatted` and
+  `duration-float`, that do sum all durations of the time entries and print only the sum, formatted
+  as time or as "floaty-hour", respectively
 
 ### Fixed
 
