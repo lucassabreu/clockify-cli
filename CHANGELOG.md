@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `formarTimeEntry` renamed into `printTimeEntry`, and simplified to just call `printTimeEntries`
+  with a list containing the time entry informed.
+- go version on `go.mod` updated to 1.17
+
+### Added
+
+- all subcommands that can print more than one time entry will print the total duration for that
+  listing, this can be disabled with the `config` subcommand.
+- `report` subcommands now have a `description` flag to filter time entries that contains text on
+  its description.
+- all subcommands that output time entries now have two new formats: `duration-formatted` and
+  `duration-float`, that do sum all durations of the time entries and print only the sum, formatted
+  as time or as "floaty-hour", respectively
+
+### Fixed
+
+- `report` subcommands which required pagination on the requests to the api were not doing so, the
+  time entry list shown by this command was incomplete.
+
 ## [v0.26.1] - 2021-12-07
 
 ### Changed

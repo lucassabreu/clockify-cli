@@ -17,6 +17,7 @@ package cmd
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -28,6 +29,7 @@ var markInvoicedCmd = &cobra.Command{
 	Short:     "Marks times entries as invoiced",
 	Args:      cobra.MinimumNArgs(1),
 	ValidArgs: []string{"last", "current"},
+	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(true),
 }
 
@@ -37,6 +39,7 @@ var markNotInvoiced = &cobra.Command{
 	Short:     "Mark times entries as not invoiced",
 	Args:      cobra.MinimumNArgs(1),
 	ValidArgs: []string{"last", "current"},
+	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(false),
 }
 
@@ -76,11 +79,17 @@ func changeInvoiced(invoiced bool) func(cmd *cobra.Command, args []string) error
 			return err
 		}
 
-		return printTimeEntries(tes, cmd)
+		return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 	})
 }
 
 func init() {
-	rootCmd.AddCommand(markNotInvoiced)
-	rootCmd.AddCommand(markInvoicedCmd)
+	addCmd := func(cmd *cobra.Command) {
+		addPrintTimeEntriesFlags(cmd)
+		addPrintMultipleTimeEntriesFlags(cmd)
+		rootCmd.AddCommand(cmd)
+	}
+
+	addCmd(markInvoicedCmd)
+	addCmd(markNotInvoiced)
 }

@@ -17,6 +17,7 @@ package cmd
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -32,6 +33,7 @@ var editMultipleCmd = &cobra.Command{
 When multiple IDs are informed the default values on interactive mode will be the values of the first time entry informed.
 When using interactive mode all entries will end with the same properties except for Start and End, if you wanna edit only some properties, than use the flags without interactive mode.
 Start and end fields can't be mass-edited.`,
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 
@@ -157,7 +159,7 @@ Start and end fields can't be mass-edited.`,
 					tes[i] = *t
 				}
 
-				return printTimeEntries(tes, cmd)
+				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 			},
 			shouldValidate,
 			false,
@@ -170,4 +172,5 @@ func init() {
 	rootCmd.AddCommand(editMultipleCmd)
 
 	addTimeEntryFlags(editMultipleCmd)
+	addPrintMultipleTimeEntriesFlags(editMultipleCmd)
 }

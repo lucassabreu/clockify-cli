@@ -22,6 +22,49 @@ func TimeEntriesJSONPrint(t []dto.TimeEntry, w io.Writer) error {
 	return json.NewEncoder(w).Encode(t)
 }
 
+func timeEntriesTotalDurationOnly(
+	f func(time.Duration) string,
+	timeEntries []dto.TimeEntry,
+	w io.Writer,
+) error {
+	_, err := fmt.Fprintln(w, f(sumTimeEntriesDuration(timeEntries)))
+	return err
+}
+
+func sumTimeEntriesDuration(timeEntries []dto.TimeEntry) time.Duration {
+	s := time.Duration(0)
+	for _, t := range timeEntries {
+		end := time.Now()
+		if t.TimeInterval.End != nil {
+			end = *t.TimeInterval.End
+		}
+
+		d := end.Sub(t.TimeInterval.Start)
+		s = s + d
+	}
+	return s
+}
+
+// TimeEntriesTotalDurationOnlyAsFloat will only print the total duration as
+// float
+func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Writer) error {
+	return timeEntriesTotalDurationOnly(
+		func(d time.Duration) string { return fmt.Sprintf("%f", d.Hours()) },
+		timeEntries,
+		w,
+	)
+}
+
+// TimeEntryTotalDurationOnlyFormatted will only print the total duration as
+// float
+func TimeEntriesTotalDurationOnlyFormatted(timeEntries []dto.TimeEntry, w io.Writer) error {
+	return timeEntriesTotalDurationOnly(
+		durationToString,
+		timeEntries,
+		w,
+	)
+}
+
 // TimeEntriesPrintQuietly will only print the IDs
 func TimeEntriesPrintQuietly(timeEntries []dto.TimeEntry, w io.Writer) error {
 	for _, u := range timeEntries {
@@ -69,27 +112,61 @@ func TimeEntriesMarkdownPrint(tes []dto.TimeEntry, w io.Writer) error {
 	return TimeEntriesPrintWithTemplate(string(b))(tes, w)
 }
 
-// TimeEntryMarkdownPrint will print time entries in "markdown blocks"
-func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
-	if te == nil {
-		return nil
-	}
-
-	return TimeEntriesMarkdownPrint([]dto.TimeEntry{*te}, w)
+// TimeEntryOptions sets how the "table" format should print the time entries
+type TimeEntryOutputOptions struct {
+	ShowTasks         bool
+	ShowTotalDuration bool
+	TimeFormat        string
 }
 
+// WithTimeFormat sets the date-time output format
+func WithTimeFormat(format string) TimeEntryOutputOpt {
+	return func(teo *TimeEntryOutputOptions) error {
+		teo.TimeFormat = format
+		return nil
+	}
+}
+
+// WithShowTasks shows a new column with the task of the time entry
+func WithShowTasks() TimeEntryOutputOpt {
+	return func(teoo *TimeEntryOutputOptions) error {
+		teoo.ShowTasks = true
+		return nil
+	}
+}
+
+// WithDurationTotal shows a footer with the sum of the durations of the time
+// entries
+func WithTotalDuration() TimeEntryOutputOpt {
+	return func(teoo *TimeEntryOutputOptions) error {
+		teoo.ShowTotalDuration = true
+		return nil
+	}
+}
+
+// TimeEntryOutputOpt allows the setting of TimeEntryOutputOptions values
+type TimeEntryOutputOpt func(*TimeEntryOutputOptions) error
+
 // TimeEntriesPrint will print more details
-func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry, io.Writer) error {
-	format := TIME_FORMAT_SIMPLE
-	if len(timeFormat) > 0 {
-		format = timeFormat[0]
+func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Writer) error {
+	options := &TimeEntryOutputOptions{
+		TimeFormat:        TIME_FORMAT_SIMPLE,
+		ShowTasks:         false,
+		ShowTotalDuration: false,
+	}
+
+	for _, o := range opts {
+		err := o(options)
+		if err != nil {
+			return func(te []dto.TimeEntry, w io.Writer) error { return err }
+		}
 	}
 
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
 		header := []string{"ID", "Start", "End", "Dur",
 			"Project", "Description", "Tags"}
-		if showTasks {
+		if options.ShowTasks {
 			header = append(
 				header[:5],
 				header[5:]...,
@@ -119,15 +196,15 @@ func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry
 
 			line := []string{
 				t.ID,
-				t.TimeInterval.Start.In(time.Local).Format(format),
-				end.In(time.Local).Format(format),
+				t.TimeInterval.Start.In(time.Local).Format(options.TimeFormat),
+				end.In(time.Local).Format(options.TimeFormat),
 				durationToString(end.Sub(t.TimeInterval.Start)),
 				projectName,
 				t.Description,
 				strings.Join(tagsToStringSlice(t.Tags), ", "),
 			}
 
-			if showTasks {
+			if options.ShowTasks {
 				line = append(line[:5], line[5:]...)
 				line[5] = ""
 				if t.Task != nil {
@@ -136,6 +213,13 @@ func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry
 			}
 
 			tw.Rich(line, colors)
+		}
+
+		if options.ShowTotalDuration {
+			line := make([]string, len(header))
+			line[0] = "TOTAL"
+			line[3] = durationToString(sumTimeEntriesDuration(timeEntries))
+			tw.Append(line)
 		}
 
 		tw.Render()
@@ -264,59 +348,6 @@ func TimeEntriesPrintWithTemplate(
 			fmt.Fprintln(w)
 		}
 		return nil
-	}
-}
-
-// TimeEntryJSONPrint will print as JSON
-func TimeEntryJSONPrint(t *dto.TimeEntry, w io.Writer) error {
-	return json.NewEncoder(w).Encode(t)
-}
-
-// TimeEntryCSVPrint will print as CSV
-func TimeEntryCSVPrint(t *dto.TimeEntry, w io.Writer) error {
-	entries := []dto.TimeEntry{}
-
-	if t != nil {
-		entries = append(entries, *t)
-	}
-
-	return TimeEntriesCSVPrint(entries, w)
-}
-
-// TimeEntryPrintQuietly will only print the IDs
-func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
-	fmt.Fprintln(w, timeEntry.ID)
-	return nil
-}
-
-// TimeEntryPrint will print more details
-func TimeEntryPrint(
-	showTasks bool, timeFormat ...string,
-) func(*dto.TimeEntry, io.Writer) error {
-	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
-		entries := []dto.TimeEntry{}
-
-		if timeEntry != nil {
-			entries = append(entries, *timeEntry)
-		}
-
-		return TimeEntriesPrint(showTasks, timeFormat...)(entries, w)
-	}
-}
-
-// TimeEntryPrintWithTemplate will print each time entry using the format string
-func TimeEntryPrintWithTemplate(
-	format string,
-) func(*dto.TimeEntry, io.Writer) error {
-	fn := TimeEntriesPrintWithTemplate(format)
-	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
-		entries := []dto.TimeEntry{}
-
-		if timeEntry != nil {
-			entries = append(entries, *timeEntry)
-		}
-
-		return fn(entries, w)
 	}
 }
 

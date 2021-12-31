@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -228,7 +229,7 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 }
 
 func printTimeEntryImpl(
-	c *api.Client, cmd *cobra.Command, timeFormat ...string,
+	c *api.Client, cmd *cobra.Command, timeFormat string,
 ) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
 		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
@@ -239,7 +240,7 @@ func printTimeEntryImpl(
 			return err
 		}
 
-		return formatTimeEntry(fte, cmd, timeFormat...)
+		return printTimeEntry(fte, cmd, timeFormat)
 	}
 }
 
@@ -697,21 +698,46 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 	return tei, nil
 }
 
+func printMultipleTimeEntriesPreRun(cmd *cobra.Command, _ []string) error {
+	viper.SetDefault(SHOW_TOTAL_DURATION, true)
+	return viper.BindPFlag(SHOW_TOTAL_DURATION, cmd.Flags().Lookup("with-totals"))
+}
+
+func addPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolP("with-totals", "S", false, "add a totals line at the end")
+}
+
 func addPrintTimeEntriesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
+	cmd.Flags().StringP("format", "f", "",
+		"golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
 	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
+	cmd.Flags().BoolP("duration-formatted", "D", false,
+		"prints only the sum of duration formatted")
+	cmd.Flags().BoolP("duration-float", "F", false,
+		`prints only the sum of duration as a "float hour"`)
+}
+
+func getOpts(timeFormat string) []output.TimeEntryOutputOpt {
+	opts := []output.TimeEntryOutputOpt{output.WithTimeFormat(timeFormat)}
+
+	if viper.GetBool(SHOW_TASKS) {
+		opts = append(opts, output.WithShowTasks())
+	}
+
+	if viper.GetBool(SHOW_TOTAL_DURATION) {
+		opts = append(opts, output.WithTotalDuration())
+	}
+
+	return opts
 }
 
 func printTimeEntries(
-	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat ...string,
+	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat string,
 ) error {
-	reportFn := output.TimeEntriesPrint(
-		viper.GetBool(SHOW_TASKS),
-		timeFormat...,
-	)
+	var reportFn func(te []dto.TimeEntry, w io.Writer) error
 
 	if b, _ := cmd.Flags().GetBool("md"); b {
 		reportFn = output.TimeEntriesMarkdownPrint
@@ -733,31 +759,26 @@ func printTimeEntries(
 		reportFn = output.TimeEntriesPrintQuietly
 	}
 
+	if b, _ := cmd.Flags().GetBool("duration-float"); b {
+		reportFn = output.TimeEntriesTotalDurationOnlyAsFloat
+	}
+
+	if b, _ := cmd.Flags().GetBool("duration-formatted"); b {
+		reportFn = output.TimeEntriesTotalDurationOnlyFormatted
+	}
+
+	if reportFn == nil {
+		reportFn = output.TimeEntriesPrint(getOpts(timeFormat)...)
+	}
+
 	return reportFn(tes, cmd.OutOrStdout())
 }
 
-func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string) error {
-	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS), timeFormat...)
-
-	if b, _ := cmd.Flags().GetBool("md"); b {
-		reportFn = output.TimeEntryMarkdownPrint
+func printTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat string) error {
+	ts := make([]dto.TimeEntry, 0)
+	if te != nil {
+		ts = append(ts, *te)
 	}
 
-	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
-		reportFn = output.TimeEntryJSONPrint
-	}
-
-	if asCSV, _ := cmd.Flags().GetBool("csv"); asCSV {
-		reportFn = output.TimeEntryCSVPrint
-	}
-
-	if format, _ := cmd.Flags().GetString("format"); format != "" {
-		reportFn = output.TimeEntryPrintWithTemplate(format)
-	}
-
-	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
-		reportFn = output.TimeEntryPrintQuietly
-	}
-
-	return reportFn(te, cmd.OutOrStdout())
+	return printTimeEntries(ts, cmd, timeFormat)
 }

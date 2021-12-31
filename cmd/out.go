@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -66,7 +67,7 @@ var outCmd = &cobra.Command{
 
 		te.TimeInterval.End = &whenDate
 
-		return formatTimeEntry(te, cmd)
+		return printTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 
