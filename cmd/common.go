@@ -240,7 +240,7 @@ func printTimeEntryImpl(
 			return err
 		}
 
-		return formatTimeEntry(fte, cmd, timeFormat)
+		return printTimeEntry(fte, cmd, timeFormat)
 	}
 }
 
@@ -774,40 +774,11 @@ func printTimeEntries(
 	return reportFn(tes, cmd.OutOrStdout())
 }
 
-func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat string) error {
-	var reportFn func(te *dto.TimeEntry, w io.Writer) error
-
-	if b, _ := cmd.Flags().GetBool("md"); b {
-		reportFn = output.TimeEntryMarkdownPrint
+func printTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat string) error {
+	ts := make([]dto.TimeEntry, 0)
+	if te != nil {
+		ts = append(ts, *te)
 	}
 
-	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
-		reportFn = output.TimeEntryJSONPrint
-	}
-
-	if asCSV, _ := cmd.Flags().GetBool("csv"); asCSV {
-		reportFn = output.TimeEntryCSVPrint
-	}
-
-	if format, _ := cmd.Flags().GetString("format"); format != "" {
-		reportFn = output.TimeEntryPrintWithTemplate(format)
-	}
-
-	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
-		reportFn = output.TimeEntryPrintQuietly
-	}
-
-	if b, _ := cmd.Flags().GetBool("duration-float"); b {
-		reportFn = output.TimeEntryTotalDurationOnlyAsFloat
-	}
-
-	if b, _ := cmd.Flags().GetBool("duration-formattd"); b {
-		reportFn = output.TimeEntryTotalDurationOnlyFormatted
-	}
-
-	if reportFn == nil {
-		reportFn = output.TimeEntryPrint(getOpts(timeFormat)...)
-	}
-
-	return reportFn(te, cmd.OutOrStdout())
+	return printTimeEntries(ts, cmd, timeFormat)
 }

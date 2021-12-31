@@ -67,7 +67,7 @@ var outCmd = &cobra.Command{
 
 		te.TimeInterval.End = &whenDate
 
-		return formatTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
+		return printTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

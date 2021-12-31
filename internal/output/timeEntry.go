@@ -45,17 +45,6 @@ func sumTimeEntriesDuration(timeEntries []dto.TimeEntry) time.Duration {
 	return s
 }
 
-// TimeEntryTotalDurationOnlyAsFloat will only print the total duration as
-// float
-func TimeEntryTotalDurationOnlyAsFloat(t *dto.TimeEntry, w io.Writer) error {
-	tes := []dto.TimeEntry{}
-	if t != nil {
-		tes = append(tes, *t)
-	}
-
-	return TimeEntriesTotalDurationOnlyAsFloat(tes, w)
-}
-
 // TimeEntriesTotalDurationOnlyAsFloat will only print the total duration as
 // float
 func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Writer) error {
@@ -64,17 +53,6 @@ func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Write
 		timeEntries,
 		w,
 	)
-}
-
-// TimeEntryTotalDurationOnlyFormatted will only print the total duration as
-// float
-func TimeEntryTotalDurationOnlyFormatted(t *dto.TimeEntry, w io.Writer) error {
-	tes := []dto.TimeEntry{}
-	if t != nil {
-		tes = append(tes, *t)
-	}
-
-	return TimeEntriesTotalDurationOnlyFormatted(tes, w)
 }
 
 // TimeEntryTotalDurationOnlyFormatted will only print the total duration as
@@ -132,15 +110,6 @@ func TimeEntriesMarkdownPrint(tes []dto.TimeEntry, w io.Writer) error {
 	}
 
 	return TimeEntriesPrintWithTemplate(string(b))(tes, w)
-}
-
-// TimeEntryMarkdownPrint will print time entries in "markdown blocks"
-func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
-	if te == nil {
-		return nil
-	}
-
-	return TimeEntriesMarkdownPrint([]dto.TimeEntry{*te}, w)
 }
 
 // TimeEntryOptions sets how the "table" format should print the time entries
@@ -379,59 +348,6 @@ func TimeEntriesPrintWithTemplate(
 			fmt.Fprintln(w)
 		}
 		return nil
-	}
-}
-
-// TimeEntryJSONPrint will print as JSON
-func TimeEntryJSONPrint(t *dto.TimeEntry, w io.Writer) error {
-	return json.NewEncoder(w).Encode(t)
-}
-
-// TimeEntryCSVPrint will print as CSV
-func TimeEntryCSVPrint(t *dto.TimeEntry, w io.Writer) error {
-	entries := []dto.TimeEntry{}
-
-	if t != nil {
-		entries = append(entries, *t)
-	}
-
-	return TimeEntriesCSVPrint(entries, w)
-}
-
-// TimeEntryPrintQuietly will only print the IDs
-func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
-	fmt.Fprintln(w, timeEntry.ID)
-	return nil
-}
-
-// TimeEntryPrint will print more details
-func TimeEntryPrint(
-	opts ...TimeEntryOutputOpt,
-) func(*dto.TimeEntry, io.Writer) error {
-	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
-		entries := []dto.TimeEntry{}
-
-		if timeEntry != nil {
-			entries = append(entries, *timeEntry)
-		}
-
-		return TimeEntriesPrint(opts...)(entries, w)
-	}
-}
-
-// TimeEntryPrintWithTemplate will print each time entry using the format string
-func TimeEntryPrintWithTemplate(
-	format string,
-) func(*dto.TimeEntry, io.Writer) error {
-	fn := TimeEntriesPrintWithTemplate(format)
-	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
-		entries := []dto.TimeEntry{}
-
-		if timeEntry != nil {
-			entries = append(entries, *timeEntry)
-		}
-
-		return fn(entries, w)
 	}
 }
 

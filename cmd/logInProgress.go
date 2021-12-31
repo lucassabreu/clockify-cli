@@ -36,7 +36,7 @@ var logInProgressCmd = &cobra.Command{
 			return err
 		}
 
-		return formatTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
+		return printTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 
