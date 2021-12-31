@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `formarTimeEntry` renamed into `printTimeEntry`, and simplified to just call `printTimeEntries`
   with a list containing the time entry informed.
+- go version on `go.mod` updated to 1.17
 
 ### Added
 
