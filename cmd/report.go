@@ -169,7 +169,10 @@ func reportFlags(cmd *cobra.Command) *cobra.Command {
 	addPrintTimeEntriesFlags(cmd)
 	addPrintMultipleTimeEntriesFlags(cmd)
 
-	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
+	cmd.Flags().BoolP("fill-missing-dates", "e", false,
+		"add empty lines for dates without time entries")
+	cmd.Flags().StringP("description", "d", "",
+		"will filter time entries that contains this on the description field")
 
 	return cmd
 }
@@ -190,6 +193,7 @@ func getWeekRange(ref time.Time) (first, last time.Time) {
 
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
+	description, _ := cmd.Flags().GetString("description")
 
 	start = truncateDate(start)
 	end = truncateDate(end).Add(time.Hour * 24)
@@ -204,6 +208,7 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,
+		Description:     description,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 

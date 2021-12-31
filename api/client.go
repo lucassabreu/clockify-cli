@@ -210,10 +210,11 @@ func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
 
 // LogRangeParam params to query entries
 type LogRangeParam struct {
-	Workspace string
-	UserID    string
-	FirstDate time.Time
-	LastDate  time.Time
+	Workspace   string
+	UserID      string
+	FirstDate   time.Time
+	LastDate    time.Time
+	Description string
 	PaginationParam
 }
 
@@ -226,6 +227,7 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 		UserID:          p.UserID,
 		Start:           &p.FirstDate,
 		End:             &p.LastDate,
+		Description:     p.Description,
 		PaginationParam: p.PaginationParam,
 	})
 }
@@ -236,6 +238,7 @@ type GetUserTimeEntriesParam struct {
 	OnlyInProgress *bool
 	Start          *time.Time
 	End            *time.Time
+	Description    string
 
 	PaginationParam
 }
@@ -311,20 +314,23 @@ func (c *Client) getUserTimeEntriesImpl(
 		}
 	}
 
-	c.debugf("GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s",
+	c.debugf("GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s | Description: %s",
 		p.Workspace,
 		p.UserID,
 		inProgressFilter,
+		p.Description,
 	)
 
 	r := dto.UserTimeEntriesRequest{
 		OnlyInProgress: p.OnlyInProgress,
 		Hydrated:       &hydrated,
+		Description:    p.Description,
 	}
 
 	if p.Start != nil {
 		r.Start = &dto.DateTime{Time: *p.Start}
 	}
+
 	if p.End != nil {
 		r.End = &dto.DateTime{Time: *p.End}
 	}

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - all subcommands that can print more than one time entry will print the total duration for that
   listing, this can be disabled with the `config` subcommand.
+- `report` subcommands now have a `description` flag to filter time entries that contains text on
+  its description.
 
 ### Fixed
 
