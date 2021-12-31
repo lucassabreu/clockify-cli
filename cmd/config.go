@@ -44,6 +44,7 @@ const (
 	SHOW_TASKS          = "show-task"
 	DESCR_AUTOCOMP      = "description-autocomplete"
 	DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
+	SHOW_TOTAL_DURATION = "show-total-duration"
 )
 
 var configValidArgs = completion.ValigsArgsMap{
@@ -57,6 +58,7 @@ var configValidArgs = completion.ValigsArgsMap{
 	SHOW_TASKS:          "should show an extra column with the task description",
 	DESCR_AUTOCOMP:      "autocomplete description looking at recent time entries",
 	DESCR_AUTOCOMP_DAYS: "how many days should be considered for the description autocomplete",
+	SHOW_TOTAL_DURATION: "adds a totals line on time entry reports with the sum of the time entries duration",
 }
 
 var weekdays []string
@@ -236,6 +238,13 @@ func configInit(_ *cobra.Command, _ []string) error {
 	if err := updateFlag(
 		SHOW_TASKS,
 		`Should show task on time entries as a separated column?`,
+	); err != nil {
+		return err
+	}
+
+	if err := updateFlag(
+		SHOW_TOTAL_DURATION,
+		`Should show a line with the sum of the time entries duration?`,
 	); err != nil {
 		return err
 	}

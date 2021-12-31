@@ -29,9 +29,10 @@ import (
 
 // reportCmd represents the reports command
 var reportCmd = &cobra.Command{
-	Use:   "report <start> <end>",
-	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
-	Args:  cobra.ExactArgs(2),
+	Use:     "report <start> <end>",
+	Short:   "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
+	Args:    cobra.ExactArgs(2),
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		start, err := time.Parse("2006-01-02", args[0])
 		if err != nil {
@@ -48,8 +49,9 @@ var reportCmd = &cobra.Command{
 
 // reportThisMonthCmd represents the reports this-month command
 var reportThisMonthCmd = &cobra.Command{
-	Use:   "this-month",
-	Short: "List all time entries in this month",
+	Use:     "this-month",
+	Short:   "List all time entries in this month",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getMonthRange(time.Now())
 		return reportWithRange(c, first, last, cmd)
@@ -58,8 +60,9 @@ var reportThisMonthCmd = &cobra.Command{
 
 // reportLastMonthCmd represents the report last-month command
 var reportLastMonthCmd = &cobra.Command{
-	Use:   "last-month",
-	Short: "List all time entries in last month",
+	Use:     "last-month",
+	Short:   "List all time entries in last month",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getMonthRange(time.Now().AddDate(0, -1, 0))
 		return reportWithRange(c, first, last, cmd)
@@ -68,8 +71,9 @@ var reportLastMonthCmd = &cobra.Command{
 
 // reportThisWeekCmd represents the report last-month command
 var reportThisWeekCmd = &cobra.Command{
-	Use:   "this-week",
-	Short: "List all time entries in this week",
+	Use:     "this-week",
+	Short:   "List all time entries in this week",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getWeekRange(time.Now())
 		return reportWithRange(c, first, last, cmd)
@@ -78,8 +82,9 @@ var reportThisWeekCmd = &cobra.Command{
 
 // reportLastWeekCmd represents the report last-month command
 var reportLastWeekCmd = &cobra.Command{
-	Use:   "last-week",
-	Short: "List all time entries in last week",
+	Use:     "last-week",
+	Short:   "List all time entries in last week",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		first, last := getWeekRange(time.Now().AddDate(0, 0, -7))
 		return reportWithRange(c, first, last, cmd)
@@ -88,8 +93,9 @@ var reportLastWeekCmd = &cobra.Command{
 
 // reportLastDayCmd represents the report last-day command
 var reportLastDayCmd = &cobra.Command{
-	Use:   "last-day",
-	Short: "List time entries from last day were a time entry exists",
+	Use:     "last-day",
+	Short:   "List time entries from last day were a time entry exists",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		u, err := getUserId(c)
 		if err != nil {
@@ -112,8 +118,9 @@ var reportLastDayCmd = &cobra.Command{
 
 // reportLastWeekDayCmd represents the report last working week day command
 var reportLastWeekDayCmd = &cobra.Command{
-	Use:   "last-week-day",
-	Short: "List time entries from last week day (use `clockify-cli config workweek-days` command to set then)",
+	Use:     "last-week-day",
+	Short:   "List time entries from last week day (use `clockify-cli config workweek-days` command to set then)",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		workweek := strhlp.Map(strings.ToLower, viper.GetStringSlice(WORKWEEK_DAYS))
 		if len(workweek) == 0 {
@@ -160,6 +167,8 @@ func init() {
 
 func reportFlags(cmd *cobra.Command) *cobra.Command {
 	addPrintTimeEntriesFlags(cmd)
+	addPrintMultipleTimeEntriesFlags(cmd)
+
 	cmd.Flags().BoolP("fill-missing-dates", "e", false, "add empty lines for dates without time entries")
 
 	return cmd

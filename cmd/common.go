@@ -698,7 +698,17 @@ func fillTimeEntryWithFlags(tei dto.TimeEntryImpl, flags *pflag.FlagSet) (dto.Ti
 	return tei, nil
 }
 
+func printMultipleTimeEntriesPreRun(cmd *cobra.Command, _ []string) error {
+	viper.SetDefault(SHOW_TOTAL_DURATION, true)
+	return viper.BindPFlag(SHOW_TOTAL_DURATION, cmd.Flags().Lookup("with-totals"))
+}
+
+func addPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolP("with-totals", "S", false, "add a totals line at the end")
+}
+
 func addPrintTimeEntriesFlags(cmd *cobra.Command) {
+
 	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each time entry")
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
@@ -712,6 +722,11 @@ func getOpts(timeFormat string) []output.TimeEntryOutputOpt {
 	if viper.GetBool(SHOW_TASKS) {
 		opts = append(opts, output.WithShowTasks())
 	}
+
+	if viper.GetBool(SHOW_TOTAL_DURATION) {
+		opts = append(opts, output.WithTotalDuration())
+	}
+
 	return opts
 }
 

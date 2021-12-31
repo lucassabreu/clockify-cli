@@ -29,6 +29,7 @@ var markInvoicedCmd = &cobra.Command{
 	Short:     "Marks times entries as invoiced",
 	Args:      cobra.MinimumNArgs(1),
 	ValidArgs: []string{"last", "current"},
+	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(true),
 }
 
@@ -38,6 +39,7 @@ var markNotInvoiced = &cobra.Command{
 	Short:     "Mark times entries as not invoiced",
 	Args:      cobra.MinimumNArgs(1),
 	ValidArgs: []string{"last", "current"},
+	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(false),
 }
 
@@ -82,6 +84,12 @@ func changeInvoiced(invoiced bool) func(cmd *cobra.Command, args []string) error
 }
 
 func init() {
-	rootCmd.AddCommand(markNotInvoiced)
-	rootCmd.AddCommand(markInvoicedCmd)
+	addCmd := func(cmd *cobra.Command) {
+		addPrintTimeEntriesFlags(cmd)
+		addPrintMultipleTimeEntriesFlags(cmd)
+		rootCmd.AddCommand(cmd)
+	}
+
+	addCmd(markInvoicedCmd)
+	addCmd(markNotInvoiced)
 }

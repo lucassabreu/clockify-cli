@@ -33,6 +33,7 @@ var logCmd = &cobra.Command{
 	Use:     "log",
 	Aliases: []string{"logs"},
 	Short:   "List the entries from a specific day",
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var filterDate time.Time
 
@@ -77,6 +78,7 @@ func init() {
 	logCmd.Flags().StringVarP(&dateString, "date", "d", time.Now().Format(dateFormat), "set the date to be logged in the format: YYYY-MM-DD")
 	logCmd.Flags().BoolVarP(&yesterday, "yesterday", "y", false, "list the yesterday's entries")
 	addPrintTimeEntriesFlags(logCmd)
+	addPrintMultipleTimeEntriesFlags(logCmd)
 
 	_ = logCmd.MarkFlagRequired(WORKSPACE)
 	_ = logCmd.MarkFlagRequired(USER_ID)

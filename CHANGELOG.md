@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- all subcommands that can print more than one time entry will print the total duration for that
+  listing, this can be disabled with the `config` subcommand.
+
 ### Fixed
 
 - `report` subcommands which required pagination on the requests to the api were not doing so, the

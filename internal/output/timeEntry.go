@@ -80,8 +80,9 @@ func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
 
 // TimeEntryOptions sets how the "table" format should print the time entries
 type TimeEntryOutputOptions struct {
-	ShowTasks  bool
-	TimeFormat string
+	ShowTasks         bool
+	ShowTotalDuration bool
+	TimeFormat        string
 }
 
 // WithTimeFormat sets the date-time output format
@@ -100,14 +101,24 @@ func WithShowTasks() TimeEntryOutputOpt {
 	}
 }
 
+// WithDurationTotal shows a footer with the sum of the durations of the time
+// entries
+func WithTotalDuration() TimeEntryOutputOpt {
+	return func(teoo *TimeEntryOutputOptions) error {
+		teoo.ShowTotalDuration = true
+		return nil
+	}
+}
+
 // TimeEntryOutputOpt allows the setting of TimeEntryOutputOptions values
 type TimeEntryOutputOpt func(*TimeEntryOutputOptions) error
 
 // TimeEntriesPrint will print more details
 func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Writer) error {
 	options := &TimeEntryOutputOptions{
-		TimeFormat: TIME_FORMAT_SIMPLE,
-		ShowTasks:  false,
+		TimeFormat:        TIME_FORMAT_SIMPLE,
+		ShowTasks:         false,
+		ShowTotalDuration: false,
 	}
 
 	for _, o := range opts {
@@ -136,6 +147,7 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 		}
 
 		colors := make([]tablewriter.Colors, len(header))
+		sumDuration := time.Duration(0)
 		for _, t := range timeEntries {
 			end := time.Now()
 			if t.TimeInterval.End != nil {
@@ -149,11 +161,14 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 				projectName = t.Project.Name
 			}
 
+			d := end.Sub(t.TimeInterval.Start)
+			sumDuration = sumDuration + d
+
 			line := []string{
 				t.ID,
 				t.TimeInterval.Start.In(time.Local).Format(options.TimeFormat),
 				end.In(time.Local).Format(options.TimeFormat),
-				durationToString(end.Sub(t.TimeInterval.Start)),
+				durationToString(d),
 				projectName,
 				t.Description,
 				strings.Join(tagsToStringSlice(t.Tags), ", "),
@@ -168,6 +183,13 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 			}
 
 			tw.Rich(line, colors)
+		}
+
+		if options.ShowTotalDuration {
+			line := make([]string, len(header))
+			line[0] = "TOTAL"
+			line[3] = durationToString(sumDuration)
+			tw.Append(line)
 		}
 
 		tw.Render()

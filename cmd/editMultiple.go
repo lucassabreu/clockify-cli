@@ -33,6 +33,7 @@ var editMultipleCmd = &cobra.Command{
 When multiple IDs are informed the default values on interactive mode will be the values of the first time entry informed.
 When using interactive mode all entries will end with the same properties except for Start and End, if you wanna edit only some properties, than use the flags without interactive mode.
 Start and end fields can't be mass-edited.`,
+	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 
@@ -171,4 +172,5 @@ func init() {
 	rootCmd.AddCommand(editMultipleCmd)
 
 	addTimeEntryFlags(editMultipleCmd)
+	addPrintMultipleTimeEntriesFlags(editMultipleCmd)
 }
