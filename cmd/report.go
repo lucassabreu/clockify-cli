@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -64,7 +65,7 @@ var reportLastMonthCmd = &cobra.Command{
 	Short:   "List all time entries in last month",
 	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		first, last := getMonthRange(time.Now().AddDate(0, -1, 0))
+		first, last := getMonthRange(truncateDate(time.Now()).AddDate(0, -1, 0))
 		return reportWithRange(c, first, last, cmd)
 	}),
 }
@@ -75,7 +76,7 @@ var reportThisWeekCmd = &cobra.Command{
 	Short:   "List all time entries in this week",
 	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		first, last := getWeekRange(time.Now())
+		first, last := getWeekRange(truncateDate(time.Now()))
 		return reportWithRange(c, first, last, cmd)
 	}),
 }
@@ -86,7 +87,7 @@ var reportLastWeekCmd = &cobra.Command{
 	Short:   "List all time entries in last week",
 	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		first, last := getWeekRange(time.Now().AddDate(0, 0, -7))
+		first, last := getWeekRange(truncateDate(time.Now()).AddDate(0, 0, -7))
 		return reportWithRange(c, first, last, cmd)
 	}),
 }
@@ -192,6 +193,8 @@ func getWeekRange(ref time.Time) (first, last time.Time) {
 }
 
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
+	fmt.Printf("%#v - %#v", start, end)
+
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
 

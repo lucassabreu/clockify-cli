@@ -11,11 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.27.1] - 2021-12-31
+
+### Fixed
+
+- `report last-month` was failing to create a valid range time because it was not truncated to 0
+    hours.
+
 ## [v0.27.0] - 2021-12-31
 
 ### Changed
 
-- `formarTimeEntry` renamed into `printTimeEntry`, and simplified to just call `printTimeEntries`
+- `formatTimeEntry` renamed into `printTimeEntry`, and simplified to just call `printTimeEntries`
   with a list containing the time entry informed.
 - go version on `go.mod` updated to 1.17
 
