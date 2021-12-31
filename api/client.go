@@ -222,10 +222,11 @@ func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
 	return c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
-		Workspace: p.Workspace,
-		UserID:    p.UserID,
-		Start:     &p.FirstDate,
-		End:       &p.LastDate,
+		Workspace:       p.Workspace,
+		UserID:          p.UserID,
+		Start:           &p.FirstDate,
+		End:             &p.LastDate,
+		PaginationParam: p.PaginationParam,
 	})
 }
 

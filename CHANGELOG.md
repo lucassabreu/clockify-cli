@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `report` subcommands which required pagination on the requests to the api were not doing so, the
+  time entry list shown by this command was incomplete.
+
 ## [v0.26.1] - 2021-12-07
 
 ### Changed
