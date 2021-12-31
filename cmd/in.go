@@ -19,6 +19,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/spf13/cobra"
@@ -68,7 +69,7 @@ var inCmd = &cobra.Command{
 			createTimeEntry(c, viper.GetString(USER_ID), true),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd),
+			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
 			dc,

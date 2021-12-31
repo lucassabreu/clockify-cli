@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -69,7 +70,7 @@ var cloneCmd = &cobra.Command{
 			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
 			viper.GetBool(INTERACTIVE),
 			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd),
+			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			!viper.GetBool(ALLOW_INCOMPLETE),
 			true,
 			dc,

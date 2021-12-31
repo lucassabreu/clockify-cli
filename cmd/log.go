@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -66,7 +67,7 @@ var logCmd = &cobra.Command{
 			return err
 		}
 
-		return printTimeEntries(log, cmd)
+		return printTimeEntries(log, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

@@ -17,6 +17,7 @@ package cmd
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -157,7 +158,7 @@ Start and end fields can't be mass-edited.`,
 					tes[i] = *t
 				}
 
-				return printTimeEntries(tes, cmd)
+				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 			},
 			shouldValidate,
 			false,

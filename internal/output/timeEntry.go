@@ -78,18 +78,50 @@ func TimeEntryMarkdownPrint(te *dto.TimeEntry, w io.Writer) error {
 	return TimeEntriesMarkdownPrint([]dto.TimeEntry{*te}, w)
 }
 
+// TimeEntryOptions sets how the "table" format should print the time entries
+type TimeEntryOutputOptions struct {
+	ShowTasks  bool
+	TimeFormat string
+}
+
+// WithTimeFormat sets the date-time output format
+func WithTimeFormat(format string) TimeEntryOutputOpt {
+	return func(teo *TimeEntryOutputOptions) error {
+		teo.TimeFormat = format
+		return nil
+	}
+}
+
+// WithShowTasks shows a new column with the task of the time entry
+func WithShowTasks() TimeEntryOutputOpt {
+	return func(teoo *TimeEntryOutputOptions) error {
+		teoo.ShowTasks = true
+		return nil
+	}
+}
+
+// TimeEntryOutputOpt allows the setting of TimeEntryOutputOptions values
+type TimeEntryOutputOpt func(*TimeEntryOutputOptions) error
+
 // TimeEntriesPrint will print more details
-func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry, io.Writer) error {
-	format := TIME_FORMAT_SIMPLE
-	if len(timeFormat) > 0 {
-		format = timeFormat[0]
+func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Writer) error {
+	options := &TimeEntryOutputOptions{
+		TimeFormat: TIME_FORMAT_SIMPLE,
+		ShowTasks:  false,
+	}
+
+	for _, o := range opts {
+		err := o(options)
+		if err != nil {
+			return func(te []dto.TimeEntry, w io.Writer) error { return err }
+		}
 	}
 
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
 		header := []string{"ID", "Start", "End", "Dur",
 			"Project", "Description", "Tags"}
-		if showTasks {
+		if options.ShowTasks {
 			header = append(
 				header[:5],
 				header[5:]...,
@@ -119,15 +151,15 @@ func TimeEntriesPrint(showTasks bool, timeFormat ...string) func([]dto.TimeEntry
 
 			line := []string{
 				t.ID,
-				t.TimeInterval.Start.In(time.Local).Format(format),
-				end.In(time.Local).Format(format),
+				t.TimeInterval.Start.In(time.Local).Format(options.TimeFormat),
+				end.In(time.Local).Format(options.TimeFormat),
 				durationToString(end.Sub(t.TimeInterval.Start)),
 				projectName,
 				t.Description,
 				strings.Join(tagsToStringSlice(t.Tags), ", "),
 			}
 
-			if showTasks {
+			if options.ShowTasks {
 				line = append(line[:5], line[5:]...)
 				line[5] = ""
 				if t.Task != nil {
@@ -291,7 +323,7 @@ func TimeEntryPrintQuietly(timeEntry *dto.TimeEntry, w io.Writer) error {
 
 // TimeEntryPrint will print more details
 func TimeEntryPrint(
-	showTasks bool, timeFormat ...string,
+	opts ...TimeEntryOutputOpt,
 ) func(*dto.TimeEntry, io.Writer) error {
 	return func(timeEntry *dto.TimeEntry, w io.Writer) error {
 		entries := []dto.TimeEntry{}
@@ -300,7 +332,7 @@ func TimeEntryPrint(
 			entries = append(entries, *timeEntry)
 		}
 
-		return TimeEntriesPrint(showTasks, timeFormat...)(entries, w)
+		return TimeEntriesPrint(opts...)(entries, w)
 	}
 }
 

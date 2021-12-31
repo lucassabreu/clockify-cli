@@ -17,6 +17,7 @@ package cmd
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -76,7 +77,7 @@ func changeInvoiced(invoiced bool) func(cmd *cobra.Command, args []string) error
 			return err
 		}
 
-		return printTimeEntries(tes, cmd)
+		return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 	})
 }
 

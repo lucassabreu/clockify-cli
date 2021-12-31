@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -228,7 +229,7 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 }
 
 func printTimeEntryImpl(
-	c *api.Client, cmd *cobra.Command, timeFormat ...string,
+	c *api.Client, cmd *cobra.Command, timeFormat string,
 ) func(dto.TimeEntryImpl) error {
 	return func(tei dto.TimeEntryImpl) error {
 		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
@@ -239,7 +240,7 @@ func printTimeEntryImpl(
 			return err
 		}
 
-		return formatTimeEntry(fte, cmd, timeFormat...)
+		return formatTimeEntry(fte, cmd, timeFormat)
 	}
 }
 
@@ -705,13 +706,19 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
 }
 
+func getOpts(timeFormat string) []output.TimeEntryOutputOpt {
+	opts := []output.TimeEntryOutputOpt{output.WithTimeFormat(timeFormat)}
+
+	if viper.GetBool(SHOW_TASKS) {
+		opts = append(opts, output.WithShowTasks())
+	}
+	return opts
+}
+
 func printTimeEntries(
-	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat ...string,
+	tes []dto.TimeEntry, cmd *cobra.Command, timeFormat string,
 ) error {
-	reportFn := output.TimeEntriesPrint(
-		viper.GetBool(SHOW_TASKS),
-		timeFormat...,
-	)
+	var reportFn func(te []dto.TimeEntry, w io.Writer) error
 
 	if b, _ := cmd.Flags().GetBool("md"); b {
 		reportFn = output.TimeEntriesMarkdownPrint
@@ -733,11 +740,15 @@ func printTimeEntries(
 		reportFn = output.TimeEntriesPrintQuietly
 	}
 
+	if reportFn == nil {
+		reportFn = output.TimeEntriesPrint(getOpts(timeFormat)...)
+	}
+
 	return reportFn(tes, cmd.OutOrStdout())
 }
 
-func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string) error {
-	reportFn := output.TimeEntryPrint(viper.GetBool(SHOW_TASKS), timeFormat...)
+func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat string) error {
+	var reportFn func(te *dto.TimeEntry, w io.Writer) error
 
 	if b, _ := cmd.Flags().GetBool("md"); b {
 		reportFn = output.TimeEntryMarkdownPrint
@@ -757,6 +768,10 @@ func formatTimeEntry(te *dto.TimeEntry, cmd *cobra.Command, timeFormat ...string
 
 	if asQuiet, _ := cmd.Flags().GetBool("quiet"); asQuiet {
 		reportFn = output.TimeEntryPrintQuietly
+	}
+
+	if reportFn == nil {
+		reportFn = output.TimeEntryPrint(getOpts(timeFormat)...)
 	}
 
 	return reportFn(te, cmd.OutOrStdout())

@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -35,7 +36,7 @@ var logInProgressCmd = &cobra.Command{
 			return err
 		}
 
-		return formatTimeEntry(te, cmd)
+		return formatTimeEntry(te, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 
