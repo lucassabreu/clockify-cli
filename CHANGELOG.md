@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new `report today` to show only the time entries from today, with `report` options
+- new `report yesterday` to show only the time entries from yesterday, with `report` options
+
 ### Fixed
 
 - golang commands were wrong

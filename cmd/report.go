@@ -149,6 +149,28 @@ var reportLastWeekDayCmd = &cobra.Command{
 	}),
 }
 
+// reportToday represents report today command
+var reportToday = &cobra.Command{
+	Use:     "today",
+	Short:   "List all time entries created today",
+	PreRunE: printMultipleTimeEntriesPreRun,
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		today := time.Now()
+		return reportWithRange(c, today, today, cmd)
+	}),
+}
+
+// reportYesterday represents report yesterday command
+var reportYesterday = &cobra.Command{
+	Use:     "yesterday",
+	Short:   "List all time entries created yesterday",
+	PreRunE: printMultipleTimeEntriesPreRun,
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		yesterday := truncateDate(time.Now()).Add(-1)
+		return reportWithRange(c, yesterday, yesterday, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
@@ -163,6 +185,8 @@ func init() {
 	reportCmd.AddCommand(reportFlags(reportLastWeekCmd))
 	reportCmd.AddCommand(reportFlags(reportLastDayCmd))
 	reportCmd.AddCommand(reportFlags(reportLastWeekDayCmd))
+	reportCmd.AddCommand(reportFlags(reportToday))
+	reportCmd.AddCommand(reportFlags(reportYesterday))
 }
 
 func reportFlags(cmd *cobra.Command) *cobra.Command {
