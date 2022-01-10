@@ -29,18 +29,22 @@ import (
 
 // reportCmd represents the reports command
 var reportCmd = &cobra.Command{
-	Use:     "report <start> <end>",
-	Short:   "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
-	Args:    cobra.ExactArgs(2),
+	Use:     "report <start> [<end>]",
+	Short:   `List all time entries in the date ranges and with more data (format date as 2016-01-02)`,
+	Args:    cobra.RangeArgs(1, 2),
 	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		start, err := time.Parse("2006-01-02", args[0])
 		if err != nil {
 			return err
 		}
-		end, err := time.Parse("2006-01-02", args[1])
-		if err != nil {
-			return err
+		end := start
+
+		if len(args) > 1 {
+			end, err = time.Parse("2006-01-02", args[1])
+			if err != nil {
+				return err
+			}
 		}
 
 		return reportWithRange(c, start, end, cmd)
