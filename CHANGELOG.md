@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `log` subcommand deprecated in favor of `report`
+- default `report` now allows to set only one date of the range, in this situation it will treat
+  start and end date as being the same.
+
+### Added
+
+- new `report today` to show only the time entries from today, with `report` options
+- new `report yesterday` to show only the time entries from yesterday, with `report` options
+
+### Fixed
+
+- golang commands were wrong
+- there was a output on report subcommands breaking the format
+
 ## [v0.27.1] - 2021-12-31
 
 ### Fixed

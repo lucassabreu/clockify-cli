@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -30,18 +29,22 @@ import (
 
 // reportCmd represents the reports command
 var reportCmd = &cobra.Command{
-	Use:     "report <start> <end>",
-	Short:   "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
-	Args:    cobra.ExactArgs(2),
+	Use:     "report <start> [<end>]",
+	Short:   `List all time entries in the date ranges and with more data (format date as 2016-01-02)`,
+	Args:    cobra.RangeArgs(1, 2),
 	PreRunE: printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		start, err := time.Parse("2006-01-02", args[0])
 		if err != nil {
 			return err
 		}
-		end, err := time.Parse("2006-01-02", args[1])
-		if err != nil {
-			return err
+		end := start
+
+		if len(args) > 1 {
+			end, err = time.Parse("2006-01-02", args[1])
+			if err != nil {
+				return err
+			}
 		}
 
 		return reportWithRange(c, start, end, cmd)
@@ -70,7 +73,7 @@ var reportLastMonthCmd = &cobra.Command{
 	}),
 }
 
-// reportThisWeekCmd represents the report last-month command
+// reportThisWeekCmd represents the report this-week command
 var reportThisWeekCmd = &cobra.Command{
 	Use:     "this-week",
 	Short:   "List all time entries in this week",
@@ -81,7 +84,7 @@ var reportThisWeekCmd = &cobra.Command{
 	}),
 }
 
-// reportLastWeekCmd represents the report last-month command
+// reportLastWeekCmd represents the report last-week command
 var reportLastWeekCmd = &cobra.Command{
 	Use:     "last-week",
 	Short:   "List all time entries in last week",
@@ -150,6 +153,28 @@ var reportLastWeekDayCmd = &cobra.Command{
 	}),
 }
 
+// reportToday represents report today command
+var reportToday = &cobra.Command{
+	Use:     "today",
+	Short:   "List all time entries created today",
+	PreRunE: printMultipleTimeEntriesPreRun,
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		today := time.Now()
+		return reportWithRange(c, today, today, cmd)
+	}),
+}
+
+// reportYesterday represents report yesterday command
+var reportYesterday = &cobra.Command{
+	Use:     "yesterday",
+	Short:   "List all time entries created yesterday",
+	PreRunE: printMultipleTimeEntriesPreRun,
+	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
+		yesterday := truncateDate(time.Now()).Add(-1)
+		return reportWithRange(c, yesterday, yesterday, cmd)
+	}),
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
@@ -164,6 +189,8 @@ func init() {
 	reportCmd.AddCommand(reportFlags(reportLastWeekCmd))
 	reportCmd.AddCommand(reportFlags(reportLastDayCmd))
 	reportCmd.AddCommand(reportFlags(reportLastWeekDayCmd))
+	reportCmd.AddCommand(reportFlags(reportToday))
+	reportCmd.AddCommand(reportFlags(reportYesterday))
 }
 
 func reportFlags(cmd *cobra.Command) *cobra.Command {
@@ -193,8 +220,6 @@ func getWeekRange(ref time.Time) (first, last time.Time) {
 }
 
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
-	fmt.Printf("%#v - %#v", start, end)
-
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
 

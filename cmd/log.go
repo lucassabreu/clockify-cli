@@ -30,10 +30,11 @@ var dateFormat = "2006-01-02"
 
 // logCmd represents the log command
 var logCmd = &cobra.Command{
-	Use:     "log",
-	Aliases: []string{"logs"},
-	Short:   "List the entries from a specific day",
-	PreRunE: printMultipleTimeEntriesPreRun,
+	Use:        "log",
+	Aliases:    []string{"logs"},
+	Short:      "List the entries from a specific day",
+	Deprecated: "use report subcommands instead",
+	PreRunE:    printMultipleTimeEntriesPreRun,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var filterDate time.Time
 
