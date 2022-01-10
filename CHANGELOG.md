@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.28.0] - 2022-01-10
+
 ### Changed
 
 - `log` subcommand deprecated in favor of `report`
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - golang commands were wrong
 - there was a output on report subcommands breaking the format
+- changelog release links were wrong
 
 ## [v0.27.1] - 2021-12-31
 
@@ -758,10 +761,12 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.27.0...HEAD
-[v0.27.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.26.1
-[v0.26.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.26.0
-[v0.26.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.25.0
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.28.0...HEAD
+[v0.28.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.28.1
+[v0.27.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.27.1
+[v0.27.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.27.0
+[v0.26.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.26.1
+[v0.26.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.26.0
 [v0.25.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.25.0
 [v0.24.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.24.1
 [v0.24.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.24.0
