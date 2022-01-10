@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -70,7 +69,7 @@ var reportLastMonthCmd = &cobra.Command{
 	}),
 }
 
-// reportThisWeekCmd represents the report last-month command
+// reportThisWeekCmd represents the report this-week command
 var reportThisWeekCmd = &cobra.Command{
 	Use:     "this-week",
 	Short:   "List all time entries in this week",
@@ -81,7 +80,7 @@ var reportThisWeekCmd = &cobra.Command{
 	}),
 }
 
-// reportLastWeekCmd represents the report last-month command
+// reportLastWeekCmd represents the report last-week command
 var reportLastWeekCmd = &cobra.Command{
 	Use:     "last-week",
 	Short:   "List all time entries in last week",
@@ -193,8 +192,6 @@ func getWeekRange(ref time.Time) (first, last time.Time) {
 }
 
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
-	fmt.Printf("%#v - %#v", start, end)
-
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
 
