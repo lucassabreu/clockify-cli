@@ -25,16 +25,21 @@ import (
 var showCmd = &cobra.Command{
 	Use:       "show [current|last|<time-entry-id>|^n]",
 	ValidArgs: []string{"current", "last"},
-	Args:      cobra.ExactArgs(1),
-	Short:     "Show detailed information about one time entry",
+	Args:      cobra.MaximumNArgs(1),
+	Short:     "Show detailed information about one time entry.\nShows current one by default",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		userID, err := getUserId(c)
 		if err != nil {
 			return err
 		}
 
+		id := "current"
+		if len(args) > 0 {
+			id = args[0]
+		}
+
 		tei, err := getTimeEntry(
-			args[0],
+			id,
 			viper.GetString(WORKSPACE),
 			userID,
 			false,
