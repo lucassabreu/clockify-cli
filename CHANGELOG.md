@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `show` subcommand has its parameter as optional, and shows current time entry by default when the
+  parameter is omitted.
+- `report` subcommand has its parameters as optional, and use `today` as value when none is set.
+- `log in-progress` subcommand is deprecated in favor of `show`/`show current`
+
 ## [v0.28.0] - 2022-01-10
 
 ### Changed
