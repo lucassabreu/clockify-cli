@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - if creation of incomplete time entries is not allowed, the commands will verify if the project is
   active or not.
+- when closing a running time entry before creating a new one, the client will validate it before
+  asking information on interactive mode.
 
 ### Fixed
 

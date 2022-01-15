@@ -336,6 +336,31 @@ func getErrorCode(err error) int {
 	return 0
 }
 
+func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
+	te, err := c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+		Workspace: workspace,
+		UserID:    userID,
+	})
+
+	if te == nil {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return err
+	}
+
+	if err = validateTimeEntry(*te, w, c); err != nil {
+		return fmt.Errorf("running time entry can't be ended: %w", err)
+	}
+	return nil
+}
+
 func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if autoClose {

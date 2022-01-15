@@ -403,9 +403,10 @@ type GetTimeEntryInProgressParam struct {
 func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
 	b := true
 	ts, err := c.GetUserTimeEntries(GetUserTimeEntriesParam{
-		Workspace:      p.Workspace,
-		UserID:         p.UserID,
-		OnlyInProgress: &b,
+		Workspace:       p.Workspace,
+		UserID:          p.UserID,
+		OnlyInProgress:  &b,
+		PaginationParam: PaginationParam{PageSize: 1},
 	})
 
 	if err != nil {
