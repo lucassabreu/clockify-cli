@@ -36,9 +36,23 @@ var projectListCmd = &cobra.Command{
 		asCSV, _ := cmd.Flags().GetBool("csv")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 		name, _ := cmd.Flags().GetString("name")
-		archived, _ := cmd.Flags().GetBool("archived")
 
-		projects, err := getProjects(c, name, archived)
+		p := api.GetProjectsParam{
+			Workspace:       viper.GetString(WORKSPACE),
+			Name:            name,
+			PaginationParam: api.AllPages(),
+		}
+
+		if ok, _ := cmd.Flags().GetBool("not-archived"); ok {
+			b := false
+			p.Archived = &b
+		}
+		if ok, _ := cmd.Flags().GetBool("archived"); ok {
+			b := true
+			p.Archived = &b
+		}
+
+		projects, err := c.GetProjects(p)
 		if err != nil {
 			return err
 		}
@@ -66,19 +80,11 @@ var projectListCmd = &cobra.Command{
 	}),
 }
 
-func getProjects(c *api.Client, name string, archived bool) ([]dto.Project, error) {
-	return c.GetProjects(api.GetProjectsParam{
-		Workspace:       viper.GetString(WORKSPACE),
-		Name:            name,
-		Archived:        archived,
-		PaginationParam: api.PaginationParam{AllPages: true},
-	})
-}
-
 func init() {
 	projectCmd.AddCommand(projectListCmd)
 
 	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
+	projectListCmd.Flags().BoolP("not-archived", "", false, "list only active projects")
 	projectListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
 	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
 	projectListCmd.Flags().BoolP("json", "j", false, "print as JSON")

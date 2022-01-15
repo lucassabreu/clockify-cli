@@ -63,6 +63,12 @@ var inCmd = &cobra.Command{
 			)
 		}
 
+		if err := validateClosingTimeEntry(
+			c, tei.WorkspaceID, viper.GetString(USER_ID),
+		); err != nil {
+			return err
+		}
+
 		return manageEntry(
 			c,
 			tei,

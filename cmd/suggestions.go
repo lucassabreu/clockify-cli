@@ -77,7 +77,12 @@ func suggestTasks(cmd *cobra.Command, _ []string, toComplete string, c *api.Clie
 }
 
 func suggestProjects(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
-	projects, err := getProjects(c, "", false)
+	b := false
+	projects, err := c.GetProjects(api.GetProjectsParam{
+		Workspace:       viper.GetString(WORKSPACE),
+		Archived:        &b,
+		PaginationParam: api.AllPages(),
+	})
 	if err != nil {
 		return completion.EmptyValidArgs(), err
 	}

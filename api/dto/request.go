@@ -187,7 +187,7 @@ type UpdateTimeEntryRequest struct {
 
 type GetProjectRequest struct {
 	Name     string
-	Archived bool
+	Archived *bool
 
 	pagination
 }
@@ -198,14 +198,25 @@ func (r GetProjectRequest) WithPagination(page, size int) PaginatedRequest {
 	return r
 }
 
+func bool2str(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
 // AppendToQuery decorates the URL with the query string needed for this Request
 func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
-	v.Add("name", r.Name)
-	if r.Archived {
-		v.Add("archived", "true")
+
+	if r.Name != "" {
+		v.Add("name", r.Name)
+	}
+
+	if r.Archived != nil {
+		v.Add("archived", bool2str(*r.Archived))
 	}
 
 	u.RawQuery = v.Encode()

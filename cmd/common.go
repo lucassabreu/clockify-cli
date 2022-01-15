@@ -211,8 +211,7 @@ func confirmEntryInteractively(
 	return te, nil
 }
 
-func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
-
+func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace, c *api.Client) error {
 	if w.Settings.ForceProjects && te.ProjectID == "" {
 		return errors.New("workspace requires project")
 	}
@@ -223,6 +222,23 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace) error {
 
 	if w.Settings.ForceTags && len(te.TagIDs) == 0 {
 		return errors.New("workspace requires at least one tag")
+	}
+
+	if te.ProjectID == "" {
+		return nil
+	}
+
+	p, err := c.GetProject(api.GetProjectParam{
+		Workspace: te.WorkspaceID,
+		ProjectID: te.ProjectID,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if p.Archived {
+		return fmt.Errorf("project %s - %s is archived", p.ID, p.Name)
 	}
 
 	return nil
@@ -294,7 +310,7 @@ func manageEntry(
 		}
 
 		if validate {
-			if err = validateTimeEntry(te, w); err != nil {
+			if err = validateTimeEntry(te, w, c); err != nil {
 				return err
 			}
 		}
@@ -318,6 +334,31 @@ func getErrorCode(err error) int {
 	}
 
 	return 0
+}
+
+func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
+	te, err := c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+		Workspace: workspace,
+		UserID:    userID,
+	})
+
+	if te == nil {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return err
+	}
+
+	if err = validateTimeEntry(*te, w, c); err != nil {
+		return fmt.Errorf("running time entry can't be ended: %w", err)
+	}
+	return nil
 }
 
 func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
@@ -349,9 +390,11 @@ func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.Time
 const noProject = "No Project"
 
 func getProjectID(projectID string, w dto.Workspace, c *api.Client) (string, error) {
+	b := false
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       w.ID,
-		PaginationParam: api.PaginationParam{AllPages: true},
+		Archived:        &b,
+		PaginationParam: api.AllPages(),
 	})
 
 	if err != nil {

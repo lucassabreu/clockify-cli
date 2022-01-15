@@ -184,6 +184,11 @@ type PaginationParam struct {
 	PageSize int
 }
 
+// AllPages sets the query to retrieve all pages
+func AllPages() PaginationParam {
+	return PaginationParam{AllPages: true}
+}
+
 // LogParam params to query entries
 type LogParam struct {
 	Workspace string
@@ -398,9 +403,10 @@ type GetTimeEntryInProgressParam struct {
 func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
 	b := true
 	ts, err := c.GetUserTimeEntries(GetUserTimeEntriesParam{
-		Workspace:      p.Workspace,
-		UserID:         p.UserID,
-		OnlyInProgress: &b,
+		Workspace:       p.Workspace,
+		UserID:          p.UserID,
+		OnlyInProgress:  &b,
+		PaginationParam: PaginationParam{PageSize: 1},
 	})
 
 	if err != nil {
@@ -759,7 +765,7 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 type GetProjectsParam struct {
 	Workspace string
 	Name      string
-	Archived  bool
+	Archived  *bool
 
 	PaginationParam
 }

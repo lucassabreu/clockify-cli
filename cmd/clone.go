@@ -64,6 +64,14 @@ var cloneCmd = &cobra.Command{
 			)
 		}
 
+		if !noClosing {
+			if err := validateClosingTimeEntry(
+				c, tec.WorkspaceID, viper.GetString(USER_ID),
+			); err != nil {
+				return err
+			}
+		}
+
 		return manageEntry(
 			c,
 			tec,
