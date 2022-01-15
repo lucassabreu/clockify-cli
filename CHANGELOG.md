@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- if creation of incomplete time entries is not allowed, the commands will verify if the project is
+  active or not.
+
+### Fixed
+
+- archived projects were being shown as options to select in interactive mode, now only active are
+  shown.
+
 ## [v0.29.0] - 2022-01-12
 
 ### Changed

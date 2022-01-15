@@ -184,6 +184,11 @@ type PaginationParam struct {
 	PageSize int
 }
 
+// AllPages sets the query to retrieve all pages
+func AllPages() PaginationParam {
+	return PaginationParam{AllPages: true}
+}
+
 // LogParam params to query entries
 type LogParam struct {
 	Workspace string
@@ -759,7 +764,7 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 type GetProjectsParam struct {
 	Workspace string
 	Name      string
-	Archived  bool
+	Archived  *bool
 
 	PaginationParam
 }
