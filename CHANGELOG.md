@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.30.0] - 2022-01-15
+
 ### Changed
 
 - if creation of incomplete time entries is not allowed, the commands will verify if the project is
@@ -782,7 +784,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.29.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.30.0...HEAD
+[v0.30.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.30.0
 [v0.29.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.29.0
 [v0.28.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.28.0
 [v0.27.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.27.1
