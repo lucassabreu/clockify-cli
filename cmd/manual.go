@@ -69,6 +69,11 @@ var manualCmd = &cobra.Command{
 			return err
 		}
 
+		if tei.TimeInterval.End == nil {
+			now, _ := convertToTime(nowTimeFormat)
+			tei.TimeInterval.End = &now
+		}
+
 		var dc *descriptionCompleter
 		if viper.GetBool(DESCR_AUTOCOMP) {
 			dc = newDescriptionCompleter(
