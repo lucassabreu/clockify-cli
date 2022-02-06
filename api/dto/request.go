@@ -262,6 +262,16 @@ func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 	return u
 }
 
+type AddProjectRequest struct {
+	Name     string `json:"name"`
+	ClientId string `json:"clientId,omitempty"`
+	IsPublic bool   `json:"isPublic"`
+	Color    string `json:"color,omitempty"`
+	Note     string `json:"note,omitempty"`
+	Billable bool   `json:"billable"`
+	Public   bool   `json:"public"`
+}
+
 type GetTagsRequest struct {
 	Name     string
 	Archived bool

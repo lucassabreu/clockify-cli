@@ -857,6 +857,54 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 	return ps, err
 }
 
+type AddProjectParam struct {
+	Workspace string
+	Name      string
+	ClientId  string
+	Color     string
+	Note      string
+	Billable  bool
+	Public    bool
+}
+
+// AddProject adds a new project to a workspace
+func (c *Client) AddProject(p AddProjectParam) (dto.Project, error) {
+	var project dto.Project
+
+	err := required("add project", map[field]string{
+		nameField:      p.Name,
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return project, err
+	}
+
+	req, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects",
+			p.Workspace,
+		),
+		dto.AddProjectRequest{
+			Name:     p.Name,
+			ClientId: p.ClientId,
+			IsPublic: p.Public,
+			Color:    p.Color,
+			Note:     p.Note,
+			Billable: p.Billable,
+			Public:   p.Public,
+		},
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(req, &project, "AddProject")
+	return project, err
+}
+
 // OutParam params to end the current time entry
 type OutParam struct {
 	Workspace string
