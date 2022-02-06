@@ -26,17 +26,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-// taskListCmd represents the list command
-var taskListCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List tasks of a Clockify project",
-	Aliases: []string{"ls"},
+// taskAddCmd represents the add command
+var taskAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Adds a task to the specified project",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
 		asCSV, _ := cmd.Flags().GetBool("csv")
-		quiet, _ := cmd.Flags().GetBool("quiet")
-		active, _ := cmd.Flags().GetBool("active")
 		name, _ := cmd.Flags().GetString("name")
 		project, _ := cmd.Flags().GetString("project")
 
@@ -52,15 +49,13 @@ var taskListCmd = &cobra.Command{
 			}
 		}
 
-		p := api.GetTasksParam{
-			Workspace:       workspace,
-			Name:            name,
-			ProjectID:       project,
-			Active:          active,
-			PaginationParam: api.AllPages(),
+		p := api.AddTaskParam{
+			Workspace: workspace,
+			ProjectID: project,
+			Name:      name,
 		}
 
-		tasks, err := c.GetTasks(p)
+		task, err := c.AddTask(p)
 		if err != nil {
 			return err
 		}
@@ -80,21 +75,17 @@ var taskListCmd = &cobra.Command{
 			reportFn = output.TaskPrintWithTemplate(format)
 		}
 
-		if quiet {
-			reportFn = output.TaskPrintQuietly
-		}
-
-		return reportFn(tasks, os.Stdout)
+		return reportFn([]dto.Task{task}, os.Stdout)
 	}),
 }
 
 func init() {
-	taskCmd.AddCommand(taskListCmd)
+	taskCmd.AddCommand(taskAddCmd)
 
-	taskListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
-	taskListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Client")
-	taskListCmd.Flags().BoolP("active", "a", false, "display only active tasks")
-	taskListCmd.Flags().BoolP("json", "j", false, "print as JSON")
-	taskListCmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	taskListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	taskAddCmd.Flags().StringP("name", "n", "", "name of the new task")
+	taskAddCmd.MarkFlagRequired("name")
+
+	taskAddCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
+	taskAddCmd.Flags().BoolP("json", "j", false, "print as JSON")
+	taskAddCmd.Flags().BoolP("csv", "v", false, "print as CSV")
 }

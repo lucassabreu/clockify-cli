@@ -661,6 +661,46 @@ func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 	return ps, err
 }
 
+// AddTaskParam param to add tasks to a project
+type AddTaskParam struct {
+	Workspace string
+	ProjectID string
+	Name      string
+}
+
+func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
+	var task dto.Task
+
+	err := required("add task", map[field]string{
+		nameField:      p.Name,
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return task, err
+	}
+
+	req, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks",
+			p.Workspace,
+			p.ProjectID,
+		),
+		dto.AddTaskRequest{
+			Name: p.Name,
+		},
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(req, &task, "AddTask")
+	return task, err
+}
+
 // CreateTimeEntryParam params to create a new time entry
 type CreateTimeEntryParam struct {
 	Workspace   string

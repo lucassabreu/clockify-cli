@@ -28,4 +28,7 @@ var taskCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(taskCmd)
+
+	taskCmd.PersistentFlags().StringP("project", "p", "", "the name/id of the project to work on")
+	taskCmd.MarkPersistentFlagRequired("project")
 }
