@@ -49,7 +49,7 @@ var projectAddCmd = &cobra.Command{
 		}
 
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && client != "" {
-			client, err = getClientId(client, workspace, c)
+			client, err = getClientByNameOrId(c, workspace, client)
 			if err != nil {
 				return err
 			}

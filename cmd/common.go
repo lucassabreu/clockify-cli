@@ -118,6 +118,28 @@ func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string
 	return tags, nil
 }
 
+func getClientByNameOrId(c *api.Client, workspace string, client string) (string, error) {
+	client = strhlp.Normalize(strings.TrimSpace(client))
+	clients, err := c.GetClients(api.GetClientsParam{
+		Workspace:       workspace,
+		PaginationParam: api.AllPages(),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	for _, cl := range clients {
+		if strings.ToLower(cl.ID) == client {
+			return cl.ID, nil
+		}
+		if strings.Contains(strhlp.Normalize(cl.Name), client) {
+			return cl.ID, nil
+		}
+	}
+
+	return "", stackedErrors.Errorf("No client with id or name containing: %s", client)
+}
+
 func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
 	project = strhlp.Normalize(strings.TrimSpace(project))
 	projects, err := c.GetProjects(api.GetProjectsParam{
@@ -578,34 +600,6 @@ func getWorkspaceOrDefault(c *api.Client) (string, error) {
 	}
 
 	return u.DefaultWorkspace, nil
-}
-
-func getClientId(clientName string, workspace string, c *api.Client) (string, error) {
-	clients, err := c.GetClients(api.GetClientsParam{
-		Workspace: workspace,
-		Name:      clientName,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	if len(clients) == 0 {
-		return "", fmt.Errorf("%s client not found", clientName)
-	}
-
-	var foundClient *dto.Client
-	for _, client := range clients {
-		if client.Name == clientName {
-			foundClient = &client
-			break
-		}
-	}
-
-	if foundClient == nil {
-		return "", fmt.Errorf("%s client not found", clientName)
-	}
-
-	return foundClient.ID, nil
 }
 
 var noTimeEntryErr = errors.New("time entry was not found")

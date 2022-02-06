@@ -47,7 +47,7 @@ var projectListCmd = &cobra.Command{
 			clientNames := clients
 			clients = make([]string, 0)
 			for _, clientName := range clientNames {
-				clientId, err := getClientId(clientName, workspace, c)
+				clientId, err := getClientByNameOrId(c, workspace, clientName)
 				if err != nil {
 					return err
 				}
