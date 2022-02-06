@@ -218,6 +218,10 @@ func (r GetClientsRequest) AppendToQuery(u url.URL) url.URL {
 	return u
 }
 
+type AddClientRequest struct {
+	Name string `json:"name"`
+}
+
 type GetProjectRequest struct {
 	Name     string
 	Archived *bool

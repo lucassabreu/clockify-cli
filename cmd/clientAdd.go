@@ -25,11 +25,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// clientListCmd represents the list command
-var clientListCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List clients on Clockify",
-	Aliases: []string{"ls"},
+// clientAddCmd represents the add command
+var clientAddCmd = &cobra.Command{
+	Use:     "add",
+	Aliases: []string{"new", "create"},
+	Short:   "Adds a client to the Clockify workspace",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		format, _ := cmd.Flags().GetString("format")
 		asJSON, _ := cmd.Flags().GetBool("json")
@@ -42,22 +42,10 @@ var clientListCmd = &cobra.Command{
 			return err
 		}
 
-		p := api.GetClientsParam{
-			Workspace:       workspace,
-			Name:            name,
-			PaginationParam: api.AllPages(),
-		}
-
-		if ok, _ := cmd.Flags().GetBool("not-archived"); ok {
-			b := false
-			p.Archived = &b
-		}
-		if ok, _ := cmd.Flags().GetBool("archived"); ok {
-			b := true
-			p.Archived = &b
-		}
-
-		clients, err := c.GetClients(p)
+		client, err := c.AddClient(api.AddClientParam{
+			Workspace: workspace,
+			Name:      name,
+		})
 		if err != nil {
 			return err
 		}
@@ -81,18 +69,18 @@ var clientListCmd = &cobra.Command{
 			reportFn = output.ClientPrintQuietly
 		}
 
-		return reportFn(clients, os.Stdout)
+		return reportFn([]dto.Client{client}, os.Stdout)
 	}),
 }
 
 func init() {
-	clientCmd.AddCommand(clientListCmd)
+	clientCmd.AddCommand(clientAddCmd)
 
-	clientListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
-	clientListCmd.Flags().BoolP("not-archived", "", false, "list only active projects")
-	clientListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
-	clientListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Client")
-	clientListCmd.Flags().BoolP("json", "j", false, "print as JSON")
-	clientListCmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	clientListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	clientAddCmd.Flags().StringP("name", "n", "", "the name of the new client")
+	clientAddCmd.MarkFlagRequired("name")
+
+	clientAddCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Client")
+	clientAddCmd.Flags().BoolP("json", "j", false, "print as JSON")
+	clientAddCmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	clientAddCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }

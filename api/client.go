@@ -771,6 +771,7 @@ type GetClientsParam struct {
 	PaginationParam
 }
 
+// GetClients gets all clients of a workspace
 func (c *Client) GetClients(p GetClientsParam) ([]dto.Client, error) {
 	var clients, tmpl []dto.Client
 
@@ -806,6 +807,43 @@ func (c *Client) GetClients(p GetClientsParam) ([]dto.Client, error) {
 		"GetClients",
 	)
 	return clients, err
+}
+
+type AddClientParam struct {
+	Workspace string
+	Name      string
+}
+
+// AddClient adds a new client to a workspace
+func (c *Client) AddClient(p AddClientParam) (dto.Client, error) {
+	var client dto.Client
+
+	err := required("add client", map[field]string{
+		nameField:      p.Name,
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return client, err
+	}
+
+	req, err := c.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"v1/workspaces/%s/clients",
+			p.Workspace,
+		),
+		dto.AddClientRequest{
+			Name: p.Name,
+		},
+	)
+
+	if err != nil {
+		return client, err
+	}
+
+	_, err = c.Do(req, &client, "AddClient")
+	return client, err
 }
 
 // GetProjectsParam params to get all project of a workspace
