@@ -36,10 +36,29 @@ var projectListCmd = &cobra.Command{
 		asCSV, _ := cmd.Flags().GetBool("csv")
 		quiet, _ := cmd.Flags().GetBool("quiet")
 		name, _ := cmd.Flags().GetString("name")
+		clients, _ := cmd.Flags().GetStringSlice("clients")
+
+		workspace, err := getWorkspaceOrDefault(c)
+		if err != nil {
+			return err
+		}
+
+		if viper.GetBool(ALLOW_NAME_FOR_ID) && len(clients) > 0 {
+			clientNames := clients
+			clients = make([]string, 0)
+			for _, clientName := range clientNames {
+				clientId, err := getClientId(clientName, workspace, c)
+				if err != nil {
+					return err
+				}
+				clients = append(clients, clientId)
+			}
+		}
 
 		p := api.GetProjectsParam{
-			Workspace:       viper.GetString(WORKSPACE),
+			Workspace:       workspace,
 			Name:            name,
+			Clients:         clients,
 			PaginationParam: api.AllPages(),
 		}
 
@@ -83,7 +102,8 @@ var projectListCmd = &cobra.Command{
 func init() {
 	projectCmd.AddCommand(projectListCmd)
 
-	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
+	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the project by name")
+	projectListCmd.Flags().StringSliceP("clients", "c", []string{}, "will be used to filter the project by client id/name")
 	projectListCmd.Flags().BoolP("not-archived", "", false, "list only active projects")
 	projectListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
 	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")

@@ -94,6 +94,7 @@ const (
 	userIDField      = field("user id")
 	projectField     = field("project id")
 	timeEntryIDField = field("time entry id")
+	nameField        = field("name")
 )
 
 func required(action string, values map[field]string) error {
@@ -761,10 +762,57 @@ func (c *Client) GetTags(p GetTagsParam) ([]dto.Tag, error) {
 	return ps, err
 }
 
+// GetClientsParam params to get all clients of a workspace
+type GetClientsParam struct {
+	Workspace string
+	Name      string
+	Archived  *bool
+
+	PaginationParam
+}
+
+func (c *Client) GetClients(p GetClientsParam) ([]dto.Client, error) {
+	var clients, tmpl []dto.Client
+
+	err := required("get clients", map[field]string{
+		workspaceField: p.Workspace,
+	})
+
+	if err != nil {
+		return clients, err
+	}
+
+	err = c.paginate(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/clients",
+			p.Workspace,
+		),
+		p.PaginationParam,
+		dto.GetClientsRequest{
+			Name:     p.Name,
+			Archived: p.Archived,
+		},
+		&tmpl,
+		func(res interface{}) (int, error) {
+			if res == nil {
+				return 0, nil
+			}
+			ls := *res.(*[]dto.Client)
+
+			clients = append(clients, ls...)
+			return len(ls), nil
+		},
+		"GetClients",
+	)
+	return clients, err
+}
+
 // GetProjectsParam params to get all project of a workspace
 type GetProjectsParam struct {
 	Workspace string
 	Name      string
+	Clients   []string
 	Archived  *bool
 
 	PaginationParam
@@ -792,6 +840,7 @@ func (c *Client) GetProjects(p GetProjectsParam) ([]dto.Project, error) {
 		dto.GetProjectRequest{
 			Name:     p.Name,
 			Archived: p.Archived,
+			Clients:  p.Clients,
 		},
 		&tmpl,
 		func(res interface{}) (int, error) {

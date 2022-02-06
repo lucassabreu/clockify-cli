@@ -566,6 +566,48 @@ func getUserId(c *api.Client) (string, error) {
 	return u.ID, nil
 }
 
+func getWorkspaceOrDefault(c *api.Client) (string, error) {
+	workspace := viper.GetString(WORKSPACE)
+	if workspace != "" {
+		return workspace, nil
+	}
+
+	u, err := c.GetMe()
+	if err != nil {
+		return "", err
+	}
+
+	return u.DefaultWorkspace, nil
+}
+
+func getClientId(clientName string, workspace string, c *api.Client) (string, error) {
+	clients, err := c.GetClients(api.GetClientsParam{
+		Workspace: workspace,
+		Name:      clientName,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if len(clients) == 0 {
+		return "", fmt.Errorf("%s client not found", clientName)
+	}
+
+	var foundClient *dto.Client
+	for _, client := range clients {
+		if client.Name == clientName {
+			foundClient = &client
+			break
+		}
+	}
+
+	if foundClient == nil {
+		return "", fmt.Errorf("%s client not found", clientName)
+	}
+
+	return foundClient.ID, nil
+}
+
 var noTimeEntryErr = errors.New("time entry was not found")
 
 func getTimeEntry(

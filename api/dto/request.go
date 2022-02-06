@@ -3,6 +3,7 @@ package dto
 import (
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -185,9 +186,42 @@ type UpdateTimeEntryRequest struct {
 	CustomFields []CustomField `json:"customFields,omitempty"`
 }
 
+type GetClientsRequest struct {
+	Name     string
+	Archived *bool
+
+	pagination
+}
+
+// WithPagination add pagination to the GetProjectRequest
+func (r GetClientsRequest) WithPagination(page, size int) PaginatedRequest {
+	r.pagination = newPagination(page, size)
+	return r
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetClientsRequest) AppendToQuery(u url.URL) url.URL {
+	u = r.pagination.AppendToQuery(u)
+
+	v := u.Query()
+
+	if r.Name != "" {
+		v.Add("name", r.Name)
+	}
+
+	if r.Archived != nil {
+		v.Add("archived", bool2str(*r.Archived))
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}
+
 type GetProjectRequest struct {
 	Name     string
 	Archived *bool
+	Clients  []string
 
 	pagination
 }
@@ -217,6 +251,10 @@ func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 
 	if r.Archived != nil {
 		v.Add("archived", bool2str(*r.Archived))
+	}
+
+	if len(r.Clients) > 0 {
+		v.Add("clients", strings.Join(r.Clients, ","))
 	}
 
 	u.RawQuery = v.Encode()

@@ -206,7 +206,7 @@ func configInit(_ *cobra.Command, _ []string) error {
 
 	if err := updateFlag(
 		ALLOW_NAME_FOR_ID,
-		"Should try to find projects/tasks/tags by their names?",
+		"Should try to find projects/clients/tasks/tags by their names?",
 	); err != nil {
 		return err
 	}
