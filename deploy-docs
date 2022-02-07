@@ -10,20 +10,20 @@ download() {
 set -e
 download
 
-rm -rf docs/content/commands/* || true
-./clockify-cli gendocs docs/content/commands
+rm -rf site/content/commands/* || true
+./clockify-cli gensite site/content/commands
 
 # fix root command to be "chapter root"
-mv docs/content/commands/clockify-cli.md docs/content/commands/_index.md
+mv site/content/commands/clockify-cli.md site/content/commands/_index.md
 
 # add license information
-mkdir -p docs/content/license
+mkdir -p site/content/license
 echo '---
 title: License
 chapter: true
 ---
-```txt' > docs/content/license/_index.md
-cat LICENSE >> docs/content/license/_index.md
-echo '```' >> docs/content/license/_index.md
+```txt' > site/content/license/_index.md
+cat LICENSE >> site/content/license/_index.md
+echo '```' >> site/content/license/_index.md
 
-cd docs && hugo
+cd site && hugo

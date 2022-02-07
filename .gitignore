@@ -1,7 +1,7 @@
 build/
 dist/
-docs/content/commands/
-clockify-cli
-docs/public/
 snap.login
-docs/content/license
+clockify-cli
+site/content/commands/
+site/public/
+site/content/license
