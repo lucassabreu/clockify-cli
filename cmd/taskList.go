@@ -40,11 +40,9 @@ var taskListCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		project, _ := cmd.Flags().GetString("project")
 
-		workspace, err := getWorkspaceOrDefault(c)
-		if err != nil {
-			return err
-		}
+		workspace := viper.GetString(WORKSPACE)
 
+		var err error
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && project != "" {
 			project, err = getProjectByNameOrId(c, workspace, project)
 			if err != nil {
@@ -90,6 +88,8 @@ var taskListCmd = &cobra.Command{
 
 func init() {
 	taskCmd.AddCommand(taskListCmd)
+
+	addProjectFlags(taskListCmd)
 
 	taskListCmd.Flags().StringP("name", "n", "", "will be used to filter the tag by name")
 	taskListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Client")

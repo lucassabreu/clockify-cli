@@ -151,3 +151,26 @@ func suggestDescription(_ *cobra.Command, _ []string, toComplete string, c *api.
 
 	return completion.ValigsArgsSlide(dc.suggestFn(toComplete)), nil
 }
+
+func suggestClients(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {
+	b := false
+	clients, err := c.GetClients(api.GetClientsParam{
+		Workspace:       viper.GetString(WORKSPACE),
+		Archived:        &b,
+		PaginationParam: api.AllPages(),
+	})
+	if err != nil {
+		return completion.EmptyValidArgs(), err
+	}
+
+	va := make(completion.ValigsArgsMap)
+	toComplete = strings.ToLower(toComplete)
+	for _, client := range clients {
+		if toComplete != "" && !strings.Contains(client.ID, toComplete) {
+			continue
+		}
+		va.Set(client.ID, client.Name)
+	}
+
+	return va, nil
+}

@@ -20,6 +20,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -38,11 +39,7 @@ var projectListCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		clients, _ := cmd.Flags().GetStringSlice("clients")
 
-		workspace, err := getWorkspaceOrDefault(c)
-		if err != nil {
-			return err
-		}
-
+		workspace := viper.GetString(WORKSPACE)
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && len(clients) > 0 {
 			clientNames := clients
 			clients = make([]string, 0)
@@ -104,6 +101,8 @@ func init() {
 
 	projectListCmd.Flags().StringP("name", "n", "", "will be used to filter the project by name")
 	projectListCmd.Flags().StringSliceP("clients", "c", []string{}, "will be used to filter the project by client id/name")
+	_ = completion.AddSuggestionsToFlag(projectListCmd, "clients", suggestWithClientAPI(suggestClients))
+
 	projectListCmd.Flags().BoolP("not-archived", "", false, "list only active projects")
 	projectListCmd.Flags().BoolP("archived", "", false, "list only archived projects")
 	projectListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")

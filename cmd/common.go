@@ -588,20 +588,6 @@ func getUserId(c *api.Client) (string, error) {
 	return u.ID, nil
 }
 
-func getWorkspaceOrDefault(c *api.Client) (string, error) {
-	workspace := viper.GetString(WORKSPACE)
-	if workspace != "" {
-		return workspace, nil
-	}
-
-	u, err := c.GetMe()
-	if err != nil {
-		return "", err
-	}
-
-	return u.DefaultWorkspace, nil
-}
-
 var noTimeEntryErr = errors.New("time entry was not found")
 
 func getTimeEntry(
@@ -797,6 +783,13 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 		"prints only the sum of duration formatted")
 	cmd.Flags().BoolP("duration-float", "F", false,
 		`prints only the sum of duration as a "float hour"`)
+}
+
+func addProjectFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("project", "p", "", "the name/id of the project to work on")
+	cmd.MarkFlagRequired("project")
+
+	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
 }
 
 func getOpts(timeFormat string) []output.TimeEntryOutputOpt {

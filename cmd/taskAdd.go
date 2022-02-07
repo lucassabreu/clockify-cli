@@ -37,11 +37,9 @@ var taskAddCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		project, _ := cmd.Flags().GetString("project")
 
-		workspace, err := getWorkspaceOrDefault(c)
-		if err != nil {
-			return err
-		}
+		workspace := viper.GetString(WORKSPACE)
 
+		var err error
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && project != "" {
 			project, err = getProjectByNameOrId(c, workspace, project)
 			if err != nil {
@@ -81,6 +79,8 @@ var taskAddCmd = &cobra.Command{
 
 func init() {
 	taskCmd.AddCommand(taskAddCmd)
+
+	addProjectFlags(taskAddCmd)
 
 	taskAddCmd.Flags().StringP("name", "n", "", "name of the new task")
 	taskAddCmd.MarkFlagRequired("name")

@@ -43,11 +43,9 @@ var projectAddCmd = &cobra.Command{
 		public, _ := cmd.Flags().GetBool("public")
 		billable, _ := cmd.Flags().GetBool("billable")
 
-		workspace, err := getWorkspaceOrDefault(c)
-		if err != nil {
-			return err
-		}
+		workspace := viper.GetString(WORKSPACE)
 
+		var err error
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && client != "" {
 			client, err = getClientByNameOrId(c, workspace, client)
 			if err != nil {

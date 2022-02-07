@@ -23,6 +23,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // clientListCmd represents the list command
@@ -37,11 +38,7 @@ var clientListCmd = &cobra.Command{
 		quiet, _ := cmd.Flags().GetBool("quiet")
 		name, _ := cmd.Flags().GetString("name")
 
-		workspace, err := getWorkspaceOrDefault(c)
-		if err != nil {
-			return err
-		}
-
+		workspace := viper.GetString(WORKSPACE)
 		p := api.GetClientsParam{
 			Workspace:       workspace,
 			Name:            name,

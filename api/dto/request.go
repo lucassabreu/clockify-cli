@@ -193,7 +193,7 @@ type GetClientsRequest struct {
 	pagination
 }
 
-// WithPagination add pagination to the GetProjectRequest
+// WithPagination add pagination to the GetClientsRequest
 func (r GetClientsRequest) WithPagination(page, size int) PaginatedRequest {
 	r.pagination = newPagination(page, size)
 	return r
