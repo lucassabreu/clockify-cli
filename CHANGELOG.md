@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.31.0] - 2022-02-08
+
+### Added
+
+- new commands `task add` and `task list` to manage tasks on projects
+- new commands `client add` and `client list` to manage clients
+- new command `project add` create projects
+
+### Changed
+
+- command `project list` has new parameter `clients` to filter only the projects related to the
+  clients informed.
+
+### Thanks
+
+Thank you to [@NoF0rte](https://github.com/NoF0rte) for these improvements to the CLI.
+
 ## [v0.30.1] - 2022-01-17
 
 ### Fixed
@@ -790,7 +807,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.30.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.31.0...HEAD
+[v0.31.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.31.0
 [v0.30.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.30.1
 [v0.30.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.30.0
 [v0.29.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.29.0
