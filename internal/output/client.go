@@ -27,12 +27,17 @@ func ClientPrint(cs []dto.Client, w io.Writer) error {
 	tw := tablewriter.NewWriter(w)
 	tw.SetHeader([]string{"ID", "Name", "Archived"})
 
+	yesNo := map[bool]string{
+		true:  "YES",
+		false: "NO",
+	}
+
 	lines := make([][]string, len(cs))
 	for i, c := range cs {
 		lines[i] = []string{
 			c.ID,
 			c.Name,
-			fmt.Sprintf("%v", c.Archived),
+			yesNo[c.Archived],
 		}
 	}
 
