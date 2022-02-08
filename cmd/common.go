@@ -118,6 +118,28 @@ func getTagsByNameOrId(c *api.Client, workspace string, tags []string) ([]string
 	return tags, nil
 }
 
+func getClientByNameOrId(c *api.Client, workspace string, client string) (string, error) {
+	client = strhlp.Normalize(strings.TrimSpace(client))
+	clients, err := c.GetClients(api.GetClientsParam{
+		Workspace:       workspace,
+		PaginationParam: api.AllPages(),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	for _, cl := range clients {
+		if strings.ToLower(cl.ID) == client {
+			return cl.ID, nil
+		}
+		if strings.Contains(strhlp.Normalize(cl.Name), client) {
+			return cl.ID, nil
+		}
+	}
+
+	return "", stackedErrors.Errorf("No client with id or name containing: %s", client)
+}
+
 func getProjectByNameOrId(c *api.Client, workspace, project string) (string, error) {
 	project = strhlp.Normalize(strings.TrimSpace(project))
 	projects, err := c.GetProjects(api.GetProjectsParam{
@@ -761,6 +783,13 @@ func addPrintTimeEntriesFlags(cmd *cobra.Command) {
 		"prints only the sum of duration formatted")
 	cmd.Flags().BoolP("duration-float", "F", false,
 		`prints only the sum of duration as a "float hour"`)
+}
+
+func addProjectFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("project", "p", "", "the name/id of the project to work on")
+	cmd.MarkFlagRequired("project")
+
+	_ = completion.AddSuggestionsToFlag(cmd, "project", suggestWithClientAPI(suggestProjects))
 }
 
 func getOpts(timeFormat string) []output.TimeEntryOutputOpt {

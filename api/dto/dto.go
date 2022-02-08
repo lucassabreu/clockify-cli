@@ -153,6 +153,14 @@ type Task struct {
 	Status      TaskStatus `json:"status"`
 }
 
+// Client DTO
+type Client struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	WorkspaceID string `json:"workspaceId"`
+	Archived    bool   `json:"archived"`
+}
+
 // Project DTO
 type Project struct {
 	ID             string         `json:"id"`

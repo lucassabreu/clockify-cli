@@ -3,6 +3,7 @@ package dto
 import (
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -185,9 +186,46 @@ type UpdateTimeEntryRequest struct {
 	CustomFields []CustomField `json:"customFields,omitempty"`
 }
 
+type GetClientsRequest struct {
+	Name     string
+	Archived *bool
+
+	pagination
+}
+
+// WithPagination add pagination to the GetClientsRequest
+func (r GetClientsRequest) WithPagination(page, size int) PaginatedRequest {
+	r.pagination = newPagination(page, size)
+	return r
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r GetClientsRequest) AppendToQuery(u url.URL) url.URL {
+	u = r.pagination.AppendToQuery(u)
+
+	v := u.Query()
+
+	if r.Name != "" {
+		v.Add("name", r.Name)
+	}
+
+	if r.Archived != nil {
+		v.Add("archived", bool2str(*r.Archived))
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
+}
+
+type AddClientRequest struct {
+	Name string `json:"name"`
+}
+
 type GetProjectRequest struct {
 	Name     string
 	Archived *bool
+	Clients  []string
 
 	pagination
 }
@@ -219,9 +257,23 @@ func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 		v.Add("archived", bool2str(*r.Archived))
 	}
 
+	if len(r.Clients) > 0 {
+		v.Add("clients", strings.Join(r.Clients, ","))
+	}
+
 	u.RawQuery = v.Encode()
 
 	return u
+}
+
+type AddProjectRequest struct {
+	Name     string `json:"name"`
+	ClientId string `json:"clientId,omitempty"`
+	IsPublic bool   `json:"isPublic"`
+	Color    string `json:"color,omitempty"`
+	Note     string `json:"note,omitempty"`
+	Billable bool   `json:"billable"`
+	Public   bool   `json:"public"`
 }
 
 type GetTagsRequest struct {
@@ -278,6 +330,10 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 	u.RawQuery = v.Encode()
 
 	return u
+}
+
+type AddTaskRequest struct {
+	Name string `json:"name"`
 }
 
 type ChangeTimeEntriesInvoicedRequest struct {
