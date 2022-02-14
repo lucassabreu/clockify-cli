@@ -16,6 +16,9 @@ limitations under the License.
 package cmd
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
 	"io"
 	"os"
 
@@ -39,6 +42,7 @@ var projectAddCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetString("name")
 		note, _ := cmd.Flags().GetString("note")
 		color, _ := cmd.Flags().GetString("color")
+		randomColor, _ := cmd.Flags().GetBool("random-color")
 		client, _ := cmd.Flags().GetString("client")
 		public, _ := cmd.Flags().GetBool("public")
 		billable, _ := cmd.Flags().GetBool("billable")
@@ -51,6 +55,14 @@ var projectAddCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
+		}
+
+		if randomColor {
+			bytes := make([]byte, 3)
+			if _, err := rand.Read(bytes); err != nil {
+				return err
+			}
+			color = fmt.Sprintf("#%s", hex.EncodeToString(bytes))
 		}
 
 		project, err := c.AddProject(api.AddProjectParam{
@@ -96,6 +108,7 @@ func init() {
 	projectAddCmd.MarkFlagRequired("name")
 
 	projectAddCmd.Flags().StringP("color", "c", "", "color of the new project")
+	projectAddCmd.Flags().Bool("random-color", false, "use a random color for the project")
 	projectAddCmd.Flags().StringP("note", "N", "", "note for the new project")
 	projectAddCmd.Flags().String("client", "", "the id/name of the client the new project will go under")
 	projectAddCmd.Flags().BoolP("public", "p", false, "make the new project public")
