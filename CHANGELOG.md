@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.32.0] - 2022-02-14
+
+### Added
+
+- new options `--random-color` when creating a project, to auto-generate a color for the project.
+
+### Thanks
+
+Thank you to [@NoF0rte](https://github.com/NoF0rte) for these improvements to the CLI.
+
 ## [v0.31.0] - 2022-02-08
 
 ### Added
@@ -807,7 +817,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.32.0...HEAD
+[v0.31.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.32.0
 [v0.31.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.31.0
 [v0.30.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.30.1
 [v0.30.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.30.0
