@@ -131,23 +131,24 @@ foo@bar:~$ clockify-cli clone last
 +--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
 ```
 
-To see what you did today call `clockify-cli log`
+To see what you did today call `clockify-cli report`
 
 ```console
-foo@bar:~$ clockify-cli log
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
-|            ID            |  START   |   END    |   DUR   |   PROJECT    |  DESCRIPTION   |              TAGS                   |
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
-| ffffffffffffffffffffffff | 08:45:00 | 08:53:44 | 0:08:44 | Clockify Cli | Daily Meetting | Meetting (eeeeeeeeeeeeeeeeeeeeeeee) |
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
-| ffffffffffffffffffffffff | 08:53:50 | 10:38:38 | 1:44:48 | Clockify Cli | Pull Review    | Code Review                         |
-|                          |          |          |         |              |                | (gggggggggggggggggggggggg)          |
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
-| ffffffffffffffffffffffff | 10:38:38 | 13:28:04 | 2:49:26 | Clockify Cli | Pair           | Pair Programming                    |
-|                          |          |          |         |              |                | (hhhhhhhhhhhhhhhhhhhhhhhh)          |
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
-| TOTAL                    |          |          | 4:42:58 |              |                |                                     |
-+--------------------------+----------+----------+---------+--------------+----------------+-------------------------------------+
+foo@bar:~$ clockify-cli report --with-totals
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
+|            ID            |        START        |         END         |   DUR   |   PROJECT    |  DESCRIPTION  |              TAGS              |
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
+| ffffffffffffffffffffffff | 2022-02-25 08:45:00 | 2022-02-25 09:00:00 | 0:15:00 | Clockify Cli | Daily Meeting | Meeting                        |
+|                          |                     |                     |         |              |               | (eeeeeeeeeeeeeeeeeeeeeeee)     |
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
+| ffffffffffffffffffffffff | 2022-02-25 09:00:00 | 2022-02-25 10:30:00 | 1:30:00 | Clockify Cli | Pair          | Pair Programming               |
+|                          |                     |                     |         |              |               | (gggggggggggggggggggggggg)     |
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
+| ffffffffffffffffffffffff | 2022-02-25 10:30:00 | 2022-02-25 12:00:00 | 1:30:00 | Clockify Cli | Pull Review   | Code Review                    |
+|                          |                     |                     |         |              |               | (hhhhhhhhhhhhhhhhhhhhhhhh)     |
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
+| TOTAL                    |                     |                     | 3:15:00 |              |               |                                |
++--------------------------+---------------------+---------------------+---------+--------------+---------------+--------------------------------+
 ```
 
 If you need to see other days and/or filter by description run `clockify-cli report --help` to see
@@ -163,6 +164,7 @@ Usage:
   clockify-cli [command]
 
 Available Commands:
+  client            List clients from a workspace
   clone             Copy a time entry and starts it (use "last" to copy the last one)
   completion        Generate completion script
   config            Manages configuration file parameters
@@ -172,7 +174,6 @@ Available Commands:
   gendocs           Generate Markdown documentation for the clockify-cli.
   help              Help about any command
   in                Create a new time entry and starts it (will close time entries not closed)
-  log               List the entries from a specific day
   manual            Creates a new completed time entry (does not stop on-going time entries)
   mark-invoiced     Marks times entries as invoiced
   mark-not-invoiced Mark times entries as not invoiced
@@ -180,13 +181,14 @@ Available Commands:
   out               Stops the last time entry
   project           List projects from a workspace
   report            List all time entries in the date ranges and with more data (format date as 2016-01-02)
-  show              Show detailed information about one time entry
+  show              Show detailed information about one time entry.
   tags              List tags of workspace
+  task              List/add tasks of/to a project
   version           Version of the command
   workspace         List user's workspaces
 
 Flags:
-      --allow-name-for-id    allow use of project/tag's name when id is asked (defaults to env $CLOCKIFY_ALLOW_NAME_FOR_ID)
+      --allow-name-for-id    allow use of project/client/tag's name when id is asked (defaults to env $CLOCKIFY_ALLOW_NAME_FOR_ID)
       --allow-project-name   allow use of project name when id is asked (defaults to env $CLOCKIFY_ALLOW_PROJECT_NAME)
       --config string        config file (default is $HOME/.clockify-cli.yaml)
       --debug                show debug log (defaults to env $CLOCKIFY_DEBUG)

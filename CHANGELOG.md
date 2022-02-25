@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- examples on `README` were out of date with current commands and outputs.
+- short description of `show` and `report` were too long.
+
 ## [v0.32.1] - 2022-02-25
 
 ### Removed

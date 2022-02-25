@@ -29,8 +29,9 @@ import (
 
 // reportCmd represents the reports command
 var reportCmd = &cobra.Command{
-	Use: "report [<start>] [<end>]",
-	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)\n" +
+	Use:   "report [<start>] [<end>]",
+	Short: "List all time entries in the date ranges and with more data (format date as 2016-01-02)",
+	Long: "List all time entries in the date ranges and with more data (format date as 2016-01-02)\n" +
 		"If no parameter is set, shows today's time entries",
 	Args:    cobra.MaximumNArgs(2),
 	PreRunE: printMultipleTimeEntriesPreRun,

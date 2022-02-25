@@ -26,7 +26,8 @@ var showCmd = &cobra.Command{
 	Use:       "show [current|last|<time-entry-id>|^n]",
 	ValidArgs: []string{"current", "last"},
 	Args:      cobra.MaximumNArgs(1),
-	Short:     "Show detailed information about one time entry.\nShows current one by default",
+	Short:     "Show detailed information about one time entry.",
+	Long:      "Show detailed information about one time entry.\nShows current one by default",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		userID, err := getUserId(c)
 		if err != nil {
