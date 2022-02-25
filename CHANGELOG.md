@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `log` subcommand removed (deprecated since [v0.28.0])
+- `log in-progress` subcommand removed (deprecated since [v0.29.0])
+
+### Changed
+
+- `report` subcommand allows calls using the alias `log`
+
 ## [v0.32.0] - 2022-02-14
 
 ### Added

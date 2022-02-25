@@ -34,6 +34,7 @@ var reportCmd = &cobra.Command{
 		"If no parameter is set, shows today's time entries",
 	Args:    cobra.MaximumNArgs(2),
 	PreRunE: printMultipleTimeEntriesPreRun,
+	Aliases: []string{"log"},
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) (err error) {
 		start := time.Now()
 		if len(args) > 0 {
