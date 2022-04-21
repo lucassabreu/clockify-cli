@@ -22,6 +22,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -207,6 +208,10 @@ func reportFlags(cmd *cobra.Command) *cobra.Command {
 		"add empty lines for dates without time entries")
 	cmd.Flags().StringP("description", "d", "",
 		"will filter time entries that contains this on the description field")
+	cmd.Flags().StringP("project", "p", "",
+		"Will filter time entries using this project")
+	_ = completion.AddSuggestionsToFlag(cmd, "project",
+		suggestWithClientAPI(suggestProjects))
 
 	return cmd
 }
@@ -228,6 +233,7 @@ func getWeekRange(ref time.Time) (first, last time.Time) {
 func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) error {
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
+	project, _ := cmd.Flags().GetString("project")
 
 	start = truncateDate(start)
 	end = truncateDate(end).Add(time.Hour * 24)
@@ -237,12 +243,21 @@ func reportWithRange(c *api.Client, start, end time.Time, cmd *cobra.Command) er
 		return err
 	}
 
+	workspace := viper.GetString(WORKSPACE)
+	if viper.GetBool(ALLOW_NAME_FOR_ID) && project != "" {
+		project, err = getProjectByNameOrId(c, workspace, project)
+		if err != nil {
+			return err
+		}
+	}
+
 	log, err := c.LogRange(api.LogRangeParam{
-		Workspace:       viper.GetString(WORKSPACE),
+		Workspace:       workspace,
 		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,
 		Description:     description,
+		ProjectID:       project,
 		PaginationParam: api.PaginationParam{AllPages: true},
 	})
 
