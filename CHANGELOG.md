@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- enabling `show-task` config were hiding the description column for table report format.
+
 ## [v0.33.0] - 2022-04-21
 
 ### Added

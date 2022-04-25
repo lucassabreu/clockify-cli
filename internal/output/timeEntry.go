@@ -164,14 +164,16 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
+		taskColumn := 6
+		projectColumn := 4
 		header := []string{"ID", "Start", "End", "Dur",
 			"Project", "Description", "Tags"}
 		if options.ShowTasks {
 			header = append(
-				header[:5],
-				header[5:]...,
+				header[:taskColumn],
+				header[taskColumn-1:]...,
 			)
-			header[5] = "Task"
+			header[taskColumn] = "Task"
 		}
 
 		tw.SetHeader(header)
@@ -188,9 +190,9 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 			}
 
 			projectName := ""
-			colors[4] = []int{}
+			colors[projectColumn] = []int{}
 			if t.Project != nil {
-				colors[4] = colorToTermColor(t.Project.Color)
+				colors[projectColumn] = colorToTermColor(t.Project.Color)
 				projectName = t.Project.Name
 			}
 
@@ -205,10 +207,10 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 			}
 
 			if options.ShowTasks {
-				line = append(line[:5], line[5:]...)
-				line[5] = ""
+				line = append(line[:taskColumn], line[taskColumn-1:]...)
+				line[taskColumn] = ""
 				if t.Task != nil {
-					line[5] = fmt.Sprintf("%s (%s)", t.Task.Name, t.Task.ID)
+					line[taskColumn] = fmt.Sprintf("%s (%s)", t.Task.Name, t.Task.ID)
 				}
 			}
 
