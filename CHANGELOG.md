@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `end` argument of `report` command accepts the aliases `now` and `today` for current date.
+
 ## [v0.33.1] - 2022-04-25
 
 ### Fixed
