@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `end` argument of `report` command accepts the alias `yesterday` for previous date.
+
 ## [v0.34.0] - 2022-04-27
 
 ### Changed
@@ -772,7 +776,7 @@ Thank you to [@NoF0rte](https://github.com/NoF0rte) for these improvements to th
 ## [v0.1.5] - 2020-01-08
 
 ### Fixed
-- fixed bug on the `log` commands, where the previews api url is not available
+- fixed bug on the `log` commands, where the previous api url is not available
   anymore, now using `v1/workspace/{workspace}/user/{user}/times-entries`
 - spelling of some words fixed and improving some aspects of the code
 
