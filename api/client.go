@@ -667,11 +667,21 @@ func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 	return ps, err
 }
 
+type taskStatus string
+
+const (
+	TaskStatusDone   = "DONE"
+	TaskStatusActive = "ACTIVE"
+)
+
 // AddTaskParam param to add tasks to a project
 type AddTaskParam struct {
-	Workspace string
-	ProjectID string
-	Name      string
+	Workspace   string
+	ProjectID   string
+	Name        string
+	AssigneeIDs []string
+	Estimate    time.Duration
+	Status      taskStatus
 }
 
 func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
