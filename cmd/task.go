@@ -16,6 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"io"
+
+	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 
@@ -28,4 +32,34 @@ var taskCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(taskCmd)
+}
+
+func taskReport(cmd *cobra.Command, tasks ...dto.Task) error {
+	var reportFn func([]dto.Task, io.Writer) error
+
+	reportFn = output.TaskPrint
+	if asJSON, _ := cmd.Flags().GetBool("json"); asJSON {
+		reportFn = output.TasksJSONPrint
+	}
+
+	if asCSV, _ := cmd.Flags().GetBool("csv"); asCSV {
+		reportFn = output.TasksCSVPrint
+	}
+
+	if format, _ := cmd.Flags().GetString("format"); format != "" {
+		reportFn = output.TaskPrintWithTemplate(format)
+	}
+
+	if quiet, _ := cmd.Flags().GetBool("quiet"); quiet {
+		reportFn = output.TaskPrintQuietly
+	}
+
+	return reportFn(tasks, cmd.OutOrStdout())
+}
+
+func taskAddReportFlags(cmd *cobra.Command) {
+	taskListCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Client")
+	taskListCmd.Flags().BoolP("json", "j", false, "print as JSON")
+	taskListCmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	taskListCmd.Flags().BoolP("quiet", "q", false, "only display ids")
 }
