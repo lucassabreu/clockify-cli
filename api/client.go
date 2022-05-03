@@ -835,6 +835,45 @@ func (c *Client) UpdateTask(p UpdateTaskParam) (dto.Task, error) {
 	return task, err
 }
 
+// DeleteTaskParam param to update tasks to a project
+type DeleteTaskParam struct {
+	Workspace string
+	ProjectID string
+	TaskID    string
+}
+
+func (c *Client) DeleteTask(p DeleteTaskParam) (dto.Task, error) {
+	var task dto.Task
+
+	err := required("delete task", map[field]string{
+		taskIDField:    p.TaskID,
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return task, err
+	}
+
+	req, err := c.NewRequest(
+		"DELETE",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks/%s",
+			p.Workspace,
+			p.ProjectID,
+			p.TaskID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(req, &task, "DeleteTask")
+	return task, err
+}
+
 // CreateTimeEntryParam params to create a new time entry
 type CreateTimeEntryParam struct {
 	Workspace   string
