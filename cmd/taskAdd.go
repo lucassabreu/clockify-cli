@@ -26,26 +26,27 @@ var taskAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Adds a task to the specified project",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		name, _ := cmd.Flags().GetString("name")
+		f, err := taskReadFlags(cmd)
+		if err != nil {
+			return err
+		}
+
 		project, _ := cmd.Flags().GetString("project")
-
-		workspace := viper.GetString(WORKSPACE)
-
-		var err error
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && project != "" {
-			project, err = getProjectByNameOrId(c, workspace, project)
+			project, err = getProjectByNameOrId(c, f.workspace, project)
 			if err != nil {
 				return err
 			}
 		}
 
-		p := api.AddTaskParam{
-			Workspace: workspace,
-			ProjectID: project,
-			Name:      name,
-		}
-
-		task, err := c.AddTask(p)
+		task, err := c.AddTask(api.AddTaskParam{
+			Workspace:   f.workspace,
+			ProjectID:   project,
+			Name:        f.name,
+			Estimate:    f.estimate,
+			AssigneeIDs: f.assigneeIDs,
+			Billable:    f.billable,
+		})
 		if err != nil {
 			return err
 		}
@@ -59,7 +60,7 @@ func init() {
 
 	addProjectFlags(taskAddCmd)
 	taskAddReportFlags(taskAddCmd)
+	taskAddPropFlags(taskAddCmd)
 
-	taskAddCmd.Flags().StringP("name", "n", "", "name of the new task")
 	taskAddCmd.MarkFlagRequired("name")
 }

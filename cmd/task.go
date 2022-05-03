@@ -17,10 +17,13 @@ package cmd
 
 import (
 	"io"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/cmd/completion"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // taskCmd represents the client command
@@ -62,4 +65,56 @@ func taskAddReportFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("json", "j", false, "print as JSON")
 	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
 	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+}
+
+func taskAddPropFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP("name", "n", "", "new name of the task")
+	cmd.Flags().Int32P("estimate", "E", 0, "estimation on hours")
+	cmd.Flags().Bool("billable", false, "sets the task as billable")
+	cmd.Flags().Bool("not-billable", false, "sets the task as not billable")
+
+	cmd.Flags().StringSliceP("assignee", "A", []string{},
+		"list of users that are assigned to this task")
+	_ = completion.AddSuggestionsToFlag(cmd, "assignee",
+		suggestWithClientAPI(suggestUsers))
+
+	cmd.Flags().Bool("no-assignee", false,
+		"cleans the assignee list")
+}
+
+func taskReadFlags(cmd *cobra.Command) (p struct {
+	workspace   string
+	name        string
+	estimate    *time.Duration
+	assigneeIDs *[]string
+	billable    *bool
+}, err error) {
+	p.workspace = viper.GetString(WORKSPACE)
+	p.name, _ = cmd.Flags().GetString("name")
+	if cmd.Flags().Changed("estimate") {
+		e, _ := cmd.Flags().GetInt32("estimate")
+		d := time.Duration(e) * time.Hour
+		p.estimate = &d
+	}
+
+	if cmd.Flags().Changed("assignee") {
+		assignees, _ := cmd.Flags().GetStringSlice("assignee")
+		p.assigneeIDs = &assignees
+	}
+
+	if cmd.Flags().Changed("no-assignee") {
+		a := []string{}
+		p.assigneeIDs = &a
+	}
+
+	switch {
+	case cmd.Flags().Changed("billable"):
+		b := true
+		p.billable = &b
+	case cmd.Flags().Changed("not-billable"):
+		b := false
+		p.billable = &b
+	}
+
+	return
 }

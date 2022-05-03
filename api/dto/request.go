@@ -393,7 +393,19 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 }
 
 type AddTaskRequest struct {
-	Name string `json:"name"`
+	Name        string    `json:"name"`
+	AssigneeIDs *[]string `json:"assigneeIds,omitempty"`
+	Billable    *bool     `json:"billable,omitempty"`
+	Estimate    *Duration `json:"estimate,omitempty"`
+	Status      *string   `json:"status,omitempty"`
+}
+
+type UpdateTaskRequest struct {
+	Name        string    `json:"name"`
+	AssigneeIDs *[]string `json:"assigneeIds,omitempty"`
+	Billable    *bool     `json:"billable,omitempty"`
+	Estimate    *Duration `json:"estimate,omitempty"`
+	Status      *string   `json:"status,omitempty"`
 }
 
 type ChangeTimeEntriesInvoicedRequest struct {

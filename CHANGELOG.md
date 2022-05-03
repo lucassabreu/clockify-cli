@@ -11,8 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `task edit` command allows changing a existing task and changing its status.
+
 ### Changed
 
+- `task add` command now accepts `assignees` and `estimate` for task creation
 - `end` argument of `report` command accepts the alias `yesterday` for previous date.
 
 ## [v0.34.0] - 2022-04-27
