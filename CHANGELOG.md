@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `task edit` command allows changing a existing task and changing its status.
 - `task delete` command allows removing a existing task.
+- `task done` command is a helper for `task edit --done`.
 
 ### Changed
 
