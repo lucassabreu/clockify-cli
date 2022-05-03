@@ -1,10 +1,13 @@
 package dto
 
 import (
+	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // DateTime is a time presentation for parameters
@@ -19,6 +22,63 @@ func (d DateTime) MarshalJSON() ([]byte, error) {
 
 func (d DateTime) String() string {
 	return d.Time.UTC().Format("2006-01-02T15:04:05Z")
+}
+
+// Duration is a time presentation for parameters
+type Duration struct {
+	time.Duration
+}
+
+// MarshalJSON converts Duration correctly
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return []byte("\"" + d.String() + "\""), nil
+}
+
+// UnmarshalJSON converts a JSON value to Duration correctly
+func (d *Duration) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return errors.Wrap(err, "unmarshal duration")
+	}
+
+	if len(s) < 4 {
+		return errors.Errorf("duration %s is invalid", b)
+	}
+
+	var u, dc time.Duration
+	var j, i int
+	for ; i < len(s); i++ {
+		switch s[i] {
+		case 'P', 'T':
+			j = i + 1
+			continue
+		case 'H':
+			u = time.Hour
+		case 'M':
+			u = time.Minute
+		case 'S':
+			u = time.Second
+		default:
+			continue
+		}
+
+		v, err := strconv.Atoi(s[j:i])
+		if err != nil {
+			return errors.Wrap(err, "unmarshal duration")
+		}
+		dc = dc + time.Duration(v)*u
+		j = i + 1
+	}
+
+	*d = Duration{Duration: dc}
+	return nil
+}
+
+func (d Duration) String() string {
+	return "PT" +
+		strconv.Itoa(int(d.Duration.Hours())) + "H" +
+		strconv.Itoa(int(d.Duration.Minutes())) + "M" +
+		strconv.Itoa(int(d.Duration.Seconds())) + "S"
 }
 
 type pagination struct {
@@ -333,7 +393,19 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 }
 
 type AddTaskRequest struct {
-	Name string `json:"name"`
+	Name        string    `json:"name"`
+	AssigneeIDs *[]string `json:"assigneeIds,omitempty"`
+	Billable    *bool     `json:"billable,omitempty"`
+	Estimate    *Duration `json:"estimate,omitempty"`
+	Status      *string   `json:"status,omitempty"`
+}
+
+type UpdateTaskRequest struct {
+	Name        string    `json:"name"`
+	AssigneeIDs *[]string `json:"assigneeIds,omitempty"`
+	Billable    *bool     `json:"billable,omitempty"`
+	Estimate    *Duration `json:"estimate,omitempty"`
+	Status      *string   `json:"status,omitempty"`
 }
 
 type ChangeTimeEntriesInvoicedRequest struct {

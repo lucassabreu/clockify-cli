@@ -16,12 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"io"
-	"os"
-
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -31,49 +26,32 @@ var taskAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Adds a task to the specified project",
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
-		format, _ := cmd.Flags().GetString("format")
-		asJSON, _ := cmd.Flags().GetBool("json")
-		asCSV, _ := cmd.Flags().GetBool("csv")
-		name, _ := cmd.Flags().GetString("name")
+		f, err := taskReadFlags(cmd)
+		if err != nil {
+			return err
+		}
+
 		project, _ := cmd.Flags().GetString("project")
-
-		workspace := viper.GetString(WORKSPACE)
-
-		var err error
 		if viper.GetBool(ALLOW_NAME_FOR_ID) && project != "" {
-			project, err = getProjectByNameOrId(c, workspace, project)
+			project, err = getProjectByNameOrId(c, f.workspace, project)
 			if err != nil {
 				return err
 			}
 		}
 
-		p := api.AddTaskParam{
-			Workspace: workspace,
-			ProjectID: project,
-			Name:      name,
-		}
-
-		task, err := c.AddTask(p)
+		task, err := c.AddTask(api.AddTaskParam{
+			Workspace:   f.workspace,
+			ProjectID:   project,
+			Name:        f.name,
+			Estimate:    f.estimate,
+			AssigneeIDs: f.assigneeIDs,
+			Billable:    f.billable,
+		})
 		if err != nil {
 			return err
 		}
 
-		var reportFn func([]dto.Task, io.Writer) error
-
-		reportFn = output.TaskPrint
-		if asJSON {
-			reportFn = output.TasksJSONPrint
-		}
-
-		if asCSV {
-			reportFn = output.TasksCSVPrint
-		}
-
-		if format != "" {
-			reportFn = output.TaskPrintWithTemplate(format)
-		}
-
-		return reportFn([]dto.Task{task}, os.Stdout)
+		return taskReport(cmd, task)
 	}),
 }
 
@@ -81,11 +59,8 @@ func init() {
 	taskCmd.AddCommand(taskAddCmd)
 
 	addProjectFlags(taskAddCmd)
+	taskAddReportFlags(taskAddCmd)
+	taskAddPropFlags(taskAddCmd)
 
-	taskAddCmd.Flags().StringP("name", "n", "", "name of the new task")
 	taskAddCmd.MarkFlagRequired("name")
-
-	taskAddCmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
-	taskAddCmd.Flags().BoolP("json", "j", false, "print as JSON")
-	taskAddCmd.Flags().BoolP("csv", "v", false, "print as CSV")
 }

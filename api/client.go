@@ -95,6 +95,7 @@ const (
 	projectField     = field("project id")
 	timeEntryIDField = field("time entry id")
 	nameField        = field("name")
+	taskIDField      = field("task id")
 )
 
 func required(action string, values map[field]string) error {
@@ -667,11 +668,63 @@ func (c *Client) GetTasks(p GetTasksParam) ([]dto.Task, error) {
 	return ps, err
 }
 
-// AddTaskParam param to add tasks to a project
-type AddTaskParam struct {
+// GetTaskParam param to get a task on a project
+type GetTaskParam struct {
 	Workspace string
 	ProjectID string
-	Name      string
+	TaskID    string
+}
+
+// GetTasks get tasks of a project
+func (c *Client) GetTask(p GetTaskParam) (dto.Task, error) {
+	var t dto.Task
+
+	err := required("get task", map[field]string{
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+		taskIDField:    p.TaskID,
+	})
+
+	if err != nil {
+		return t, err
+	}
+
+	r, err := c.NewRequest(
+		"GET",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks/%s",
+			p.Workspace,
+			p.ProjectID,
+			p.TaskID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	_, err = c.Do(r, &t, "GetTask")
+	return t, err
+}
+
+type TaskStatus string
+
+const (
+	TaskStatusDefault = ""
+	TaskStatusDone    = "DONE"
+	TaskStatusActive  = "ACTIVE"
+)
+
+// AddTaskParam param to add tasks to a project
+type AddTaskParam struct {
+	Workspace   string
+	ProjectID   string
+	Name        string
+	AssigneeIDs *[]string
+	Estimate    *time.Duration
+	Status      TaskStatus
+	Billable    *bool
 }
 
 func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
@@ -687,6 +740,22 @@ func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
 		return task, err
 	}
 
+	r := dto.AddTaskRequest{
+		Name:        p.Name,
+		AssigneeIDs: p.AssigneeIDs,
+		Billable:    p.Billable,
+	}
+
+	if p.Status != TaskStatus("") {
+		s := string(p.Status)
+		r.Status = &s
+	}
+
+	if p.Estimate != nil {
+		e := dto.Duration{Duration: *p.Estimate}
+		r.Estimate = &e
+	}
+
 	req, err := c.NewRequest(
 		"POST",
 		fmt.Sprintf(
@@ -694,9 +763,7 @@ func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
 			p.Workspace,
 			p.ProjectID,
 		),
-		dto.AddTaskRequest{
-			Name: p.Name,
-		},
+		r,
 	)
 
 	if err != nil {
@@ -704,6 +771,106 @@ func (c *Client) AddTask(p AddTaskParam) (dto.Task, error) {
 	}
 
 	_, err = c.Do(req, &task, "AddTask")
+	return task, err
+}
+
+// UpdateTaskParam param to update tasks to a project
+type UpdateTaskParam struct {
+	Workspace   string
+	ProjectID   string
+	TaskID      string
+	Name        string
+	AssigneeIDs *[]string
+	Estimate    *time.Duration
+	Status      TaskStatus
+	Billable    *bool
+}
+
+func (c *Client) UpdateTask(p UpdateTaskParam) (dto.Task, error) {
+	var task dto.Task
+
+	err := required("update task", map[field]string{
+		nameField:      p.Name,
+		taskIDField:    p.TaskID,
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return task, err
+	}
+
+	r := dto.UpdateTaskRequest{
+		Name:        p.Name,
+		AssigneeIDs: p.AssigneeIDs,
+		Billable:    p.Billable,
+	}
+
+	if p.Status != TaskStatus("") {
+		s := string(p.Status)
+		r.Status = &s
+	}
+
+	if p.Estimate != nil {
+		e := dto.Duration{Duration: *p.Estimate}
+		r.Estimate = &e
+	}
+
+	req, err := c.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks/%s",
+			p.Workspace,
+			p.ProjectID,
+			p.TaskID,
+		),
+		r,
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(req, &task, "UpdateTask")
+	return task, err
+}
+
+// DeleteTaskParam param to update tasks to a project
+type DeleteTaskParam struct {
+	Workspace string
+	ProjectID string
+	TaskID    string
+}
+
+func (c *Client) DeleteTask(p DeleteTaskParam) (dto.Task, error) {
+	var task dto.Task
+
+	err := required("delete task", map[field]string{
+		taskIDField:    p.TaskID,
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	})
+
+	if err != nil {
+		return task, err
+	}
+
+	req, err := c.NewRequest(
+		"DELETE",
+		fmt.Sprintf(
+			"v1/workspaces/%s/projects/%s/tasks/%s",
+			p.Workspace,
+			p.ProjectID,
+			p.TaskID,
+		),
+		nil,
+	)
+
+	if err != nil {
+		return task, err
+	}
+
+	_, err = c.Do(req, &task, "DeleteTask")
 	return task, err
 }
 

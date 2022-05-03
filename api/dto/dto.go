@@ -143,7 +143,7 @@ const TaskStatusDone = TaskStatus("DONE")
 // Task DTO
 type Task struct {
 	AssigneeIDs []string   `json:"assigneeIds"`
-	Estimate    string     `json:"estimate"`
+	Estimate    Duration   `json:"estimate"`
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	ProjectID   string     `json:"projectId"`
