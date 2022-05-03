@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.35.0] - 2022-05-03
+
 ### Added
 
 - `task edit` command allows changing a existing task and changing its status.
@@ -864,7 +866,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.34.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.35.0...HEAD
+[v0.35.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.35.0
 [v0.34.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.34.0
 [v0.33.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.33.1
 [v0.33.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.33.0
