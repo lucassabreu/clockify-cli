@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- fake "not found" errors will have more context for the message
+
+### Changed
+
+- all `api/client.go` will have stack traces.
+
 ## [v0.35.0] - 2022-05-03
 
 ### Added
