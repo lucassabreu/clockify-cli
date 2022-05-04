@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,7 +10,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/strhlp"
-	stackedErrors "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 // Client will help to access Clockify API
@@ -30,12 +29,12 @@ var ErrorMissingAPIKey = errors.New("api Key must be informed")
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (*Client, error) {
 	if apiKey == "" {
-		return nil, stackedErrors.WithStack(ErrorMissingAPIKey)
+		return nil, errors.WithStack(ErrorMissingAPIKey)
 	}
 
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, stackedErrors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	c := &Client{
@@ -68,7 +67,7 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	_, err = c.Do(r, &w, "GetWorkspaces")
 
 	if err != nil {
-		return w, err
+		return w, errors.Wrap(err, "get workspaces")
 	}
 
 	if f.Name == "" {
@@ -122,7 +121,8 @@ func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 
 	ws, err := c.GetWorkspaces(GetWorkspaces{})
 	if err != nil {
-		return dto.Workspace{}, err
+		return dto.Workspace{}, errors.Wrapf(
+			err, "get workspace '%s'", p.ID)
 	}
 
 	for _, w := range ws {
@@ -131,7 +131,9 @@ func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 		}
 	}
 
-	return dto.Workspace{}, dto.Error{Message: "not found", Code: 404}
+	return dto.Workspace{}, errors.Wrapf(
+		dto.Error{Message: "not found", Code: 404},
+		"get workspace %s", p.ID)
 }
 
 // WorkspaceUsersParam params to query workspace users
@@ -533,7 +535,8 @@ func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
 		}
 	}
 
-	return nil, stackedErrors.Errorf("tag %s not found on workspace %s", p.TagID, p.Workspace)
+	return nil, errors.Errorf(
+		"tag %s not found on workspace %s", p.TagID, p.Workspace)
 }
 
 // GetProjectParam params to get a Project
@@ -593,7 +596,7 @@ func (c *Client) GetUser(p GetUser) (dto.User, error) {
 		Workspace: p.Workspace,
 	})
 	if err != nil {
-		return dto.User{}, err
+		return dto.User{}, errors.Wrapf(err, "get user %s", p.UserID)
 	}
 
 	for _, u := range us {
@@ -602,7 +605,9 @@ func (c *Client) GetUser(p GetUser) (dto.User, error) {
 		}
 	}
 
-	return dto.User{}, dto.Error{Message: "not found", Code: 404}
+	return dto.User{}, errors.Wrapf(
+		dto.Error{Message: "not found", Code: 404},
+		"get user %s", p.UserID)
 }
 
 // GetMe get details about the user who created the token
