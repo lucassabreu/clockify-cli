@@ -88,14 +88,12 @@ var manualCmd = &cobra.Command{
 			c,
 			tei,
 			createTimeEntry(c, viper.GetString(USER_ID), false),
-			viper.GetBool(INTERACTIVE),
+			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			func(tei dto.TimeEntryImpl) error {
 				return validateTimeEntry(tei, c)
 			},
-			true,
-			dc,
 		)
 	}),
 }

@@ -76,12 +76,10 @@ var cloneCmd = &cobra.Command{
 			c,
 			tec,
 			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
-			viper.GetBool(INTERACTIVE),
+			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			getValidateTimeEntryFn(c),
-			true,
-			dc,
 		)
 	}),
 }

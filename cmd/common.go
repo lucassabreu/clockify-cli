@@ -188,11 +188,15 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 func confirmEntryInteractively(
 	c *api.Client,
 	te dto.TimeEntryImpl,
-	w dto.Workspace,
 	dc *descriptionCompleter,
 	askDates bool,
 ) (dto.TimeEntryImpl, error) {
 	var err error
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return te, err
+	}
+
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
@@ -341,32 +345,36 @@ func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
 	}
 }
 
+func getInteractiveFn(
+	c *api.Client,
+	dc *descriptionCompleter,
+	askDates bool,
+) CallbackFn {
+	if viper.GetBool(INTERACTIVE) {
+		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			return confirmEntryInteractively(c, tei, dc, askDates)
+		}
+	}
+
+	return nullCallback
+}
+
 func manageEntry(
 	c *api.Client,
 	te dto.TimeEntryImpl,
-	callback CallbackFn,
-	interactive bool,
+	callback,
+	interactiveFn,
 	allowNameForIDFn CallbackFn,
 	printFn,
 	validateTimeEntryFn func(dto.TimeEntryImpl) error,
-	askDates bool,
-	dc *descriptionCompleter,
 ) error {
 	var err error
 	if te, err = allowNameForIDFn(te); err != nil {
 		return err
 	}
 
-	if interactive {
-		w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
-		if err != nil {
-			return err
-		}
-
-		te, err = confirmEntryInteractively(c, te, w, dc, askDates)
-		if err != nil {
-			return err
-		}
+	if te, err = interactiveFn(te); err != nil {
+		return err
 	}
 
 	if err = validateTimeEntryFn(te); err != nil {

@@ -73,12 +73,10 @@ var inCmd = &cobra.Command{
 			c,
 			tei,
 			createTimeEntry(c, viper.GetString(USER_ID), true),
-			viper.GetBool(INTERACTIVE),
+			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			getValidateTimeEntryFn(c),
-			true,
-			dc,
 		)
 	}),
 }

@@ -140,7 +140,7 @@ Start and end fields can't be mass-edited.`,
 			c,
 			tei,
 			fn,
-			interactive,
+			getInteractiveFn(c, dc, false),
 			getAllowNameForIDsFn(c),
 			func(_ dto.TimeEntryImpl) error {
 				tes := make([]dto.TimeEntry, len(teis))
@@ -161,8 +161,6 @@ Start and end fields can't be mass-edited.`,
 				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 			},
 			getValidateTimeEntryFn(c),
-			false,
-			dc,
 		)
 	}),
 }
