@@ -94,7 +94,6 @@ Start and end fields can't be mass-edited.`,
 		}
 
 		interactive := viper.GetBool(INTERACTIVE)
-		shouldValidate := !viper.GetBool(ALLOW_INCOMPLETE)
 		if !interactive {
 			fn = func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				for i, tei := range teis {
@@ -161,7 +160,7 @@ Start and end fields can't be mass-edited.`,
 
 				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 			},
-			shouldValidate,
+			getValidateTimeEntryFn(c),
 			false,
 			dc,
 		)

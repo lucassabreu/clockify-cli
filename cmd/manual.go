@@ -91,7 +91,9 @@ var manualCmd = &cobra.Command{
 			viper.GetBool(INTERACTIVE),
 			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			true,
+			func(tei dto.TimeEntryImpl) error {
+				return validateTimeEntry(tei, c)
+			},
 			true,
 			dc,
 		)

@@ -233,7 +233,12 @@ func confirmEntryInteractively(
 	return te, nil
 }
 
-func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace, c *api.Client) error {
+func validateTimeEntry(te dto.TimeEntryImpl, c *api.Client) error {
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return err
+	}
+
 	if w.Settings.ForceProjects && te.ProjectID == "" {
 		return errors.New("workspace requires project")
 	}
@@ -326,14 +331,24 @@ func getAllowNameForIDsFn(c *api.Client) CallbackFn {
 	}
 }
 
+func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
+	if viper.GetBool(ALLOW_INCOMPLETE) {
+		return func(tei dto.TimeEntryImpl) error { return nil }
+	}
+
+	return func(tei dto.TimeEntryImpl) error {
+		return validateTimeEntry(tei, c)
+	}
+}
+
 func manageEntry(
 	c *api.Client,
 	te dto.TimeEntryImpl,
 	callback CallbackFn,
 	interactive bool,
 	allowNameForIDFn CallbackFn,
-	printFn func(dto.TimeEntryImpl) error,
-	validate bool,
+	printFn,
+	validateTimeEntryFn func(dto.TimeEntryImpl) error,
 	askDates bool,
 	dc *descriptionCompleter,
 ) error {
@@ -342,28 +357,23 @@ func manageEntry(
 		return err
 	}
 
-	if interactive || validate {
+	if interactive {
 		w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
 		if err != nil {
 			return err
 		}
 
-		if interactive {
-			te, err = confirmEntryInteractively(c, te, w, dc, askDates)
-			if err != nil {
-				return err
-			}
-		}
-
-		if validate {
-			if err = validateTimeEntry(te, w, c); err != nil {
-				return err
-			}
+		te, err = confirmEntryInteractively(c, te, w, dc, askDates)
+		if err != nil {
+			return err
 		}
 	}
 
-	te, err = callback(te)
-	if err != nil {
+	if err = validateTimeEntryFn(te); err != nil {
+		return err
+	}
+
+	if te, err = callback(te); err != nil {
 		return err
 	}
 
@@ -393,14 +403,10 @@ func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
 		return err
 	}
 
-	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
-	if err != nil {
-		return err
-	}
-
-	if err = validateTimeEntry(*te, w, c); err != nil {
+	if err = validateTimeEntry(*te, c); err != nil {
 		return fmt.Errorf("running time entry can't be ended: %w", err)
 	}
+
 	return nil
 }
 

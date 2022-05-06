@@ -83,7 +83,7 @@ var editCmd = &cobra.Command{
 			viper.GetBool(INTERACTIVE),
 			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			!viper.GetBool(ALLOW_INCOMPLETE),
+			getValidateTimeEntryFn(c),
 			true,
 			dc,
 		)
