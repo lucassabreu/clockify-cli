@@ -347,12 +347,9 @@ func manageEntry(
 }
 
 func getErrorCode(err error) int {
-	if e, ok := err.(dto.Error); ok {
+	var e dto.Error
+	if errors.As(err, &e) {
 		return e.Code
-	}
-
-	if e, ok := err.(interface{ Unwrap() error }); ok {
-		return getErrorCode(e.Unwrap())
 	}
 
 	return 0
