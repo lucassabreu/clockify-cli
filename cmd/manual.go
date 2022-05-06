@@ -89,7 +89,7 @@ var manualCmd = &cobra.Command{
 			tei,
 			createTimeEntry(c, viper.GetString(USER_ID), false),
 			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_NAME_FOR_ID),
+			getAllowNameForIDsFn(c),
 			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			true,
 			true,

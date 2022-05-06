@@ -142,7 +142,7 @@ Start and end fields can't be mass-edited.`,
 			tei,
 			fn,
 			interactive,
-			viper.GetBool(ALLOW_NAME_FOR_ID),
+			getAllowNameForIDsFn(c),
 			func(_ dto.TimeEntryImpl) error {
 				tes := make([]dto.TimeEntry, len(teis))
 				var err error

@@ -284,38 +284,62 @@ func printTimeEntryImpl(
 
 type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
 
+func nullCallback(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return te, nil
+}
+
+func lookupIDsByName(te dto.TimeEntryImpl, c *api.Client, interactive bool) (dto.TimeEntryImpl, error) {
+	var err error
+	if te.ProjectID != "" {
+		te.ProjectID, err = getProjectByNameOrId(c,
+			te.WorkspaceID, te.ProjectID)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	if te.TaskID != "" {
+		te.TaskID, err = getTaskByNameOrId(c,
+			te.WorkspaceID, te.ProjectID, te.TaskID)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	if len(te.TagIDs) > 0 {
+		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	return te, err
+}
+
+func getAllowNameForIDsFn(c *api.Client) CallbackFn {
+	if viper.GetBool(ALLOW_NAME_FOR_ID) {
+		return nullCallback
+	}
+
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return lookupIDsByName(te, c, viper.GetBool(INTERACTIVE))
+	}
+}
+
 func manageEntry(
 	c *api.Client,
 	te dto.TimeEntryImpl,
 	callback CallbackFn,
-	interactive,
-	allowNameForID bool,
+	interactive bool,
+	allowNameForIDFn CallbackFn,
 	printFn func(dto.TimeEntryImpl) error,
 	validate bool,
 	askDates bool,
 	dc *descriptionCompleter,
 ) error {
 	var err error
-
-	if allowNameForID && te.ProjectID != "" {
-		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
-		if err != nil && !interactive {
-			return err
-		}
-	}
-
-	if allowNameForID && te.TaskID != "" {
-		te.TaskID, err = getTaskByNameOrId(c, te.WorkspaceID, te.ProjectID, te.TaskID)
-		if err != nil && !interactive {
-			return err
-		}
-	}
-
-	if allowNameForID && len(te.TagIDs) > 0 {
-		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
-		if err != nil && !interactive {
-			return err
-		}
+	if te, err = allowNameForIDFn(te); err != nil {
+		return err
 	}
 
 	if interactive || validate {
