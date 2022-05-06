@@ -42,8 +42,9 @@ var outCmd = &cobra.Command{
 			Workspace: workspace,
 			UserID:    viper.GetString(USER_ID),
 		})
+
 		if te == nil && err == nil {
-			err = errors.New("no time entry in progress")
+			return errors.New("no time entry in progress")
 		}
 
 		if err != nil {

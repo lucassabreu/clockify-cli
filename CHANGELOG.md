@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- new error types from required fields and invalid entity ids.
+- all errors have a minimal context to help on support.
+
 ## [v0.35.1] - 2022-05-04
 
 ### Fixed
