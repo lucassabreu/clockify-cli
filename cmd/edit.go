@@ -65,7 +65,6 @@ var editCmd = &cobra.Command{
 		}
 
 		return manageEntry(
-			c,
 			tei,
 			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{

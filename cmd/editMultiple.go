@@ -137,7 +137,6 @@ Start and end fields can't be mass-edited.`,
 		}
 
 		return manageEntry(
-			c,
 			tei,
 			fn,
 			getInteractiveFn(c, dc, false),

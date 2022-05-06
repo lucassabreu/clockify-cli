@@ -70,7 +70,6 @@ var inCmd = &cobra.Command{
 		}
 
 		return manageEntry(
-			c,
 			tei,
 			createTimeEntry(c, viper.GetString(USER_ID), true),
 			getInteractiveFn(c, dc, true),

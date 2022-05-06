@@ -360,7 +360,6 @@ func getInteractiveFn(
 }
 
 func manageEntry(
-	c *api.Client,
 	te dto.TimeEntryImpl,
 	callback,
 	interactiveFn,
