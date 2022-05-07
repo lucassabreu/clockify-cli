@@ -185,11 +185,10 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 	return "", stackedErrors.Errorf("No task with id or name containing: %s", task)
 }
 
-func confirmEntryInteractively(
+func askTimeEntryPropsInteractive(
 	c *api.Client,
 	te dto.TimeEntryImpl,
 	dc suggestFn,
-	askDates bool,
 ) (dto.TimeEntryImpl, error) {
 	var err error
 	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
@@ -212,14 +211,14 @@ func confirmEntryInteractively(
 	te.Description = getDescription(te.Description, dc)
 
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
-	if err != nil {
-		return te, err
-	}
 
-	if !askDates {
-		return te, nil
-	}
+	return te, err
+}
 
+func askTimeEntryDatesInteractive(
+	te dto.TimeEntryImpl,
+) (dto.TimeEntryImpl, error) {
+	var err error
 	dateString := te.TimeInterval.Start.In(time.Local).Format(fullTimeFormat)
 	if te.TimeInterval.Start, err = ui.AskForDateTime("Start", dateString, convertToTime); err != nil {
 		return te, err
@@ -346,14 +345,23 @@ func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
 	}
 }
 
-func getInteractiveFn(
+func getPropsInteractiveFn(
 	c *api.Client,
 	dc suggestFn,
-	askDates bool,
 ) CallbackFn {
 	if viper.GetBool(INTERACTIVE) {
 		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-			return confirmEntryInteractively(c, tei, dc, askDates)
+			return askTimeEntryPropsInteractive(c, tei, dc)
+		}
+	}
+
+	return nullCallback
+}
+
+func getDatesInteractiveFn() CallbackFn {
+	if viper.GetBool(INTERACTIVE) {
+		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			return askTimeEntryDatesInteractive(tei)
 		}
 	}
 
@@ -362,7 +370,8 @@ func getInteractiveFn(
 
 func manageEntry(
 	te dto.TimeEntryImpl,
-	interactiveFn,
+	interactivePropsFn,
+	interactiveDatesFn,
 	allowNameForIDFn CallbackFn,
 	validateTimeEntryFn func(dto.TimeEntryImpl) error,
 ) (dto.TimeEntryImpl, error) {
@@ -371,7 +380,11 @@ func manageEntry(
 		return te, err
 	}
 
-	if te, err = interactiveFn(te); err != nil {
+	if te, err = interactivePropsFn(te); err != nil {
+		return te, err
+	}
+
+	if te, err = interactiveDatesFn(te); err != nil {
 		return te, err
 	}
 

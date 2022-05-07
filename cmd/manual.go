@@ -79,7 +79,8 @@ var manualCmd = &cobra.Command{
 
 		if tei, err = manageEntry(
 			tei,
-			getInteractiveFn(c, dc, true),
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
 			getAllowNameForIDsFn(c),
 			func(tei dto.TimeEntryImpl) error {
 				return validateTimeEntry(tei, c)

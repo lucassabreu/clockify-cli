@@ -67,7 +67,8 @@ var cloneCmd = &cobra.Command{
 
 		if tec, err = manageEntry(
 			tec,
-			getInteractiveFn(c, dc, true),
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
 			getAllowNameForIDsFn(c),
 			getValidateTimeEntryFn(c),
 		); err != nil {
