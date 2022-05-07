@@ -297,32 +297,67 @@ func nullCallback(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return te, nil
 }
 
-func lookupIDsByName(te dto.TimeEntryImpl, c *api.Client, interactive bool) (dto.TimeEntryImpl, error) {
-	var err error
-	if te.ProjectID != "" {
-		te.ProjectID, err = getProjectByNameOrId(c,
-			te.WorkspaceID, te.ProjectID)
-		if err != nil && !interactive {
-			return te, err
+func lookupProject(c *api.Client) CallbackFn {
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		if te.ProjectID == "" {
+			return te, nil
 		}
+
+		var err error
+		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
+		return te, err
 	}
 
-	if te.TaskID != "" {
+}
+
+func lookupTask(c *api.Client) CallbackFn {
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		if te.TaskID == "" {
+			return te, nil
+		}
+
+		var err error
 		te.TaskID, err = getTaskByNameOrId(c,
 			te.WorkspaceID, te.ProjectID, te.TaskID)
-		if err != nil && !interactive {
-			return te, err
-		}
+		return te, err
 	}
+}
 
-	if len(te.TagIDs) > 0 {
+func lookupTags(c *api.Client) CallbackFn {
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		if len(te.TagIDs) == 0 {
+			return te, nil
+		}
+
+		var err error
 		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
-		if err != nil && !interactive {
-			return te, err
-		}
+		return te, err
 	}
 
-	return te, err
+}
+
+func disableErrorReporting(cbs []CallbackFn) []CallbackFn {
+	for i := range cbs {
+		cb := cbs[i]
+		cbs[i] = func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			tei, _ = cb(tei)
+			return tei, nil
+		}
+	}
+	return cbs
+}
+
+func composeCallbacks(cbs ...CallbackFn) CallbackFn {
+	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		var err error
+		for _, cb := range cbs {
+			if tei, err = cb(tei); err != nil {
+				return tei, err
+			}
+		}
+
+		return tei, err
+	}
 }
 
 func getAllowNameForIDsFn(c *api.Client) CallbackFn {
@@ -330,9 +365,17 @@ func getAllowNameForIDsFn(c *api.Client) CallbackFn {
 		return nullCallback
 	}
 
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		return lookupIDsByName(te, c, viper.GetBool(INTERACTIVE))
+	cbs := []CallbackFn{
+		lookupProject(c),
+		lookupTask(c),
+		lookupTags(c),
 	}
+
+	if viper.GetBool(INTERACTIVE) {
+		cbs = disableErrorReporting(cbs)
+	}
+
+	return composeCallbacks(cbs...)
 }
 
 func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
