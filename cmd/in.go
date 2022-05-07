@@ -70,8 +70,11 @@ var inCmd = &cobra.Command{
 			return err
 		}
 
-		if tei, err = createTimeEntry(tei,
-			c, viper.GetString(USER_ID), true); err != nil {
+		if err = out(tei, c); err != nil {
+			return err
+		}
+
+		if tei, err = createTimeEntry(tei, c); err != nil {
 			return err
 		}
 

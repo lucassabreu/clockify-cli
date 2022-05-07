@@ -408,20 +408,22 @@ func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
 	return nil
 }
 
-func createTimeEntry(te dto.TimeEntryImpl,
-	c *api.Client, userID string, autoClose bool) (dto.TimeEntryImpl, error) {
-	if autoClose {
-		err := c.Out(api.OutParam{
-			Workspace: te.WorkspaceID,
-			UserID:    userID,
-			End:       te.TimeInterval.Start,
-		})
+func out(te dto.TimeEntryImpl, c *api.Client) error {
+	err := c.Out(api.OutParam{
+		Workspace: te.WorkspaceID,
+		UserID:    te.UserID,
+		End:       te.TimeInterval.Start,
+	})
 
-		if err != nil && getErrorCode(err) != 404 {
-			return te, err
-		}
+	if getErrorCode(err) != 404 {
+		return err
 	}
 
+	return nil
+}
+
+func createTimeEntry(te dto.TimeEntryImpl, c *api.Client) (
+	dto.TimeEntryImpl, error) {
 	return c.CreateTimeEntry(api.CreateTimeEntryParam{
 		Workspace:   te.WorkspaceID,
 		Billable:    te.Billable,

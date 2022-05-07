@@ -42,6 +42,7 @@ var cloneCmd = &cobra.Command{
 			true,
 			c,
 		)
+		tec.UserID = viper.GetString(USER_ID)
 		tec.TimeInterval.End = nil
 
 		if err != nil {
@@ -73,8 +74,13 @@ var cloneCmd = &cobra.Command{
 			return err
 		}
 
-		if tec, err = createTimeEntry(tec,
-			c, viper.GetString(USER_ID), !noClosing); err != nil {
+		if !noClosing {
+			if err = out(tec, c); err != nil {
+				return err
+			}
+		}
+
+		if tec, err = createTimeEntry(tec, c); err != nil {
 			return err
 		}
 

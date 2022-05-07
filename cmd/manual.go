@@ -39,6 +39,7 @@ var manualCmd = &cobra.Command{
 		tei := dto.TimeEntryImpl{
 			WorkspaceID:  viper.GetString(WORKSPACE),
 			TimeInterval: dto.TimeInterval{},
+			UserID:       viper.GetString(USER_ID),
 		}
 
 		if len(args) > 0 {
@@ -87,8 +88,7 @@ var manualCmd = &cobra.Command{
 			return err
 		}
 
-		if tei, err = createTimeEntry(tei,
-			c, viper.GetString(USER_ID), false); err != nil {
+		if tei, err = createTimeEntry(tei, c); err != nil {
 			return err
 		}
 
