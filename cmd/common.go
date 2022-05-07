@@ -188,7 +188,7 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 func confirmEntryInteractively(
 	c *api.Client,
 	te dto.TimeEntryImpl,
-	dc *descriptionCompleter,
+	dc suggestFn,
 	askDates bool,
 ) (dto.TimeEntryImpl, error) {
 	var err error
@@ -348,7 +348,7 @@ func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
 
 func getInteractiveFn(
 	c *api.Client,
-	dc *descriptionCompleter,
+	dc suggestFn,
 	askDates bool,
 ) CallbackFn {
 	if viper.GetBool(INTERACTIVE) {
@@ -555,13 +555,9 @@ func getTaskID(taskID, projectID string, w dto.Workspace, c *api.Client) (string
 	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
 }
 
-func getDescription(description string, dc *descriptionCompleter) string {
-	var opts []ui.InputOption
-	if dc != nil {
-		opts = append(opts, ui.WithSuggestion(dc.suggestFn))
-	}
-
-	description, _ = ui.AskForText("Description:", description, opts...)
+func getDescription(description string, dc suggestFn) string {
+	description, _ = ui.AskForText("Description:", description,
+		ui.WithSuggestion(dc))
 	return description
 }
 

@@ -146,10 +146,9 @@ func suggestDescription(_ *cobra.Command, _ []string, toComplete string, c *api.
 		c,
 		viper.GetString(WORKSPACE),
 		viper.GetString(USER_ID),
-		viper.GetInt(DESCR_AUTOCOMP_DAYS),
 	)
 
-	return completion.ValigsArgsSlide(dc.suggestFn(toComplete)), nil
+	return completion.ValigsArgsSlide(dc(toComplete)), nil
 }
 
 func suggestClients(_ *cobra.Command, _ []string, toComplete string, c *api.Client) (completion.ValidArgs, error) {

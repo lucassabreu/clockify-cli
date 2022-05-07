@@ -6,7 +6,10 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/strhlp"
+	"github.com/spf13/viper"
 )
+
+type suggestFn func(string) []string
 
 // descriptionCompleter looks for similar descriptions for auto-compliance
 type descriptionCompleter struct {
@@ -21,12 +24,16 @@ func newDescriptionCompleter(
 	c *api.Client,
 	workspaceID,
 	userID string,
-	daysToConsider int,
-) *descriptionCompleter {
-	end := time.Now().UTC()
-	start := end.Add(time.Hour * time.Duration(-24*daysToConsider))
+) suggestFn {
+	if !viper.GetBool(DESCR_AUTOCOMP) {
+		return func(s string) []string { return []string{} }
+	}
 
-	return &descriptionCompleter{
+	end := time.Now().UTC()
+	start := end.Add(time.Hour *
+		time.Duration(-24*viper.GetInt(DESCR_AUTOCOMP_DAYS)))
+
+	d := &descriptionCompleter{
 		client: c,
 		param: api.GetUserTimeEntriesParam{
 			Workspace: workspaceID,
@@ -35,6 +42,8 @@ func newDescriptionCompleter(
 			Start:     &start,
 		},
 	}
+
+	return d.suggestFn
 }
 
 // getDescriptions load descriptions from recent time entries and list than

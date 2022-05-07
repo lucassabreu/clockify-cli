@@ -126,15 +126,7 @@ Start and end fields can't be mass-edited.`,
 			}
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if _, err = manageEntry(
 			tei,

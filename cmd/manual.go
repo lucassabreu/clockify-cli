@@ -74,15 +74,7 @@ var manualCmd = &cobra.Command{
 			tei.TimeInterval.End = &now
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if tei, err = manageEntry(
 			tei,

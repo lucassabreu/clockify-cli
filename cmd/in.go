@@ -53,15 +53,7 @@ var inCmd = &cobra.Command{
 			return err
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if err := validateClosingTimeEntry(
 			c, tei.WorkspaceID, viper.GetString(USER_ID),

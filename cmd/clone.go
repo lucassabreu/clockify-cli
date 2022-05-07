@@ -54,15 +54,7 @@ var cloneCmd = &cobra.Command{
 
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tec.WorkspaceID,
-				tec.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tec.WorkspaceID, tec.UserID)
 
 		if !noClosing {
 			if err := validateClosingTimeEntry(

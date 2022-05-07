@@ -54,15 +54,7 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		tei, err = manageEntry(
 			tei,
