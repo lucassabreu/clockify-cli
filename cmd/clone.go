@@ -66,11 +66,15 @@ var cloneCmd = &cobra.Command{
 
 		if tec, err = manageEntry(
 			tec,
-			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
 			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			getValidateTimeEntryFn(c),
 		); err != nil {
+			return err
+		}
+
+		if tec, err = createTimeEntry(tec,
+			c, viper.GetString(USER_ID), !noClosing); err != nil {
 			return err
 		}
 

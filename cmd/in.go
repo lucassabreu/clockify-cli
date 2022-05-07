@@ -63,11 +63,15 @@ var inCmd = &cobra.Command{
 
 		if tei, err = manageEntry(
 			tei,
-			createTimeEntry(c, viper.GetString(USER_ID), true),
 			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			getValidateTimeEntryFn(c),
 		); err != nil {
+			return err
+		}
+
+		if tei, err = createTimeEntry(tei,
+			c, viper.GetString(USER_ID), true); err != nil {
 			return err
 		}
 

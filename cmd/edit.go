@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -56,26 +55,26 @@ var editCmd = &cobra.Command{
 
 		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
-		tei, err = manageEntry(
+		if tei, err = manageEntry(
 			tei,
-			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-					Workspace:   tei.WorkspaceID,
-					TimeEntryID: tei.ID,
-					Description: tei.Description,
-					Start:       tei.TimeInterval.Start,
-					End:         tei.TimeInterval.End,
-					Billable:    tei.Billable,
-					ProjectID:   tei.ProjectID,
-					TaskID:      tei.TaskID,
-					TagIDs:      tei.TagIDs,
-				})
-			},
 			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
 			getValidateTimeEntryFn(c),
-		)
-		if err != nil {
+		); err != nil {
+			return err
+		}
+
+		if tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+			Workspace:   tei.WorkspaceID,
+			TimeEntryID: tei.ID,
+			Description: tei.Description,
+			Start:       tei.TimeInterval.Start,
+			End:         tei.TimeInterval.End,
+			Billable:    tei.Billable,
+			ProjectID:   tei.ProjectID,
+			TaskID:      tei.TaskID,
+			TagIDs:      tei.TagIDs,
+		}); err != nil {
 			return err
 		}
 

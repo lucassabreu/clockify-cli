@@ -362,7 +362,6 @@ func getInteractiveFn(
 
 func manageEntry(
 	te dto.TimeEntryImpl,
-	callback,
 	interactiveFn,
 	allowNameForIDFn CallbackFn,
 	validateTimeEntryFn func(dto.TimeEntryImpl) error,
@@ -376,11 +375,7 @@ func manageEntry(
 		return te, err
 	}
 
-	if err = validateTimeEntryFn(te); err != nil {
-		return te, err
-	}
-
-	return callback(te)
+	return te, validateTimeEntryFn(te)
 }
 
 func getErrorCode(err error) int {
@@ -413,30 +408,31 @@ func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
 	return nil
 }
 
-func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		if autoClose {
-			err := c.Out(api.OutParam{
-				Workspace: te.WorkspaceID,
-				UserID:    userID,
-				End:       te.TimeInterval.Start,
-			})
-
-			if err != nil && getErrorCode(err) != 404 {
-				return te, err
-			}
-		}
-		return c.CreateTimeEntry(api.CreateTimeEntryParam{
-			Workspace:   te.WorkspaceID,
-			Billable:    te.Billable,
-			Start:       te.TimeInterval.Start,
-			End:         te.TimeInterval.End,
-			ProjectID:   te.ProjectID,
-			Description: te.Description,
-			TagIDs:      te.TagIDs,
-			TaskID:      te.TaskID,
+func createTimeEntry(te dto.TimeEntryImpl,
+	c *api.Client, userID string, autoClose bool) (dto.TimeEntryImpl, error) {
+	if autoClose {
+		err := c.Out(api.OutParam{
+			Workspace: te.WorkspaceID,
+			UserID:    userID,
+			End:       te.TimeInterval.Start,
 		})
+
+		if err != nil && getErrorCode(err) != 404 {
+			return te, err
+		}
 	}
+
+	return c.CreateTimeEntry(api.CreateTimeEntryParam{
+		Workspace:   te.WorkspaceID,
+		Billable:    te.Billable,
+		Start:       te.TimeInterval.Start,
+		End:         te.TimeInterval.End,
+		ProjectID:   te.ProjectID,
+		Description: te.Description,
+		TagIDs:      te.TagIDs,
+		TaskID:      te.TaskID,
+	})
+
 }
 
 const noProject = "No Project"
