@@ -378,13 +378,13 @@ func getAllowNameForIDsFn(c *api.Client) CallbackFn {
 	return composeCallbacks(cbs...)
 }
 
-func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
+func getValidateTimeEntryFn(c *api.Client) CallbackFn {
 	if viper.GetBool(ALLOW_INCOMPLETE) {
-		return func(tei dto.TimeEntryImpl) error { return nil }
+		return nullCallback
 	}
 
-	return func(tei dto.TimeEntryImpl) error {
-		return validateTimeEntry(tei, c)
+	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return tei, validateTimeEntry(tei, c)
 	}
 }
 
@@ -411,27 +411,9 @@ func getDatesInteractiveFn() CallbackFn {
 	return nullCallback
 }
 
-func manageEntry(
-	te dto.TimeEntryImpl,
-	interactivePropsFn,
-	interactiveDatesFn,
-	allowNameForIDFn CallbackFn,
-	validateTimeEntryFn func(dto.TimeEntryImpl) error,
-) (dto.TimeEntryImpl, error) {
-	var err error
-	if te, err = allowNameForIDFn(te); err != nil {
-		return te, err
-	}
-
-	if te, err = interactivePropsFn(te); err != nil {
-		return te, err
-	}
-
-	if te, err = interactiveDatesFn(te); err != nil {
-		return te, err
-	}
-
-	return te, validateTimeEntryFn(te)
+func manageEntry(te dto.TimeEntryImpl, cbs ...CallbackFn) (
+	dto.TimeEntryImpl, error) {
+	return composeCallbacks(cbs...)(te)
 }
 
 func getErrorCode(err error) int {

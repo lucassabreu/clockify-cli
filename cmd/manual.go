@@ -79,11 +79,11 @@ var manualCmd = &cobra.Command{
 
 		if tei, err = manageEntry(
 			tei,
+			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
-			getAllowNameForIDsFn(c),
-			func(tei dto.TimeEntryImpl) error {
-				return validateTimeEntry(tei, c)
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				return tei, validateTimeEntry(tei, c)
 			},
 		); err != nil {
 			return err
