@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - new error types from required fields and invalid entity ids.
 - all errors have a minimal context to help on support.
+- `manageEntry` refactored to not have as many control flags
 
 ## [v0.35.1] - 2022-05-04
 

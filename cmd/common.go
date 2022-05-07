@@ -185,14 +185,17 @@ func getTaskByNameOrId(c *api.Client, workspace, project, task string) (string, 
 	return "", stackedErrors.Errorf("No task with id or name containing: %s", task)
 }
 
-func confirmEntryInteractively(
+func askTimeEntryPropsInteractive(
 	c *api.Client,
 	te dto.TimeEntryImpl,
-	w dto.Workspace,
-	dc *descriptionCompleter,
-	askDates bool,
+	dc suggestFn,
 ) (dto.TimeEntryImpl, error) {
 	var err error
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return te, err
+	}
+
 	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
 	if err != nil {
 		return te, err
@@ -208,14 +211,14 @@ func confirmEntryInteractively(
 	te.Description = getDescription(te.Description, dc)
 
 	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
-	if err != nil {
-		return te, err
-	}
 
-	if !askDates {
-		return te, nil
-	}
+	return te, err
+}
 
+func askTimeEntryDatesInteractive(
+	te dto.TimeEntryImpl,
+) (dto.TimeEntryImpl, error) {
+	var err error
 	dateString := te.TimeInterval.Start.In(time.Local).Format(fullTimeFormat)
 	if te.TimeInterval.Start, err = ui.AskForDateTime("Start", dateString, convertToTime); err != nil {
 		return te, err
@@ -233,7 +236,12 @@ func confirmEntryInteractively(
 	return te, nil
 }
 
-func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace, c *api.Client) error {
+func validateTimeEntry(te dto.TimeEntryImpl, c *api.Client) error {
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	if err != nil {
+		return err
+	}
+
 	if w.Settings.ForceProjects && te.ProjectID == "" {
 		return errors.New("workspace requires project")
 	}
@@ -267,83 +275,120 @@ func validateTimeEntry(te dto.TimeEntryImpl, w dto.Workspace, c *api.Client) err
 }
 
 func printTimeEntryImpl(
-	c *api.Client, cmd *cobra.Command, timeFormat string,
-) func(dto.TimeEntryImpl) error {
-	return func(tei dto.TimeEntryImpl) error {
-		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
-			Workspace:   tei.WorkspaceID,
-			TimeEntryID: tei.ID,
-		})
-		if err != nil {
-			return err
-		}
-
-		return printTimeEntry(fte, cmd, timeFormat)
-	}
-}
-
-type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
-
-func manageEntry(
+	tei dto.TimeEntryImpl,
 	c *api.Client,
-	te dto.TimeEntryImpl,
-	callback CallbackFn,
-	interactive,
-	allowNameForID bool,
-	printFn func(dto.TimeEntryImpl) error,
-	validate bool,
-	askDates bool,
-	dc *descriptionCompleter,
+	cmd *cobra.Command,
+	timeFormat string,
 ) error {
-	var err error
-
-	if allowNameForID && te.ProjectID != "" {
-		te.ProjectID, err = getProjectByNameOrId(c, te.WorkspaceID, te.ProjectID)
-		if err != nil && !interactive {
-			return err
-		}
-	}
-
-	if allowNameForID && te.TaskID != "" {
-		te.TaskID, err = getTaskByNameOrId(c, te.WorkspaceID, te.ProjectID, te.TaskID)
-		if err != nil && !interactive {
-			return err
-		}
-	}
-
-	if allowNameForID && len(te.TagIDs) > 0 {
-		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
-		if err != nil && !interactive {
-			return err
-		}
-	}
-
-	if interactive || validate {
-		w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
-		if err != nil {
-			return err
-		}
-
-		if interactive {
-			te, err = confirmEntryInteractively(c, te, w, dc, askDates)
-			if err != nil {
-				return err
-			}
-		}
-
-		if validate {
-			if err = validateTimeEntry(te, w, c); err != nil {
-				return err
-			}
-		}
-	}
-
-	te, err = callback(te)
+	fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
+		Workspace:   tei.WorkspaceID,
+		TimeEntryID: tei.ID,
+	})
 	if err != nil {
 		return err
 	}
 
-	return printFn(te)
+	return printTimeEntry(fte, cmd, timeFormat)
+}
+
+type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
+
+func nullCallback(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return te, nil
+}
+
+func lookupIDsByName(te dto.TimeEntryImpl, c *api.Client, interactive bool) (dto.TimeEntryImpl, error) {
+	var err error
+	if te.ProjectID != "" {
+		te.ProjectID, err = getProjectByNameOrId(c,
+			te.WorkspaceID, te.ProjectID)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	if te.TaskID != "" {
+		te.TaskID, err = getTaskByNameOrId(c,
+			te.WorkspaceID, te.ProjectID, te.TaskID)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	if len(te.TagIDs) > 0 {
+		te.TagIDs, err = getTagsByNameOrId(c, te.WorkspaceID, te.TagIDs)
+		if err != nil && !interactive {
+			return te, err
+		}
+	}
+
+	return te, err
+}
+
+func getAllowNameForIDsFn(c *api.Client) CallbackFn {
+	if viper.GetBool(ALLOW_NAME_FOR_ID) {
+		return nullCallback
+	}
+
+	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return lookupIDsByName(te, c, viper.GetBool(INTERACTIVE))
+	}
+}
+
+func getValidateTimeEntryFn(c *api.Client) func(dto.TimeEntryImpl) error {
+	if viper.GetBool(ALLOW_INCOMPLETE) {
+		return func(tei dto.TimeEntryImpl) error { return nil }
+	}
+
+	return func(tei dto.TimeEntryImpl) error {
+		return validateTimeEntry(tei, c)
+	}
+}
+
+func getPropsInteractiveFn(
+	c *api.Client,
+	dc suggestFn,
+) CallbackFn {
+	if viper.GetBool(INTERACTIVE) {
+		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			return askTimeEntryPropsInteractive(c, tei, dc)
+		}
+	}
+
+	return nullCallback
+}
+
+func getDatesInteractiveFn() CallbackFn {
+	if viper.GetBool(INTERACTIVE) {
+		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			return askTimeEntryDatesInteractive(tei)
+		}
+	}
+
+	return nullCallback
+}
+
+func manageEntry(
+	te dto.TimeEntryImpl,
+	interactivePropsFn,
+	interactiveDatesFn,
+	allowNameForIDFn CallbackFn,
+	validateTimeEntryFn func(dto.TimeEntryImpl) error,
+) (dto.TimeEntryImpl, error) {
+	var err error
+	if te, err = allowNameForIDFn(te); err != nil {
+		return te, err
+	}
+
+	if te, err = interactivePropsFn(te); err != nil {
+		return te, err
+	}
+
+	if te, err = interactiveDatesFn(te); err != nil {
+		return te, err
+	}
+
+	return te, validateTimeEntryFn(te)
 }
 
 func getErrorCode(err error) int {
@@ -369,41 +414,40 @@ func validateClosingTimeEntry(c *api.Client, workspace, userID string) error {
 		return err
 	}
 
-	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
-	if err != nil {
-		return err
-	}
-
-	if err = validateTimeEntry(*te, w, c); err != nil {
+	if err = validateTimeEntry(*te, c); err != nil {
 		return fmt.Errorf("running time entry can't be ended: %w", err)
 	}
+
 	return nil
 }
 
-func createTimeEntry(c *api.Client, userID string, autoClose bool) func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		if autoClose {
-			err := c.Out(api.OutParam{
-				Workspace: te.WorkspaceID,
-				UserID:    userID,
-				End:       te.TimeInterval.Start,
-			})
+func out(te dto.TimeEntryImpl, c *api.Client) error {
+	err := c.Out(api.OutParam{
+		Workspace: te.WorkspaceID,
+		UserID:    te.UserID,
+		End:       te.TimeInterval.Start,
+	})
 
-			if err != nil && getErrorCode(err) != 404 {
-				return te, err
-			}
-		}
-		return c.CreateTimeEntry(api.CreateTimeEntryParam{
-			Workspace:   te.WorkspaceID,
-			Billable:    te.Billable,
-			Start:       te.TimeInterval.Start,
-			End:         te.TimeInterval.End,
-			ProjectID:   te.ProjectID,
-			Description: te.Description,
-			TagIDs:      te.TagIDs,
-			TaskID:      te.TaskID,
-		})
+	if getErrorCode(err) != 404 {
+		return err
 	}
+
+	return nil
+}
+
+func createTimeEntry(te dto.TimeEntryImpl, c *api.Client) (
+	dto.TimeEntryImpl, error) {
+	return c.CreateTimeEntry(api.CreateTimeEntryParam{
+		Workspace:   te.WorkspaceID,
+		Billable:    te.Billable,
+		Start:       te.TimeInterval.Start,
+		End:         te.TimeInterval.End,
+		ProjectID:   te.ProjectID,
+		Description: te.Description,
+		TagIDs:      te.TagIDs,
+		TaskID:      te.TaskID,
+	})
+
 }
 
 const noProject = "No Project"
@@ -522,13 +566,9 @@ func getTaskID(taskID, projectID string, w dto.Workspace, c *api.Client) (string
 	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
 }
 
-func getDescription(description string, dc *descriptionCompleter) string {
-	var opts []ui.InputOption
-	if dc != nil {
-		opts = append(opts, ui.WithSuggestion(dc.suggestFn))
-	}
-
-	description, _ = ui.AskForText("Description:", description, opts...)
+func getDescription(description string, dc suggestFn) string {
+	description, _ = ui.AskForText("Description:", description,
+		ui.WithSuggestion(dc))
 	return description
 }
 

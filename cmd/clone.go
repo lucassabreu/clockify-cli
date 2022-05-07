@@ -42,6 +42,7 @@ var cloneCmd = &cobra.Command{
 			true,
 			c,
 		)
+		tec.UserID = viper.GetString(USER_ID)
 		tec.TimeInterval.End = nil
 
 		if err != nil {
@@ -54,15 +55,7 @@ var cloneCmd = &cobra.Command{
 
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tec.WorkspaceID,
-				tec.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tec.WorkspaceID, tec.UserID)
 
 		if !noClosing {
 			if err := validateClosingTimeEntry(
@@ -72,17 +65,27 @@ var cloneCmd = &cobra.Command{
 			}
 		}
 
-		return manageEntry(
-			c,
+		if tec, err = manageEntry(
 			tec,
-			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
-			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			!viper.GetBool(ALLOW_INCOMPLETE),
-			true,
-			dc,
-		)
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
+			getAllowNameForIDsFn(c),
+			getValidateTimeEntryFn(c),
+		); err != nil {
+			return err
+		}
+
+		if !noClosing {
+			if err = out(tec, c); err != nil {
+				return err
+			}
+		}
+
+		if tec, err = createTimeEntry(tec, c); err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tec, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

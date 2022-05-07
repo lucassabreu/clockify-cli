@@ -39,6 +39,7 @@ var manualCmd = &cobra.Command{
 		tei := dto.TimeEntryImpl{
 			WorkspaceID:  viper.GetString(WORKSPACE),
 			TimeInterval: dto.TimeInterval{},
+			UserID:       viper.GetString(USER_ID),
 		}
 
 		if len(args) > 0 {
@@ -74,27 +75,25 @@ var manualCmd = &cobra.Command{
 			tei.TimeInterval.End = &now
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
+
+		if tei, err = manageEntry(
+			tei,
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
+			getAllowNameForIDsFn(c),
+			func(tei dto.TimeEntryImpl) error {
+				return validateTimeEntry(tei, c)
+			},
+		); err != nil {
+			return err
 		}
 
-		return manageEntry(
-			c,
-			tei,
-			createTimeEntry(c, viper.GetString(USER_ID), false),
-			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			true,
-			true,
-			dc,
-		)
+		if tei, err = createTimeEntry(tei, c); err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tei, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

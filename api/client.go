@@ -200,6 +200,7 @@ func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 		EntityName: "workspace",
 		ID:         p.ID,
 	}
+
 	return dto.Workspace{}, err
 }
 

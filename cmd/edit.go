@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -54,39 +53,33 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
+
+		if tei, err = manageEntry(
+			tei,
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
+			getAllowNameForIDsFn(c),
+			getValidateTimeEntryFn(c),
+		); err != nil {
+			return err
 		}
 
-		return manageEntry(
-			c,
-			tei,
-			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-					Workspace:   tei.WorkspaceID,
-					TimeEntryID: tei.ID,
-					Description: tei.Description,
-					Start:       tei.TimeInterval.Start,
-					End:         tei.TimeInterval.End,
-					Billable:    tei.Billable,
-					ProjectID:   tei.ProjectID,
-					TaskID:      tei.TaskID,
-					TagIDs:      tei.TagIDs,
-				})
-			},
-			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			!viper.GetBool(ALLOW_INCOMPLETE),
-			true,
-			dc,
-		)
+		if tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+			Workspace:   tei.WorkspaceID,
+			TimeEntryID: tei.ID,
+			Description: tei.Description,
+			Start:       tei.TimeInterval.Start,
+			End:         tei.TimeInterval.End,
+			Billable:    tei.Billable,
+			ProjectID:   tei.ProjectID,
+			TaskID:      tei.TaskID,
+			TagIDs:      tei.TagIDs,
+		}); err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tei, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

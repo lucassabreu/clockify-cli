@@ -94,7 +94,6 @@ Start and end fields can't be mass-edited.`,
 		}
 
 		interactive := viper.GetBool(INTERACTIVE)
-		shouldValidate := !viper.GetBool(ALLOW_INCOMPLETE)
 		if !interactive {
 			fn = func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				for i, tei := range teis {
@@ -127,44 +126,37 @@ Start and end fields can't be mass-edited.`,
 			}
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
+
+		if _, err = manageEntry(
+			tei,
+			getPropsInteractiveFn(c, dc),
+			nullCallback,
+			getAllowNameForIDsFn(c),
+			getValidateTimeEntryFn(c),
+		); err != nil {
+			return err
 		}
 
-		return manageEntry(
-			c,
-			tei,
-			fn,
-			interactive,
-			viper.GetBool(ALLOW_NAME_FOR_ID),
-			func(_ dto.TimeEntryImpl) error {
-				tes := make([]dto.TimeEntry, len(teis))
-				var err error
-				var t *dto.TimeEntry
-				for i, tei := range teis {
-					t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
-						TimeEntryID: tei.ID,
-						Workspace:   tei.WorkspaceID,
-					})
+		if _, err = fn(tei); err != nil {
+			return err
+		}
 
-					if err != nil {
-						return err
-					}
-					tes[i] = *t
-				}
+		tes := make([]dto.TimeEntry, len(teis))
+		var t *dto.TimeEntry
+		for i, tei := range teis {
+			t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
+				TimeEntryID: tei.ID,
+				Workspace:   tei.WorkspaceID,
+			})
 
-				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
-			},
-			shouldValidate,
-			false,
-			dc,
-		)
+			if err != nil {
+				return err
+			}
+			tes[i] = *t
+		}
+
+		return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

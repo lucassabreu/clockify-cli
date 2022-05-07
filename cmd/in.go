@@ -53,15 +53,7 @@ var inCmd = &cobra.Command{
 			return err
 		}
 
-		var dc *descriptionCompleter
-		if viper.GetBool(DESCR_AUTOCOMP) {
-			dc = newDescriptionCompleter(
-				c,
-				tei.WorkspaceID,
-				tei.UserID,
-				viper.GetInt(DESCR_AUTOCOMP_DAYS),
-			)
-		}
+		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if err := validateClosingTimeEntry(
 			c, tei.WorkspaceID, viper.GetString(USER_ID),
@@ -69,17 +61,25 @@ var inCmd = &cobra.Command{
 			return err
 		}
 
-		return manageEntry(
-			c,
+		if tei, err = manageEntry(
 			tei,
-			createTimeEntry(c, viper.GetString(USER_ID), true),
-			viper.GetBool(INTERACTIVE),
-			viper.GetBool(ALLOW_NAME_FOR_ID),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
-			!viper.GetBool(ALLOW_INCOMPLETE),
-			true,
-			dc,
-		)
+			getPropsInteractiveFn(c, dc),
+			getDatesInteractiveFn(),
+			getAllowNameForIDsFn(c),
+			getValidateTimeEntryFn(c),
+		); err != nil {
+			return err
+		}
+
+		if err = out(tei, c); err != nil {
+			return err
+		}
+
+		if tei, err = createTimeEntry(tei, c); err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tei, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 
