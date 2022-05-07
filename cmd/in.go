@@ -63,9 +63,9 @@ var inCmd = &cobra.Command{
 
 		if tei, err = manageEntry(
 			tei,
+			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
-			getAllowNameForIDsFn(c),
 			getValidateTimeEntryFn(c),
 		); err != nil {
 			return err

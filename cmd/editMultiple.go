@@ -130,9 +130,8 @@ Start and end fields can't be mass-edited.`,
 
 		if _, err = manageEntry(
 			tei,
-			getPropsInteractiveFn(c, dc),
-			nullCallback,
 			getAllowNameForIDsFn(c),
+			getPropsInteractiveFn(c, dc),
 			getValidateTimeEntryFn(c),
 		); err != nil {
 			return err
