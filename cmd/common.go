@@ -276,19 +276,20 @@ func validateTimeEntry(te dto.TimeEntryImpl, c *api.Client) error {
 }
 
 func printTimeEntryImpl(
-	c *api.Client, cmd *cobra.Command, timeFormat string,
-) func(dto.TimeEntryImpl) error {
-	return func(tei dto.TimeEntryImpl) error {
-		fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
-			Workspace:   tei.WorkspaceID,
-			TimeEntryID: tei.ID,
-		})
-		if err != nil {
-			return err
-		}
-
-		return printTimeEntry(fte, cmd, timeFormat)
+	tei dto.TimeEntryImpl,
+	c *api.Client,
+	cmd *cobra.Command,
+	timeFormat string,
+) error {
+	fte, err := c.GetHydratedTimeEntry(api.GetTimeEntryParam{
+		Workspace:   tei.WorkspaceID,
+		TimeEntryID: tei.ID,
+	})
+	if err != nil {
+		return err
 	}
+
+	return printTimeEntry(fte, cmd, timeFormat)
 }
 
 type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
@@ -364,27 +365,22 @@ func manageEntry(
 	callback,
 	interactiveFn,
 	allowNameForIDFn CallbackFn,
-	printFn,
 	validateTimeEntryFn func(dto.TimeEntryImpl) error,
-) error {
+) (dto.TimeEntryImpl, error) {
 	var err error
 	if te, err = allowNameForIDFn(te); err != nil {
-		return err
+		return te, err
 	}
 
 	if te, err = interactiveFn(te); err != nil {
-		return err
+		return te, err
 	}
 
 	if err = validateTimeEntryFn(te); err != nil {
-		return err
+		return te, err
 	}
 
-	if te, err = callback(te); err != nil {
-		return err
-	}
-
-	return printFn(te)
+	return callback(te)
 }
 
 func getErrorCode(err error) int {

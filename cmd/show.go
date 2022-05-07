@@ -51,7 +51,7 @@ var showCmd = &cobra.Command{
 			return err
 		}
 
-		return printTimeEntryImpl(c, cmd, fullTimeFormat)(tei)
+		return printTimeEntryImpl(tei, c, cmd, fullTimeFormat)
 	}),
 }
 

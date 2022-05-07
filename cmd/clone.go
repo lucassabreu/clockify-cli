@@ -72,14 +72,17 @@ var cloneCmd = &cobra.Command{
 			}
 		}
 
-		return manageEntry(
+		if tec, err = manageEntry(
 			tec,
 			createTimeEntry(c, viper.GetString(USER_ID), !noClosing),
 			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			getValidateTimeEntryFn(c),
-		)
+		); err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tec, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

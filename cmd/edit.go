@@ -64,7 +64,7 @@ var editCmd = &cobra.Command{
 			)
 		}
 
-		return manageEntry(
+		tei, err = manageEntry(
 			tei,
 			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{
@@ -81,9 +81,13 @@ var editCmd = &cobra.Command{
 			},
 			getInteractiveFn(c, dc, true),
 			getAllowNameForIDsFn(c),
-			printTimeEntryImpl(c, cmd, output.TIME_FORMAT_SIMPLE),
 			getValidateTimeEntryFn(c),
 		)
+		if err != nil {
+			return err
+		}
+
+		return printTimeEntryImpl(tei, c, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 

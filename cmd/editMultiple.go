@@ -136,31 +136,31 @@ Start and end fields can't be mass-edited.`,
 			)
 		}
 
-		return manageEntry(
+		if _, err = manageEntry(
 			tei,
 			fn,
 			getInteractiveFn(c, dc, false),
 			getAllowNameForIDsFn(c),
-			func(_ dto.TimeEntryImpl) error {
-				tes := make([]dto.TimeEntry, len(teis))
-				var err error
-				var t *dto.TimeEntry
-				for i, tei := range teis {
-					t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
-						TimeEntryID: tei.ID,
-						Workspace:   tei.WorkspaceID,
-					})
-
-					if err != nil {
-						return err
-					}
-					tes[i] = *t
-				}
-
-				return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
-			},
 			getValidateTimeEntryFn(c),
-		)
+		); err != nil {
+			return err
+		}
+
+		tes := make([]dto.TimeEntry, len(teis))
+		var t *dto.TimeEntry
+		for i, tei := range teis {
+			t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
+				TimeEntryID: tei.ID,
+				Workspace:   tei.WorkspaceID,
+			})
+
+			if err != nil {
+				return err
+			}
+			tes[i] = *t
+		}
+
+		return printTimeEntries(tes, cmd, output.TIME_FORMAT_SIMPLE)
 	}),
 }
 
