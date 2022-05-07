@@ -326,7 +326,7 @@ func lookupIDsByName(te dto.TimeEntryImpl, c *api.Client, interactive bool) (dto
 }
 
 func getAllowNameForIDsFn(c *api.Client) CallbackFn {
-	if viper.GetBool(ALLOW_NAME_FOR_ID) {
+	if !viper.GetBool(ALLOW_NAME_FOR_ID) {
 		return nullCallback
 	}
 
