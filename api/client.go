@@ -367,7 +367,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	for i := 0; i > len(timeEntries); i++ {
+	for i := 0; i < len(timeEntries); i++ {
 		timeEntries[i].User = &user
 	}
 
