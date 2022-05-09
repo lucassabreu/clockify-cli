@@ -49,20 +49,16 @@ var inCmd = &cobra.Command{
 			tei.Description = args[1]
 		}
 
-		if tei, err = fillTimeEntryWithFlags(tei, cmd.Flags()); err != nil {
-			return err
-		}
-
 		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
-
-		if err := validateClosingTimeEntry(
-			c, tei.WorkspaceID, viper.GetString(USER_ID),
-		); err != nil {
-			return err
-		}
 
 		if tei, err = manageEntry(
 			tei,
+			fillTimeEntryWithFlags(cmd.Flags()),
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				return tei, validateClosingTimeEntry(
+					c, tei.WorkspaceID, tei.UserID,
+				)
+			},
 			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),

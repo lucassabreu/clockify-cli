@@ -66,19 +66,18 @@ var manualCmd = &cobra.Command{
 			tei.Description = args[3]
 		}
 
-		if tei, err = fillTimeEntryWithFlags(tei, cmd.Flags()); err != nil {
-			return err
-		}
-
-		if tei.TimeInterval.End == nil {
-			now, _ := convertToTime(nowTimeFormat)
-			tei.TimeInterval.End = &now
-		}
-
 		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if tei, err = manageEntry(
 			tei,
+			fillTimeEntryWithFlags(cmd.Flags()),
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				if tei.TimeInterval.End == nil {
+					now, _ := convertToTime(nowTimeFormat)
+					tei.TimeInterval.End = &now
+				}
+				return tei, nil
+			},
 			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
