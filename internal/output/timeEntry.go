@@ -100,7 +100,7 @@ func colorToTermColor(hex string) []int {
 }
 
 //go:embed resources
-var res embed.FS
+var res embed.FS // skipcq: SCC-compile
 
 // TimeEntriesMarkdownPrint will print time entries in "markdown blocks"
 func TimeEntriesMarkdownPrint(tes []dto.TimeEntry, w io.Writer) error {
