@@ -24,11 +24,11 @@ import (
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
-	Use:       "delete [current|<time-entry-id>]...",
+	Use:       "delete [" + ALIAS_CURRENT + "|<time-entry-id>]...",
 	Aliases:   []string{"del", "rm", "remove"},
 	Args:      cobra.MinimumNArgs(1),
-	ValidArgs: []string{"current"},
-	Short:     `Delete time entry(ies), use id "current" to apply to time entry in progress`,
+	ValidArgs: []string{ALIAS_CURRENT},
+	Short:     `Delete time entry(ies), use id "` + ALIAS_CURRENT + `" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		for i := range args {
 			param := api.DeleteTimeEntryParam{
@@ -36,7 +36,7 @@ var deleteCmd = &cobra.Command{
 				TimeEntryID: args[i],
 			}
 
-			if param.TimeEntryID == "current" {
+			if param.TimeEntryID == ALIAS_CURRENT {
 				te, err := c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 					Workspace: param.Workspace,
 					UserID:    viper.GetString(USER_ID),

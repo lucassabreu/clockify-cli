@@ -118,7 +118,7 @@ var reportLastDayCmd = &cobra.Command{
 			return err
 		}
 		te, err := getTimeEntry(
-			"latest",
+			ALIAS_LATEST,
 			viper.GetString(WORKSPACE),
 			u,
 			c,

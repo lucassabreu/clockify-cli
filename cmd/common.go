@@ -652,6 +652,12 @@ func getUserId(c *api.Client) (string, error) {
 
 var noTimeEntryErr = errors.New("time entry was not found")
 
+const (
+	ALIAS_CURRENT = "current"
+	ALIAS_LAST    = "last"
+	ALIAS_LATEST  = "latest"
+)
+
 func getTimeEntry(
 	id,
 	workspace,
@@ -673,30 +679,28 @@ func getTimeEntry(
 		return *tei, nil
 	}
 
+	var onlyInProgress *bool
 	switch id {
-	case "^0", "current":
-		id = "current"
-	case "^1", "last":
-		id = "last"
+	case "^0", ALIAS_CURRENT:
+		return mayNotFound(c.GetTimeEntryInProgress(
+			api.GetTimeEntryInProgressParam{
+				Workspace: workspace,
+				UserID:    userID,
+			}))
+	case "^1", ALIAS_LAST:
+		id = ALIAS_LAST
+		b := false
+		onlyInProgress = &b
+	case ALIAS_LATEST:
+		id = ALIAS_LATEST
+		onlyInProgress = nil
 	}
 
-	if id != "last" && id != "current" && !strings.HasPrefix(id, "^") {
+	if id != ALIAS_LAST && id != ALIAS_LATEST && !strings.HasPrefix(id, "^") {
 		return mayNotFound(c.GetTimeEntry(api.GetTimeEntryParam{
 			Workspace:   workspace,
 			TimeEntryID: id,
 		}))
-	}
-
-	if id == "current" {
-		return mayNotFound(c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
-			Workspace: workspace,
-			UserID:    userID,
-		}))
-	}
-
-	var b *bool
-	if id == "latest" {
-		b = nil
 	}
 
 	page := 1
@@ -713,7 +717,7 @@ func getTimeEntry(
 	list, err := c.GetUserTimeEntries(api.GetUserTimeEntriesParam{
 		Workspace:      workspace,
 		UserID:         userID,
-		OnlyInProgress: b,
+		OnlyInProgress: onlyInProgress,
 		PaginationParam: api.PaginationParam{
 			PageSize: 1,
 			Page:     page,
