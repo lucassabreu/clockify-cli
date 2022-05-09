@@ -656,12 +656,12 @@ func getTimeEntry(
 	id,
 	workspace,
 	userID string,
-	lastCanBeCurrent bool,
 	c *api.Client,
 ) (dto.TimeEntryImpl, error) {
-	id = strings.ToLower(id)
+	id = strings.TrimSpace(strings.ToLower(id))
 
-	mayNotFound := func(tei *dto.TimeEntryImpl, err error) (dto.TimeEntryImpl, error) {
+	mayNotFound := func(tei *dto.TimeEntryImpl, err error) (
+		dto.TimeEntryImpl, error) {
 		if err != nil {
 			return dto.TimeEntryImpl{}, err
 		}
@@ -673,7 +673,7 @@ func getTimeEntry(
 		return *tei, nil
 	}
 
-	switch strings.ToLower(id) {
+	switch id {
 	case "^0", "current":
 		id = "current"
 	case "^1", "last":
@@ -685,18 +685,17 @@ func getTimeEntry(
 			Workspace:   workspace,
 			TimeEntryID: id,
 		}))
-
 	}
 
-	if id == "current" && !lastCanBeCurrent {
+	if id == "current" {
 		return mayNotFound(c.GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 			Workspace: workspace,
 			UserID:    userID,
 		}))
 	}
 
-	b := &lastCanBeCurrent
-	if lastCanBeCurrent {
+	var b *bool
+	if id == "latest" {
 		b = nil
 	}
 

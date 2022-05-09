@@ -48,7 +48,6 @@ Start and end fields can't be mass-edited.`,
 				args[i],
 				viper.GetString(WORKSPACE),
 				userID,
-				false,
 				c,
 			)
 			if err != nil {

@@ -118,10 +118,9 @@ var reportLastDayCmd = &cobra.Command{
 			return err
 		}
 		te, err := getTimeEntry(
-			"last",
+			"latest",
 			viper.GetString(WORKSPACE),
 			u,
-			true,
 			c,
 		)
 		if err != nil {

@@ -52,7 +52,7 @@ func changeInvoiced(invoiced bool) func(cmd *cobra.Command, args []string) error
 		tes := make([]dto.TimeEntry, len(args))
 		for i, id := range args {
 			if id == "current" || id == "last" {
-				tei, err := getTimeEntry(id, workspace, userID, false, c)
+				tei, err := getTimeEntry(id, workspace, userID, c)
 				if err != nil {
 					return err
 				}

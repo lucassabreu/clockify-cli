@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
@@ -34,12 +36,17 @@ var cloneCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		id := strings.ToLower(strings.TrimSpace(args[0]))
+		if id == "last" {
+			id = "latest"
+		}
+
 		workspace := viper.GetString(WORKSPACE)
 		tec, err := getTimeEntry(
-			args[0],
+			id,
 			workspace,
 			userId,
-			true,
 			c,
 		)
 		tec.UserID = viper.GetString(USER_ID)

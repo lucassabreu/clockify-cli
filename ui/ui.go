@@ -19,7 +19,7 @@ func selectFilter(filter, value string, _ int) bool {
 	filter = strings.ReplaceAll(filter, " ", ".*")
 	filter = strings.ReplaceAll(filter, "*", ".*")
 
-	return regexp.MustCompile(filter).Match([]byte(strhlp.Normalize(value)))
+	return regexp.MustCompile(filter).MatchString(strhlp.Normalize(value))
 }
 
 func askString(p survey.Prompt) (string, error) {
