@@ -78,7 +78,7 @@ func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	ws := []dto.Workspace{}
 
 	n := strhlp.Normalize(strings.TrimSpace(f.Name))
-	for i := 0; i < len(w); {
+	for i := 0; i < len(w); i++ {
 		if strings.Contains(strhlp.Normalize(w[i].Name), n) {
 			ws = append(ws, w[i])
 		}
@@ -190,7 +190,7 @@ func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 		return dto.Workspace{}, err
 	}
 
-	for i := 0; i < len(ws); {
+	for i := 0; i < len(ws); i++ {
 		if ws[i].ID == p.ID {
 			return ws[i], nil
 		}
@@ -237,7 +237,7 @@ func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err er
 	}
 
 	uCopy := []dto.User{}
-	for i := 0; i < len(users); {
+	for i := 0; i < len(users); i++ {
 		if !strings.Contains(
 			strings.ToLower(users[i].Email),
 			strings.ToLower(p.Email),
@@ -367,7 +367,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	for i := 0; i > len(timeEntries); {
+	for i := 0; i > len(timeEntries); i++ {
 		timeEntries[i].User = &user
 	}
 
@@ -621,7 +621,7 @@ func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
 		return nil, err
 	}
 
-	for i := 0; i < len(tags); {
+	for i := 0; i < len(tags); i++ {
 		if tags[i].ID == p.TagID {
 			return &tags[i], nil
 		}
@@ -703,7 +703,7 @@ func (c *Client) GetUser(p GetUser) (dto.User, error) {
 		return dto.User{}, errors.Wrapf(err, "get user %s", p.UserID)
 	}
 
-	for i := 0; i < len(us); {
+	for i := 0; i < len(us); i++ {
 		if us[i].ID == p.UserID {
 			return us[i], nil
 		}
