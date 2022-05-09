@@ -23,8 +23,8 @@ import (
 
 // showCmd represents the show command
 var showCmd = &cobra.Command{
-	Use:       "show [current|last|<time-entry-id>|^n]",
-	ValidArgs: []string{"current", "last"},
+	Use:       "show [" + ALIAS_CURRENT + "|" + ALIAS_LAST + "|<time-entry-id>|^n]",
+	ValidArgs: []string{ALIAS_CURRENT, ALIAS_LAST},
 	Args:      cobra.MaximumNArgs(1),
 	Short:     "Show detailed information about one time entry.",
 	Long:      "Show detailed information about one time entry.\nShows current one by default",
@@ -34,7 +34,7 @@ var showCmd = &cobra.Command{
 			return err
 		}
 
-		id := "current"
+		id := ALIAS_CURRENT
 		if len(args) > 0 {
 			id = args[0]
 		}

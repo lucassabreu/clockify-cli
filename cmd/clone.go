@@ -25,10 +25,10 @@ import (
 
 // cloneCmd represents the clone command
 var cloneCmd = &cobra.Command{
-	Use:       "clone [last|<time-entry-id>]",
-	Short:     `Copy a time entry and starts it (use "last" to copy the last one)`,
+	Use:       "clone [" + ALIAS_LAST + "|<time-entry-id>]",
+	Short:     `Copy a time entry and starts it (use "` + ALIAS_LAST + `" to copy the last one)`,
 	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"last"},
+	ValidArgs: []string{ALIAS_LAST},
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 
@@ -38,8 +38,8 @@ var cloneCmd = &cobra.Command{
 		}
 
 		id := strings.ToLower(strings.TrimSpace(args[0]))
-		if id == "last" {
-			id = "latest"
+		if id == ALIAS_LAST {
+			id = ALIAS_LATEST
 		}
 
 		workspace := viper.GetString(WORKSPACE)

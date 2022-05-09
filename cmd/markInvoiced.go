@@ -25,20 +25,20 @@ import (
 
 // markInvoicedCmd represents the mark invoiced command
 var markInvoicedCmd = &cobra.Command{
-	Use:       "mark-invoiced [current|last|<time-entry-id>]...",
+	Use:       "mark-invoiced [" + ALIAS_CURRENT + "|" + ALIAS_LAST + "|<time-entry-id>]...",
 	Short:     "Marks times entries as invoiced",
 	Args:      cobra.MinimumNArgs(1),
-	ValidArgs: []string{"last", "current"},
+	ValidArgs: []string{ALIAS_LAST, ALIAS_CURRENT},
 	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(true),
 }
 
 // markNotInvoiced represents the mark invoiced command
 var markNotInvoiced = &cobra.Command{
-	Use:       "mark-not-invoiced [current|last|<time-entry-id>]...",
+	Use:       "mark-not-invoiced [" + ALIAS_CURRENT + "|" + ALIAS_LAST + "|<time-entry-id>]...",
 	Short:     "Mark times entries as not invoiced",
 	Args:      cobra.MinimumNArgs(1),
-	ValidArgs: []string{"last", "current"},
+	ValidArgs: []string{ALIAS_LAST, ALIAS_CURRENT},
 	PreRunE:   printMultipleTimeEntriesPreRun,
 	RunE:      changeInvoiced(false),
 }
@@ -51,7 +51,7 @@ func changeInvoiced(invoiced bool) func(cmd *cobra.Command, args []string) error
 		args = strhlp.Unique(args)
 		tes := make([]dto.TimeEntry, len(args))
 		for i, id := range args {
-			if id == "current" || id == "last" {
+			if id == ALIAS_CURRENT || id == ALIAS_LAST {
 				tei, err := getTimeEntry(id, workspace, userID, c)
 				if err != nil {
 					return err

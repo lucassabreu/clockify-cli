@@ -23,11 +23,11 @@ import (
 
 // editCmd represents the edit command
 var editCmd = &cobra.Command{
-	Use:       "edit [current|last|<time-entry-id>]",
+	Use:       "edit [" + ALIAS_CURRENT + "|" + ALIAS_LAST + "|<time-entry-id>]",
 	Aliases:   []string{"update"},
 	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"last", "current"},
-	Short:     `Edit a time entry, use id "current" to apply to time entry in progress`,
+	ValidArgs: []string{ALIAS_LAST, ALIAS_CURRENT},
+	Short:     `Edit a time entry, use id "` + ALIAS_CURRENT + `" to apply to time entry in progress`,
 	RunE: withClockifyClient(func(cmd *cobra.Command, args []string, c *api.Client) error {
 		var err error
 

@@ -24,12 +24,12 @@ import (
 
 // editMultipleCmd represents the editMultiple command
 var editMultipleCmd = &cobra.Command{
-	Use:       "edit-multiple [current|last|<time-entry-id>]...",
+	Use:       "edit-multiple [" + ALIAS_CURRENT + "|" + ALIAS_LAST + "|<time-entry-id>]...",
 	Aliases:   []string{"update-multiple", "multi-edit", "multi-update", "mult-edit", "mult-update"},
 	Args:      cobra.MinimumNArgs(2),
-	ValidArgs: []string{"last", "current"},
-	Short:     `Edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.`,
-	Long: `edit multiple time entries at once, use id "current"/"last" to apply to time entry in progress.
+	ValidArgs: []string{ALIAS_LAST, ALIAS_CURRENT},
+	Short:     `Edit multiple time entries at once, use id "` + ALIAS_CURRENT + `"/"` + ALIAS_LAST + `" to apply to time entry in progress.`,
+	Long: `edit multiple time entries at once, use id "` + ALIAS_CURRENT + `"/"` + ALIAS_LAST + `" to apply to time entry in progress.
 When multiple IDs are informed the default values on interactive mode will be the values of the first time entry informed.
 When using interactive mode all entries will end with the same properties except for Start and End, if you wanna edit only some properties, than use the flags without interactive mode.
 Start and end fields can't be mass-edited.`,
