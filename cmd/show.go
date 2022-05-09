@@ -43,7 +43,6 @@ var showCmd = &cobra.Command{
 			id,
 			viper.GetString(WORKSPACE),
 			userID,
-			false,
 			c,
 		)
 

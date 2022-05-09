@@ -40,7 +40,6 @@ var editCmd = &cobra.Command{
 			args[0],
 			viper.GetString(WORKSPACE),
 			userID,
-			false,
 			c,
 		)
 
