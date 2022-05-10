@@ -83,8 +83,10 @@ func init() {
 
 	addTimeEntryFlags(editCmd)
 
-	editCmd.Flags().StringP("when", "s", "", "when the entry should be started")
-	editCmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed")
+	editCmd.Flags().StringP("when", "s", "",
+		"when the entry should be started"+timeFormatExamples)
+	editCmd.Flags().StringP("when-to-close", "e", "",
+		"when the entry should be closed (same formats as `when`)")
 
 	editCmd.Flags().String("end-at", "", `when the entry should end (if not set "" will be used)`)
 	_ = editCmd.Flags().MarkDeprecated("end-at", "use `when-to-close` flag instead")

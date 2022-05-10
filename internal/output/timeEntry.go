@@ -355,6 +355,12 @@ func TimeEntriesPrintWithTemplate(
 }
 
 func durationToString(d time.Duration) string {
-	return fmt.Sprintf("%d:%02d:%02d",
+	p := ""
+	if d < 0 {
+		p = "-"
+		d = d * -1
+	}
+
+	return p + fmt.Sprintf("%d:%02d:%02d",
 		int64(d.Hours()), int64(d.Minutes())%60, int64(d.Seconds())%60)
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/cmd/completion"
@@ -40,28 +41,128 @@ func withClockifyClient(fn func(cmd *cobra.Command, args []string, c *api.Client
 	}
 }
 
-func convertToTime(timeString string) (t time.Time, err error) {
-	timeString = strings.TrimSpace(timeString)
+var ErrInvalidReliveTime = errors.New(
+	"supported relative time formats are: " +
+		"+15:04:05, +15:04 or unit descriptive +1d15h4m5s, " +
+		"+15h5s, 120m",
+)
 
-	if nowTimeFormat == strings.ToLower(timeString) {
+func relativeColonTimeToDuration(s string) (d time.Duration, err error) {
+	parts := strings.Split(s, ":")
+	c := len(parts)
+	if c > 2 || c == 0 {
+		return d, ErrInvalidReliveTime
+	}
+
+	if c == 1 {
+		s = s + ":0"
+	}
+
+	u := time.Second
+	for i := c - 1; i >= 0; i-- {
+		p := strings.TrimPrefix(parts[i], "0")
+		v, err := strconv.Atoi(p)
+		if err != nil && p != "" {
+			return d, ErrInvalidReliveTime
+		}
+		d = d + time.Duration(v)*u
+		u = u * 60
+	}
+
+	return
+}
+
+func relativeUnitDescriptiveTimeToDuration(s string) (
+	d time.Duration, err error) {
+	var u time.Duration
+	var i, j int
+	for ; i < len(s); i++ {
+		switch s[i] {
+		case 'd':
+			u = time.Hour * 24
+		case 'h':
+			u = time.Hour
+		case 'm':
+			u = time.Minute
+		case 's':
+			u = time.Second
+		default:
+			continue
+		}
+
+		v, err := strconv.Atoi(s[j:i])
+		if err != nil {
+			return d, ErrInvalidReliveTime
+		}
+
+		d = d + time.Duration(v)*u
+		j = i + 1
+	}
+
+	if i != j {
+		return d, ErrInvalidReliveTime
+	}
+
+	return d, nil
+}
+
+func relativeToTime(timeString string) (t time.Time, err error) {
+	var d time.Duration
+	timeString = strings.ReplaceAll(timeString, " ", "")
+
+	if c := strings.Count(timeString, ":"); c > 0 {
+		d, err = relativeColonTimeToDuration(timeString[1:])
+	} else {
+		d, err = relativeUnitDescriptiveTimeToDuration(timeString[1:])
+	}
+
+	if timeString[0] == '-' {
+		d = d * -1
+	}
+
+	t = time.Now().In(time.Local).Add(d)
+	return
+}
+
+func convertToTime(timeString string) (t time.Time, err error) {
+	timeString = strings.ToLower(strings.TrimSpace(timeString))
+
+	if nowTimeFormat == timeString {
 		return time.Now().In(time.Local), nil
 	}
 
-	if len(fullTimeFormat) != len(timeString) && len(simplerTimeFormat) != len(timeString) && len(onlyTimeFormat) != len(timeString) && len(simplerOnlyTimeFormat) != len(timeString) {
+	if strings.HasPrefix(timeString, "+") ||
+		strings.HasPrefix(timeString, "-") {
+		return relativeToTime(timeString)
+	}
+
+	if strings.HasPrefix(timeString, "yesterday ") {
+		timeString = time.Now().Format("2006-01-02") + " " + timeString[10:]
+	}
+
+	l := len(timeString)
+	if len(fullTimeFormat) != l &&
+		len(simplerTimeFormat) != l &&
+		len(onlyTimeFormat) != l &&
+		len(simplerOnlyTimeFormat) != l {
 		return t, fmt.Errorf(
 			"supported formats are: %s",
 			strings.Join(
-				[]string{fullTimeFormat, simplerTimeFormat, onlyTimeFormat, simplerOnlyTimeFormat, nowTimeFormat},
+				[]string{
+					fullTimeFormat, simplerTimeFormat, onlyTimeFormat,
+					simplerOnlyTimeFormat, nowTimeFormat,
+				},
 				", ",
 			),
 		)
 	}
 
-	if len(simplerOnlyTimeFormat) == len(timeString) || len(simplerTimeFormat) == len(timeString) {
+	if len(simplerOnlyTimeFormat) == l || len(simplerTimeFormat) == l {
 		timeString = timeString + ":00"
+		l = l + 3
 	}
 
-	if len(onlyTimeFormat) == len(timeString) {
+	if len(onlyTimeFormat) == l {
 		timeString = time.Now().Format("2006-01-02") + " " + timeString
 	}
 
@@ -765,9 +866,27 @@ func addTimeEntryFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().MarkDeprecated("tags", "use tag instead")
 }
 
+var timeFormatExamples = "\n" + heredoc.Doc(`
+	Examples:
+		"2016-02-01 15:04:05" # "full time"
+		"2016-02-01 15:04" # assumes 0 seconds
+		"yesterday 15:04:05" # yesterday at 15:04:05
+		"yesterday 15:04" # yesterday at 15:04:00
+		"15:04" # assumes today, with 0 seconds
+		"15:04:05" # assumes today
+		+10m # 10min in the future
+		-90s # 1min and 30s ago
+		-1:10s # 1hour and 10min ago
+		-1d10m30s # 1day, 10mi and 30seconds ago`)
+
 func addTimeEntryDateFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat), "when the entry should be started, if not informed will use current time")
-	cmd.Flags().StringP("when-to-close", "e", "", "when the entry should be closed, if not informed will let it open")
+	cmd.Flags().StringP("when", "s", time.Now().Format(fullTimeFormat),
+		"when the entry should be started, "+
+			"if not informed will use current time"+
+			timeFormatExamples+"\n")
+	cmd.Flags().StringP("when-to-close", "e", "",
+		"when the entry should be closed, if not informed will let it open "+
+			"(same formats as when)")
 }
 
 func fillTimeEntryWithFlags(flags *pflag.FlagSet) CallbackFn {
