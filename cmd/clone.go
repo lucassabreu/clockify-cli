@@ -64,12 +64,12 @@ var cloneCmd = &cobra.Command{
 		if tec, err = manageEntry(
 			tec,
 			fillTimeEntryWithFlags(cmd.Flags()),
-			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				if noClosing {
-					return tei, nil
+					return tec, nil
 				}
 
-				return tei, validateClosingTimeEntry(
+				return tec, validateClosingTimeEntry(
 					c, tec.WorkspaceID, tec.UserID,
 				)
 			},
@@ -77,12 +77,12 @@ var cloneCmd = &cobra.Command{
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
 			getValidateTimeEntryFn(c),
-			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 				if noClosing {
-					return tei, nil
+					return tec, nil
 				}
 
-				return tei, out(tec, c)
+				return tec, out(tec, c)
 			},
 		); err != nil {
 			return err
