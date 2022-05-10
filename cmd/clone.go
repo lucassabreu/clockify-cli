@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/internal/output"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -49,43 +50,42 @@ var cloneCmd = &cobra.Command{
 			userId,
 			c,
 		)
-		tec.UserID = viper.GetString(USER_ID)
-		tec.TimeInterval.End = nil
-
 		if err != nil {
 			return err
 		}
 
-		if tec, err = fillTimeEntryWithFlags(tec, cmd.Flags()); err != nil {
-			return err
-		}
+		tec.UserID = viper.GetString(USER_ID)
+		tec.TimeInterval.End = nil
 
 		noClosing, _ := cmd.Flags().GetBool("no-closing")
 
 		dc := newDescriptionCompleter(c, tec.WorkspaceID, tec.UserID)
 
-		if !noClosing {
-			if err := validateClosingTimeEntry(
-				c, tec.WorkspaceID, viper.GetString(USER_ID),
-			); err != nil {
-				return err
-			}
-		}
-
 		if tec, err = manageEntry(
 			tec,
+			fillTimeEntryWithFlags(cmd.Flags()),
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				if noClosing {
+					return tei, nil
+				}
+
+				return tei, validateClosingTimeEntry(
+					c, tec.WorkspaceID, tec.UserID,
+				)
+			},
 			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
 			getValidateTimeEntryFn(c),
+			func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				if noClosing {
+					return tei, nil
+				}
+
+				return tei, out(tec, c)
+			},
 		); err != nil {
 			return err
-		}
-
-		if !noClosing {
-			if err = out(tec, c); err != nil {
-				return err
-			}
 		}
 
 		if tec, err = createTimeEntry(tec, c); err != nil {

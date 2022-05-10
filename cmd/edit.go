@@ -47,15 +47,11 @@ var editCmd = &cobra.Command{
 			return err
 		}
 
-		tei, err = fillTimeEntryWithFlags(tei, cmd.Flags())
-		if err != nil {
-			return err
-		}
-
 		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
 		if tei, err = manageEntry(
 			tei,
+			fillTimeEntryWithFlags(cmd.Flags()),
 			getPropsInteractiveFn(c, dc),
 			getDatesInteractiveFn(),
 			getAllowNameForIDsFn(c),

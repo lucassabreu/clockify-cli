@@ -87,11 +87,6 @@ Start and end fields can't be mass-edited.`,
 			return input, err
 		}
 
-		tei, err = fillTimeEntryWithFlags(tei, cmd.Flags())
-		if err != nil {
-			return err
-		}
-
 		interactive := viper.GetBool(INTERACTIVE)
 		if !interactive {
 			fn = func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
@@ -129,6 +124,7 @@ Start and end fields can't be mass-edited.`,
 
 		if _, err = manageEntry(
 			tei,
+			fillTimeEntryWithFlags(cmd.Flags()),
 			getAllowNameForIDsFn(c),
 			getPropsInteractiveFn(c, dc),
 			getValidateTimeEntryFn(c),
