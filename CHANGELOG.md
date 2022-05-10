@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- negative duration was printed broken, now it show as a valid negative duration
+
 ### Changed
 
 - new error types from required fields and invalid entity ids.
