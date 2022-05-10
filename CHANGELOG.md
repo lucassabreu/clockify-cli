@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Added
+
+- support for relative time for time parameters, can be +1:40, or +1h40m
+
 ### Fixed
 
 - negative duration was printed broken, now it show as a valid negative duration
