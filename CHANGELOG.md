@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `clone` command was using the start time of the copied time entry to close the current one
+  instead of the start time of new one being created.
+
 ## [v0.36.0] - 2022-05-09
 
 ### Added
