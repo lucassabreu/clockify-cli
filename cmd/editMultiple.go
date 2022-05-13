@@ -122,7 +122,7 @@ Start and end fields can't be mass-edited.`,
 
 		dc := newDescriptionCompleter(c, tei.WorkspaceID, tei.UserID)
 
-		if _, err = manageEntry(
+		if tei, err = manageEntry(
 			tei,
 			fillTimeEntryWithFlags(cmd.Flags()),
 			getAllowNameForIDsFn(c),

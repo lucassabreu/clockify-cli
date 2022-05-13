@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `edit-multiple` was not updating time entries without interactive mode.
+
 ## [v0.36.1] - 2022-05-10
 
 ### Fixed
