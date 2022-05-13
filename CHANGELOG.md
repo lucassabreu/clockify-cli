@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.36.2] - 2022-05-13
+
 ### Fixed
 
 - `edit-multiple` was not updating time entries without interactive mode.
@@ -904,7 +906,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.36.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.36.2...HEAD
+[v0.36.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.36.2
 [v0.36.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.36.1
 [v0.36.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.36.0
 [v0.35.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.35.1
