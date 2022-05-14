@@ -11,6 +11,11 @@ A simple cli to manage your time entries on Clockify from terminal
 [![Netlify Status](https://api.netlify.com/api/v1/badges/8667b9f6-4ca2-4ee4-865e-20b5848e7059/deploy-status?classes=badges)](https://app.netlify.com/sites/clockify-cli/deploys)
 [![DeepSource](https://deepsource.io/gh/lucassabreu/clockify-cli.svg/?classes=badges&label=active+issues&show_trend=true&token=hkvNbnaRCE4DhtW6vDYpFWSR)](https://deepsource.io/gh/lucassabreu/clockify-cli/?ref=repository-badge)
 
+Documentation
+-------------
+
+See the [project site](https://clockify-cli.netlify.app/) for the how to setup and use this CLI.
+
 Features
 --------
 
