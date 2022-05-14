@@ -1,7 +1,7 @@
-Clockify CLI
+![Clockify CLI](https://repository-images.githubusercontent.com/173476481/3445a278-9bb9-49e9-8c99-d10c76574489)
 ============
 
-A simple cli to manage your time entries on Clockify from terminal
+A simple cli to manage your time entries and projects on Clockify from terminal
 
 [![Release](https://img.shields.io/github/release/lucassabreu/clockify-cli.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
 [![GitHub all releases](https://img.shields.io/github/downloads/lucassabreu/clockify-cli/total)](https://github.com/lucassabreu/clockify-cli/releases)
