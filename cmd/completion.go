@@ -25,32 +25,34 @@ import (
 var completionCmd = &cobra.Command{
 	Use:   "completion [bash|zsh|fish|powershell]",
 	Short: "Generate completion script",
-	Long: `To load completions:
+	Long: `To load completions for every session, execute once:
 
-Bash:
+#### Linux:
 
-$ source <(clockify-cli completion bash)
+` + "```" + `
+$ clockify-cli completion bash > /etc/bash_completion.d/clockify-cli
+` + "```" + `
 
-# To load completions for each session, execute once:
-Linux:
-  $ clockify-cli completion bash > /etc/bash_completion.d/clockify-cli
-MacOS:
-  $ clockify-cli completion bash > /usr/local/etc/bash_completion.d/clockify-cli
+#### MacOS:
 
-Zsh:
+` + "```" + `
+$ clockify-cli completion bash > /usr/local/etc/bash_completion.d/clockify-cli
+` + "```" + `
 
-# To load completions for each session, add this line to your ~/.zshrc:
-$ source <(clockify-cli completion zsh)
+#### Zsh:
 
-# You will need to start a new shell for this setup to take effect.
+To load completions for each session, add this line to your ~/.zshrc:
+` + "```" + `
+source <(clockify-cli completion zsh)
+` + "```" + `
 
-Fish:
+You will need to start a new shell for this setup to take effect.
 
-$ clockify-cli completion fish | source
-
-# To load completions for each session, execute once:
+#### Fish:
+To load completions for each session, execute once:
+` + "```" + `
 $ clockify-cli completion fish > ~/.config/fish/completions/clockify-cli.fish
-`,
+` + "```",
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 	Args:                  cobra.ExactValidArgs(1),
