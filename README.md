@@ -16,6 +16,12 @@ Documentation
 
 See the [project site](https://clockify-cli.netlify.app/) for the how to setup and use this CLI.
 
+Contributing
+------------
+
+On how to help improve the tool, suggest new features or report bugs, please take a look at the
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 Features
 --------
 

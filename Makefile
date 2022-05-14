@@ -7,16 +7,16 @@ help: ## show this help
 clean: ## clean all buildable files
 	rm -rf dist
 
-install-deps: ## install golang dependencies
+deps-install: ## install golang dependencies
 	go mod download
 
-update-deps: ## update go dependencies
+deps-upgrade: ## upgrade go dependencies
 	go get -u -v
 	go mod tidy
 
 build: dist
 
-dist: install-deps dist/darwin dist/linux dist/windows ## build all cli versions (default)
+dist: deps-install dist/darwin dist/linux dist/windows ## build all cli versions (default)
 
 dist/darwin:
 	mkdir -p dist/darwin
@@ -30,7 +30,7 @@ dist/windows:
 	mkdir -p dist/windows
 	GOOS=windows GOARCH=amd64 go build -o dist/windows/clockify-cli
 
-go-install: install-deps ## install dev version
+go-install: deps-install ## install dev version
 	go install
 
 goreleaser-test: tag=Unreleased
