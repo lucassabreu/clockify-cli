@@ -9,10 +9,12 @@ pygmentsUseClasses = true
 pygmentsOptions = "hl_lines=3,startinline=1"
 
 [outputs]
-home = ["HTML", "RSS", "JSON"]
+    home = ["HTML", "RSS", "JSON"]
 
 [params]
     description = "Clockify CLI"
     author = "Lucas dos Santos Abreu"
     showVisitedLinks = false
-    custom_css = ['css/custom.css']
+    custom_css = ["css/custom.css"]
+    editURL = "https://github.com/lucassabreu/clockify-cli/tree/main/site/"
+    disableNextPrev = true
