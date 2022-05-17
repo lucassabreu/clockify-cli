@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- badge with amount of downloads from github releases
+
 ## [v0.37.0] - 2022-05-17
 
 ### Added
