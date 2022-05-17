@@ -1,9 +1,14 @@
 builds:
-- env:
-  - CGO_ENABLED=0
-  hooks:
-    pre:
-      - go mod download
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - linux
+      - darwin
+    hooks:
+      pre:
+        - go mod download
+
 archives:
   - id: default
     replacements:
@@ -12,16 +17,25 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENCE
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: '{{ .Tag }}-next'
+
 changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
+      - '^docs:'
+      - '^test:'
+
 snapcrafts:
   - name: clockify-cli
     summary: Helps to interact with Clockfy's API
@@ -32,7 +46,8 @@ snapcrafts:
 
     apps:
       clockify-cli:
-        plugs: ["network"]
+        plugs: ['network']
+
 brews:
   - tap:
       owner: lucassabreu
