@@ -21,7 +21,7 @@ archives:
       - goos: windows
         format: zip
     files:
-      - LICENCE
+      - LICENSE
 
 checksum:
   name_template: 'checksums.txt'
