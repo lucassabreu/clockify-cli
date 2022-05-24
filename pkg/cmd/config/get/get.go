@@ -23,11 +23,14 @@ func NewCmdGet(
 	cmd := &cobra.Command{
 		Use:   "get [param]",
 		Short: "Retrieves one or all parameters set by the user",
-		Long: heredoc.Doc(`
+		Long: heredoc.Docf(`
 			Retrieves one or all parameters set by the user.
 
 			Available parameters are:
-		`) + validParameters.Long(),
+			%s
+		`,
+			validParameters.Long(),
+		),
 		Args:      cobra.MaximumNArgs(1),
 		ValidArgs: validParameters.IntoValidArgs(),
 		RunE: func(cmd *cobra.Command, args []string) error {

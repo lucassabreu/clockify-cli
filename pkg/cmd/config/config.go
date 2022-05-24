@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/get"
 	initialize "github.com/lucassabreu/clockify-cli/pkg/cmd/config/init"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/set"
@@ -38,6 +39,16 @@ func NewCmdConfig(f cmdutil.Factory) *cobra.Command {
 		Use:   "config <command>",
 		Short: "Manages configuration file parameters",
 		Args:  cobra.MaximumNArgs(0),
+		Example: heredoc.Doc(`
+			# cli will guide on the setup
+			$ clockify-cli config init
+
+			# token is the minimum information required for the cli to work
+			$ clockify-cli set token <token>
+
+			# you can see your current parameters using:
+			$ clockify-cli get
+		`),
 	}
 
 	cmd.AddCommand(initialize.NewCmdInit(f))

@@ -69,7 +69,5 @@ func NewCmdRoot(f cmdutil.Factory) *cobra.Command {
 
 	cmd.AddCommand(completion.NewCmdCompletion())
 
-	cmd.AddCommand(gendocsCmd)
-
 	return cmd
 }
