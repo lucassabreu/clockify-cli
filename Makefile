@@ -1,4 +1,5 @@
 export GO111MODULE=on
+MAIN_PKG=./cmd/clockify-cli
 
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ## show this help
@@ -11,27 +12,28 @@ deps-install: ## install golang dependencies
 	go mod download
 
 deps-upgrade: ## upgrade go dependencies
-	go get -u -v
+	go get -u -v $(MAIN_PKG)
 	go mod tidy
 
 build: dist
 
 dist: deps-install dist/darwin dist/linux dist/windows ## build all cli versions (default)
 
+dist-internal:
+	mkdir -p dist/$(goos)
+	GOOS=$(goos) GOARCH=$(goarch) go build -o dist/darwin/clockify-cli $(MAIN_PKG)
+
 dist/darwin:
-	mkdir -p dist/darwin
-	GOOS=darwin GOARCH=amd64 go build -o dist/darwin/clockify-cli
+	make dist-internal goos=darwin goarch=amd64
 
 dist/linux:
-	mkdir -p dist/linux
-	GOOS=linux GOARCH=amd64 go build -o dist/linux/clockify-cli
+	make dist-internal goos=linux goarch=amd64
 
 dist/windows:
-	mkdir -p dist/windows
-	GOOS=windows GOARCH=amd64 go build -o dist/windows/clockify-cli
+	make dist-internal goos=windows goarch=amd64
 
 go-install: deps-install ## install dev version
-	go install
+	go install $(MAIN_PKG)
 
 goreleaser-test: tag=Unreleased
 goreleaser-test: release
