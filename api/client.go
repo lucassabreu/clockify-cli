@@ -1065,7 +1065,7 @@ func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (
 type GetTagsParam struct {
 	Workspace string
 	Name      string
-	Archived  bool
+	Archived  *bool
 
 	PaginationParam
 }
