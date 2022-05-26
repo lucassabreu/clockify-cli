@@ -8,6 +8,7 @@ builds:
     hooks:
       pre:
         - go mod download
+    main: ./cmd/clockify-cli
 
 archives:
   - id: default

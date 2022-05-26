@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - site specific files moved from `docs/` to `site/` to free docs folder for actual documentation.
+- moved `cmd/*` and `internal/output/*` into the new locations as stated on [project layout][]
+- new `cmdutil.Factory` interface to work as a "service locator" so sharing some states, behaviours
+  and "services" can be easier.
+
+### Fixed
+
+- `report` commands could fail to list time entries closer to midnight because of timezone
+    differences.
 
 ### Added
 

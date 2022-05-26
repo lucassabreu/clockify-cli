@@ -21,7 +21,7 @@ pkg/cmd/<command>/<subcommand>/<subcommand>.go
 
 Following the same structure as the command path, so `clockify-cli client add` is at
 `pkg/cmd/client/add.go`, all command packages will have a function named `NewCmd<subcommand>` that
-will receive a `*cmdutil.Factory` type and return a `*cobra.Command`.
+will receive a `cmdutil.Factory` type and return a `*cobra.Command`.
 
 Specific logic for that command must be kept at the same package as it, and all subcommands must be
 registered on its parent package. So all subcommands of `client` will registered on the function
@@ -43,11 +43,11 @@ Say you will create a new command `delete` under `client`.
 
 1. Create the package `pkg/cmd/client/delete/`
 2. Create a function called `NewCmdDelete` on a file `delete.go`
-    1. This function must receive a [`*cmdutil.Factory`][] struct and
+    1. This function must receive a [`cmdutil.Factory`][] struct and
        return a [`*cobra.Command`][] fully set.
 3. Edit the entity root command at `pkg/cmd/client/client.go` to register it as a subcommand using
    the factory function previously created. If the entity root does not exist yet, then:
-    1. Create the file, and in it a function `NewCmdClient` that should receive `*cmdutil.Factory`
+    1. Create the file, and in it a function `NewCmdClient` that should receive `cmdutil.Factory`
        and return a [`*cobra.Command`][] with all its subcommands.
 4. If is the first command of a entity:
     1. Create a package called `pkg/output/client`
@@ -61,4 +61,4 @@ This document is based on the [project-layout.md from github/cli/cli][credit].
 
 [credit]: https://github.com/cli/cli/blob/trunk/docs/project-layout.md
 [`*cobra.Command`]: https://pkg.go.dev/github.com/spf13/cobra#Command
-[`*cmdutil.Factory`]: ../pkg/cmdutil/factory.go
+[`cmdutil.Factory`]: ../pkg/cmdutil/factory.go

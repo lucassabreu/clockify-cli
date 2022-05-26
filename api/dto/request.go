@@ -338,7 +338,7 @@ type AddProjectRequest struct {
 
 type GetTagsRequest struct {
 	Name     string
-	Archived bool
+	Archived *bool
 
 	pagination
 }
@@ -355,8 +355,8 @@ func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
 
 	v := u.Query()
 	v.Add("name", r.Name)
-	if r.Archived {
-		v.Add("archived", "true")
+	if r.Archived != nil {
+		v.Add("archived", bool2str(*r.Archived))
 	}
 
 	u.RawQuery = v.Encode()
