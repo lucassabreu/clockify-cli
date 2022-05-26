@@ -85,21 +85,23 @@ func ReportWithRange(
 	if fillMissingDates && len(log) > 0 {
 		newLog := make([]dto.TimeEntry, 0, len(log))
 
+		newLog = append(newLog,
+			fillMissing(start, log[0].TimeInterval.Start)...)
 		nextDay := start
 		for _, t := range log {
 			newLog = append(newLog,
-				fillMissing(t.User, nextDay, t.TimeInterval.Start)...)
+				fillMissing(nextDay, t.TimeInterval.Start)...)
 			newLog = append(newLog, t)
 			nextDay = t.TimeInterval.Start.Add(
 				time.Duration(24-t.TimeInterval.Start.Hour()) * time.Hour)
 		}
-		log = append(newLog, fillMissing(log[0].User, nextDay, end)...)
+		log = append(newLog, fillMissing(nextDay, end)...)
 	}
 
 	return util.PrintTimeEntries(log, cmd, timehlp.FullTimeFormat, f.Config())
 }
 
-func fillMissing(user *dto.User, first, last time.Time) []dto.TimeEntry {
+func fillMissing(first, last time.Time) []dto.TimeEntry {
 	first = timehlp.TruncateDate(first)
 	last = timehlp.TruncateDate(last)
 
