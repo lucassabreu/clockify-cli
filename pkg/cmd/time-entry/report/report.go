@@ -29,7 +29,7 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
-			start := time.Now()
+			start := timehlp.Today()
 			if len(args) > 0 {
 				start, err = time.Parse("2006-01-02", args[0])
 				if err != nil {
@@ -40,9 +40,9 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 			end := start
 			if len(args) > 1 {
 				if args[1] == "now" || args[1] == "today" {
-					end = time.Now()
+					end = timehlp.Today()
 				} else if args[1] == "yesterday" {
-					end = timehlp.TruncateDate(time.Now()).Add(-1)
+					end = timehlp.Today().Add(-1)
 				} else if end, err = time.Parse(
 					"2006-01-02", args[1]); err != nil {
 					return err

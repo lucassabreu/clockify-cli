@@ -24,7 +24,7 @@ func NewCmdLastWeekDay(f cmdutil.Factory) *cobra.Command {
 				return errors.New("no workweek days were set")
 			}
 
-			day := timehlp.TruncateDate(time.Now()).Add(-1)
+			day := timehlp.TruncateDate(timehlp.Today()).Add(-1)
 			if strhlp.Search(
 				strings.ToLower(day.Weekday().String()), workweek) != -1 {
 				return util.ReportWithRange(f, day, day, cmd)

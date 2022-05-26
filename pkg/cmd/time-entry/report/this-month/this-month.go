@@ -1,8 +1,6 @@
 package thismonth
 
 import (
-	"time"
-
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/report/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
@@ -15,7 +13,7 @@ func NewCmdThisMonth(f cmdutil.Factory) *cobra.Command {
 		Use:   "this-month",
 		Short: "List all time entries in this month",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			first, last := timehlp.GetMonthRange(time.Now())
+			first, last := timehlp.GetMonthRange(timehlp.Today())
 			return util.ReportWithRange(f, first, last, cmd)
 		},
 	}
