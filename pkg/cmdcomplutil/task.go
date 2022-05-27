@@ -28,7 +28,7 @@ func NewTaskAutoComplete(f factory) cmdcompl.SuggestFn {
 			return cmdcompl.EmptyValidArgs(), err
 		}
 
-		tasks, err := c.GetTasks(api.GetTasksParam{
+		ts, err := c.GetTasks(api.GetTasksParam{
 			Workspace: w,
 			ProjectID: project,
 			Active:    true,
@@ -39,11 +39,11 @@ func NewTaskAutoComplete(f factory) cmdcompl.SuggestFn {
 
 		va := make(cmdcompl.ValidArgsMap)
 		toComplete = strings.ToLower(toComplete)
-		for _, e := range tasks {
-			if toComplete != "" && !strings.Contains(e.ID, toComplete) {
+		for i := range ts {
+			if toComplete != "" && !strings.Contains(ts[i].ID, toComplete) {
 				continue
 			}
-			va.Set(e.ID, e.Name)
+			va.Set(ts[i].ID, ts[i].Name)
 		}
 
 		return va, nil

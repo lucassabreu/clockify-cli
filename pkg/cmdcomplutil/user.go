@@ -24,7 +24,7 @@ func NewUserAutoComplete(f factory) cmdcompl.SuggestFn {
 			return cmdcompl.EmptyValidArgs(), err
 		}
 
-		users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
+		us, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
 			Workspace: w,
 		})
 
@@ -34,11 +34,11 @@ func NewUserAutoComplete(f factory) cmdcompl.SuggestFn {
 
 		va := make(cmdcompl.ValidArgsMap)
 		toComplete = strings.ToLower(toComplete)
-		for _, user := range users {
-			if toComplete != "" && !strings.Contains(user.ID, toComplete) {
+		for i := range us {
+			if toComplete != "" && !strings.Contains(us[i].ID, toComplete) {
 				continue
 			}
-			va.Set(user.ID, fmt.Sprintf("%s (%s)", user.Name, user.Email))
+			va.Set(us[i].ID, fmt.Sprintf("%s (%s)", us[i].Name, us[i].Email))
 		}
 
 		return va, nil

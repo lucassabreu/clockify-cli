@@ -18,7 +18,7 @@ func NewWorspaceAutoComplete(f factory) cmdcompl.SuggestFn {
 			return cmdcompl.EmptyValidArgs(), err
 		}
 
-		workspaces, err := c.GetWorkspaces(api.GetWorkspaces{})
+		ws, err := c.GetWorkspaces(api.GetWorkspaces{})
 
 		if err != nil {
 			return cmdcompl.EmptyValidArgs(), err
@@ -26,11 +26,11 @@ func NewWorspaceAutoComplete(f factory) cmdcompl.SuggestFn {
 
 		va := make(cmdcompl.ValidArgsMap)
 		toComplete = strings.ToLower(toComplete)
-		for _, w := range workspaces {
-			if toComplete != "" && !strings.Contains(w.ID, toComplete) {
+		for i := range ws {
+			if toComplete != "" && !strings.Contains(ws[i].ID, toComplete) {
 				continue
 			}
-			va.Set(w.ID, w.Name)
+			va.Set(ws[i].ID, ws[i].Name)
 		}
 
 		return va, nil
