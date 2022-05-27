@@ -24,7 +24,7 @@ func NewProjectAutoComplete(f factory) cmdcompl.SuggestFn {
 		}
 
 		b := false
-		projects, err := c.GetProjects(api.GetProjectsParam{
+		ps, err := c.GetProjects(api.GetProjectsParam{
 			Workspace:       w,
 			Archived:        &b,
 			PaginationParam: api.AllPages(),
@@ -35,11 +35,11 @@ func NewProjectAutoComplete(f factory) cmdcompl.SuggestFn {
 
 		va := make(cmdcompl.ValidArgsMap)
 		toComplete = strings.ToLower(toComplete)
-		for _, e := range projects {
-			if toComplete != "" && !strings.Contains(e.ID, toComplete) {
+		for i := range ps {
+			if toComplete != "" && !strings.Contains(ps[i].ID, toComplete) {
 				continue
 			}
-			va.Set(e.ID, e.Name)
+			va.Set(ps[i].ID, ps[i].Name)
 		}
 
 		return va, nil

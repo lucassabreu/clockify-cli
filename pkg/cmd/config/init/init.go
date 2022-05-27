@@ -31,7 +31,8 @@ func run(config cmdutil.Config, getClient func() (*api.Client, error)) error {
 	if token, err = ui.AskForText("User Generated Token:",
 		ui.WithDefault(config.GetString(cmdutil.CONF_TOKEN)),
 		ui.WithHelp("Can be generated here: "+
-			"https://clockify.me/user/settings#generateApiKeyBtn")); err != nil {
+			"https://clockify.me/user/settings#generateApiKeyBtn"),
+	); err != nil {
 		return err
 	}
 	config.SetString(cmdutil.CONF_TOKEN, token)
@@ -48,16 +49,17 @@ func run(config cmdutil.Config, getClient func() (*api.Client, error)) error {
 
 	dWorkspace := ""
 	wsString := make([]string, len(ws))
-	for i, w := range ws {
-		wsString[i] = fmt.Sprintf("%s - %s", w.ID, w.Name)
+	for i := range ws {
+		wsString[i] = fmt.Sprintf("%s - %s", ws[i].ID, ws[i].Name)
 
-		if w.ID == config.GetString(cmdutil.CONF_WORKSPACE) {
+		if ws[i].ID == config.GetString(cmdutil.CONF_WORKSPACE) {
 			dWorkspace = wsString[i]
 		}
 	}
 
 	workspace := ""
-	if workspace, err = ui.AskFromOptions("Choose default Workspace:", wsString, dWorkspace); err != nil {
+	if workspace, err = ui.AskFromOptions("Choose default Workspace:",
+		wsString, dWorkspace); err != nil {
 		return err
 	}
 	config.SetString(cmdutil.CONF_WORKSPACE,
@@ -74,10 +76,10 @@ func run(config cmdutil.Config, getClient func() (*api.Client, error)) error {
 	userId := config.GetString(cmdutil.CONF_USER_ID)
 	dUser := ""
 	usersString := make([]string, len(users))
-	for i, u := range users {
-		usersString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	for i := range users {
+		usersString[i] = fmt.Sprintf("%s - %s", users[i].ID, users[i].Name)
 
-		if u.ID == userId {
+		if users[i].ID == userId {
 			dUser = usersString[i]
 		}
 	}
