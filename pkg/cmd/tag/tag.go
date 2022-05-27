@@ -19,6 +19,13 @@ func NewCmdTag(f cmdutil.Factory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			format, _ := cmd.Flags().GetString("format")
 			quiet, _ := cmd.Flags().GetBool("quiet")
+			if err := cmdutil.XorFlag(map[string]bool{
+				"format": format != "",
+				"quiet":  quiet,
+			}); err != nil {
+				return err
+			}
+
 			archived, _ := cmd.Flags().GetBool("archived")
 			name, _ := cmd.Flags().GetString("name")
 
