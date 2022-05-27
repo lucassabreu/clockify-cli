@@ -1,30 +1,27 @@
 package list
 
 import (
-	"io"
-	"os"
-
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	output "github.com/lucassabreu/clockify-cli/pkg/output/project"
 	"github.com/lucassabreu/clockify-cli/pkg/search"
 	"github.com/spf13/cobra"
 )
 
 // projectListCmd represents the projectList command
 func NewCmdList(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "List projects on Clockify and project links",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			format, _ := cmd.Flags().GetString("format")
-			asJSON, _ := cmd.Flags().GetBool("json")
-			asCSV, _ := cmd.Flags().GetBool("csv")
-			quiet, _ := cmd.Flags().GetBool("quiet")
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			name, _ := cmd.Flags().GetString("name")
 			clients, _ := cmd.Flags().GetStringSlice("clients")
 
@@ -67,8 +64,7 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return report(projects, cmd.OutOrStdout(),
-				format, asJSON, asCSV, quiet)
+			return util.Report(projects, cmd.OutOrStdout(), of)
 		},
 	}
 
@@ -81,35 +77,8 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 
 	cmd.Flags().BoolP("not-archived", "", false, "list only active projects")
 	cmd.Flags().BoolP("archived", "", false, "list only archived projects")
-	cmd.Flags().StringP("format", "f", "",
-		"golang text/template format to be applied on each Project")
 
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	util.AddReportFlags(cmd, &of)
 
 	return cmd
-}
-
-func report(projects []dto.Project, out io.Writer,
-	format string, asJSON, asCSV, quiet bool) error {
-
-	if asJSON {
-		return output.ProjectsJSONPrint(projects, out)
-	}
-
-	if asCSV {
-		return output.ProjectsCSVPrint(projects, out)
-	}
-
-	if format != "" {
-		return output.ProjectPrintWithTemplate(format)(projects, out)
-	}
-
-	if quiet {
-		return output.ProjectPrintQuietly(projects, out)
-	}
-
-	return output.ProjectPrint(projects, os.Stdout)
-
 }

@@ -3,11 +3,10 @@ package add
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"io"
-	"os"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/project"
 	"github.com/lucassabreu/clockify-cli/pkg/search"
@@ -16,15 +15,16 @@ import (
 
 // NewCmdAdd represents the add command
 func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "add",
 		Aliases: []string{"new", "create"},
 		Short:   "Adds a project to the Clockify workspace",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			format, _ := cmd.Flags().GetString("format")
-			asJSON, _ := cmd.Flags().GetBool("json")
-			asCSV, _ := cmd.Flags().GetBool("csv")
-			quiet, _ := cmd.Flags().GetBool("quiet")
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			name, _ := cmd.Flags().GetString("name")
 			note, _ := cmd.Flags().GetString("note")
 			color, _ := cmd.Flags().GetString("color")
@@ -72,8 +72,12 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return report(project, cmd.OutOrStdout(),
-				format, asJSON, asCSV, quiet)
+			out := cmd.OutOrStdout()
+			if of.JSON {
+				return output.ProjectJSONPrint(project, out)
+			}
+
+			return util.Report([]dto.Project{project}, out, of)
 		},
 	}
 
@@ -87,31 +91,7 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 	cmd.Flags().BoolP("public", "p", false, "make the new project public")
 	cmd.Flags().BoolP("billable", "b", false, "make the new project as billable")
 
-	cmd.Flags().StringP("format", "f", "", "golang text/template format to be applied on each Project")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
+	util.AddReportFlags(cmd, &of)
 
 	return cmd
-}
-
-func report(project dto.Project, out io.Writer,
-	format string, asJSON, asCSV, quiet bool) error {
-	if asJSON {
-		return output.ProjectJSONPrint(project, out)
-	}
-
-	list := []dto.Project{project}
-	if asCSV {
-		return output.ProjectsCSVPrint(list, out)
-	}
-
-	if format != "" {
-		return output.ProjectPrintWithTemplate(format)(list, out)
-	}
-
-	if quiet {
-		return output.ProjectPrintQuietly(list, out)
-	}
-
-	return output.ProjectPrint(list, os.Stdout)
 }

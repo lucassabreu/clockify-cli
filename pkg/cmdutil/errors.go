@@ -1,5 +1,6 @@
 package cmdutil
 
+// FlagError happens when a non-cobra validation fails
 type FlagError struct {
 	err error
 }
