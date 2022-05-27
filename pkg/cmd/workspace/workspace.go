@@ -1,10 +1,8 @@
 package workspace
 
 import (
-	"errors"
 	"os"
 
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/workspace"
 
@@ -19,9 +17,14 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 		Aliases: []string{"workspaces"},
 		Short:   "List user's workspaces",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cmd.Flags().Changed("format") && cmd.Flags().Changed("quiet") {
-				return errors.New(
-					"format and quiet flags can't be used together")
+			format, _ := cmd.Flags().GetString("format")
+			quiet, _ := cmd.Flags().GetBool("quiet")
+
+			if err := cmdutil.XorFlag(map[string]bool{
+				"format": format != "",
+				"quiet":  quiet,
+			}); err != nil {
+				return err
 			}
 
 			name, err := cmd.Flags().GetString("name")
@@ -34,15 +37,23 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			list, err := run(c, name)
+			list, err := c.GetWorkspaces(api.GetWorkspaces{
+				Name: name,
+			})
 			if err != nil {
 				return err
 			}
 
 			w, _ := f.GetWorkspaceID()
-			format, _ := cmd.Flags().GetString("format")
-			quiet, _ := cmd.Flags().GetBool("quiet")
-			return report(list, w, format, quiet)
+			if quiet {
+				return output.WorkspacePrintQuietly(list, os.Stdout)
+			}
+
+			if format != "" {
+				return output.WorkspacePrintWithTemplate(format)(list, os.Stdout)
+			}
+
+			return output.WorkspacePrint(w)(list, os.Stdout)
 		},
 	}
 
@@ -53,23 +64,4 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
 
 	return cmd
-}
-
-func run(c *api.Client, name string) ([]dto.Workspace, error) {
-	return c.GetWorkspaces(api.GetWorkspaces{
-		Name: name,
-	})
-}
-
-func report(
-	list []dto.Workspace, dWorkspace, format string, quiet bool) error {
-	if quiet {
-		return output.WorkspacePrintQuietly(list, os.Stdout)
-	}
-
-	if format != "" {
-		return output.WorkspacePrintWithTemplate(format)(list, os.Stdout)
-	}
-
-	return output.WorkspacePrint(dWorkspace)(list, os.Stdout)
 }
