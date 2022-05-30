@@ -15,6 +15,7 @@ import (
 
 // NewCmdDone represents the close command
 func NewCmdDone(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "done <project> <task>",
 		Aliases: []string{"mark-as-done", "end"},
@@ -74,10 +75,10 @@ func NewCmdDone(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, t)
+			return util.TaskReport(cmd, of, t)
 		},
 	}
 
-	util.TaskAddReportFlags(cmd)
+	util.TaskAddReportFlags(cmd, &of)
 	return cmd
 }

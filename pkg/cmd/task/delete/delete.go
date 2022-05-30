@@ -15,6 +15,7 @@ import (
 
 // NewCmdDelete represents the close command
 func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "delete <project> <task>",
 		Aliases: []string{"remove", "rm", "del"},
@@ -66,11 +67,11 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, t)
+			return util.TaskReport(cmd, of, t)
 		},
 	}
 
-	util.TaskAddReportFlags(cmd)
+	util.TaskAddReportFlags(cmd, &of)
 
 	return cmd
 }

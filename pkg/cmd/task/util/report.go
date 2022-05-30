@@ -6,35 +6,37 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// OutputFlags
+type OutputFlags struct {
+	Format string
+	JSON   bool
+	CSV    bool
+	Quiet  bool
+}
+
 // TaskAddReportFlags will add common format flags used for tasks
-func TaskAddReportFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("format", "f", "",
+func TaskAddReportFlags(cmd *cobra.Command, of *OutputFlags) {
+	cmd.Flags().StringVarP(&of.Format, "format", "f", "",
 		"golang text/template format to be applied on each Client")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	cmd.Flags().BoolVarP(&of.JSON, "json", "j", false, "print as JSON")
+	cmd.Flags().BoolVarP(&of.CSV, "csv", "v", false, "print as CSV")
+	cmd.Flags().BoolVarP(&of.Quiet, "quiet", "q", false, "only display ids")
 }
 
 // TaskReport will output the task as set by the flags
-func TaskReport(cmd *cobra.Command, tasks ...dto.Task) error {
-	flag := cmd.Flags()
+func TaskReport(cmd *cobra.Command, of OutputFlags, tasks ...dto.Task) error {
 	out := cmd.OutOrStdout()
 
-	if asJSON, _ := flag.GetBool("json"); asJSON {
+	switch {
+	case of.JSON:
 		return task.TasksJSONPrint(tasks, out)
-	}
-
-	if asCSV, _ := flag.GetBool("csv"); asCSV {
+	case of.CSV:
 		return task.TasksCSVPrint(tasks, out)
-	}
-
-	if format, _ := flag.GetString("format"); format != "" {
-		return task.TaskPrintWithTemplate(format)(tasks, out)
-	}
-
-	if quiet, _ := flag.GetBool("quiet"); quiet {
+	case of.Quiet:
 		return task.TaskPrintQuietly(tasks, out)
+	case of.Format != "":
+		return task.TaskPrintWithTemplate(of.Format)(tasks, out)
+	default:
+		return task.TaskPrint(tasks, out)
 	}
-
-	return task.TaskPrint(tasks, out)
 }

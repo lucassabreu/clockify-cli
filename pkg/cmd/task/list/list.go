@@ -10,6 +10,7 @@ import (
 
 // NewCmdList represents the list command
 func NewCmdList(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "list",
 		Short:   "List tasks of a Clockify project",
@@ -47,7 +48,7 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, tasks...)
+			return util.TaskReport(cmd, of, tasks...)
 		},
 	}
 
@@ -55,7 +56,7 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 		"will be used to filter the tag by name")
 	cmd.Flags().BoolP("active", "a", false, "display only active tasks")
 
-	util.TaskAddReportFlags(cmd)
+	util.TaskAddReportFlags(cmd, &of)
 	cmdutil.AddProjectFlags(cmd, f)
 
 	return cmd
