@@ -144,7 +144,7 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 				durationToString(end.Sub(t.TimeInterval.Start)),
 				projectName,
 				t.Description,
-				strings.Join(tagsToStringSlice(t.Tags), ", "),
+				strings.Join(tagsToStringSlice(t.Tags), "\n"),
 			}
 
 			if options.ShowTasks {
