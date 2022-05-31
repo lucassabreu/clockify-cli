@@ -1,30 +1,30 @@
 package list
 
 import (
-	"io"
-
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	output "github.com/lucassabreu/clockify-cli/pkg/output/client"
 	"github.com/spf13/cobra"
 )
 
 // NewCmdList represents the list command
 func NewCmdList(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "list",
 		Short:   "List clients on Clockify",
 		Aliases: []string{"ls"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			format, _ := cmd.Flags().GetString("format")
-			asJSON, _ := cmd.Flags().GetBool("json")
-			asCSV, _ := cmd.Flags().GetBool("csv")
-			quiet, _ := cmd.Flags().GetBool("quiet")
-			name, _ := cmd.Flags().GetString("name")
+			if err := of.Check(); err != nil {
+				return err
+			}
 
-			w, err := f.GetWorkspaceID()
-			if err != nil {
+			p := api.GetClientsParam{
+				PaginationParam: api.AllPages(),
+			}
+
+			var err error
+			if p.Workspace, err = f.GetWorkspaceID(); err != nil {
 				return err
 			}
 
@@ -33,23 +33,22 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			var archived *bool
+			p.Name, _ = cmd.Flags().GetString("name")
 			if ok, _ := cmd.Flags().GetBool("not-archived"); ok {
 				b := false
-				archived = &b
+				p.Archived = &b
 			}
 			if ok, _ := cmd.Flags().GetBool("archived"); ok {
 				b := true
-				archived = &b
+				p.Archived = &b
 			}
-			clients, err := run(c, w, name, archived)
 
+			clients, err := c.GetClients(p)
 			if err != nil {
 				return err
 			}
 
-			return report(clients, cmd.OutOrStdout(),
-				format, asCSV, asJSON, quiet)
+			return util.Report(clients, cmd.OutOrStdout(), of)
 		},
 	}
 
@@ -57,44 +56,8 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 		"will be used to filter the tag by name")
 	cmd.Flags().BoolP("not-archived", "", false, "list only active projects")
 	cmd.Flags().BoolP("archived", "", false, "list only archived projects")
-	cmd.Flags().StringP("format", "f", "",
-		"golang text/template format to be applied on each Client")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+
+	util.AddReportFlags(cmd, &of)
 
 	return cmd
-}
-
-func run(c *api.Client, w, name string, archived *bool) ([]dto.Client, error) {
-
-	return c.GetClients(api.GetClientsParam{
-		Workspace:       w,
-		Name:            name,
-		Archived:        archived,
-		PaginationParam: api.AllPages(),
-	})
-
-}
-
-func report(clients []dto.Client, out io.Writer,
-	format string, asCSV, asJSON, quiet bool) error {
-
-	if asJSON {
-		return output.ClientsJSONPrint(clients, out)
-	}
-
-	if asCSV {
-		return output.ClientsCSVPrint(clients, out)
-	}
-
-	if format != "" {
-		return output.ClientPrintWithTemplate(format)(clients, out)
-	}
-
-	if quiet {
-		return output.ClientPrintQuietly(clients, out)
-	}
-
-	return output.ClientPrint(clients, out)
 }
