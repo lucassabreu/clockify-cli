@@ -16,6 +16,7 @@ import (
 
 // NewCmdManual represents the manual command
 func NewCmdManual(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use: "manual [<project-id>] [<start>] [<end>] [<description>]",
 		Short: "Creates a new completed time entry " +
@@ -90,11 +91,11 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 			}
 
 			return util.PrintTimeEntryImpl(tei,
-				f, cmd, output.TimeFormatSimple)
+				f, cmd.OutOrStdout(), of)
 		},
 	}
 
-	util.AddTimeEntryFlags(cmd, f)
+	util.AddTimeEntryFlags(cmd, f, &of)
 	util.AddTimeEntryDateFlags(cmd)
 
 	return cmd

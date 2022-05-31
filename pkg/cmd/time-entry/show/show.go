@@ -11,6 +11,7 @@ import (
 
 // NewCmdShow represents the show command
 func NewCmdShow(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: timehlp.FullTimeFormat}
 	cmd := &cobra.Command{
 		Use: "show [" + timeentryhlp.AliasCurrent + "|" +
 			timeentryhlp.AliasLast + "|<time-entry-id>|^n]",
@@ -22,6 +23,10 @@ func NewCmdShow(f cmdutil.Factory) *cobra.Command {
 			Shows current one by default
 		`),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			userID, err := f.GetUserID()
 			if err != nil {
 				return err
@@ -47,12 +52,11 @@ func NewCmdShow(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei,
-				f, cmd, timehlp.FullTimeFormat)
+			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
 		},
 	}
 
-	util.AddPrintTimeEntriesFlags(cmd)
+	util.AddPrintTimeEntriesFlags(cmd, &of)
 	_ = cmd.MarkFlagRequired("workspace")
 	_ = cmd.MarkFlagRequired("user-id")
 

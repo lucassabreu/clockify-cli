@@ -14,10 +14,15 @@ import (
 
 // NewCmdOut represents the out command
 func NewCmdOut(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use:   "out",
 		Short: "Stops the last time entry",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			var whenDate time.Time
 			var err error
 
@@ -65,12 +70,11 @@ func NewCmdOut(f cmdutil.Factory) *cobra.Command {
 
 			te.TimeInterval.End = &whenDate
 
-			return util.PrintTimeEntry(te,
-				cmd, output.TimeFormatSimple, f.Config())
+			return util.PrintTimeEntry(te, cmd.OutOrStdout(), f.Config(), of)
 		},
 	}
 
-	util.AddPrintTimeEntriesFlags(cmd)
+	util.AddPrintTimeEntriesFlags(cmd, &of)
 
 	cmd.Flags().String("when", time.Now().Format(timehlp.FullTimeFormat),
 		"when the entry should be closed, "+

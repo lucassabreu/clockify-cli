@@ -9,10 +9,15 @@ import (
 
 // NewCmdLastDay represents the report last-day command
 func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
+	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
 		Use:   "last-day",
 		Short: "List time entries from last day were a time entry exists",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			w, err := f.GetWorkspaceID()
 			if err != nil {
 				return err
@@ -34,11 +39,11 @@ func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
 			}
 
 			return util.ReportWithRange(
-				f, te.TimeInterval.Start, te.TimeInterval.Start, cmd)
+				f, te.TimeInterval.Start, te.TimeInterval.Start, cmd, of)
 		},
 	}
 
-	util.AddReportFlags(f, cmd)
+	util.AddReportFlags(f, cmd, &of)
 
 	return cmd
 }

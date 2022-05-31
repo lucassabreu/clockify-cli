@@ -14,8 +14,9 @@ import (
 // NewCmdInvoiced represents invoiced command
 func NewCmdInvoiced(f cmdutil.Factory) (cmds []*cobra.Command) {
 
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	addCmd := func(cmd *cobra.Command) {
-		util.AddPrintTimeEntriesFlags(cmd)
+		util.AddPrintTimeEntriesFlags(cmd, &of)
 		util.AddPrintMultipleTimeEntriesFlags(cmd)
 
 		cmds = append(cmds, cmd)
@@ -31,7 +32,7 @@ func NewCmdInvoiced(f cmdutil.Factory) (cmds []*cobra.Command) {
 		Short:     "Marks times entries as invoiced",
 		Args:      cobra.MinimumNArgs(1),
 		ValidArgs: va,
-		RunE:      changeInvoiced(f, true),
+		RunE:      changeInvoiced(f, &of, true),
 	})
 
 	addCmd(&cobra.Command{
@@ -39,16 +40,20 @@ func NewCmdInvoiced(f cmdutil.Factory) (cmds []*cobra.Command) {
 		Short:     "Mark times entries as not invoiced",
 		Args:      cobra.MinimumNArgs(1),
 		ValidArgs: va,
-		RunE:      changeInvoiced(f, false),
+		RunE:      changeInvoiced(f, &of, false),
 	})
 
 	return cmds
 }
 
 func changeInvoiced(
-	f cmdutil.Factory, invoiced bool,
+	f cmdutil.Factory, of *util.OutputFlags, invoiced bool,
 ) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
+		if err := of.Check(); err != nil {
+			return err
+		}
+
 		var err error
 		var w, u string
 
@@ -97,7 +102,6 @@ func changeInvoiced(
 			return err
 		}
 
-		return util.PrintTimeEntries(tes,
-			cmd, output.TimeFormatSimple, f.Config())
+		return util.PrintTimeEntries(tes, cmd.OutOrStdout(), f.Config(), *of)
 	}
 }

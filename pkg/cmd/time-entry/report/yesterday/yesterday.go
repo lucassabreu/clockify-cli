@@ -9,16 +9,21 @@ import (
 
 // NewCmdYesterday represents report today command
 func NewCmdYesterday(f cmdutil.Factory) *cobra.Command {
+	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
 		Use:   "yesterday",
 		Short: "List all time entries created yesterday",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			day := timehlp.TruncateDate(timehlp.Today()).Add(-1)
-			return util.ReportWithRange(f, day, day, cmd)
+			if err := of.Check(); err != nil {
+				return err
+			}
+
+			day := timehlp.Today().Add(-1)
+			return util.ReportWithRange(f, day, day, cmd, of)
 		},
 	}
 
-	util.AddReportFlags(f, cmd)
+	util.AddReportFlags(f, cmd, &of)
 
 	return cmd
 }

@@ -15,9 +15,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewOutputFlags helps creating a util.OutputFlags for reporting
+func NewOutputFlags() util.OutputFlags {
+	return util.OutputFlags{TimeFormat: timehlp.FullTimeFormat}
+}
+
 // AddReportFlags add flags for print out the time entries
-func AddReportFlags(f cmdutil.Factory, cmd *cobra.Command) {
-	util.AddPrintTimeEntriesFlags(cmd)
+func AddReportFlags(
+	f cmdutil.Factory, cmd *cobra.Command, of *util.OutputFlags,
+) {
+	util.AddPrintTimeEntriesFlags(cmd, of)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
 	cmd.Flags().BoolP("fill-missing-dates", "e", false,
@@ -32,7 +39,9 @@ func AddReportFlags(f cmdutil.Factory, cmd *cobra.Command) {
 
 // ReportWithRange fetches and prints out time entries
 func ReportWithRange(
-	f cmdutil.Factory, start, end time.Time, cmd *cobra.Command) error {
+	f cmdutil.Factory, start, end time.Time,
+	cmd *cobra.Command, of util.OutputFlags,
+) error {
 
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
@@ -98,7 +107,7 @@ func ReportWithRange(
 		log = append(newLog, fillMissing(nextDay, end)...)
 	}
 
-	return util.PrintTimeEntries(log, cmd, timehlp.FullTimeFormat, f.Config())
+	return util.PrintTimeEntries(log, cmd.OutOrStdout(), f.Config(), of)
 }
 
 func fillMissing(first, last time.Time) []dto.TimeEntry {

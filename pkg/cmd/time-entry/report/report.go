@@ -20,6 +20,7 @@ import (
 
 // NewCmdReport represents the reports command
 func NewCmdReport(f cmdutil.Factory) *cobra.Command {
+	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
 		Use: "report [<start>] [<end>]",
 		Short: "List all time entries in the date ranges and with more " +
@@ -27,6 +28,10 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 		Args:    cobra.MaximumNArgs(2),
 		Aliases: []string{"log"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			var err error
 
 			start := timehlp.Today()
@@ -49,7 +54,7 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 				}
 			}
 
-			return util.ReportWithRange(f, start, end, cmd)
+			return util.ReportWithRange(f, start, end, cmd, of)
 		},
 	}
 
@@ -68,7 +73,7 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 	cmd.AddCommand(today.NewCmdToday(f))
 	cmd.AddCommand(yesterday.NewCmdYesterday(f))
 
-	util.AddReportFlags(f, cmd)
+	util.AddReportFlags(f, cmd, &of)
 	_ = cmd.MarkFlagRequired("workspace")
 	_ = cmd.MarkFlagRequired("user-id")
 

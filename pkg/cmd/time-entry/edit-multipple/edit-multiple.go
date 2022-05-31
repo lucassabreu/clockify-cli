@@ -14,6 +14,7 @@ import (
 
 // NewCmdEditMultiple represents the editMultiple command
 func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use: "edit-multiple [" +
 			timeentryhlp.AliasCurrent + "|" + timeentryhlp.AliasLast +
@@ -144,7 +145,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 			}
 
 			return util.PrintTimeEntries(tes,
-				cmd, output.TimeFormatSimple, f.Config())
+				cmd.OutOrStdout(), f.Config(), of)
 		},
 	}
 
@@ -154,7 +155,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 		Start and end fields can't be mass-edited.
 	`)
 
-	util.AddTimeEntryFlags(cmd, f)
+	util.AddTimeEntryFlags(cmd, f, &of)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
 	return cmd
