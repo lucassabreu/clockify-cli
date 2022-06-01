@@ -53,7 +53,7 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 
 			dc := util.NewDescriptionCompleter(f)
 
-			if tei, err = util.ManageEntry(
+			if tei, err = util.Do(
 				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.ValidateClosingTimeEntry(f),

@@ -12,7 +12,7 @@ import (
 
 // GetValidateTimeEntryFn will check if the time entry is valid given the
 // workspace parameters
-func GetValidateTimeEntryFn(f cmdutil.Factory) CallbackFn {
+func GetValidateTimeEntryFn(f cmdutil.Factory) DoFn {
 	if f.Config().GetBool(cmdutil.CONF_ALLOW_INCOMPLETE) {
 		return nullCallback
 	}

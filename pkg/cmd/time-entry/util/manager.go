@@ -2,20 +2,20 @@ package util
 
 import "github.com/lucassabreu/clockify-cli/api/dto"
 
-type CallbackFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
+type DoFn func(dto.TimeEntryImpl) (dto.TimeEntryImpl, error)
 
 func nullCallback(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 	return te, nil
 }
 
-// ManageEntry will runs all callback functions over the time entry, keeping
+// Do will runs all callback functions over the time entry, keeping
 // the changes and returning it after
-func ManageEntry(te dto.TimeEntryImpl, cbs ...CallbackFn) (
+func Do(te dto.TimeEntryImpl, cbs ...DoFn) (
 	dto.TimeEntryImpl, error) {
-	return composeCallbacks(cbs...)(te)
+	return compose(cbs...)(te)
 }
 
-func composeCallbacks(cbs ...CallbackFn) CallbackFn {
+func compose(cbs ...DoFn) DoFn {
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		var err error
 		for _, cb := range cbs {

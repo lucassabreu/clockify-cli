@@ -119,7 +119,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 
 			dc := util.NewDescriptionCompleter(f)
 
-			if _, err = util.ManageEntry(
+			if _, err = util.Do(
 				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.GetAllowNameForIDsFn(f.Config(), c),

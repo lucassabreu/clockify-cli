@@ -9,12 +9,12 @@ import (
 
 // GetAllowNameForIDsFn will try to find project/task/tags by their names if
 // the value provided was not a ID
-func GetAllowNameForIDsFn(config cmdutil.Config, c *api.Client) CallbackFn {
+func GetAllowNameForIDsFn(config cmdutil.Config, c *api.Client) DoFn {
 	if !config.GetBool(cmdutil.CONF_ALLOW_NAME_FOR_ID) {
 		return nullCallback
 	}
 
-	cbs := []CallbackFn{
+	cbs := []DoFn{
 		lookupProject(c),
 		lookupTask(c),
 		lookupTags(c),
@@ -24,10 +24,10 @@ func GetAllowNameForIDsFn(config cmdutil.Config, c *api.Client) CallbackFn {
 		cbs = disableErrorReporting(cbs)
 	}
 
-	return composeCallbacks(cbs...)
+	return compose(cbs...)
 }
 
-func lookupProject(c *api.Client) CallbackFn {
+func lookupProject(c *api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if te.ProjectID == "" {
 			return te, nil
@@ -41,7 +41,7 @@ func lookupProject(c *api.Client) CallbackFn {
 
 }
 
-func lookupTask(c *api.Client) CallbackFn {
+func lookupTask(c *api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if te.TaskID == "" {
 			return te, nil
@@ -54,7 +54,7 @@ func lookupTask(c *api.Client) CallbackFn {
 	}
 }
 
-func lookupTags(c *api.Client) CallbackFn {
+func lookupTags(c *api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if len(te.TagIDs) == 0 {
 			return te, nil
@@ -67,7 +67,7 @@ func lookupTags(c *api.Client) CallbackFn {
 
 }
 
-func disableErrorReporting(cbs []CallbackFn) []CallbackFn {
+func disableErrorReporting(cbs []DoFn) []DoFn {
 	for i := range cbs {
 		cb := cbs[i]
 		cbs[i] = func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {

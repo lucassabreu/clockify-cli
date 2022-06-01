@@ -57,7 +57,7 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 
 			dc := util.NewDescriptionCompleter(f)
 
-			if tec, err = util.ManageEntry(
+			if tec, err = util.Do(
 				tec,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {

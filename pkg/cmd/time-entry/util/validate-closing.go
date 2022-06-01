@@ -10,7 +10,7 @@ import (
 
 // ValidateClosingTimeEntry checks if the current time entry will fail to be
 // stopped
-func ValidateClosingTimeEntry(f cmdutil.Factory) CallbackFn {
+func ValidateClosingTimeEntry(f cmdutil.Factory) DoFn {
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		c, err := f.Client()
 		if err != nil {

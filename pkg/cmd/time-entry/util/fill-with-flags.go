@@ -24,7 +24,7 @@ var TimeFormatExamples = "\n" + heredoc.Doc(`
 	`)
 
 // FillTimeEntryWithFlags will read the flags and fill the time entry with they
-func FillTimeEntryWithFlags(flags *pflag.FlagSet) CallbackFn {
+func FillTimeEntryWithFlags(flags *pflag.FlagSet) DoFn {
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if flags.Changed("project") {
 			tei.ProjectID, _ = flags.GetString("project")

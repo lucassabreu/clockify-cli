@@ -14,7 +14,7 @@ import (
 )
 
 // GetDatesInteractiveFn will ask the user the start and end times of the entry
-func GetDatesInteractiveFn(config cmdutil.Config) CallbackFn {
+func GetDatesInteractiveFn(config cmdutil.Config) DoFn {
 	if config.IsInteractive() {
 		return askTimeEntryDatesInteractive
 	}
@@ -54,7 +54,7 @@ func GetPropsInteractiveFn(
 	c *api.Client,
 	dc DescriptionSuggestFn,
 	config cmdutil.Config,
-) CallbackFn {
+) DoFn {
 	if config.IsInteractive() {
 		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 			return askTimeEntryPropsInteractive(c, tei, dc)
