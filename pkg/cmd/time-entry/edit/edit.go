@@ -11,6 +11,7 @@ import (
 
 // NewCmdEdit represents the edit command
 func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use: "edit [" +
 			timeentryhlp.AliasCurrent + "|" + timeentryhlp.AliasLast +
@@ -21,6 +22,10 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 		Short: `Edit a time entry, use id "` + timeentryhlp.AliasCurrent +
 			`" to apply to time entry in progress`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			c, err := f.Client()
 			if err != nil {
 				return err
@@ -73,12 +78,11 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei,
-				f, cmd, output.TimeFormatSimple)
+			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
 		},
 	}
 
-	util.AddTimeEntryFlags(cmd, f)
+	util.AddTimeEntryFlags(cmd, f, &of)
 
 	cmd.Flags().StringP("when", "s", "",
 		"when the entry should be started"+util.TimeFormatExamples)

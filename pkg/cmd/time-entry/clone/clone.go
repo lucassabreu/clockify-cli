@@ -13,6 +13,7 @@ import (
 
 // NewCmdClone represents the clone command
 func NewCmdClone(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: timeentry.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use: "clone [" + timeentryhlp.AliasLast + "|<time-entry-id>]",
 		Short: "Copy a time entry and starts it " +
@@ -20,6 +21,9 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 		Args:      cobra.ExactArgs(1),
 		ValidArgs: []string{timeentryhlp.AliasLast},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
 			var err error
 			var w, u string
 
@@ -79,12 +83,11 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tec,
-				f, cmd, timeentry.TimeFormatSimple)
+			return util.PrintTimeEntryImpl(tec, f, cmd.OutOrStdout(), of)
 		},
 	}
 
-	util.AddTimeEntryFlags(cmd, f)
+	util.AddTimeEntryFlags(cmd, f, &of)
 	util.AddTimeEntryDateFlags(cmd)
 	cmd.Flags().BoolP("no-closing", "", false,
 		"don't close any active time entry")

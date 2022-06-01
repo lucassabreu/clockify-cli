@@ -14,20 +14,25 @@ import (
 
 // NewCmdLastWeekDay represents the report last working week day command
 func NewCmdLastWeekDay(f cmdutil.Factory) *cobra.Command {
+	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
 		Use: "last-week-day",
 		Short: "List time entries from last week day " +
 			"(use `clockify-cli config workweek-days` command to set then)",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			workweek := f.Config().GetWorkWeekdays()
 			if len(workweek) == 0 {
 				return errors.New("no workweek days were set")
 			}
 
-			day := timehlp.TruncateDate(timehlp.Today()).Add(-1)
+			day := timehlp.Today().Add(-1)
 			if strhlp.Search(
 				strings.ToLower(day.Weekday().String()), workweek) != -1 {
-				return util.ReportWithRange(f, day, day, cmd)
+				return util.ReportWithRange(f, day, day, cmd, of)
 			}
 
 			dayWeekday := int(day.Weekday())
@@ -45,11 +50,11 @@ func NewCmdLastWeekDay(f cmdutil.Factory) *cobra.Command {
 
 			day = day.Add(
 				time.Duration(-24*(dayWeekday-lastWeekDay)) * time.Hour)
-			return util.ReportWithRange(f, day, day, cmd)
+			return util.ReportWithRange(f, day, day, cmd, of)
 		},
 	}
 
-	util.AddReportFlags(f, cmd)
+	util.AddReportFlags(f, cmd, &of)
 
 	return cmd
 }

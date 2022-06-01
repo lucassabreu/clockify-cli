@@ -13,6 +13,7 @@ import (
 
 // NewCmdIn represents the in command
 func NewCmdIn(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use: "in [<project-id>] [<description>]",
 		Short: "Create a new time entry and starts it " +
@@ -22,6 +23,10 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 			cmdcomplutil.NewProjectAutoComplete(f)),
 		Aliases: []string{"start"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			var err error
 			tei := dto.TimeEntryImpl{}
 
@@ -62,12 +67,11 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei,
-				f, cmd, output.TimeFormatSimple)
+			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
 		},
 	}
 
-	util.AddTimeEntryFlags(cmd, f)
+	util.AddTimeEntryFlags(cmd, f, &of)
 	util.AddTimeEntryDateFlags(cmd)
 
 	return cmd

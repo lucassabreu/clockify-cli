@@ -11,7 +11,9 @@ import (
 )
 
 // AddTimeEntryFlags will add the common flags needed to add/edit a time entry
-func AddTimeEntryFlags(cmd *cobra.Command, f cmdutil.Factory) {
+func AddTimeEntryFlags(
+	cmd *cobra.Command, f cmdutil.Factory, of *OutputFlags,
+) {
 	cmd.Flags().BoolP("not-billable", "n", false,
 		"this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
@@ -34,7 +36,7 @@ func AddTimeEntryFlags(cmd *cobra.Command, f cmdutil.Factory) {
 		newDescriptionAutoComplete(f),
 	)
 
-	AddPrintTimeEntriesFlags(cmd)
+	AddPrintTimeEntriesFlags(cmd, of)
 
 	// deprecations
 	cmd.Flags().StringSlice("tags", []string{}, "add tags to the entry")
@@ -51,24 +53,4 @@ func AddTimeEntryDateFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("when-to-close", "e", "",
 		"when the entry should be closed, if not informed will let it open "+
 			"(same formats as when)")
-}
-
-// AddPrintMultipleTimeEntriesFlags add flags to print multiple time entries
-func AddPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolP("with-totals", "S", false,
-		"add a totals line at the end")
-}
-
-// AddPrintTimeEntriesFlags add flags common to time entry print
-func AddPrintTimeEntriesFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("format", "f", "",
-		"golang text/template format to be applied on each time entry")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "print only ID")
-	cmd.Flags().BoolP("md", "m", false, "print as Markdown")
-	cmd.Flags().BoolP("duration-formatted", "D", false,
-		"prints only the sum of duration formatted")
-	cmd.Flags().BoolP("duration-float", "F", false,
-		`prints only the sum of duration as a "float hour"`)
 }

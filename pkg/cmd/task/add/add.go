@@ -10,6 +10,7 @@ import (
 
 // NewCmdAdd represents the add command
 func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Adds a task to the specified project",
@@ -44,11 +45,11 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, task)
+			return util.TaskReport(cmd, of, task)
 		},
 	}
 
-	util.TaskAddReportFlags(cmd)
+	util.TaskAddReportFlags(cmd, &of)
 
 	cmdutil.AddProjectFlags(cmd, f)
 	util.TaskAddPropFlags(cmd, f)

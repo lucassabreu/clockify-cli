@@ -1,27 +1,25 @@
 package add
 
 import (
-	"io"
-
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	output "github.com/lucassabreu/clockify-cli/pkg/output/client"
+	"github.com/lucassabreu/clockify-cli/pkg/output/client"
 	"github.com/spf13/cobra"
 )
 
 // clientAddCmd represents the add command
 func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "add",
 		Aliases: []string{"new", "create"},
 		Short:   "Adds a client to the Clockify workspace",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			format, _ := cmd.Flags().GetString("format")
-			asJSON, _ := cmd.Flags().GetBool("json")
-			asCSV, _ := cmd.Flags().GetBool("csv")
-			quiet, _ := cmd.Flags().GetBool("quiet")
-			name, _ := cmd.Flags().GetString("name")
+			if err := of.Check(); err != nil {
+				return err
+			}
 
 			w, err := f.GetWorkspaceID()
 			if err != nil {
@@ -33,7 +31,8 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			client, err := c.AddClient(api.AddClientParam{
+			name, _ := cmd.Flags().GetString("name")
+			cl, err := c.AddClient(api.AddClientParam{
 				Workspace: w,
 				Name:      name,
 			})
@@ -41,42 +40,19 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return report(client, cmd.OutOrStdout(),
-				format, asCSV, asJSON, quiet)
+			out := cmd.OutOrStdout()
+			if of.JSON {
+				client.ClientJSONPrint(cl, out)
+			}
+
+			return util.Report([]dto.Client{cl}, out, of)
 		},
 	}
 
 	cmd.Flags().StringP("name", "n", "", "the name of the new client")
 	_ = cmd.MarkFlagRequired("name")
 
-	cmd.Flags().StringP("format", "f", "",
-		"golang text/template format to be applied on each Client")
-	cmd.Flags().BoolP("json", "j", false, "print as JSON")
-	cmd.Flags().BoolP("csv", "v", false, "print as CSV")
-	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	util.AddReportFlags(cmd, &of)
 
 	return cmd
-}
-
-func report(c dto.Client, out io.Writer,
-	format string, asCSV, asJSON, quiet bool) error {
-
-	if asJSON {
-		return output.ClientJSONPrint(c, out)
-	}
-
-	cs := []dto.Client{c}
-	if asCSV {
-		return output.ClientsCSVPrint(cs, out)
-	}
-
-	if format != "" {
-		return output.ClientPrintWithTemplate(format)(cs, out)
-	}
-
-	if quiet {
-		return output.ClientPrintQuietly(cs, out)
-	}
-
-	return output.ClientPrint(cs, out)
 }

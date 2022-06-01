@@ -15,6 +15,7 @@ import (
 
 // NewCmdEdit represents the close command
 func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
+	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "edit <project> <task>",
 		Aliases: []string{"update"},
@@ -94,7 +95,7 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, t)
+			return util.TaskReport(cmd, of, t)
 		},
 	}
 
@@ -104,7 +105,7 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 	cmd.Flags().Bool("done", false, "sets the task as done")
 	cmd.Flags().Bool("active", false, "sets the task as active")
 
-	util.TaskAddReportFlags(cmd)
+	util.TaskAddReportFlags(cmd, &of)
 
 	return cmd
 }
