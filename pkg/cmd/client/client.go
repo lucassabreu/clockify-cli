@@ -12,7 +12,7 @@ func NewCmdClient(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "client",
 		Aliases: []string{"clients"},
-		Short:   "List clients from a workspace",
+		Short:   "Work with Clockify clients",
 	}
 
 	cmd.AddCommand(list.NewCmdList(f))

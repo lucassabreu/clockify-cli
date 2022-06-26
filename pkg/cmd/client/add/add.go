@@ -1,6 +1,7 @@
 package add
 
 import (
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
@@ -15,7 +16,21 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Aliases: []string{"new", "create"},
-		Short:   "Adds a client to the Clockify workspace",
+		Short:   "Adds a new client to the Clockify workspace",
+		Example: heredoc.Docf(`
+			$ %[1]s --name Special
+			+--------------------------+---------+----------+
+			|            ID            |   NAME  | ARCHIVED |
+			+--------------------------+---------+----------+
+			| eeeeeeeeeeeeeeeeeeeeeeee | Special | NO       |
+			+--------------------------+---------+----------+
+
+			$ %[1]s --name "Very Special" --quiet
+			aaaaaaaaaaaaaaaaaaaaaaaa
+
+			$ %[1]s --name "Special" # same name as existing one
+			add client: Client with name 'Special' already exists (code: 501)
+		`, "clockify-cli client add"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err
