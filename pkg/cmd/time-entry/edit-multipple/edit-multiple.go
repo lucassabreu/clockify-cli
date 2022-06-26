@@ -16,18 +16,76 @@ import (
 func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
-		Use: "edit-multiple [" +
-			timeentryhlp.AliasCurrent + "|" + timeentryhlp.AliasLast +
-			"|<time-entry-id>]...",
+		Use: "edit-multiple { <time-entry-id> | " +
+			timeentryhlp.AliasCurrent + " | " + timeentryhlp.AliasLast +
+			" }...",
 		Aliases: []string{
 			"update-multiple", "multi-edit",
 			"multi-update", "mult-edit", "mult-update",
 		},
-		Args:      cobra.MinimumNArgs(2),
+		Args: cobra.MatchAll(
+			cmdutil.RequiredNamedArgs("time entry id"),
+			cobra.MinimumNArgs(2),
+		),
 		ValidArgs: []string{timeentryhlp.AliasLast, timeentryhlp.AliasCurrent},
-		Short: `Edit multiple time entries at once, use id "` +
-			timeentryhlp.AliasCurrent + `"/"` + timeentryhlp.AliasLast +
-			`" to apply to time entry in progress.`,
+		Short:     `Edit multiple time entries at once`,
+		Long: heredoc.Docf(`
+			Edit multiple time entries at once.
+
+			This command does not allow to edit when the time entries start or ended, because different time entries will have different start and end times.
+
+			Except on interactive mode where the values informed, even if not changed will be applied to all entries (except for Start and End time).
+			If you wanna edit only some properties, than use the flags without interactive mode, only the input sent thought the flags will be changed.
+
+			%s
+			%s
+			%s
+			%s
+		`,
+			util.HelpTimeEntriesAliasForEdit,
+			util.HelpInteractiveByDefault,
+			util.HelpNamesForIds,
+			util.HelpMoreInfoAboutPrinting,
+		),
+		Example: heredoc.Docf(`
+			# just to help show the data
+			$ export F="{{.ID}} :: {{ .Description }}
+			  When: {{ fdt .TimeInterval.Start }} util {{ ft (.TimeInterval.End | now) }}
+			  Task: {{ .Task.Name }} ({{ .Project.Name}})
+			  Tags: {{ .Tags }}
+			"
+
+			$ %[1]s report --format "$F"
+			62af667c4ebb4f143c9482bb :: Edit multiple entries
+			  When: 2022-06-19 18:10:01 util 18:10:15
+			  Task: Edit Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+
+			62af668b49445270d7c092e4 :: Adding examples
+			  When: 2022-06-19 18:10:15 util 18:29:32
+			  Task: Edit Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+
+			62af6b0f4ebb4f143c94880e :: More examples
+			  When: 2022-06-19 18:29:32 util 18:38:12
+			  Task: Edit Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+
+			# change all to use other task
+			$ %[1]s edit-multiple -i=0 -f "$F" current last ^2 --task multiple
+			62af6b0f4ebb4f143c94880e :: More examples
+			  When: 2022-06-19 18:29:32 util 18:43:04
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+			62af668b49445270d7c092e4 :: Adding examples
+			  When: 2022-06-19 18:10:15 util 18:29:32
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+			62af668b49445270d7c092e4 :: Adding examples
+			  When: 2022-06-19 18:10:15 util 18:29:32
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+		`, "clockify-cli"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 			var w, u string
@@ -148,12 +206,6 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 				cmd.OutOrStdout(), f.Config(), of)
 		},
 	}
-
-	cmd.Long = cmd.Short + heredoc.Doc(`
-		When multiple IDs are informed the default values on interactive mode will be the values of the first time entry informed.
-		When using interactive mode all entries will end with the same properties except for Start and End, if you wanna edit only some properties, than use the flags without interactive mode.
-		Start and end fields can't be mass-edited.
-	`)
 
 	util.AddTimeEntryFlags(cmd, f, &of)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)

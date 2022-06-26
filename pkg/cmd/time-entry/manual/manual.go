@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
@@ -18,9 +19,22 @@ import (
 func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
-		Use: "manual [<project-id>] [<start>] [<end>] [<description>]",
-		Short: "Creates a new completed time entry " +
-			"(does not stop on-going time entries)",
+		Use:   "manual [<project-id>] [<start>] [<end>] [<description>]",
+		Short: "Create a new complete time entry",
+		Long: heredoc.Doc(`
+			Create a new complete time entry with start and end.
+
+			This command will not stop running time entries.
+
+			The rules defined in the workspace and project will be checked before creating it.
+		`) + "\n" +
+			util.HelpTimeEntryNowIfNotSet +
+			"The same applies to end time (`--when-to-close`).\n\n" +
+			util.HelpInteractiveByDefault + "\n" +
+			util.HelpTimeInputOnTimeEntry + "\n" +
+			util.HelpNamesForIds + "\n" +
+			util.HelpMoreInfoAboutStarting + "\n" +
+			util.HelpMoreInfoAboutPrinting,
 		Args: cobra.MaximumNArgs(4),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
 			cmdcomplutil.NewProjectAutoComplete(f)),

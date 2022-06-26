@@ -49,7 +49,13 @@ func lookupTask(c *api.Client) DoFn {
 
 		var err error
 		te.TaskID, err = search.GetTaskByName(
-			c, te.WorkspaceID, te.ProjectID, te.TaskID)
+			c,
+			api.GetTasksParam{
+				Workspace: te.WorkspaceID,
+				ProjectID: te.ProjectID,
+				Active:    true,
+			},
+			te.TaskID)
 		return te, err
 	}
 }

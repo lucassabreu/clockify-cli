@@ -1,9 +1,11 @@
 package invoiced
 
 import (
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
+	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/time-entry"
 	"github.com/lucassabreu/clockify-cli/pkg/timeentryhlp"
@@ -12,38 +14,68 @@ import (
 )
 
 // NewCmdInvoiced represents invoiced command
-func NewCmdInvoiced(f cmdutil.Factory) (cmds []*cobra.Command) {
-
+func NewCmdInvoiced(f cmdutil.Factory) []*cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
-	addCmd := func(cmd *cobra.Command) {
+	addCmd := func(cmd *cobra.Command) *cobra.Command {
 		util.AddPrintTimeEntriesFlags(cmd, &of)
 		util.AddPrintMultipleTimeEntriesFlags(cmd)
 
-		cmds = append(cmds, cmd)
+		return cmd
 	}
 
-	use := "[" + timeentryhlp.AliasCurrent + "|" + timeentryhlp.AliasLast +
-		"|<time-entry-id>]..."
+	va := cmdcompl.ValidArgsSlide{
+		timeentryhlp.AliasLast, timeentryhlp.AliasCurrent}
+	use := "{ <time-entry-id> | " + va.IntoUseOptions() + " }..."
+	args := cmdutil.RequiredNamedArgs("time entry id")
 
-	va := []string{timeentryhlp.AliasLast, timeentryhlp.AliasCurrent}
+	return []*cobra.Command{
+		addCmd(&cobra.Command{
+			Use:   "mark-invoiced " + use,
+			Short: "Marks times entries as invoiced",
+			Long: "Marks times entries as invoiced\n\n" +
+				util.HelpMoreInfoAboutPrinting,
+			Example: heredoc.Docf(`
+				# when the workspace does not allow invoicing
+				$ %[1]s 62b49641f4b27f4ed7d20e75
+				Forbidden (code: 403)
 
-	addCmd(&cobra.Command{
-		Use:       "mark-invoiced " + use,
-		Short:     "Marks times entries as invoiced",
-		Args:      cobra.MinimumNArgs(1),
-		ValidArgs: va,
-		RunE:      changeInvoiced(f, &of, true),
-	})
+				# set the running time entry as invoiced
+				$ %[1]s current --quiet
+				62b49641f4b27f4ed7d20e75
 
-	addCmd(&cobra.Command{
-		Use:       "mark-not-invoiced " + use,
-		Short:     "Mark times entries as not invoiced",
-		Args:      cobra.MinimumNArgs(1),
-		ValidArgs: va,
-		RunE:      changeInvoiced(f, &of, false),
-	})
+				# setting multiple time entries as invoiced
+				$ %[1]s 62b5b51085815e619d7ae18d 62b5d55185815e619d7af928 --quiet
+				62b5b51085815e619d7ae18d
+				62b5d55185815e619d7af928
+			`, "clockify-cli mark-invoiced"),
+			Args:      args,
+			ValidArgs: va,
+			RunE:      changeInvoiced(f, &of, true),
+		}),
+		addCmd(&cobra.Command{
+			Use:   "mark-not-invoiced " + use,
+			Short: "Mark times entries as not invoiced",
+			Long: "Mark times entries as not invoiced\n\n" +
+				util.HelpMoreInfoAboutPrinting,
+			Example: heredoc.Docf(`
+				# when the workspace does not allow invoicing
+				$ %[1]s 62b49641f4b27f4ed7d20e75
+				Forbidden (code: 403)
 
-	return cmds
+				# set the running time entry as not invoiced
+				$ %[1]s current --quiet
+				62b49641f4b27f4ed7d20e75
+
+				# setting multiple time entries as not invoiced
+				$ %[1]s 62b5b51085815e619d7ae18d 62b5d55185815e619d7af928 --quiet
+				62b5b51085815e619d7ae18d
+				62b5d55185815e619d7af928
+			`, "clockify-cli mark-not-invoiced"),
+			Args:      args,
+			ValidArgs: va,
+			RunE:      changeInvoiced(f, &of, false),
+		}),
+	}
 }
 
 func changeInvoiced(

@@ -75,10 +75,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 }
 
 func (d Duration) String() string {
-	return "PT" +
-		strconv.Itoa(int(d.Duration.Hours())) + "H" +
-		strconv.Itoa(int(d.Duration.Minutes())) + "M" +
-		strconv.Itoa(int(d.Duration.Seconds())) + "S"
+	return "PT" + strings.ToUpper(d.Duration.String())
 }
 
 type pagination struct {

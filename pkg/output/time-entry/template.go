@@ -1,19 +1,11 @@
 package timeentry
 
 import (
-	"fmt"
 	"io"
-	"text/template"
-	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/output/util"
 )
-
-var funcMap = template.FuncMap{
-	"formatDateTime": func(t time.Time) string {
-		return t.Format(TimeFormatFull)
-	},
-}
 
 // TimeEntriesPrintWithTemplate will print each time entry using the format
 // string
@@ -21,7 +13,7 @@ func TimeEntriesPrintWithTemplate(
 	format string,
 ) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
-		t, err := template.New("tmpl").Funcs(funcMap).Parse(format)
+		t, err := util.NewTemplate(format)
 		if err != nil {
 			return err
 		}
@@ -39,7 +31,6 @@ func TimeEntriesPrintWithTemplate(
 			}); err != nil {
 				return err
 			}
-			fmt.Fprintln(w)
 		}
 		return nil
 	}

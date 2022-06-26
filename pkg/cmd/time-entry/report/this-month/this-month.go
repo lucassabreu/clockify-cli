@@ -23,6 +23,10 @@ func NewCmdThisMonth(f cmdutil.Factory) *cobra.Command {
 		},
 	}
 
+	cmd.Long = cmd.Short + "\n\n" +
+		util.HelpNamesForIds + "\n" +
+		util.HelpMoreInfoAboutPrinting
+
 	util.AddReportFlags(f, cmd, &of)
 
 	return cmd

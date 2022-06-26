@@ -50,11 +50,16 @@ func GetTimeEntry(
 	var onlyInProgress *bool
 	switch id {
 	case "^0", AliasCurrent:
-		return mayNotFound(c.GetTimeEntryInProgress(
+		tei, err := mayNotFound(c.GetTimeEntryInProgress(
 			api.GetTimeEntryInProgressParam{
 				Workspace: workspace,
 				UserID:    userID,
 			}))
+		if err == ErrNoTimeEntry {
+			return tei, errors.Wrap(err, "looking for running time entry")
+		}
+
+		return tei, err
 	case "^1", AliasLast:
 		id = AliasLast
 		b := false

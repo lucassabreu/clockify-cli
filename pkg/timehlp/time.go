@@ -14,6 +14,15 @@ const (
 	NowTimeFormat         = "now"
 )
 
+// ConvertToTime will try to convert a string do time.Time looking for the
+// format that best fits it and assuming "today" when necessary.
+// If the string starts with `yesterday`, than it will be exchanged for a
+// date-string with the format: 2006-01-02
+// If the string starts with `+` or `-` than the string will be treated as
+// "relative time expressions", and will be calculated as the diff from now and
+// it.
+// If the string is "now" than `time.Now()` in the local timezone will be
+// returned.
 func ConvertToTime(timeString string) (t time.Time, err error) {
 	timeString = strings.ToLower(strings.TrimSpace(timeString))
 
@@ -27,7 +36,7 @@ func ConvertToTime(timeString string) (t time.Time, err error) {
 	}
 
 	if strings.HasPrefix(timeString, "yesterday ") {
-		timeString = time.Now().Format("2006-01-02") + " " + timeString[10:]
+		timeString = Today().Add(-1).Format("2006-01-02") + " " + timeString[10:]
 	}
 
 	l := len(timeString)

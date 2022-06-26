@@ -12,7 +12,7 @@ func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
 	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
 		Use:   "last-day",
-		Short: "List time entries from last day were a time entry exists",
+		Short: "List time entries from last day were a time entry was created",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err
@@ -42,6 +42,10 @@ func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
 				f, te.TimeInterval.Start, te.TimeInterval.Start, cmd, of)
 		},
 	}
+
+	cmd.Long = cmd.Short + "\n\n" +
+		util.HelpNamesForIds + "\n" +
+		util.HelpMoreInfoAboutPrinting
 
 	util.AddReportFlags(f, cmd, &of)
 
