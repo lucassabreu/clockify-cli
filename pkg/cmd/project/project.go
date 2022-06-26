@@ -12,7 +12,7 @@ func NewCmdProject(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "project",
 		Aliases: []string{"projects"},
-		Short:   "List projects from a workspace",
+		Short:   "Work with Clockify projects",
 	}
 
 	cmd.AddCommand(list.NewCmdList(f))

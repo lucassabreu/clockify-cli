@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -1262,6 +1263,23 @@ func (c *Client) AddProject(p AddProjectParam) (
 		workspaceField: p.Workspace,
 	}); err != nil {
 		return project, err
+	}
+
+	if p.Color != "" {
+		c := p.Color
+
+		if !strings.HasPrefix(c, "#") {
+			c = "#" + c
+		}
+
+		if len(c) == 4 {
+			c = string([]byte{'#', c[1], c[1], c[2], c[2], c[3], c[3]})
+		}
+		if _, err = hex.DecodeString(c[1:]); err != nil {
+			err = errors.Wrap(err, "color \""+p.Color+"\" is not a hex string")
+			return
+		}
+		p.Color = c
 	}
 
 	req, err := c.NewRequest(
