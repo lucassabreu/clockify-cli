@@ -3,6 +3,7 @@ package tag
 import (
 	"os"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -15,7 +16,24 @@ func NewCmdTag(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "tag",
 		Aliases: []string{"tags"},
-		Short:   "List tags of workspace",
+		Short:   "List tags on Clockify",
+		Example: heredoc.Docf(`
+			$ %[1]s
+			+--------------------------+------------------+
+			|            ID            |       NAME       |
+			+--------------------------+------------------+
+			| 62194867edaba27d0a45b464 | Code Review      |
+			| 6219485e8cb9606d934ebb5f | Meeting          |
+			| 621948708cb9606d934ebba7 | Pair Programming |
+			| 6143b768195e5c503960a775 | Special Tag      |
+			+--------------------------+------------------+
+
+			$ %[1]s --name code -q
+			62194867edaba27d0a45b464
+
+			$ %[1]s --format "{{.Name}}" -archived
+			Archived Tag
+		`, "clockify-cli tag"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			format, _ := cmd.Flags().GetString("format")
 			quiet, _ := cmd.Flags().GetBool("quiet")
