@@ -1,15 +1,20 @@
 package cmdcompl
 
 import (
-	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 )
 
 type ValidArgs interface {
+	// IntoUse will return a string with a complete arg use
+	// Example: "{ arg1 | arg2 | arg3 }"
 	IntoUse() string
+	// IntoUse will return a string with the joined options
+	// Example: "arg1 | arg2 | arg3"
+	IntoUseOptions() string
+	// OnlyArgs will return a []string to be used on cobra.Command.ValidArgs
 	OnlyArgs() []string
+	// OnlyArgs will return a []string to be used as result for auto-complete
 	IntoValidArgs() []string
 }
 
@@ -37,8 +42,12 @@ func (va ValidArgsMap) OnlyArgs() []string {
 	return keys
 }
 
+func (va ValidArgsMap) IntoUseOptions() string {
+	return strings.Join(va.OnlyArgs(), " | ")
+}
+
 func (va ValidArgsMap) IntoUse() string {
-	return "[" + strings.Join(va.OnlyArgs(), "|") + "]"
+	return "{ " + va.IntoUseOptions() + " }"
 }
 
 func (va ValidArgsMap) IntoValidArgs() []string {
@@ -50,18 +59,9 @@ func (va ValidArgsMap) IntoValidArgs() []string {
 }
 
 func (va ValidArgsMap) Long() string {
-	lenName := 0
-	for k := range va {
-		if len(k) > lenName {
-			lenName = len(k)
-		}
-	}
-
-	ft := "\t%-" + strconv.Itoa(lenName) + "s\t%s\n"
 	str := ""
 	for _, k := range va.OnlyArgs() {
-		v := va[k]
-		str = str + fmt.Sprintf(ft, k, v)
+		str = str + " - " + k + ": " + va[k] + "\n"
 	}
 
 	return str
@@ -69,8 +69,12 @@ func (va ValidArgsMap) Long() string {
 
 type ValidArgsSlide []string
 
+func (va ValidArgsSlide) IntoUseOptions() string {
+	return strings.Join(va, " | ")
+}
+
 func (va ValidArgsSlide) IntoUse() string {
-	return "[" + strings.Join(va, "|") + "]"
+	return "{ " + va.IntoUseOptions() + " }"
 }
 
 func (va ValidArgsSlide) IntoValidArgs() []string {

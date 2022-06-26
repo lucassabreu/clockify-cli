@@ -70,3 +70,15 @@ func Unique(ss []string) []string {
 
 	return r
 }
+
+// ListForHumans returns a string listing the strings from the parameter
+//
+// Example: ListForHumans([]string{"one", "two", "three"}) will output:
+// "one, two and three"
+func ListForHumans(s []string) string {
+	if len(s) == 1 {
+		return s[0]
+	}
+
+	return strings.Join(s[:len(s)-1], ", ") + " and " + s[len(s)-1]
+}
