@@ -82,3 +82,12 @@ func ListForHumans(s []string) string {
 
 	return strings.Join(s[:len(s)-1], ", ") + " and " + s[len(s)-1]
 }
+
+// PadSpace will add spaces to the end of a string until it reaches the size
+// set at the second parameter
+func PadSpace(s string, size int) string {
+	for i := len(s); i < size; i++ {
+		s = s + " "
+	}
+	return s
+}
