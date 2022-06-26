@@ -18,7 +18,7 @@ func AddTimeEntryFlags(
 		"this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "task",
-		cmdcomplutil.NewTaskAutoComplete(f))
+		cmdcomplutil.NewTaskAutoComplete(f, true))
 
 	cmd.Flags().StringSliceP("tag", "T", []string{}, "add tags to the entry (can be used multiple times)")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "tag",
@@ -49,7 +49,7 @@ func AddTimeEntryFlags(
 func AddTimeEntryDateFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("when", "s", time.Now().Format(timehlp.FullTimeFormat),
 		"when the entry should be started, "+
-			"if not informed will use current time"+TimeFormatExamples)
+			"if not informed will use current time")
 	cmd.Flags().StringP("when-to-close", "e", "",
 		"when the entry should be closed, if not informed will let it open "+
 			"(same formats as when)")

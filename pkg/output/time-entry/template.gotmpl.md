@@ -19,11 +19,10 @@ Description:
 {{- with .Tags }}
 
 Tags:
-{{ range . }}
+{{- range . }}
  * {{ .Name }} (`{{ .ID }}`)
-{{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}
 {{- if not .Last }}
-
 ---
 {{ end -}}

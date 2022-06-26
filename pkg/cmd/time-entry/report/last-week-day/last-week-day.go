@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/report/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
@@ -16,9 +17,25 @@ import (
 func NewCmdLastWeekDay(f cmdutil.Factory) *cobra.Command {
 	of := util.NewOutputFlags()
 	cmd := &cobra.Command{
-		Use: "last-week-day",
-		Short: "List time entries from last week day " +
-			"(use `clockify-cli config workweek-days` command to set then)",
+		Use:   "last-week-day",
+		Short: "List time entries from last week day",
+		Long: heredoc.Docf(`
+			List time entries from last week day
+
+			For the CLI to know which days of the week you are expected to work, you will need to set them.
+			This can be done using:
+			$ clockify-cli config init
+
+			Or more directly by running the set command as follows:
+			$ clockify-cli config set workweek-days monday,tuesday,wednesday,thursday,friday
+
+			%s
+			%s
+		`,
+			util.HelpNamesForIds,
+			util.HelpMoreInfoAboutPrinting,
+		),
+
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err

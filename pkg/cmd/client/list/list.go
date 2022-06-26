@@ -1,6 +1,7 @@
 package list
 
 import (
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -12,8 +13,26 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "list",
-		Short:   "List clients on Clockify",
 		Aliases: []string{"ls"},
+		Short:   "List clients from a Clockify workspace",
+		Example: heredoc.Docf(`
+			$ %[1]s
+			+--------------------------+----------+----------+
+			|            ID            |   NAME   | ARCHIVED |
+			+--------------------------+----------+----------+
+			| 6202634a28782767054eec26 | Client 1 | NO       |
+			| 62964b36bb48532a70730dbe | Client 2 | YES      |
+			+--------------------------+----------+----------+
+
+			$ %[1]s --archived --csv
+			62964b36bb48532a70730dbe,Client 2,true
+
+			$ %[1]s --not-archived --format "<{{ .Name }}>"
+			<Client 1>
+
+			$ %[1]s --name "1" --quiet
+			6202634a28782767054eec26
+		`, "clockify-cli client list"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err

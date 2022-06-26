@@ -15,14 +15,16 @@ func NewCmdSet(
 	validParameters cmdcompl.ValidArgsMap,
 ) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:       "set [param] [value]",
+		Use:       "set <param> <value>",
 		Args:      cobra.ExactArgs(2),
 		ValidArgs: validParameters.IntoValidArgs(),
-		Short:     "Change the value of one parameter",
-		Long: heredoc.Doc(`
-			Change the value of one parameter.
-			Available parameters are:
-		`) + validParameters.Long(),
+		Short:     "Changes the value of one parameter",
+		Example: heredoc.Docf(`
+			$ %[1]s token "Yamdas569"
+			$ %[1]s workweek-days monday,tuesday,wednesday,thursday,friday
+			$ %[1]s show-task true
+			$ %[1]s user.id 4564d5a6s4d54a5s4dasd5
+		`, "clockify-cli config set"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return run(f.Config(), args[0], args[1])
 		},

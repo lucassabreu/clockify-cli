@@ -4,6 +4,7 @@ import (
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/get"
 	initialize "github.com/lucassabreu/clockify-cli/pkg/cmd/config/init"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/list"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/set"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -36,24 +37,34 @@ var validParameters = cmdcompl.ValidArgsMap{
 // NewCmdConfig represents the config command
 func NewCmdConfig(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "config <command>",
-		Short: "Manages configuration file parameters",
+		Use:   "config",
+		Short: "Manages CLI configuration",
 		Args:  cobra.MaximumNArgs(0),
 		Example: heredoc.Doc(`
-			# cli will guide on the setup
+			# cli will guide you to configure the CLI
 			$ clockify-cli config init
 
-			# token is the minimum information required for the cli to work
+			# token is the minimum information required for the CLI to work
 			$ clockify-cli set token <token>
 
 			# you can see your current parameters using:
 			$ clockify-cli get
+
+			# if you wanna see the value of token parameter:
+			$ clockify-cli get token
 		`),
+		Long: heredoc.Docf(`
+			Changes or shows configuration settings for clockify-cli
+
+			These are the parameters manageable:
+			%s
+		`, validParameters.Long()),
 	}
 
 	cmd.AddCommand(initialize.NewCmdInit(f))
 	cmd.AddCommand(set.NewCmdSet(f, validParameters))
 	cmd.AddCommand(get.NewCmdGet(f, validParameters))
+	cmd.AddCommand(list.NewCmdList(f))
 
 	return cmd
 }

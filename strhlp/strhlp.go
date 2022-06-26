@@ -70,3 +70,24 @@ func Unique(ss []string) []string {
 
 	return r
 }
+
+// ListForHumans returns a string listing the strings from the parameter
+//
+// Example: ListForHumans([]string{"one", "two", "three"}) will output:
+// "one, two and three"
+func ListForHumans(s []string) string {
+	if len(s) == 1 {
+		return s[0]
+	}
+
+	return strings.Join(s[:len(s)-1], ", ") + " and " + s[len(s)-1]
+}
+
+// PadSpace will add spaces to the end of a string until it reaches the size
+// set at the second parameter
+func PadSpace(s string, size int) string {
+	for i := len(s); i < size; i++ {
+		s = s + " "
+	}
+	return s
+}

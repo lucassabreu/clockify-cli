@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
-	"github.com/lucassabreu/clockify-cli/pkg/ui"
+	"github.com/lucassabreu/clockify-cli/pkg/output/util"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 )
@@ -31,26 +31,6 @@ const (
 	TimeFormatFull   = "2006-01-02 15:04:05"
 	TimeFormatSimple = "15:04:05"
 )
-
-func colorToTermColor(hex string) []int {
-	if len(hex) == 0 {
-		return []int{}
-	}
-
-	fi, _ := os.Stdout.Stat()
-	if fi.Mode()&os.ModeCharDevice == 0 {
-		return []int{}
-	}
-
-	if c, err := ui.HEX(hex[1:]); err == nil {
-		return append(
-			[]int{38, 2},
-			c.Values()...,
-		)
-	}
-
-	return []int{}
-}
 
 // TimeEntryOptions sets how the "table" format should print the time entries
 type TimeEntryOutputOptions struct {
@@ -133,7 +113,7 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 			projectName := ""
 			colors[projectColumn] = []int{}
 			if t.Project != nil {
-				colors[projectColumn] = colorToTermColor(t.Project.Color)
+				colors[projectColumn] = util.ColorToTermColor(t.Project.Color)
 				projectName = t.Project.Name
 			}
 

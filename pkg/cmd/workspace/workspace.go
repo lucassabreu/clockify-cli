@@ -15,7 +15,7 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "workspace",
 		Aliases: []string{"workspaces"},
-		Short:   "List user's workspaces",
+		Short:   "List your available workspaces",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			format, _ := cmd.Flags().GetString("format")
 			quiet, _ := cmd.Flags().GetBool("quiet")
@@ -50,7 +50,8 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 			}
 
 			if format != "" {
-				return output.WorkspacePrintWithTemplate(format)(list, os.Stdout)
+				return output.WorkspacePrintWithTemplate(format)(
+					list, os.Stdout)
 			}
 
 			return output.WorkspacePrint(w)(list, os.Stdout)

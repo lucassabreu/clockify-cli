@@ -4,7 +4,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/clone"
 	del "github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/delete"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/edit"
-	editmultiple "github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/edit-multipple"
+	em "github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/edit-multipple"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/in"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/invoiced"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/manual"
@@ -21,7 +21,7 @@ func NewCmdTimeEntry(f cmdutil.Factory) (cmds []*cobra.Command) {
 	cmds = append(cmds, clone.NewCmdClone(f))
 
 	cmds = append(cmds, edit.NewCmdEdit(f))
-	cmds = append(cmds, editmultiple.NewCmdEditMultiple(f))
+	cmds = append(cmds, em.NewCmdEditMultiple(f))
 
 	cmds = append(cmds, out.NewCmdOut(f))
 

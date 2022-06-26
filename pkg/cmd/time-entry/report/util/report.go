@@ -15,6 +15,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	HelpNamesForIds           = util.HelpNamesForIds
+	HelpMoreInfoAboutPrinting = util.HelpMoreInfoAboutPrinting
+)
+
 // NewOutputFlags helps creating a util.OutputFlags for reporting
 func NewOutputFlags() util.OutputFlags {
 	return util.OutputFlags{TimeFormat: timehlp.FullTimeFormat}

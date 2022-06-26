@@ -1,6 +1,7 @@
 package list
 
 import (
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -12,8 +13,26 @@ import (
 func NewCmdList(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List tasks of a Clockify project",
+		Use:   "list",
+		Short: "List tasks in a Clockify project",
+		Example: heredoc.Docf(`
+			$ %[1]s --project special
+			+--------------------------+----------+--------+
+			|            ID            |   NAME   | STATUS |
+			+--------------------------+----------+--------+
+			| 62aa4eed49445270d7b9666c | Inactive | DONE   |
+			| 62aa4ee64ebb4f143c8d5225 | Second   | ACTIVE |
+			| 62aa4ea2c22de9759e6e3a0e | First    | ACTIVE |
+			+--------------------------+----------+--------+
+
+			$ %[1]s --project special --active --quiet
+			62aa4ee64ebb4f143c8d5225
+			62aa4ea2c22de9759e6e3a0e
+
+			$ %[1]s --project special --name inact --csv
+			id,name,status
+			62aa4eed49445270d7b9666c,Inactive,DONE
+		`, "clockify-cli task list"),
 		Aliases: []string{"ls"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			workspace, err := f.GetWorkspaceID()

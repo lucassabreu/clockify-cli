@@ -11,7 +11,7 @@ import (
 func NewCmdVersion(f cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Version of the command",
+		Short: "Shows the CLI version",
 		Run: func(cmd *cobra.Command, _ []string) {
 			v := f.Version()
 			fmt.Fprintln(cmd.OutOrStdout(),

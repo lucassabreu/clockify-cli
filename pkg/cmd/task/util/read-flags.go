@@ -25,10 +25,13 @@ func TaskAddPropFlags(cmd *cobra.Command, f cmdutil.Factory) {
 
 	cmd.Flags().Bool("no-assignee", false,
 		"cleans the assignee list")
+
+	cmdutil.AddProjectFlags(cmd, f)
 }
 
 type FlagsDTO struct {
 	Workspace   string
+	ProjectID   string
 	Name        string
 	Estimate    *time.Duration
 	AssigneeIDs *[]string
@@ -37,21 +40,40 @@ type FlagsDTO struct {
 
 // TaskReadFlags read the common flags expected when editing a task
 func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error) {
+	if cmd.Flags().Changed("assignee") && cmd.Flags().Changed("no-assignee") {
+		return p, errors.New(
+			"`--assignee` and `--no-assignee` can't be used together")
+	}
+
+	if err := cmdutil.XorFlag(map[string]bool{
+		"billable":     cmd.Flags().Changed("billable"),
+		"not-billable": cmd.Flags().Changed("not-billable"),
+	}); err != nil {
+		return p, err
+	}
+
 	if p.Workspace, err = f.GetWorkspaceID(); err != nil {
 		return
 	}
 
+	p.ProjectID, _ = cmd.Flags().GetString("project")
+	if f.Config().IsAllowNameForID() {
+		c, err := f.Client()
+		if err != nil {
+			return p, err
+		}
+
+		if p.ProjectID, err = search.GetProjectByName(
+			c, p.Workspace, p.ProjectID); err != nil {
+			return p, err
+		}
+	}
 	p.Name, _ = cmd.Flags().GetString("name")
 
 	if cmd.Flags().Changed("estimate") {
 		e, _ := cmd.Flags().GetInt32("estimate")
 		d := time.Duration(e) * time.Hour
 		p.Estimate = &d
-	}
-
-	if cmd.Flags().Changed("assignee") && cmd.Flags().Changed("no-assignee") {
-		return p, errors.New(
-			"`--assignee` and `--no-assignee` can't be used together")
 	}
 
 	if cmd.Flags().Changed("assignee") {

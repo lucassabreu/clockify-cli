@@ -1,17 +1,16 @@
 package tag
 
 import (
-	"fmt"
-	"html/template"
 	"io"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/output/util"
 )
 
 // TagPrintWithTemplate will print each worspace using the format string
 func TagPrintWithTemplate(format string) func([]dto.Tag, io.Writer) error {
 	return func(ts []dto.Tag, w io.Writer) error {
-		t, err := template.New("tmpl").Parse(format)
+		t, err := util.NewTemplate(format)
 		if err != nil {
 			return err
 		}
@@ -20,7 +19,6 @@ func TagPrintWithTemplate(format string) func([]dto.Tag, io.Writer) error {
 			if err := t.Execute(w, ts[i]); err != nil {
 				return err
 			}
-			fmt.Fprintln(w)
 		}
 		return nil
 	}

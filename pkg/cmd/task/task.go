@@ -15,7 +15,7 @@ func NewCmdTask(f cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "task",
 		Aliases: []string{"tasks"},
-		Short:   "List/add tasks of/to a project",
+		Short:   "Work with Clockify tasks",
 	}
 
 	cmd.AddCommand(list.NewCmdList(f))

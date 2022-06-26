@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/util"
@@ -16,24 +17,51 @@ import (
 // NewCmdAdd represents the add command
 func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{}
+	p := api.AddProjectParam{}
 	cmd := &cobra.Command{
 		Use:     "add",
 		Aliases: []string{"new", "create"},
 		Short:   "Adds a project to the Clockify workspace",
+		Example: heredoc.Docf(`
+			$ %[1]s --name "New One"
+			+--------------------------+---------+--------+
+			|            ID            |  NAME   | CLIENT |
+			+--------------------------+---------+--------+
+			| 62a8b52d67f40258719037f2 | New One |        |
+			+--------------------------+---------+--------+
+
+			$ %[1]s --name=Other
+			62a8b59067f40258719038fc
+
+			$ %[1]s --name "Other" --client="Uber" --csv --color=#fff
+			id,name,client.id,client.name
+			62a8b607027fe4592ef1520b,Other,62964b36bb48532a70730dbe,Uber Special
+
+			$ %[1]s --name Other --random-color
+			add project: Other project for client Uber Special already exists. (code: 501)
+
+			$ %[1]s --name "Something" --client="Uber" --color=#fff
+			the following flags can't be used together: color and random-color
+
+			$ %[1]s --name "Something" --client="Uber"
+			the following flags can't be used together: color and random-color
+
+		`, "clockify-cli project add"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err
 			}
 
-			name, _ := cmd.Flags().GetString("name")
-			note, _ := cmd.Flags().GetString("note")
-			color, _ := cmd.Flags().GetString("color")
 			randomColor, _ := cmd.Flags().GetBool("random-color")
-			client, _ := cmd.Flags().GetString("client")
-			public, _ := cmd.Flags().GetBool("public")
-			billable, _ := cmd.Flags().GetBool("billable")
+			if err := cmdutil.XorFlag(map[string]bool{
+				"color":        p.Color != "",
+				"random-color": randomColor,
+			}); err != nil {
+				return err
+			}
 
-			w, err := f.GetWorkspaceID()
+			var err error
+			p.Workspace, err = f.GetWorkspaceID()
 			if err != nil {
 				return err
 			}
@@ -43,12 +71,13 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			if f.Config().IsAllowNameForID() && client != "" {
-				cs, err := search.GetClientsByName(c, w, []string{client})
+			if f.Config().IsAllowNameForID() && p.ClientId != "" {
+				cs, err := search.GetClientsByName(
+					c, p.Workspace, []string{p.ClientId})
 				if err != nil {
 					return err
 				}
-				client = cs[0]
+				p.ClientId = cs[0]
 			}
 
 			if randomColor {
@@ -56,18 +85,10 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				if _, err := rand.Read(bytes); err != nil {
 					return err
 				}
-				color = "#" + hex.EncodeToString(bytes)
+				p.Color = "#" + hex.EncodeToString(bytes)
 			}
 
-			project, err := c.AddProject(api.AddProjectParam{
-				Workspace: w,
-				Name:      name,
-				ClientId:  client,
-				Color:     color,
-				Billable:  billable,
-				Public:    public,
-				Note:      note,
-			})
+			project, err := c.AddProject(p)
 			if err != nil {
 				return err
 			}
@@ -81,15 +102,21 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("name", "n", "", "name of the new project")
+	cmd.Flags().StringVarP(&p.Name, "name", "n", "", "name of the new project")
 	_ = cmd.MarkFlagRequired("name")
 
-	cmd.Flags().StringP("color", "c", "", "color of the new project")
-	cmd.Flags().Bool("random-color", false, "use a random color for the project")
-	cmd.Flags().StringP("note", "N", "", "note for the new project")
-	cmd.Flags().String("client", "", "the id/name of the client the new project will go under")
-	cmd.Flags().BoolP("public", "p", false, "make the new project public")
-	cmd.Flags().BoolP("billable", "b", false, "make the new project as billable")
+	cmd.Flags().StringVarP(&p.Color, "color", "c", "",
+		"color of the new project")
+	cmd.Flags().Bool("random-color", false,
+		"use a random color for the project")
+	cmd.Flags().StringVarP(&p.Note, "note", "N", "",
+		"note for the new project")
+	cmd.Flags().StringVar(&p.ClientId, "client", "",
+		"the id/name of the client the new project will go under")
+	cmd.Flags().BoolVarP(&p.Public, "public", "p", false,
+		"make the new project public")
+	cmd.Flags().BoolVarP(&p.Billable, "billable", "b", false,
+		"make the new project as billable")
 
 	util.AddReportFlags(cmd, &of)
 

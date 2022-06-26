@@ -1,17 +1,16 @@
 package client
 
 import (
-	"fmt"
-	"html/template"
 	"io"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/output/util"
 )
 
 // ClientPrintWithTemplate will print each client using the format string
 func ClientPrintWithTemplate(format string) func([]dto.Client, io.Writer) error {
 	return func(cs []dto.Client, w io.Writer) error {
-		t, err := template.New("tmpl").Parse(format)
+		t, err := util.NewTemplate(format)
 		if err != nil {
 			return err
 		}
@@ -20,7 +19,6 @@ func ClientPrintWithTemplate(format string) func([]dto.Client, io.Writer) error 
 			if err := t.Execute(w, cs[i]); err != nil {
 				return err
 			}
-			fmt.Fprintln(w)
 		}
 		return nil
 	}
