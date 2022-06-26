@@ -133,6 +133,7 @@ type Tag struct {
 
 func (e Tag) GetID() string   { return e.ID }
 func (e Tag) GetName() string { return e.Name }
+func (e Tag) String() string  { return e.Name + " (" + e.ID + ")" }
 
 // TaskStatus task status
 type TaskStatus string

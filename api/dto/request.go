@@ -384,7 +384,7 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 	v := u.Query()
 	v.Add("name", r.Name)
 	if r.Active {
-		v.Add("active", "true")
+		v.Add("is-active", "true")
 	}
 
 	u.RawQuery = v.Encode()

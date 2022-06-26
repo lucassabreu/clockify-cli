@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
@@ -17,22 +18,51 @@ import (
 func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
-		Use:     "edit <project> <task>",
+		Use:     "edit <task>",
 		Aliases: []string{"update"},
-		Args:    cobra.ExactArgs(2),
+		Args:    cmdutil.RequiredNamedArgs("task"),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
-			cmdcomplutil.NewProjectAutoComplete(f)),
-		Short: "Edit a task from a project",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 2 {
-				return errors.New(
-					"two arguments are required (project and task)")
-			}
+			cmdcomplutil.NewTaskAutoComplete(f, false)),
+		Short: "Edit a task from a project on Clockify",
+		Long: heredoc.Doc(`
+			Edits a task on a Clockify's project, allowing to change the name, estimated time, assignees, status and billable settings.
 
-			project := strings.TrimSpace(args[0])
-			task := strings.TrimSpace(args[1])
-			if project == "" || task == "" {
-				return errors.New("project and task id should not be empty")
+			If you set a estimate for the task, but the project is set as manual estimation, then it will have no effect on Clockify.
+		`),
+		Example: heredoc.Docf(`
+			$ %[1]s -p special 62aa5d7049445270d7b979d6 --name="Very Important"
+			+--------------------------+----------------+--------+
+			|            ID            |      NAME      | STATUS |
+			+--------------------------+----------------+--------+
+			| 62aa5d7049445270d7b979d6 | Very Important | ACTIVE |
+			+--------------------------+----------------+--------+
+
+			$ %[1]s -p special 'important' --assign john@example.com | \
+			  jq '.[] |.assigneeIds' --compact-output
+			["dddddddddddddddddddddddd"]
+
+			$ %[1]s -p special important --billable --quiet
+			62aa5d7049445270d7b979d6
+
+			$ %[1]s -p special important --not-billable --csv
+			id,name,status
+			62aa5d7049445270d7b979d6,Very Important,ACTIVE
+
+			$ %[1]s -p special very --estimate 1 --done
+			+--------------------------+----------------+--------+
+			|            ID            |      NAME      | STATUS |
+			+--------------------------+----------------+--------+
+			| 62aa5d7049445270d7b979d6 | Very Important | DONE   |
+			+--------------------------+----------------+--------+
+
+			$ %[1]s -p special 'very i' --active --format --no-assignee \
+			  --format '{{.Name}} | {{.Status}} | {{ .AssigneeIDs }}'
+			Very Important | ACTIVE | []
+		`, "clockify-cli task edit"),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			task := strings.TrimSpace(args[0])
+			if task == "" {
+				return errors.New("task id should not be empty")
 			}
 
 			fl, err := util.TaskReadFlags(cmd, f)
@@ -46,21 +76,18 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 			}
 
 			if f.Config().IsAllowNameForID() {
-				if project, err = search.GetProjectByName(
-					c, fl.Workspace, project); err != nil {
-					return err
-				}
-
 				if task, err = search.GetTaskByName(
-					c, fl.Workspace, project, task); err != nil {
+					c,
+					api.GetTasksParam{
+						Workspace: fl.Workspace, ProjectID: fl.ProjectID},
+					task); err != nil {
 					return err
 				}
-
 			}
 
 			p := api.UpdateTaskParam{
 				Workspace:   fl.Workspace,
-				ProjectID:   project,
+				ProjectID:   fl.ProjectID,
 				TaskID:      task,
 				Name:        fl.Name,
 				Estimate:    fl.Estimate,
@@ -71,7 +98,7 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 			if !cmd.Flags().Changed("name") {
 				t, err := c.GetTask(api.GetTaskParam{
 					Workspace: fl.Workspace,
-					ProjectID: project,
+					ProjectID: fl.ProjectID,
 					TaskID:    task,
 				})
 				if err != nil {
@@ -100,7 +127,6 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 	}
 
 	util.TaskAddPropFlags(cmd, f)
-	cmdutil.AddProjectFlags(cmd, f)
 
 	cmd.Flags().Bool("done", false, "sets the task as done")
 	cmd.Flags().Bool("active", false, "sets the task as active")

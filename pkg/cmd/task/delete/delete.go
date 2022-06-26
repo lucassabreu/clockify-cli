@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
@@ -17,26 +18,42 @@ import (
 func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
-		Use:     "delete <project> <task>",
+		Use:     "delete <task>",
 		Aliases: []string{"remove", "rm", "del"},
-		Args:    cobra.ExactArgs(2),
+		Args:    cmdutil.RequiredNamedArgs("task"),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
-			cmdcomplutil.NewProjectAutoComplete(f)),
-		Short: "Deletes a task from a project",
-		Long: "Deletes a task from a project\n" +
-			"Time entries using this task will revert to not having a task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 2 {
-				return errors.New("two arguments are required (project and task)")
-			}
+			cmdcomplutil.NewTaskAutoComplete(f, false)),
+		Short: "Deletes a task from a project on Clockify",
+		Long: heredoc.Doc(`
+			Deletes a task from a project on Clockify
+			This action can't be reverted, and all time entries using this task will revert to not having one
+		`),
+		Example: heredoc.Doc(`
+			$ clockify-cli task delete -p "special" very
+			+--------------------------+----------------+--------+
+			|            ID            |      NAME      | STATUS |
+			+--------------------------+----------------+--------+
+			| 62aa5d7049445270d7b979d6 | Very Important | ACTIVE |
+			+--------------------------+----------------+--------+
 
-			project := strings.TrimSpace(args[0])
-			task := strings.TrimSpace(args[1])
+			$ clockify-cli task delete -p "special" 62aa4eed49445270d7b9666c
+			+--------------------------+----------+--------+
+			|            ID            |   NAME   | STATUS |
+			+--------------------------+----------+--------+
+			| 62aa4eed49445270d7b9666c | Inactive | DONE   |
+			+--------------------------+----------+--------+
+
+			$ clockify-cli task delete -p "special" 62aa4eed49445270d7b9666c
+			No task with id or name containing '62aa4eed49445270d7b9666c' was found
+		`),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			project, _ := cmd.Flags().GetString("project")
+			task := strings.TrimSpace(args[0])
 			if project == "" || task == "" {
 				return errors.New("project and task id should not be empty")
 			}
 
-			workspace, err := f.GetWorkspaceID()
+			w, err := f.GetWorkspaceID()
 			if err != nil {
 				return err
 			}
@@ -48,18 +65,21 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 
 			if f.Config().IsAllowNameForID() {
 				if project, err = search.GetProjectByName(
-					c, workspace, project); err != nil {
+					c, w, project); err != nil {
 					return err
 				}
 
 				if task, err = search.GetTaskByName(
-					c, workspace, project, task); err != nil {
+					c,
+					api.GetTasksParam{Workspace: w, ProjectID: project},
+					task,
+				); err != nil {
 					return err
 				}
 			}
 
 			t, err := c.DeleteTask(api.DeleteTaskParam{
-				Workspace: workspace,
+				Workspace: w,
 				ProjectID: project,
 				TaskID:    task,
 			})
@@ -71,6 +91,7 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 		},
 	}
 
+	cmdutil.AddProjectFlags(cmd, f)
 	util.TaskAddReportFlags(cmd, &of)
 
 	return cmd

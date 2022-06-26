@@ -9,7 +9,7 @@ import (
 )
 
 // NewTaskAutoComplete will provide auto-completion to flags or args
-func NewTaskAutoComplete(f factory) cmdcompl.SuggestFn {
+func NewTaskAutoComplete(f factory, onlyActive bool) cmdcompl.SuggestFn {
 	return func(
 		cmd *cobra.Command, args []string, toComplete string,
 	) (cmdcompl.ValidArgs, error) {
@@ -31,7 +31,7 @@ func NewTaskAutoComplete(f factory) cmdcompl.SuggestFn {
 		ts, err := c.GetTasks(api.GetTasksParam{
 			Workspace: w,
 			ProjectID: project,
-			Active:    true,
+			Active:    onlyActive,
 		})
 		if err != nil {
 			return cmdcompl.EmptyValidArgs(), err

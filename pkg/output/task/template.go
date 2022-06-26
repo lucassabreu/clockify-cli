@@ -1,17 +1,16 @@
 package task
 
 import (
-	"fmt"
 	"io"
-	"text/template"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/output/util"
 )
 
 // TaskPrintWithTemplate will print each client using the format string
 func TaskPrintWithTemplate(format string) func([]dto.Task, io.Writer) error {
 	return func(ts []dto.Task, w io.Writer) error {
-		t, err := template.New("tmpl").Parse(format)
+		t, err := util.NewTemplate(format)
 		if err != nil {
 			return err
 		}
@@ -20,7 +19,6 @@ func TaskPrintWithTemplate(format string) func([]dto.Task, io.Writer) error {
 			if err := t.Execute(w, ts[i]); err != nil {
 				return err
 			}
-			fmt.Fprintln(w)
 		}
 		return nil
 	}
