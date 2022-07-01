@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- link to LICENSE added to README.md
+
 ### Changed
 
 - function `bool2str` substituted with a map to appease deepsource.io
