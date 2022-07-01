@@ -9,20 +9,21 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-var t = transform.Chain(
-	norm.NFD,
-	runes.Remove(runes.In(unicode.Mn)),
-	norm.NFC,
-)
-
 // Normalize a string removes all non-english characters and lower
 // case the string to help compare it with other strings
 func Normalize(s string) string {
-	r, _, err := transform.String(t, strings.ToLower(s))
-	if err != nil {
-		return s
+	if r, _, err := transform.String(
+		transform.Chain(
+			norm.NFD,
+			runes.Remove(runes.In(unicode.Mn)),
+			norm.NFC,
+		),
+		strings.ToLower(s),
+	); err == nil {
+		return r
 	}
-	return r
+
+	return s
 }
 
 // Search will search for a exact match of the string on the slide
