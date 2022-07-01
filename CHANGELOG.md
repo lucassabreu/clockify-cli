@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - document with [how to contribute][contribute] to the project
 - site preview on branches going to `main`.
 - added `golang-lint` as a Github Action on every PR.
+- functions `json`, `yaml` and `pad` add to all golang template formatters.
 
 ### Changed
 
