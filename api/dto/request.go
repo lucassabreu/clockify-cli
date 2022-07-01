@@ -75,10 +75,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 }
 
 func (d Duration) String() string {
-	return "PT" +
-		strconv.Itoa(int(d.Duration.Hours())) + "H" +
-		strconv.Itoa(int(d.Duration.Minutes())) + "M" +
-		strconv.Itoa(int(d.Duration.Seconds())) + "S"
+	return "PT" + strings.ToUpper(d.Duration.String())
 }
 
 type pagination struct {
@@ -338,7 +335,7 @@ type AddProjectRequest struct {
 
 type GetTagsRequest struct {
 	Name     string
-	Archived bool
+	Archived *bool
 
 	pagination
 }
@@ -355,8 +352,8 @@ func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
 
 	v := u.Query()
 	v.Add("name", r.Name)
-	if r.Archived {
-		v.Add("archived", "true")
+	if r.Archived != nil {
+		v.Add("archived", bool2str(*r.Archived))
 	}
 
 	u.RawQuery = v.Encode()
@@ -384,7 +381,7 @@ func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
 	v := u.Query()
 	v.Add("name", r.Name)
 	if r.Active {
-		v.Add("active", "true")
+		v.Add("is-active", "true")
 	}
 
 	u.RawQuery = v.Encode()

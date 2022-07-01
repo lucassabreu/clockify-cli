@@ -1,0 +1,26 @@
+#!/bin/sh
+
+
+set -e
+
+rm -rf site/content/commands/* || true
+
+echo "generating documentation for commands..."
+go run ./cmd/gendocs/main.go site/content/commands
+
+echo "doing last touches..."
+# fix root command to be "chapter root"
+mv site/content/commands/clockify-cli.md site/content/commands/_index.md
+
+# add license information
+mkdir -p site/content/license
+echo '---
+title: License
+chapter: true
+---
+```txt' > site/content/license/_index.md
+cat LICENSE >> site/content/license/_index.md
+echo '```' >> site/content/license/_index.md
+
+echo "building site :tada:"
+cd site && hugo

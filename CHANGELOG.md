@@ -14,6 +14,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - badge with amount of downloads from github releases
+- most of the commands have better descriptions explaining flag usages and command examples.
+- document describing the [project layout][] and where to add or find files.
+- document with [how to contribute][contribute] to the project
+- site preview on branches going to `main`.
+- added `golang-lint` as a Github Action on every PR.
+- functions `json`, `yaml` and `pad` add to all golang template formatters.
+
+### Changed
+
+- site specific files moved from `docs/` to `site/` to free docs folder for actual documentation.
+- moved `cmd/*` and `internal/output/*` into the new locations as stated on [project layout][]
+- new `cmdutil.Factory` interface to work as a "service locator" so sharing some states, behaviours
+  and "services" can be easier.
+- project dependencies were updated.
+- memory and performance improvements
+- `config --init` changed to `config init` to better organized the commands logic.
+- site home page changed to better explain how to setup the project and to direct to new documents.
+
+### Fixed
+
+- `report` commands could fail to list time entries closer to midnight because of timezone
+    differences.
 
 ## [v0.37.0] - 2022-05-17
 
@@ -994,3 +1016,5 @@ time entry.
 [v0.1.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.1
 [v0.1.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.1.0
 [v0.0.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.0.1
+[project layout]: https://github.com/lucassabreu/clockify-cli/blob/main/docs/project-layout.md
+[contribute]: https://github.com/lucassabreu/clockify-cli/blob/feat/factory/CONTRIBUTING.md

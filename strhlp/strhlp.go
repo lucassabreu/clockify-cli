@@ -9,20 +9,21 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-var t = transform.Chain(
-	norm.NFD,
-	runes.Remove(runes.In(unicode.Mn)),
-	norm.NFC,
-)
-
 // Normalize a string removes all non-english characters and lower
 // case the string to help compare it with other strings
 func Normalize(s string) string {
-	r, _, err := transform.String(t, strings.ToLower(s))
-	if err != nil {
-		return s
+	if r, _, err := transform.String(
+		transform.Chain(
+			norm.NFD,
+			runes.Remove(runes.In(unicode.Mn)),
+			norm.NFC,
+		),
+		strings.ToLower(s),
+	); err == nil {
+		return r
 	}
-	return r
+
+	return s
 }
 
 // Search will search for a exact match of the string on the slide
@@ -69,4 +70,25 @@ func Unique(ss []string) []string {
 	}
 
 	return r
+}
+
+// ListForHumans returns a string listing the strings from the parameter
+//
+// Example: ListForHumans([]string{"one", "two", "three"}) will output:
+// "one, two and three"
+func ListForHumans(s []string) string {
+	if len(s) == 1 {
+		return s[0]
+	}
+
+	return strings.Join(s[:len(s)-1], ", ") + " and " + s[len(s)-1]
+}
+
+// PadSpace will add spaces to the end of a string until it reaches the size
+// set at the second parameter
+func PadSpace(s string, size int) string {
+	for i := len(s); i < size; i++ {
+		s = s + " "
+	}
+	return s
 }

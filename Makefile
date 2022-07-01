@@ -1,4 +1,5 @@
 export GO111MODULE=on
+MAIN_PKG=./cmd/clockify-cli
 
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ## show this help
@@ -7,31 +8,32 @@ help: ## show this help
 clean: ## clean all buildable files
 	rm -rf dist
 
-install-deps: ## install golang dependencies
+deps-install: ## install golang dependencies
 	go mod download
 
-update-deps: ## update go dependencies
-	go get -u -v
+deps-upgrade: ## upgrade go dependencies
+	go get -u -v $(MAIN_PKG)
 	go mod tidy
 
 build: dist
 
-dist: install-deps dist/darwin dist/linux dist/windows ## build all cli versions (default)
+dist: deps-install dist/darwin dist/linux dist/windows ## build all cli versions (default)
+
+dist-internal:
+	mkdir -p dist/$(goos)
+	GOOS=$(goos) GOARCH=$(goarch) go build -o dist/darwin/clockify-cli $(MAIN_PKG)
 
 dist/darwin:
-	mkdir -p dist/darwin
-	GOOS=darwin GOARCH=amd64 go build -o dist/darwin/clockify-cli
+	make dist-internal goos=darwin goarch=amd64
 
 dist/linux:
-	mkdir -p dist/linux
-	GOOS=linux GOARCH=amd64 go build -o dist/linux/clockify-cli
+	make dist-internal goos=linux goarch=amd64
 
 dist/windows:
-	mkdir -p dist/windows
-	GOOS=windows GOARCH=amd64 go build -o dist/windows/clockify-cli
+	make dist-internal goos=windows goarch=amd64
 
-go-install: install-deps ## install dev version
-	go install
+go-install: deps-install ## install dev version
+	go install $(MAIN_PKG)
 
 goreleaser-test: tag=Unreleased
 goreleaser-test: release
@@ -47,3 +49,12 @@ release: ## releases a tagged version
 ifneq ($(SNAPSHOT),1)
 	curl -X POST -d '{"trigger_branch":"$(tag)","trigger_title":"Releasing $(tag)"}' https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6 -v
 endif
+
+site/themes/hugo-theme-learn/.git:
+	git submodule update --init
+
+site-build: site/themes/hugo-theme-learn/.git ## generates command documents and builds the site
+	./scripts/site-build
+
+site-serve: site-build ## builds the site, and serves it locally
+	cd site && hugo serve

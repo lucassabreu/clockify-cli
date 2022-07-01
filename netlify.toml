@@ -1,3 +1,5 @@
 [build]
-    command = "./deploy-docs"
-    publish = "docs/public"
+    command = "make site-build"
+    publish = "site/public"
+    environment = { GO_VERSION = "1.17" }
+
