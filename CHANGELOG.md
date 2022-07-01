@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- badge with amount of downloads from github releases
 - most of the commands have better descriptions explaining flag usages and command examples.
 - document describing the [project layout][] and where to add or find files.
 - document with [how to contribute][contribute] to the project
@@ -35,10 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `report` commands could fail to list time entries closer to midnight because of timezone
     differences.
-
-### Added
-
-- badge with amount of downloads from github releases
 
 ## [v0.37.0] - 2022-05-17
 
