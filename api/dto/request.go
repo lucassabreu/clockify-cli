@@ -267,7 +267,7 @@ func (r GetClientsRequest) AppendToQuery(u url.URL) url.URL {
 	}
 
 	if r.Archived != nil {
-		v.Add("archived", bool2str(*r.Archived))
+		v.Add("archived", boolString[*r.Archived])
 	}
 
 	u.RawQuery = v.Encode()
@@ -293,11 +293,9 @@ func (r GetProjectRequest) WithPagination(page, size int) PaginatedRequest {
 	return r
 }
 
-func bool2str(b bool) string {
-	if b {
-		return "true"
-	}
-	return "false"
+var boolString = map[bool]string{
+	true:  "true",
+	false: "false",
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
@@ -311,7 +309,7 @@ func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
 	}
 
 	if r.Archived != nil {
-		v.Add("archived", bool2str(*r.Archived))
+		v.Add("archived", boolString[*r.Archived])
 	}
 
 	if len(r.Clients) > 0 {
@@ -353,7 +351,7 @@ func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
 	v := u.Query()
 	v.Add("name", r.Name)
 	if r.Archived != nil {
-		v.Add("archived", bool2str(*r.Archived))
+		v.Add("archived", boolString[*r.Archived])
 	}
 
 	u.RawQuery = v.Encode()
