@@ -359,6 +359,7 @@ func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
 	return u
 }
 
+// GetTasksRequest represents the query filters to search tasks of a project
 type GetTasksRequest struct {
 	Name   string
 	Active bool

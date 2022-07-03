@@ -446,7 +446,14 @@ func (c *Client) getUserTimeEntriesImpl(
 	return err
 }
 
-func (c *Client) paginate(method, uri string, p PaginationParam, request dto.PaginatedRequest, bodyTempl interface{}, reducer func(interface{}) (int, error), name string) error {
+func (c *Client) paginate(
+	method, uri string,
+	p PaginationParam,
+	request dto.PaginatedRequest,
+	bodyTempl interface{},
+	reducer func(interface{}) (int, error),
+	name string,
+) error {
 	page := p.Page
 	if p.AllPages {
 		page = 1

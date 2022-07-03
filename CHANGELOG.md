@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - function `bool2str` substituted with a map to appease deepsource.io
+- change task prompt to not list tasks that are inactive.
 
 ## [v0.38.0] - 2022-07-01
 
