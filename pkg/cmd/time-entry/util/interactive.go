@@ -170,6 +170,7 @@ func getTaskID(
 		Workspace:       w.ID,
 		ProjectID:       projectID,
 		PaginationParam: api.AllPages(),
+		Active:          true,
 	})
 
 	if err != nil {
