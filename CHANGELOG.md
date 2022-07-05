@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - function `bool2str` substituted with a map to appease deepsource.io
 - change task prompt to not list tasks that are inactive.
 
+### Fixed
+
+- `in` command on interactive mode was exiting when the user tried to start a timer on a project
+  were they don't have direct access to (only by their group). This is a bug on the API, but a
+  fix was done to not block the users.
+
 ## [v0.38.0] - 2022-07-01
 
 ### Added

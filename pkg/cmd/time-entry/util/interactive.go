@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -55,13 +56,13 @@ func GetPropsInteractiveFn(
 	dc DescriptionSuggestFn,
 	config cmdutil.Config,
 ) DoFn {
-	if config.IsInteractive() {
-		return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-			return askTimeEntryPropsInteractive(c, tei, dc)
-		}
+	if !config.IsInteractive() {
+		return nullCallback
 	}
 
-	return nullCallback
+	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return askTimeEntryPropsInteractive(c, tei, dc)
+	}
 }
 
 func askTimeEntryPropsInteractive(
@@ -172,6 +173,15 @@ func getTaskID(
 		PaginationParam: api.AllPages(),
 		Active:          true,
 	})
+
+	// todo: this is a workaround for the cli, the api needs to be fixed
+	var httpErr dto.Error
+	if errors.As(err, &httpErr) && httpErr.Code == 501 && strings.Contains(
+		httpErr.Message,
+		"doesn't belong to PROJECT with id "+projectID,
+	) {
+		return "", nil
+	}
 
 	if err != nil {
 		return "", err
