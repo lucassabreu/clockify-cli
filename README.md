@@ -73,6 +73,11 @@ go get -u github.com/lucassabreu/clockify-cli
 Go to the [releases page](https://github.com/lucassabreu/clockify-cli/releases) and download the pre-compiled
 binary that fits your system.
 
+Changelog
+---------
+
+[Changelog](./CHANGELOG.md)
+
 License
 -------
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - link to LICENSE added to README.md
+- link to CHANGELOG added to README.md
 
 ### Changed
 
