@@ -1,0 +1,32 @@
+name: Unit Tests
+on: [push]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Get dependencies
+        run: |
+          go mod download
+          go install gotest.tools/gotestsum@latest
+
+      - name: Generate coverage report
+        run: |
+          gotestsum --format dots -- \
+            -coverprofile=coverage.txt \
+            -covermode=atomic \
+            ./...
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
+          flags: unittests

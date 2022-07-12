@@ -35,6 +35,27 @@ dist/windows:
 go-install: deps-install ## install dev version
 	go install $(MAIN_PKG)
 
+go-generate: deps-install ## recreates generate files
+	go install github.com/matryer/moq@latest
+	go generate ./...
+
+test-install: deps-install
+	go install gotest.tools/gotestsum@latest
+
+test: test-install ## runs all tests
+	gotestsum --format dots
+
+test_coverprofile=coverage.txt
+test_covermode=atomic
+test-coverage: test-install ## runs all tests and output coverage
+	gotestsum --format dots -- \
+		-coverprofile=$(coverprofile) \
+		-covermode=$(covermode) \
+		./...
+
+test-watch: ## runs all tests and watch changes
+	gotestsum --format testname --watch
+
 goreleaser-test: tag=Unreleased
 goreleaser-test: release
 
