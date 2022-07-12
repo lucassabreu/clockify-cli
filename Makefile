@@ -35,6 +35,10 @@ dist/windows:
 go-install: deps-install ## install dev version
 	go install $(MAIN_PKG)
 
+go-generate: deps-install ## recreates generate files
+	go install github.com/matryer/moq@latest
+	go generate ./...
+
 goreleaser-test: tag=Unreleased
 goreleaser-test: release
 
