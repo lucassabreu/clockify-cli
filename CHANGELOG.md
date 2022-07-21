@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - tests for pkg/cmd/version
 - add codecov to pull requests
 
+### Changed
+
+- user reports now show the user timezone
+
 ## [v0.38.1] - 2022-07-05
 
 ### Added

@@ -22,11 +22,11 @@ func NewCmdMe(f cmdutil.Factory) *cobra.Command {
 		`),
 		Example: heredoc.Docf(`
 			$ %[1]s
-			+--------------------------+-------------+--------------+--------+
-			|            ID            |    NAME     |     EMAIL    | STATUS |
-			+--------------------------+-------------+--------------+--------+
-			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE |
-			+--------------------------+-------------+--------------+--------+
+			+--------------------------+-------------+--------------+--------+-------------------+
+			|            ID            |    NAME     |     EMAIL    | STATUS |     TIMEZONE      |
+			+--------------------------+-------------+--------------+--------+-------------------+
+			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE | America/Sao_Paulo |
+			+--------------------------+-------------+--------------+--------+-------------------+
 
 			$ %[1]s --quiet
 			ffffffffffffffffffffffff

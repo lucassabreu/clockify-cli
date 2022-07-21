@@ -10,7 +10,7 @@ import (
 // UserPrint will print more details
 func UserPrint(users []dto.User, w io.Writer) error {
 	tw := tablewriter.NewWriter(w)
-	tw.SetHeader([]string{"ID", "Name", "Email", "Status"})
+	tw.SetHeader([]string{"ID", "Name", "Email", "Status", "TimeZone"})
 
 	lines := make([][]string, len(users))
 	for i := 0; i < len(users); i++ {
@@ -19,6 +19,7 @@ func UserPrint(users []dto.User, w io.Writer) error {
 			users[i].Name,
 			users[i].Email,
 			string(users[i].Status),
+			users[i].Settings.TimeZone,
 		}
 	}
 

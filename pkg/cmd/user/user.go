@@ -18,23 +18,23 @@ func NewCmdUser(f cmdutil.Factory) *cobra.Command {
 		Short:   "List users of a workspace",
 		Example: heredoc.Docf(`
 			$ %[1]s
-			+--------------------------+-------------+--------------+--------+
-			|            ID            |    NAME     |     EMAIL    | STATUS |
-			+--------------------------+-------------+--------------+--------+
-			| eeeeeeeeeeeeeeeeeeeeeeee | John Due    | john@due.net | ACTIVE |
-			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE |
-			+--------------------------+-------------+--------------+--------+
+			+--------------------------+-------------+--------------+--------+-------------------+
+			|            ID            |    NAME     |     EMAIL    | STATUS |     TIMEZONE      |
+			+--------------------------+-------------+--------------+--------+-------------------+
+			| eeeeeeeeeeeeeeeeeeeeeeee | John Due    | john@due.net | ACTIVE | America/Sao_Paulo |
+			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE | America/Sao_Paulo |
+			+--------------------------+-------------+--------------+--------+-------------------+
 
 			$ %[1]s --quiet
 			eeeeeeeeeeeeeeeeeeeeeeee
 			ffffffffffffffffffffffff
 
 			$ %[1]s --email due@john.net
-			+--------------------------+-------------+--------------+--------+
-			|            ID            |    NAME     |     EMAIL    | STATUS |
-			+--------------------------+-------------+--------------+--------+
-			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE |
-			+--------------------------+-------------+--------------+--------+
+			+--------------------------+-------------+--------------+--------+-------------------+
+			|            ID            |    NAME     |     EMAIL    | STATUS |     TIMEZONE      |
+			+--------------------------+-------------+--------------+--------+-------------------+
+			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE | America/Sao_Paulo |
+			+--------------------------+-------------+--------------+--------+-------------------+
 
 			$ %[1]s me --format "{{ .Name }} ({{ .Email }})" --email due@john.net
 			John JD Due (due@john.net)
