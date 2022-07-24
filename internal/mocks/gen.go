@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 )
 
@@ -12,4 +13,9 @@ type Factory interface {
 //go:generate mockery --name=Config --inpackage
 type Config interface {
 	cmdutil.Config
+}
+
+//go:generate mockery --name=Client --inpackage
+type Client interface {
+	api.Client
 }

@@ -30,7 +30,8 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 	token := ""
 	if token, err = ui.AskForText("User Generated Token:",
 		ui.WithDefault(config.GetString(cmdutil.CONF_TOKEN)),
-		ui.WithHelp("Can be generated here: "+
+		ui.WithHelp("Can be generated in the following like, "+
+			"in the API section: "+
 			"https://clockify.me/user/settings#generateApiKeyBtn"),
 	); err != nil {
 		return err
