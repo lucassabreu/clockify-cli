@@ -13,11 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- tests for pkg/cmd/config
+- created a helper pkg for interactive console testing
 - tests for pkg/cmd/version
 - add codecov to pull requests
 
 ### Changed
 
+- `api.Client` changed into a interface to easy testing
 - user reports now show the user timezone
 
 ## [v0.38.1] - 2022-07-05
