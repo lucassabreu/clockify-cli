@@ -25,7 +25,7 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 	return cmd
 }
 
-func run(config cmdutil.Config, getClient func() (*api.Client, error)) error {
+func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 	var err error
 	token := ""
 	if token, err = ui.AskForText("User Generated Token:",

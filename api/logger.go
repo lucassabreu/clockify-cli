@@ -8,12 +8,12 @@ type Logger interface {
 }
 
 // SetDebugLogger debug logger
-func (c *Client) SetDebugLogger(logger Logger) *Client {
+func (c *client) SetDebugLogger(logger Logger) Client {
 	c.debugLogger = logger
 	return c
 }
 
-func (c *Client) debugf(format string, v ...interface{}) {
+func (c *client) debugf(format string, v ...interface{}) {
 	if c.debugLogger == nil {
 		return
 	}

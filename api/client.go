@@ -16,7 +16,48 @@ import (
 )
 
 // Client will help to access Clockify API
-type Client struct {
+type Client interface {
+	SetDebugLogger(logger Logger) Client
+
+	GetWorkspace(GetWorkspace) (dto.Workspace, error)
+	GetWorkspaces(GetWorkspaces) ([]dto.Workspace, error)
+
+	GetMe() (dto.User, error)
+	GetUser(GetUser) (dto.User, error)
+	WorkspaceUsers(WorkspaceUsersParam) ([]dto.User, error)
+
+	AddClient(AddClientParam) (dto.Client, error)
+	GetClients(GetClientsParam) ([]dto.Client, error)
+
+	AddProject(AddProjectParam) (dto.Project, error)
+	GetProject(GetProjectParam) (*dto.Project, error)
+	GetProjects(GetProjectsParam) ([]dto.Project, error)
+
+	AddTask(AddTaskParam) (dto.Task, error)
+	DeleteTask(DeleteTaskParam) (dto.Task, error)
+	GetTask(GetTaskParam) (dto.Task, error)
+	GetTasks(GetTasksParam) ([]dto.Task, error)
+	UpdateTask(UpdateTaskParam) (dto.Task, error)
+
+	GetTag(GetTagParam) (*dto.Tag, error)
+	GetTags(GetTagsParam) ([]dto.Tag, error)
+
+	ChangeInvoiced(ChangeInvoicedParam) error
+	CreateTimeEntry(CreateTimeEntryParam) (dto.TimeEntryImpl, error)
+	DeleteTimeEntry(DeleteTimeEntryParam) error
+	GetHydratedTimeEntry(GetTimeEntryParam) (*dto.TimeEntry, error)
+	GetHydratedTimeEntryInProgress(GetTimeEntryInProgressParam) (*dto.TimeEntry, error)
+	GetTimeEntry(GetTimeEntryParam) (*dto.TimeEntryImpl, error)
+	GetTimeEntryInProgress(GetTimeEntryInProgressParam) (*dto.TimeEntryImpl, error)
+	GetUserTimeEntries(GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error)
+	GetUsersHydratedTimeEntries(GetUserTimeEntriesParam) ([]dto.TimeEntry, error)
+	Log(LogParam) ([]dto.TimeEntry, error)
+	LogRange(LogRangeParam) ([]dto.TimeEntry, error)
+	UpdateTimeEntry(UpdateTimeEntryParam) (dto.TimeEntryImpl, error)
+	Out(OutParam) error
+}
+
+type client struct {
 	baseURL *url.URL
 	http.Client
 	debugLogger Logger
@@ -29,7 +70,7 @@ const baseURL = "https://api.clockify.me/api"
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
-func NewClient(apiKey string) (*Client, error) {
+func NewClient(apiKey string) (Client, error) {
 	if apiKey == "" {
 		return nil, errors.WithStack(ErrorMissingAPIKey)
 	}
@@ -39,7 +80,7 @@ func NewClient(apiKey string) (*Client, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	c := &Client{
+	c := &client{
 		baseURL: u,
 		Client: http.Client{
 			Transport: transport{
@@ -58,7 +99,7 @@ type GetWorkspaces struct {
 }
 
 // Workspaces list all the user's workspaces
-func (c *Client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
+func (c *client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 	var w []dto.Workspace
 
 	r, err := c.NewRequest("GET", "v1/workspaces", nil)
@@ -178,7 +219,7 @@ type GetWorkspace struct {
 	ID string
 }
 
-func (c *Client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
+func (c *client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 	var err error
 	defer wrapError(&err, "get workspace %s", p.ID)
 
@@ -212,7 +253,7 @@ type WorkspaceUsersParam struct {
 }
 
 // WorkspaceUsers all users in a Workspace
-func (c *Client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err error) {
+func (c *client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err error) {
 	defer wrapError(&err, "get users")
 
 	if err := checkWorkspace(p.Workspace); err != nil {
@@ -273,7 +314,7 @@ type LogParam struct {
 }
 
 // Log list time entries from a date
-func (c *Client) Log(p LogParam) ([]dto.TimeEntry, error) {
+func (c *client) Log(p LogParam) ([]dto.TimeEntry, error) {
 	c.debugf("Log - Date Param: %s", p.Date)
 
 	d := p.Date.Round(time.Hour)
@@ -300,7 +341,7 @@ type LogRangeParam struct {
 }
 
 // LogRange list time entries by date range
-func (c *Client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
+func (c *client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
 	return c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
@@ -327,7 +368,7 @@ type GetUserTimeEntriesParam struct {
 }
 
 // GetUserTimeEntries will list the time entries of a user on a workspace, can be paginated
-func (c *Client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error) {
+func (c *client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error) {
 	var timeEntries []dto.TimeEntryImpl
 	var tes []dto.TimeEntryImpl
 
@@ -345,7 +386,7 @@ func (c *Client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryI
 }
 
 // GetUsersHydratedTimeEntries will list hydrated time entries of a user on a workspace, can be paginated
-func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntry, error) {
+func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntry, error) {
 	var timeEntries []dto.TimeEntry
 	var tes []dto.TimeEntry
 
@@ -375,7 +416,7 @@ func (c *Client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	return timeEntries, err
 }
 
-func (c *Client) getUserTimeEntriesImpl(
+func (c *client) getUserTimeEntriesImpl(
 	p GetUserTimeEntriesParam,
 	hydrated bool,
 	tmpl interface{},
@@ -446,7 +487,7 @@ func (c *Client) getUserTimeEntriesImpl(
 	return err
 }
 
-func (c *Client) paginate(
+func (c *client) paginate(
 	method, uri string,
 	p PaginationParam,
 	request dto.PaginatedRequest,
@@ -498,7 +539,7 @@ type GetTimeEntryInProgressParam struct {
 }
 
 // GetTimeEntryInProgress show time entry in progress (if any)
-func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
+func (c *client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntryImpl *dto.TimeEntryImpl, err error) {
 	b := true
 	ts, err := c.GetUserTimeEntries(GetUserTimeEntriesParam{
 		Workspace:       p.Workspace,
@@ -518,7 +559,7 @@ func (c *Client) GetTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntr
 }
 
 // GetHydratedTimeEntryInProgress show hydrated time entry in progress (if any)
-func (c *Client) GetHydratedTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
+func (c *client) GetHydratedTimeEntryInProgress(p GetTimeEntryInProgressParam) (timeEntry *dto.TimeEntry, err error) {
 	b := true
 	ts, err := c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
 		Workspace:      p.Workspace,
@@ -539,7 +580,7 @@ type GetTimeEntryParam struct {
 }
 
 // GetTimeEntry will retrieve a Time Entry using its Workspace and ID
-func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl, err error) {
+func (c *client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl, err error) {
 	defer wrapError(&err, "get time entry \"%s\"", p.TimeEntryID)
 
 	ids := map[field]string{
@@ -575,7 +616,7 @@ func (c *Client) GetTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntryImpl
 	return timeEntry, err
 }
 
-func (c *Client) GetHydratedTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
+func (c *client) GetHydratedTimeEntry(p GetTimeEntryParam) (timeEntry *dto.TimeEntry, err error) {
 	defer wrapError(&err, "get hydrated time entry \"%s\"", p.TimeEntryID)
 
 	ids := map[field]string{
@@ -620,7 +661,7 @@ type GetTagParam struct {
 }
 
 // GetTag get a single tag, if it exists
-func (c *Client) GetTag(p GetTagParam) (*dto.Tag, error) {
+func (c *client) GetTag(p GetTagParam) (*dto.Tag, error) {
 	tags, err := c.GetTags(GetTagsParam{
 		Workspace: p.Workspace,
 	})
@@ -646,7 +687,7 @@ type GetProjectParam struct {
 }
 
 // GetProject get a single Project, if exists
-func (c *Client) GetProject(p GetProjectParam) (pr *dto.Project, err error) {
+func (c *client) GetProject(p GetProjectParam) (pr *dto.Project, err error) {
 	defer wrapError(&err, "get project \"%s\"", p.ProjectID)
 
 	ids := map[field]string{
@@ -687,7 +728,7 @@ type GetUser struct {
 }
 
 // GetUser filters the wanted user from the workspace users
-func (c *Client) GetUser(p GetUser) (dto.User, error) {
+func (c *client) GetUser(p GetUser) (dto.User, error) {
 	var err error
 	defer wrapError(&err, "get user \"%s\"", p.UserID)
 
@@ -725,7 +766,7 @@ func (c *Client) GetUser(p GetUser) (dto.User, error) {
 }
 
 // GetMe get details about the user who created the token
-func (c *Client) GetMe() (dto.User, error) {
+func (c *client) GetMe() (dto.User, error) {
 	r, err := c.NewRequest("GET", "v1/user", nil)
 
 	if err != nil {
@@ -748,7 +789,7 @@ type GetTasksParam struct {
 }
 
 // GetTasks get tasks of a project
-func (c *Client) GetTasks(p GetTasksParam) (ps []dto.Task, err error) {
+func (c *client) GetTasks(p GetTasksParam) (ps []dto.Task, err error) {
 	var tmpl []dto.Task
 
 	defer wrapError(&err, "get tasks from project \"%s\"", p.ProjectID)
@@ -801,7 +842,7 @@ type GetTaskParam struct {
 }
 
 // GetTasks get tasks of a project
-func (c *Client) GetTask(p GetTaskParam) (t dto.Task, err error) {
+func (c *client) GetTask(p GetTaskParam) (t dto.Task, err error) {
 	defer wrapError(&err, "get task \"%s\"", p.TaskID)
 
 	ids := map[field]string{
@@ -856,7 +897,7 @@ type AddTaskParam struct {
 	Billable    *bool
 }
 
-func (c *Client) AddTask(p AddTaskParam) (task dto.Task, err error) {
+func (c *client) AddTask(p AddTaskParam) (task dto.Task, err error) {
 	defer wrapError(&err, "add task to project \"%s\"", p.ProjectID)
 
 	if err = required(map[field]string{
@@ -920,7 +961,7 @@ type UpdateTaskParam struct {
 	Billable    *bool
 }
 
-func (c *Client) UpdateTask(p UpdateTaskParam) (task dto.Task, err error) {
+func (c *client) UpdateTask(p UpdateTaskParam) (task dto.Task, err error) {
 	defer wrapError(&err, "update task \"%s\"", p.TaskID)
 
 	if err = required(map[field]string{
@@ -982,7 +1023,7 @@ type DeleteTaskParam struct {
 	TaskID    string
 }
 
-func (c *Client) DeleteTask(p DeleteTaskParam) (task dto.Task, err error) {
+func (c *client) DeleteTask(p DeleteTaskParam) (task dto.Task, err error) {
 	defer wrapError(&err, "delete task \"%s\"", p.TaskID)
 
 	ids := map[field]string{
@@ -1031,7 +1072,7 @@ type CreateTimeEntryParam struct {
 }
 
 // CreateTimeEntry create a new time entry
-func (c *Client) CreateTimeEntry(p CreateTimeEntryParam) (
+func (c *client) CreateTimeEntry(p CreateTimeEntryParam) (
 	t dto.TimeEntryImpl, err error) {
 	defer wrapError(&err, "create time entry")
 
@@ -1079,7 +1120,7 @@ type GetTagsParam struct {
 }
 
 // GetTags get all tags of a workspace
-func (c *Client) GetTags(p GetTagsParam) (ps []dto.Tag, err error) {
+func (c *client) GetTags(p GetTagsParam) (ps []dto.Tag, err error) {
 	defer wrapError(&err, "get tags")
 	var tmpl []dto.Tag
 	if err = checkWorkspace(p.Workspace); err != nil {
@@ -1122,7 +1163,7 @@ type GetClientsParam struct {
 }
 
 // GetClients gets all clients of a workspace
-func (c *Client) GetClients(p GetClientsParam) (
+func (c *client) GetClients(p GetClientsParam) (
 	clients []dto.Client, err error) {
 	defer wrapError(&err, "get clients")
 
@@ -1163,7 +1204,7 @@ type AddClientParam struct {
 }
 
 // AddClient adds a new client to a workspace
-func (c *Client) AddClient(p AddClientParam) (client dto.Client, err error) {
+func (c *client) AddClient(p AddClientParam) (client dto.Client, err error) {
 	defer wrapError(&err, "add client")
 
 	if err = required(map[field]string{
@@ -1209,7 +1250,7 @@ type GetProjectsParam struct {
 }
 
 // GetProjects get all project of a workspace
-func (c *Client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
+func (c *client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
 	defer wrapError(&err, "get projects")
 
 	var tmpl []dto.Project
@@ -1255,7 +1296,7 @@ type AddProjectParam struct {
 }
 
 // AddProject adds a new project to a workspace
-func (c *Client) AddProject(p AddProjectParam) (
+func (c *client) AddProject(p AddProjectParam) (
 	project dto.Project, err error) {
 	defer wrapError(&err, "add project")
 
@@ -1322,7 +1363,7 @@ type OutParam struct {
 }
 
 // Out create a new time entry
-func (c *Client) Out(p OutParam) (err error) {
+func (c *client) Out(p OutParam) (err error) {
 	defer wrapError(&err, "end running time entry")
 
 	ids := map[field]string{
@@ -1372,7 +1413,7 @@ type UpdateTimeEntryParam struct {
 }
 
 // UpdateTimeEntry update a time entry
-func (c *Client) UpdateTimeEntry(p UpdateTimeEntryParam) (
+func (c *client) UpdateTimeEntry(p UpdateTimeEntryParam) (
 	t dto.TimeEntryImpl, err error) {
 	defer wrapError(&err, "update time entry \"%s\"", p.TimeEntryID)
 
@@ -1427,7 +1468,7 @@ type DeleteTimeEntryParam struct {
 }
 
 // DeleteTimeEntry deletes a time entry
-func (c *Client) DeleteTimeEntry(p DeleteTimeEntryParam) (err error) {
+func (c *client) DeleteTimeEntry(p DeleteTimeEntryParam) (err error) {
 	defer wrapError(&err, "delete time entry \"%s\"", p.TimeEntryID)
 
 	ids := map[field]string{
@@ -1468,7 +1509,7 @@ type ChangeInvoicedParam struct {
 }
 
 // ChangeInvoiced changes time entries to invoiced or not
-func (c *Client) ChangeInvoiced(p ChangeInvoicedParam) error {
+func (c *client) ChangeInvoiced(p ChangeInvoicedParam) error {
 	r, err := c.NewRequest(
 		"PATCH",
 		fmt.Sprintf(

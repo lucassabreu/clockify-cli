@@ -7,7 +7,7 @@ import (
 
 // GetTagsByName receives a list of id or names of tags and returns their ids
 func GetTagsByName(
-	c *api.Client,
+	c api.Client,
 	workspace string,
 	tags []string,
 ) ([]string, error) {

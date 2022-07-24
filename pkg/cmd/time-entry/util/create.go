@@ -6,7 +6,7 @@ import (
 )
 
 // CreateTimeEntryFn will create a time entry
-func CreateTimeEntryFn(c *api.Client) DoFn {
+func CreateTimeEntryFn(c api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		return c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   te.WorkspaceID,

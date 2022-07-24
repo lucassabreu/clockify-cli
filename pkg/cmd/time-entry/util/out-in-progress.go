@@ -9,14 +9,14 @@ import (
 )
 
 // OutInProgressFn will stop the in progress time entry, if it exists
-func OutInProgressFn(c *api.Client) DoFn {
+func OutInProgressFn(c api.Client) DoFn {
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		return tei, out(
 			c, tei.WorkspaceID, tei.UserID, tei.TimeInterval.Start)
 	}
 }
 
-func out(c *api.Client, w, u string, end time.Time) error {
+func out(c api.Client, w, u string, end time.Time) error {
 	if err := c.Out(api.OutParam{
 		Workspace: w,
 		UserID:    u,

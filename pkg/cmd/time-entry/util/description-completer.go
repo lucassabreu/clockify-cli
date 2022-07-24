@@ -17,7 +17,7 @@ type DescriptionSuggestFn func(string) []string
 
 // descriptionCompleter looks for similar descriptions for auto-compliance
 type descriptionCompleter struct {
-	client       *api.Client
+	client       api.Client
 	loaded       bool
 	param        api.GetUserTimeEntriesParam
 	descriptions []string

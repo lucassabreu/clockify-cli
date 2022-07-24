@@ -8,7 +8,7 @@ import (
 // GetClientsByName receives a list of id or names of clients and returns their
 // ids
 func GetClientsByName(
-	c *api.Client,
+	c api.Client,
 	workspace string,
 	clients []string,
 ) ([]string, error) {

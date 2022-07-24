@@ -8,7 +8,7 @@ import (
 // GetTasksByName will try to find the first task containing the string on its
 // name or id that matches the value
 func GetTaskByName(
-	c *api.Client,
+	c api.Client,
 	f api.GetTasksParam,
 	task string,
 ) (string, error) {
@@ -31,7 +31,7 @@ func GetTaskByName(
 // GetTasksByName will try to find tasks containing the string on its name or
 // id that matches the value
 func GetTasksByName(
-	c *api.Client,
+	c api.Client,
 	f api.GetTasksParam,
 	tasks []string,
 ) ([]string, error) {
