@@ -53,12 +53,11 @@ func NewCmdConfig(f cmdutil.Factory) *cobra.Command {
 			# if you wanna see the value of token parameter:
 			$ clockify-cli get token
 		`),
-		Long: heredoc.Docf(`
+		Long: heredoc.Doc(`
 			Changes or shows configuration settings for clockify-cli
 
 			These are the parameters manageable:
-			%s
-		`, validParameters.Long()),
+		`) + validParameters.Long(),
 	}
 
 	cmd.AddCommand(initialize.NewCmdInit(f))

@@ -25,6 +25,7 @@ const (
 	CONF_DEBUG               = "debug"
 )
 
+// Config manages configs and parameters used locally by the CLI
 type Config interface {
 	GetBool(string) bool
 	SetBool(string, bool)

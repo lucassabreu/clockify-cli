@@ -23,16 +23,15 @@ func NewCmdGet(
 			$ %[1]s workweek-days --format=json
 			["monday","tuesday","wednesday","thursday","friday"]
 		`, "clockify-cli config get"),
-		Args:      cobra.ExactArgs(1),
+		Args: cobra.MatchAll(
+			cmdutil.RequiredNamedArgs("param"),
+			cobra.ExactArgs(1),
+		),
 		ValidArgs: validParameters.IntoValidArgs(),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			param := ""
-			if len(args) > 0 {
-				param = args[0]
-			}
-
-			return util.Report(cmd.OutOrStdout(), format,
-				f.Config().Get(param))
+			return util.Report(
+				cmd.OutOrStdout(), format,
+				f.Config().Get(args[0]))
 		},
 	}
 

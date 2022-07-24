@@ -8,3 +8,8 @@ import (
 type Factory interface {
 	cmdutil.Factory
 }
+
+//go:generate mockery --name=Config --inpackage
+type Config interface {
+	cmdutil.Config
+}
