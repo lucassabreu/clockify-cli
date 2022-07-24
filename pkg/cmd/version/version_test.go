@@ -7,6 +7,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/version"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,13 +43,16 @@ func TestVersion(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			b := bytes.NewBufferString("")
-			cmd := version.NewCmdVersion(&cmdutil.FactoryMock{
-				VersionFunc: func() cmdutil.Version { return tt.version },
-			})
+			f := mocks.NewMockFactory(t)
+			f.On("Version").Return(tt.version)
+
+			cmd := version.NewCmdVersion(f)
 			cmd.SetArgs([]string{})
+
+			b := bytes.NewBufferString("")
 			cmd.SetOut(b)
 			cmd.SetErr(b)
+
 			_, err := cmd.ExecuteC()
 
 			assert.NoError(t, err)

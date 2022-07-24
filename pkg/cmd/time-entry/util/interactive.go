@@ -52,7 +52,7 @@ func askTimeEntryDatesInteractive(
 // interactively about the properties of the time entry, only if the parameter
 // cmdutil.CONF_INTERACTIVE is active
 func GetPropsInteractiveFn(
-	c *api.Client,
+	c api.Client,
 	dc DescriptionSuggestFn,
 	config cmdutil.Config,
 ) DoFn {
@@ -66,7 +66,7 @@ func GetPropsInteractiveFn(
 }
 
 func askTimeEntryPropsInteractive(
-	c *api.Client,
+	c api.Client,
 	te dto.TimeEntryImpl,
 	dc DescriptionSuggestFn,
 ) (dto.TimeEntryImpl, error) {
@@ -98,7 +98,7 @@ func askTimeEntryPropsInteractive(
 const noProject = "No Project"
 
 func getProjectID(
-	projectID string, w dto.Workspace, c *api.Client) (string, error) {
+	projectID string, w dto.Workspace, c api.Client) (string, error) {
 	b := false
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       w.ID,
@@ -166,7 +166,7 @@ func getProjectID(
 const noTask = "No Task"
 
 func getTaskID(
-	taskID, projectID string, w dto.Workspace, c *api.Client) (string, error) {
+	taskID, projectID string, w dto.Workspace, c api.Client) (string, error) {
 	tasks, err := c.GetTasks(api.GetTasksParam{
 		Workspace:       w.ID,
 		ProjectID:       projectID,
@@ -232,7 +232,7 @@ func getDescription(description string, dc DescriptionSuggestFn) string {
 }
 
 func getTagIDs(
-	tagIDs []string, workspace string, c *api.Client) ([]string, error) {
+	tagIDs []string, workspace string, c api.Client) ([]string, error) {
 	tags, err := c.GetTags(api.GetTagsParam{
 		Workspace: workspace,
 	})

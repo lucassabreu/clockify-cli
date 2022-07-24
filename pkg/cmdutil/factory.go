@@ -9,11 +9,10 @@ import (
 )
 
 // Factory is a container/factory builder for the commands and its helpers
-//go:generate moq -rm -out factory_mock.go . Factory
 type Factory interface {
 	Version() Version
 	Config() Config
-	Client() (*api.Client, error)
+	Client() (api.Client, error)
 	GetUserID() (string, error)
 	GetWorkspaceID() (string, error)
 	GetWorkspace() (dto.Workspace, error)
@@ -23,7 +22,7 @@ type factory struct {
 	version func() Version
 
 	config func() Config
-	client func() (*api.Client, error)
+	client func() (api.Client, error)
 
 	getUserID      func() (string, error)
 	getWorkspaceID func() (string, error)
@@ -38,7 +37,7 @@ func (f *factory) Config() Config {
 	return f.config()
 }
 
-func (f *factory) Client() (*api.Client, error) {
+func (f *factory) Client() (api.Client, error) {
 	return f.client()
 }
 
@@ -155,11 +154,11 @@ func getWorkspaceIDFunc(f Factory) func() (string, error) {
 	}
 }
 
-func clientFunc(f Factory) func() (*api.Client, error) {
-	var c *api.Client
+func clientFunc(f Factory) func() (api.Client, error) {
+	var c api.Client
 	var err error
 
-	return func() (*api.Client, error) {
+	return func() (api.Client, error) {
 		if c != nil || err != nil {
 			return c, err
 		}

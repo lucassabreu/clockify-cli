@@ -12,6 +12,12 @@ import (
 	"github.com/lucassabreu/clockify-cli/strhlp"
 )
 
+var options []survey.AskOpt
+
+func SetDefaultOptions(opt ...survey.AskOpt) {
+	options = opt
+}
+
 func selectFilter(filter, value string, _ int) bool {
 	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
 	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(strhlp.Normalize(filter), "")
@@ -24,7 +30,7 @@ func selectFilter(filter, value string, _ int) bool {
 
 func askString(p survey.Prompt) (string, error) {
 	answer := ""
-	return answer, survey.AskOne(p, &answer, nil)
+	return answer, survey.AskOne(p, &answer, options...)
 }
 
 // WithSuggestion applies the suggestion function to the input question
@@ -106,10 +112,12 @@ func AskForDateTime(
 	}
 
 	t := timeAnswer{convert: convert}
-	opts := []survey.AskOpt{
+	opts := make([]survey.AskOpt, 0)
+	opts = append(opts, options...)
+	opts = append(opts,
 		survey.WithValidator(survey.Required),
 		survey.WithValidator(t.validate),
-	}
+	)
 
 	for {
 		err := survey.AskOne(i, &t, opts...)
@@ -129,32 +137,37 @@ func AskForDateTimeOrNil(
 	convert func(string) (time.Time, error),
 ) (*time.Time, error) {
 	t := timeAnswer{convert: convert}
+	opts := []survey.AskOpt{survey.WithValidator(t.validate)}
+	opts = append(opts, options...)
 	return t.Time, survey.AskOne(
 		&survey.Input{
 			Message: name + " (leave it blank for empty):",
 			Default: value,
 		},
 		&t,
-		survey.WithValidator(t.validate),
+		opts...,
 	)
 }
 
 // AskForInt interactively ask for one int from the user
 func AskForInt(message string, d int) (int, error) {
+	opts := []survey.AskOpt{survey.WithValidator(func(ans interface{}) error {
+		v, ok := ans.(string)
+		if !ok {
+			return fmt.Errorf("needs to be a string")
+		}
+
+		_, err := strconv.Atoi(v)
+		return err
+	})}
+	opts = append(opts, options...)
 	return d, survey.AskOne(
 		&survey.Input{
 			Message: message,
 			Default: strconv.Itoa(d),
-		}, &d,
-		survey.WithValidator(func(ans interface{}) error {
-			v, ok := ans.(string)
-			if !ok {
-				return fmt.Errorf("needs to be a string")
-			}
-
-			_, err := strconv.Atoi(v)
-			return err
-		}),
+		},
+		&d,
+		opts...,
 	)
 }
 
@@ -174,17 +187,17 @@ func AskFromOptions(message string, options []string, d string) (string, error) 
 }
 
 // AskManyFromOptions interactively ask the user to choose none or many option
-func AskManyFromOptions(message string, options, d []string) ([]string, error) {
+func AskManyFromOptions(message string, opts, d []string) ([]string, error) {
 	var choices []string
 	return choices, survey.AskOne(
 		&survey.MultiSelect{
 			Message: message,
-			Options: options,
+			Options: opts,
 			Default: d,
 			Filter:  selectFilter,
 		},
 		&choices,
-		nil,
+		options...,
 	)
 }
 
@@ -197,6 +210,6 @@ func Confirm(message string, d bool) (bool, error) {
 			Default: d,
 		},
 		&v,
-		nil,
+		options...,
 	)
 }

@@ -25,6 +25,7 @@ const (
 	CONF_DEBUG               = "debug"
 )
 
+// Config manages configs and parameters used locally by the CLI
 type Config interface {
 	GetBool(string) bool
 	SetBool(string, bool)
@@ -63,7 +64,7 @@ func (*config) GetString(param string) string {
 	return viper.GetString(param)
 }
 
-func (*config) SetString(p string, s string) {
+func (*config) SetString(p, s string) {
 	viper.Set(p, s)
 }
 

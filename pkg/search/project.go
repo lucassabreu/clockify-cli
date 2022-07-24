@@ -6,7 +6,7 @@ import (
 )
 
 func GetProjectByName(
-	c *api.Client,
+	c api.Client,
 	workspace,
 	project string,
 ) (string, error) {

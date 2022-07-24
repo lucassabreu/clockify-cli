@@ -18,7 +18,7 @@ const (
 
 // GetLatestEntryEntry will return the last time entry of a user, if it exists
 func GetLatestEntryEntry(
-	c *api.Client, workspace, userID string) (dto.TimeEntryImpl, error) {
+	c api.Client, workspace, userID string) (dto.TimeEntryImpl, error) {
 	return GetTimeEntry(c, workspace, userID, AliasLatest)
 }
 
@@ -40,7 +40,7 @@ func mayNotFound(tei *dto.TimeEntryImpl, err error) (
 // GetTimeEntry will look for the time entry of a user for the id or alias
 // provided
 func GetTimeEntry(
-	c *api.Client,
+	c api.Client,
 	workspace,
 	userID,
 	id string,

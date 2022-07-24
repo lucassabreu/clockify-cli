@@ -9,7 +9,7 @@ import (
 
 // GetAllowNameForIDsFn will try to find project/task/tags by their names if
 // the value provided was not a ID
-func GetAllowNameForIDsFn(config cmdutil.Config, c *api.Client) DoFn {
+func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) DoFn {
 	if !config.GetBool(cmdutil.CONF_ALLOW_NAME_FOR_ID) {
 		return nullCallback
 	}
@@ -27,7 +27,7 @@ func GetAllowNameForIDsFn(config cmdutil.Config, c *api.Client) DoFn {
 	return compose(cbs...)
 }
 
-func lookupProject(c *api.Client) DoFn {
+func lookupProject(c api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if te.ProjectID == "" {
 			return te, nil
@@ -41,7 +41,7 @@ func lookupProject(c *api.Client) DoFn {
 
 }
 
-func lookupTask(c *api.Client) DoFn {
+func lookupTask(c api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if te.TaskID == "" {
 			return te, nil
@@ -60,7 +60,7 @@ func lookupTask(c *api.Client) DoFn {
 	}
 }
 
-func lookupTags(c *api.Client) DoFn {
+func lookupTags(c api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if len(te.TagIDs) == 0 {
 			return te, nil
