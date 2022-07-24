@@ -9,7 +9,6 @@ import (
 )
 
 // Factory is a container/factory builder for the commands and its helpers
-//go:generate moq -rm -out factory_mock.go . Factory
 type Factory interface {
 	Version() Version
 	Config() Config
