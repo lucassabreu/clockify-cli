@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/pkg/errors"
@@ -36,7 +35,7 @@ func (t transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 // NewRequest to be used in Client
 func (c *client) NewRequest(method, uri string, body interface{}) (*http.Request, error) {
-	u, err := c.baseURL.Parse(strings.Join([]string{c.baseURL.Path, uri}, "/"))
+	u, err := c.baseURL.Parse(c.baseURL.Path + "/" + uri)
 	if err != nil {
 		return nil, err
 	}

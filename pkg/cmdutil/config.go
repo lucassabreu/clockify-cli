@@ -64,7 +64,7 @@ func (*config) GetString(param string) string {
 	return viper.GetString(param)
 }
 
-func (*config) SetString(p string, s string) {
+func (*config) SetString(p, s string) {
 	viper.Set(p, s)
 }
 
