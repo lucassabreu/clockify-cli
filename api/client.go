@@ -17,7 +17,12 @@ import (
 
 // Client will help to access Clockify API
 type Client interface {
+	// SetDebugLogger when set will output the responses of requests to the
+	// logger
 	SetDebugLogger(logger Logger) Client
+	// SetInfoLogger when set will output which requests and params are used to
+	// the logger
+	SetInfoLogger(logger Logger) Client
 
 	GetWorkspace(GetWorkspace) (dto.Workspace, error)
 	GetWorkspaces(GetWorkspaces) ([]dto.Workspace, error)
@@ -61,6 +66,7 @@ type client struct {
 	baseURL *url.URL
 	http.Client
 	debugLogger Logger
+	infoLogger  Logger
 }
 
 // baseURL is the Clockify API base URL
@@ -307,7 +313,7 @@ type LogParam struct {
 
 // Log list time entries from a date
 func (c *client) Log(p LogParam) ([]dto.TimeEntry, error) {
-	c.debugf("Log - Date Param: %s", p.Date)
+	c.infof("Log - Date Param: %s", p.Date)
 
 	d := p.Date.Round(time.Hour)
 	d = d.Add(time.Hour * time.Duration(d.Hour()) * -1)
@@ -334,7 +340,7 @@ type LogRangeParam struct {
 
 // LogRange list time entries by date range
 func (c *client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
-	c.debugf("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
+	c.infof("LogRange - First Date Param: %s | Last Date Param: %s", p.FirstDate, p.LastDate)
 
 	return c.GetUsersHydratedTimeEntries(GetUserTimeEntriesParam{
 		Workspace:       p.Workspace,
@@ -438,8 +444,9 @@ func (c *client) getUserTimeEntriesImpl(
 		}
 	}
 
-	c.debugf(
-		"GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s | Description: %s | Project: %s",
+	c.infof(
+		"GetUserTimeEntries - Workspace: %s | User: %s | In Progress: %s "+
+			"| Description: %s | Project: %s",
 		p.Workspace,
 		p.UserID,
 		inProgressFilter,

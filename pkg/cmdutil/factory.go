@@ -164,11 +164,26 @@ func clientFunc(f Factory) func() (api.Client, error) {
 		}
 
 		c, err = api.NewClient(f.Config().GetString(CONF_TOKEN))
-		if f.Config().IsDebuging() {
-			c.SetDebugLogger(
-				log.New(os.Stdout, "DEBUG ", log.LstdFlags),
-			)
+		if err != nil {
+			return c, err
 		}
+
+		ll := f.Config().LogLevel()
+		if ll == LOG_LEVEL_NONE {
+			return c, err
+		}
+
+		c.SetInfoLogger(
+			log.New(os.Stdout, "INFO  ", log.LstdFlags),
+		)
+
+		if ll == LOG_LEVEL_INFO {
+			return c, err
+		}
+
+		c.SetDebugLogger(
+			log.New(os.Stdout, "DEBUG ", log.LstdFlags),
+		)
 
 		return c, err
 	}

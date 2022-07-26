@@ -7,6 +7,10 @@ import (
 // AddFixedSuggestionsToFlag add fixed suggestions to a flag
 func AddFixedSuggestionsToFlag(cmd *cobra.Command, flagName string, va ValidArgs) error {
 	f := cmd.Flags().Lookup(flagName)
+	if f == nil {
+		f = cmd.PersistentFlags().Lookup(flagName)
+	}
+
 	f.Usage = va.IntoUse() + " " + f.Usage
 	return cmd.RegisterFlagCompletionFunc(
 		f.Name,

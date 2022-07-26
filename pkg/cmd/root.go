@@ -39,14 +39,21 @@ func NewCmdRoot(f cmdutil.Factory) *cobra.Command {
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "user-id",
 		cmdcomplutil.NewUserAutoComplete(f))
 
-	cmd.PersistentFlags().Bool("debug", false, "show debug log")
-
 	cmd.PersistentFlags().BoolP("interactive", "i", false,
 		"will prompt you to confirm/complement commands input before "+
 			"executing the action ")
 
 	cmd.PersistentFlags().BoolP("allow-name-for-id", "", false,
 		"allow use of project/client/tag's name when id is asked")
+
+	cmd.PersistentFlags().String(
+		"log-level", cmdutil.LOG_LEVEL_NONE, "set log level")
+	_ = cmdcompl.AddFixedSuggestionsToFlag(cmd, "log-level",
+		cmdcompl.ValidArgsSlide{
+			cmdutil.LOG_LEVEL_NONE,
+			cmdutil.LOG_LEVEL_DEBUG,
+			cmdutil.LOG_LEVEL_INFO,
+		})
 
 	_ = cmd.MarkFlagRequired("token")
 

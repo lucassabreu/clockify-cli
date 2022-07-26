@@ -22,11 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `api.Client` changed into a interface to easy testing
 - user reports now show the user timezone
+- flag `debug` dropped in favor of `log-level` to allow a finer control of the output for reporting
+  bugs.
 
 ### Fixed
 
 - `Client.WorkspaceUsers` was not paginating over the results, this created bugs on `config init`
   and `user list`
+- `make dist` was building all system to the same file
 
 ## [v0.38.1] - 2022-07-05
 

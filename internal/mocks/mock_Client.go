@@ -606,6 +606,22 @@ func (_m *MockClient) SetDebugLogger(logger api.Logger) api.Client {
 	return r0
 }
 
+// SetInfoLogger provides a mock function with given fields: logger
+func (_m *MockClient) SetInfoLogger(logger api.Logger) api.Client {
+	ret := _m.Called(logger)
+
+	var r0 api.Client
+	if rf, ok := ret.Get(0).(func(api.Logger) api.Client); ok {
+		r0 = rf(logger)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(api.Client)
+		}
+	}
+
+	return r0
+}
+
 // UpdateTask provides a mock function with given fields: _a0
 func (_m *MockClient) UpdateTask(_a0 api.UpdateTaskParam) (dto.Task, error) {
 	ret := _m.Called(_a0)

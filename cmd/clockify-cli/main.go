@@ -105,7 +105,8 @@ func bindViper(rootCmd *cobra.Command) error {
 		return err
 	}
 
-	if err = bind(l("debug"), cmdutil.CONF_DEBUG, "DEBUG"); err != nil {
+	err = bind(l("log-level"), cmdutil.CONF_LOG_LEVEL, "LOG_LEVEL")
+	if err != nil {
 		return err
 	}
 
