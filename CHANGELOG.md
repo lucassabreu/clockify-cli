@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.38.3] - 2022-07-26
+
 ### Fixed
 
 - `config init` tests were broken
@@ -990,8 +992,9 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.38.1...HEAD
-[v0.38.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.1
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.38.3...HEAD
+[v0.38.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.3
+[v0.38.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.2
 [v0.38.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.0
 [v0.37.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.37.0
 [v0.36.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.36.2
