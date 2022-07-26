@@ -1,10 +1,9 @@
 package today
 
 import (
-	"time"
-
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/report/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +18,7 @@ func NewCmdToday(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			today := time.Now()
+			today := timehlp.Today()
 			return util.ReportWithRange(f, today, today, cmd, of)
 		},
 	}

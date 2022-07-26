@@ -65,7 +65,8 @@ func TestInitCmd(t *testing.T) {
 			call := setStringFn(config, cmdutil.CONF_WORKSPACE, "2")
 
 			client.On("WorkspaceUsers", api.WorkspaceUsersParam{
-				Workspace: "2",
+				Workspace:       "2",
+				PaginationParam: api.AllPages(),
 			}).
 				NotBefore(call).
 				Return([]dto.User{
