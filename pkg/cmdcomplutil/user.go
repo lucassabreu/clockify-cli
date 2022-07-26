@@ -25,7 +25,8 @@ func NewUserAutoComplete(f factory) cmdcompl.SuggestFn {
 		}
 
 		us, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-			Workspace: w,
+			Workspace:       w,
+			PaginationParam: api.AllPages(),
 		})
 
 		if err != nil {

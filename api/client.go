@@ -265,7 +265,7 @@ func (c *client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err er
 	err = c.paginate(
 		"GET",
 		fmt.Sprintf("v1/workspaces/%s/users", p.Workspace),
-		PaginationParam{AllPages: true},
+		p.PaginationParam,
 		dto.WorkspaceUsersRequest{
 			Email: p.Email,
 		},

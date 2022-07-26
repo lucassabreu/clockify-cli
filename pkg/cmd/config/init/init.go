@@ -67,7 +67,8 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 		strings.TrimSpace(workspace[0:strings.Index(workspace, " - ")]))
 
 	users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-		Workspace: config.GetString(cmdutil.CONF_WORKSPACE),
+		Workspace:       config.GetString(cmdutil.CONF_WORKSPACE),
+		PaginationParam: api.AllPages(),
 	})
 
 	if err != nil {

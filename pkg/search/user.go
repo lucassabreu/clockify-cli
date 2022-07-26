@@ -17,7 +17,8 @@ func GetUsersByName(
 	}
 
 	us, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-		Workspace: workspace,
+		Workspace:       workspace,
+		PaginationParam: api.AllPages(),
 	})
 	if err != nil {
 		return users, err
