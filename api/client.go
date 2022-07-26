@@ -266,7 +266,9 @@ func (c *client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err er
 		"GET",
 		fmt.Sprintf("v1/workspaces/%s/users", p.Workspace),
 		PaginationParam{AllPages: true},
-		dto.WorkspaceUsersRequest{},
+		dto.WorkspaceUsersRequest{
+			Email: p.Email,
+		},
 		&users,
 		func(res interface{}) (int, error) {
 			if res == nil {

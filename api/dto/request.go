@@ -410,6 +410,7 @@ type ChangeTimeEntriesInvoicedRequest struct {
 }
 
 type WorkspaceUsersRequest struct {
+	Email string
 	pagination
 }
 
@@ -417,4 +418,19 @@ type WorkspaceUsersRequest struct {
 func (r WorkspaceUsersRequest) WithPagination(page, size int) PaginatedRequest {
 	r.pagination = newPagination(page, size)
 	return r
+}
+
+// AppendToQuery decorates the URL with the query string needed for this Request
+func (r WorkspaceUsersRequest) AppendToQuery(u url.URL) url.URL {
+	u = r.pagination.AppendToQuery(u)
+
+	v := u.Query()
+
+	if r.Email != "" {
+		v.Add("email", r.Email)
+	}
+
+	u.RawQuery = v.Encode()
+
+	return u
 }
