@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.38.2] - 2022-07-26
+
 ### Added
 
 - tests for pkg/cmd/config
@@ -30,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Client.WorkspaceUsers` was not paginating over the results, this created bugs on `config init`
   and `user list`
 - `make dist` was building all system to the same file
+
+### Thanks
+
+Thank you to [@mhogerheijde](https://github.com/mhogerheijde) for fixing the issue
+[#204](https://github.com/lucassabreu/clockify-cli/issues/204).
 
 ## [v0.38.1] - 2022-07-05
 
