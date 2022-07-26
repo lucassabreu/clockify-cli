@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `api.Client` changed into a interface to easy testing
 - user reports now show the user timezone
 
+### Fixed
+
+- `Client.WorkspaceUsers` was not paginating over the results, this created bugs on `config init`
+  and `user list`
+
 ## [v0.38.1] - 2022-07-05
 
 ### Added
