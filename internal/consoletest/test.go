@@ -12,10 +12,39 @@ import (
 
 // ExpectConsole is a helper to interact if the pseudo terminal on tests
 type ExpectConsole interface {
-	ExpectEOF() (string, error)
-	ExpectString(string) (string, error)
-	Send(string) (int, error)
-	SendLine(string) (int, error)
+	ExpectEOF()
+	ExpectString(string)
+	Send(string)
+	SendLine(string)
+}
+
+type console struct {
+	t *testing.T
+	c *expect.Console
+}
+
+func (c *console) ExpectEOF() {
+	if _, err := c.c.ExpectEOF(); err != nil {
+		c.t.Errorf("failed to ExpectEOF %v", err)
+	}
+}
+
+func (c *console) ExpectString(s string) {
+	if _, err := c.c.ExpectString(s); err != nil {
+		c.t.Errorf("failed to ExpectString %v", err)
+	}
+}
+
+func (c *console) Send(s string) {
+	if _, err := c.c.Send(s); err != nil {
+		c.t.Errorf("failed to Send %v", err)
+	}
+}
+
+func (c *console) SendLine(s string) {
+	if _, err := c.c.SendLine(s); err != nil {
+		c.t.Errorf("failed to SendLine %v", err)
+	}
 }
 
 // FileWriter is a simplification of the io.Stdout struct
@@ -59,7 +88,10 @@ func RunTestConsole(
 	donec := make(chan struct{})
 	go func() {
 		defer close(donec)
-		procedure(c)
+		procedure(&console{
+			c: c,
+			t: t,
+		})
 	}()
 
 	if err = setup(c.Tty(), c.Tty()); err != nil {
