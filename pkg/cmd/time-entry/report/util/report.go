@@ -47,7 +47,6 @@ func ReportWithRange(
 	f cmdutil.Factory, start, end time.Time,
 	cmd *cobra.Command, of util.OutputFlags,
 ) error {
-
 	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
 	description, _ := cmd.Flags().GetString("description")
 	project, _ := cmd.Flags().GetString("project")
@@ -67,7 +66,7 @@ func ReportWithRange(
 		return err
 	}
 
-	if f.Config().IsAllowNameForID() && project != "" {
+	if project != "" && f.Config().IsAllowNameForID() {
 		if project, err = search.GetProjectByName(
 			c, workspace, project); err != nil {
 			return err
