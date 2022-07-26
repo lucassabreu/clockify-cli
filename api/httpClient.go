@@ -55,7 +55,7 @@ func (c *client) NewRequest(method, uri string, body interface{}) (*http.Request
 		if err != nil {
 			return nil, err
 		}
-		c.debugf("request body: %s", buf.(*bytes.Buffer))
+		c.infof("request body: %s", buf.(*bytes.Buffer))
 	}
 
 	req, err := http.NewRequest(method, u.String(), buf)
@@ -72,7 +72,8 @@ func (c *client) NewRequest(method, uri string, body interface{}) (*http.Request
 }
 
 // Do executes a http.Request inside the Clockify's Client
-func (c *client) Do(req *http.Request, v interface{}, name string) (*http.Response, error) {
+func (c *client) Do(
+	req *http.Request, v interface{}, name string) (*http.Response, error) {
 	r, err := c.Client.Do(req)
 	if err != nil {
 		return r, err
@@ -86,7 +87,13 @@ func (c *client) Do(req *http.Request, v interface{}, name string) (*http.Respon
 		return nil, errors.WithStack(err)
 	}
 
-	c.debugf("name: %s, method: %s, url: %s, status: %d, response: \"%s\"", name, req.Method, req.URL.String(), r.StatusCode, buf)
+	if c.debugLogger != nil {
+		c.debugf("name: %s, method: %s, url: %s, status: %d, response: \"%s\"",
+			name, req.Method, req.URL.String(), r.StatusCode, buf)
+	} else {
+		c.infof("name: %s, method: %s, url: %s, status: %d",
+			name, req.Method, req.URL.String(), r.StatusCode)
+	}
 
 	decoder := json.NewDecoder(buf)
 

@@ -22,7 +22,13 @@ const (
 	CONF_DESCR_AUTOCOMP      = "description-autocomplete"
 	CONF_DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
 	CONF_SHOW_TOTAL_DURATION = "show-total-duration"
-	CONF_DEBUG               = "debug"
+	CONF_LOG_LEVEL           = "log-level"
+)
+
+const (
+	LOG_LEVEL_NONE  = "none"
+	LOG_LEVEL_DEBUG = "debug"
+	LOG_LEVEL_INFO  = "info"
 )
 
 // Config manages configs and parameters used locally by the CLI
@@ -47,10 +53,23 @@ type Config interface {
 	Get(string) interface{}
 	All() map[string]interface{}
 
+	LogLevel() string
+
 	Save() error
 }
 
 type config struct{}
+
+func (c *config) LogLevel() string {
+	l := c.GetString(CONF_LOG_LEVEL)
+	switch l {
+	case LOG_LEVEL_INFO, LOG_LEVEL_DEBUG:
+		return l
+	default:
+		return LOG_LEVEL_NONE
+	}
+
+}
 
 func (*config) GetBool(param string) bool {
 	return viper.GetBool(param)
@@ -85,7 +104,7 @@ func (*config) SetStringSlice(p string, ss []string) {
 }
 
 func (c *config) IsDebuging() bool {
-	return c.GetBool(CONF_DEBUG)
+	return c.LogLevel() == LOG_LEVEL_DEBUG
 }
 
 func (c *config) GetWorkWeekdays() []string {

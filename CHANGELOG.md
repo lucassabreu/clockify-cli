@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `api.Client` changed into a interface to easy testing
 - user reports now show the user timezone
+- flag `debug` dropped in favor of `log-level` to allow a finer control of the output for reporting
+  bugs.
 
 ### Fixed
 

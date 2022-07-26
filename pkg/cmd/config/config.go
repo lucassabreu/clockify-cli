@@ -31,7 +31,8 @@ var validParameters = cmdcompl.ValidArgsMap{
 		"for the description autocomplete",
 	cmdutil.CONF_SHOW_TOTAL_DURATION: "adds a totals line on time entry " +
 		"reports with the sum of the time entries duration",
-	cmdutil.CONF_DEBUG: "if extra logs should be shown",
+	cmdutil.CONF_LOG_LEVEL: "how much logs should be shown values: " +
+		"none , error , info and debug",
 }
 
 // NewCmdConfig represents the config command
