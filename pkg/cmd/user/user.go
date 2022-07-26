@@ -56,8 +56,9 @@ func NewCmdUser(f cmdutil.Factory) *cobra.Command {
 			}
 
 			users, err := c.WorkspaceUsers(api.WorkspaceUsersParam{
-				Workspace: w,
-				Email:     email,
+				Workspace:       w,
+				Email:           email,
+				PaginationParam: api.AllPages(),
 			})
 			if err != nil {
 				return err

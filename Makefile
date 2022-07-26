@@ -21,7 +21,7 @@ dist: deps-install dist/darwin dist/linux dist/windows ## build all cli versions
 
 dist-internal:
 	mkdir -p dist/$(goos)
-	GOOS=$(goos) GOARCH=$(goarch) go build -o dist/darwin/clockify-cli $(MAIN_PKG)
+	GOOS=$(goos) GOARCH=$(goarch) go build -o dist/$(goos)/clockify-cli $(MAIN_PKG)
 
 dist/darwin:
 	make dist-internal goos=darwin goarch=amd64

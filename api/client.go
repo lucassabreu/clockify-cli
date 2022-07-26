@@ -250,6 +250,8 @@ func (c *client) GetWorkspace(p GetWorkspace) (dto.Workspace, error) {
 type WorkspaceUsersParam struct {
 	Workspace string
 	Email     string
+
+	PaginationParam
 }
 
 // WorkspaceUsers all users in a Workspace
@@ -260,37 +262,27 @@ func (c *client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err er
 		return users, err
 	}
 
-	r, err := c.NewRequest(
+	err = c.paginate(
 		"GET",
 		fmt.Sprintf("v1/workspaces/%s/users", p.Workspace),
-		nil,
+		p.PaginationParam,
+		dto.WorkspaceUsersRequest{
+			Email: p.Email,
+		},
+		&users,
+		func(res interface{}) (int, error) {
+			if res == nil {
+				return 0, nil
+			}
+			ls := *res.(*[]dto.User)
+
+			users = append(users, ls...)
+			return len(ls), nil
+		},
+		"WorkspaceUsers",
 	)
-	if err != nil {
-		return users, err
-	}
 
-	_, err = c.Do(r, &users, "WorkspaceUsers")
-	if err != nil {
-		return users, err
-	}
-
-	if p.Email == "" {
-		return users, nil
-	}
-
-	uCopy := []dto.User{}
-	for i := 0; i < len(users); i++ {
-		if !strings.Contains(
-			strings.ToLower(users[i].Email),
-			strings.ToLower(p.Email),
-		) {
-			continue
-		}
-
-		uCopy = append(uCopy, users[i])
-	}
-
-	return uCopy, nil
+	return users, err
 }
 
 // PaginationParam parameters about pagination
