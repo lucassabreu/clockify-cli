@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `config init` tests were broken
+- `report today` was using local timezone, which created the wrong range of time for the api
+
 ## [v0.38.2] - 2022-07-26
 
 ### Added
