@@ -408,3 +408,13 @@ type ChangeTimeEntriesInvoicedRequest struct {
 	TimeEntryIDs []string `json:"timeEntryIds"`
 	Invoiced     bool     `json:"invoiced"`
 }
+
+type WorkspaceUsersRequest struct {
+	pagination
+}
+
+// WithPagination add pagination to the WorkspaceUsersRequest
+func (r WorkspaceUsersRequest) WithPagination(page, size int) PaginatedRequest {
+	r.pagination = newPagination(page, size)
+	return r
+}
