@@ -745,7 +745,8 @@ func (c *client) GetUser(p GetUser) (dto.User, error) {
 	}
 
 	us, err := c.WorkspaceUsers(WorkspaceUsersParam{
-		Workspace: p.Workspace,
+		Workspace:       p.Workspace,
+		PaginationParam: AllPages(),
 	})
 	if err != nil {
 		return dto.User{}, errors.Wrapf(err, "get user %s", p.UserID)
