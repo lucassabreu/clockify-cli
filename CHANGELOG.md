@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.38.4] - 2022-07-27
+
+### Fixed
+
+- fixing pagination for time entry listing
+
 ## [v0.38.3] - 2022-07-26
 
 ### Fixed
@@ -992,7 +998,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.38.3...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.38.4...HEAD
+[v0.38.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.4
 [v0.38.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.3
 [v0.38.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.2
 [v0.38.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.0
