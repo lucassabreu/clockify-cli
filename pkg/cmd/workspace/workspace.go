@@ -1,8 +1,6 @@
 package workspace
 
 import (
-	"os"
-
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/workspace"
 
@@ -12,23 +10,20 @@ import (
 
 // NewCmdWorkspace represents the workspaces command
 func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
+	fl := struct {
+		name   string
+		format string
+		quiet  bool
+	}{}
 	cmd := &cobra.Command{
 		Use:     "workspace",
 		Aliases: []string{"workspaces"},
 		Short:   "List your available workspaces",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			format, _ := cmd.Flags().GetString("format")
-			quiet, _ := cmd.Flags().GetBool("quiet")
-
 			if err := cmdutil.XorFlag(map[string]bool{
-				"format": format != "",
-				"quiet":  quiet,
+				"format": fl.format != "",
+				"quiet":  fl.quiet,
 			}); err != nil {
-				return err
-			}
-
-			name, err := cmd.Flags().GetString("name")
-			if err != nil {
 				return err
 			}
 
@@ -38,31 +33,31 @@ func NewCmdWorkspace(f cmdutil.Factory) *cobra.Command {
 			}
 
 			list, err := c.GetWorkspaces(api.GetWorkspaces{
-				Name: name,
+				Name: fl.name,
 			})
 			if err != nil {
 				return err
 			}
 
+			if fl.quiet {
+				return output.WorkspacePrintQuietly(list, cmd.OutOrStdout())
+			}
+
+			if fl.format != "" {
+				return output.WorkspacePrintWithTemplate(fl.format)(
+					list, cmd.OutOrStdout())
+			}
+
 			w, _ := f.GetWorkspaceID()
-			if quiet {
-				return output.WorkspacePrintQuietly(list, os.Stdout)
-			}
-
-			if format != "" {
-				return output.WorkspacePrintWithTemplate(format)(
-					list, os.Stdout)
-			}
-
-			return output.WorkspacePrint(w)(list, os.Stdout)
+			return output.WorkspacePrint(w)(list, cmd.OutOrStdout())
 		},
 	}
 
-	cmd.Flags().StringP("name", "n", "",
+	cmd.Flags().StringVarP(&fl.name, "name", "n", "",
 		"will be used to filter the workspaces by name")
-	cmd.Flags().StringP("format", "f", "",
+	cmd.Flags().StringVarP(&fl.format, "format", "f", "",
 		"golang text/template format to be applied on each workspace")
-	cmd.Flags().BoolP("quiet", "q", false, "only display ids")
+	cmd.Flags().BoolVarP(&fl.quiet, "quiet", "q", false, "only display ids")
 
 	return cmd
 }
