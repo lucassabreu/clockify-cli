@@ -75,8 +75,8 @@ func TestCmdUser(t *testing.T) {
 			},
 		},
 		{
-			name: "report",
-			args: []string{"--email=john@due.com"},
+			name: "report quiet",
+			args: []string{"--email=john@due.com", "-q"},
 			factory: func(t *testing.T) (cmdutil.Factory, report) {
 				f := mocks.NewMockFactory(t)
 				c := mocks.NewMockClient(t)
@@ -95,9 +95,66 @@ func TestCmdUser(t *testing.T) {
 				called := false
 				t.Cleanup(func() { assert.True(t, called, "was not called") })
 				return f, func(
-					_ io.Writer, _ *util.OutputFlags, u []dto.User) error {
+					_ io.Writer, of *util.OutputFlags, u []dto.User) error {
 					called = true
 					assert.Equal(t, list, u)
+					assert.True(t, of.Quiet)
+					return nil
+				}
+			},
+		},
+		{
+			name: "report json",
+			args: []string{"--json"},
+			factory: func(t *testing.T) (cmdutil.Factory, report) {
+				f := mocks.NewMockFactory(t)
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+				f.On("GetWorkspaceID").
+					Return("w", nil)
+
+				list := []dto.User{{Email: "john@due.com"}}
+				c.On("WorkspaceUsers", api.WorkspaceUsersParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).
+					Return(list, nil)
+
+				called := false
+				t.Cleanup(func() { assert.True(t, called, "was not called") })
+				return f, func(
+					_ io.Writer, of *util.OutputFlags, u []dto.User) error {
+					called = true
+					assert.Equal(t, list, u)
+					assert.True(t, of.JSON)
+					return nil
+				}
+			},
+		},
+		{
+			name: "report format",
+			args: []string{"--format={{.Name}}"},
+			factory: func(t *testing.T) (cmdutil.Factory, report) {
+				f := mocks.NewMockFactory(t)
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+				f.On("GetWorkspaceID").
+					Return("w", nil)
+
+				list := []dto.User{{Email: "john@due.com"}}
+				c.On("WorkspaceUsers", api.WorkspaceUsersParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).
+					Return(list, nil)
+
+				called := false
+				t.Cleanup(func() { assert.True(t, called, "was not called") })
+				return f, func(
+					_ io.Writer, of *util.OutputFlags, u []dto.User) error {
+					called = true
+					assert.Equal(t, list, u)
+					assert.Equal(t, "{{.Name}}", of.Format)
 					return nil
 				}
 			},

@@ -18,12 +18,6 @@ func NewCmdUser(
 	report func(io.Writer, *util.OutputFlags, []dto.User) error,
 ) *cobra.Command {
 	of := util.OutputFlags{}
-	if report == nil {
-		report = func(w io.Writer, of *util.OutputFlags, u []dto.User) error {
-			return util.Report(u, w, *of)
-		}
-	}
-
 	cmd := &cobra.Command{
 		Use:     "user",
 		Aliases: []string{"users"},
@@ -76,7 +70,11 @@ func NewCmdUser(
 				return err
 			}
 
-			return report(cmd.OutOrStderr(), &of, users)
+			if report != nil {
+				return report(cmd.OutOrStderr(), &of, users)
+			}
+
+			return util.Report(users, cmd.OutOrStderr(), of)
 		},
 	}
 
