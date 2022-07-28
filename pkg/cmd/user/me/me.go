@@ -55,6 +55,10 @@ func NewCmdMe(
 			}
 
 			out := cmd.OutOrStdout()
+			if report != nil {
+				return report(out, &of, u)
+			}
+
 			if of.JSON {
 				return user.UserJSONPrint(u, out)
 			}
