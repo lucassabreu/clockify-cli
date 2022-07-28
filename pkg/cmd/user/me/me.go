@@ -1,6 +1,8 @@
 package me
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/user/util"
@@ -10,7 +12,10 @@ import (
 )
 
 // NewCmdMe represents the me command
-func NewCmdMe(f cmdutil.Factory) *cobra.Command {
+func NewCmdMe(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.User) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:   "me",
