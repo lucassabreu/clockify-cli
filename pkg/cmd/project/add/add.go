@@ -3,6 +3,7 @@ package add
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"io"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
@@ -15,9 +16,13 @@ import (
 )
 
 // NewCmdAdd represents the add command
-func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+func NewCmdAdd(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.Project) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	p := api.AddProjectParam{}
+	randomColor := false
 	cmd := &cobra.Command{
 		Use:     "add",
 		Aliases: []string{"new", "create"},
@@ -52,7 +57,6 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			randomColor, _ := cmd.Flags().GetBool("random-color")
 			if err := cmdutil.XorFlag(map[string]bool{
 				"color":        p.Color != "",
 				"random-color": randomColor,
@@ -71,7 +75,7 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			if f.Config().IsAllowNameForID() && p.ClientId != "" {
+			if p.ClientId != "" && f.Config().IsAllowNameForID() {
 				cs, err := search.GetClientsByName(
 					c, p.Workspace, []string{p.ClientId})
 				if err != nil {
@@ -94,6 +98,10 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 			}
 
 			out := cmd.OutOrStdout()
+			if report != nil {
+				return report(out, &of, project)
+			}
+
 			if of.JSON {
 				return output.ProjectJSONPrint(project, out)
 			}
@@ -107,7 +115,7 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 
 	cmd.Flags().StringVarP(&p.Color, "color", "c", "",
 		"color of the new project")
-	cmd.Flags().Bool("random-color", false,
+	cmd.Flags().BoolVar(&randomColor, "random-color", false,
 		"use a random color for the project")
 	cmd.Flags().StringVarP(&p.Note, "note", "N", "",
 		"note for the new project")
