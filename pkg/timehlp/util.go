@@ -4,7 +4,7 @@ import "time"
 
 // TruncateDate clears the hours, minutes and seconds of a time.Time
 func TruncateDate(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
 
 // Today will return a UTC time.Time for the same day as time.Now() in Local
