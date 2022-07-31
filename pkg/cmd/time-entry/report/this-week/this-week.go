@@ -9,7 +9,7 @@ import (
 
 // NewCmdThisWeek represents the report this-week command
 func NewCmdThisWeek(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "this-week",
 		Short: "List all time entries in this week",
@@ -19,7 +19,7 @@ func NewCmdThisWeek(f cmdutil.Factory) *cobra.Command {
 			}
 
 			first, last := timehlp.GetWeekRange(timehlp.Today())
-			return util.ReportWithRange(f, first, last, cmd, of)
+			return util.ReportWithRange(f, first, last, cmd.OutOrStdout(), of)
 		},
 	}
 

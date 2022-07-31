@@ -20,7 +20,7 @@ import (
 
 // NewCmdReport represents the reports command
 func NewCmdReport(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "report [<start>] [<end>]",
 		Short: "List all time entries for a given date range",
@@ -146,7 +146,8 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 				}
 			}
 
-			return util.ReportWithRange(f, start, end, cmd, of)
+			return util.ReportWithRange(
+				f, start, end, cmd.OutOrStdout(), of)
 		},
 	}
 

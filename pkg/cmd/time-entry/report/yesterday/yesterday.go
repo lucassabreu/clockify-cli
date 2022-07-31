@@ -9,7 +9,7 @@ import (
 
 // NewCmdYesterday represents report today command
 func NewCmdYesterday(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "yesterday",
 		Short: "List all time entries created yesterday",
@@ -19,7 +19,7 @@ func NewCmdYesterday(f cmdutil.Factory) *cobra.Command {
 			}
 
 			day := timehlp.Today().Add(-1)
-			return util.ReportWithRange(f, day, day, cmd, of)
+			return util.ReportWithRange(f, day, day, cmd.OutOrStdout(), of)
 		},
 	}
 

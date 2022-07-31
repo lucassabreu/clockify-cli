@@ -271,6 +271,22 @@ func TestCmdAddReport(t *testing.T) {
 				assert.Equal(t, "{{.ID}}", of.Format)
 			},
 		},
+		{
+			name: "report csv",
+			args: []string{"--csv"},
+			assert: func(t *testing.T, of *util.OutputFlags, _ dto.Project) {
+				assert.True(t, of.CSV)
+			},
+		},
+		{
+			name: "report default",
+			assert: func(t *testing.T, of *util.OutputFlags, _ dto.Project) {
+				assert.False(t, of.CSV)
+				assert.False(t, of.JSON)
+				assert.False(t, of.Quiet)
+				assert.True(t, of.Format == "")
+			},
+		},
 	}
 
 	for _, tt := range tts {
