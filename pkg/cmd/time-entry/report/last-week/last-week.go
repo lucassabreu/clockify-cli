@@ -9,7 +9,7 @@ import (
 
 // NewCmdLastWeek represents the report last-week command
 func NewCmdLastWeek(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "last-week",
 		Short: "List all time entries in last week",

@@ -15,7 +15,7 @@ import (
 
 // NewCmdLastWeekDay represents the report last working week day command
 func NewCmdLastWeekDay(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "last-week-day",
 		Short: "List time entries from last week day",

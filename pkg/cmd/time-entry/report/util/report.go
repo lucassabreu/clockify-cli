@@ -20,23 +20,35 @@ const (
 	HelpMoreInfoAboutPrinting = util.HelpMoreInfoAboutPrinting
 )
 
-// NewOutputFlags helps creating a util.OutputFlags for reporting
-func NewOutputFlags() util.OutputFlags {
-	return util.OutputFlags{TimeFormat: timehlp.FullTimeFormat}
+// ReportFlags reads the "shared" flags for report commands
+type ReportFlags struct {
+	util.OutputFlags
+
+	FillMissingDates bool
+
+	Description string
+	Project     string
+}
+
+// NewReportFlags helps creating a util.ReportFlags for report commands
+func NewReportFlags() ReportFlags {
+	return ReportFlags{
+		OutputFlags: util.OutputFlags{TimeFormat: timehlp.FullTimeFormat},
+	}
 }
 
 // AddReportFlags add flags for print out the time entries
 func AddReportFlags(
-	f cmdutil.Factory, cmd *cobra.Command, of *util.OutputFlags,
+	f cmdutil.Factory, cmd *cobra.Command, rf *ReportFlags,
 ) {
-	util.AddPrintTimeEntriesFlags(cmd, of)
+	util.AddPrintTimeEntriesFlags(cmd, &rf.OutputFlags)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
-	cmd.Flags().BoolP("fill-missing-dates", "e", false,
+	cmd.Flags().BoolVarP(&rf.FillMissingDates, "fill-missing-dates", "e", false,
 		"add empty lines for dates without time entries")
-	cmd.Flags().StringP("description", "d", "",
+	cmd.Flags().StringVarP(&rf.Description, "description", "d", "",
 		"will filter time entries that contains this on the description field")
-	cmd.Flags().StringP("project", "p", "",
+	cmd.Flags().StringVarP(&rf.Project, "project", "p", "",
 		"Will filter time entries using this project")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))
@@ -45,12 +57,8 @@ func AddReportFlags(
 // ReportWithRange fetches and prints out time entries
 func ReportWithRange(
 	f cmdutil.Factory, start, end time.Time,
-	cmd *cobra.Command, of util.OutputFlags,
+	cmd *cobra.Command, rf ReportFlags,
 ) error {
-	fillMissingDates, _ := cmd.Flags().GetBool("fill-missing-dates")
-	description, _ := cmd.Flags().GetString("description")
-	project, _ := cmd.Flags().GetString("project")
-
 	userId, err := f.GetUserID()
 	if err != nil {
 		return err
@@ -66,9 +74,9 @@ func ReportWithRange(
 		return err
 	}
 
-	if project != "" && f.Config().IsAllowNameForID() {
-		if project, err = search.GetProjectByName(
-			c, workspace, project); err != nil {
+	if rf.Project != "" && f.Config().IsAllowNameForID() {
+		if rf.Project, err = search.GetProjectByName(
+			c, workspace, rf.Project); err != nil {
 			return err
 		}
 	}
@@ -80,8 +88,8 @@ func ReportWithRange(
 		UserID:          userId,
 		FirstDate:       start,
 		LastDate:        end,
-		Description:     description,
-		ProjectID:       project,
+		Description:     rf.Description,
+		ProjectID:       rf.Project,
 		PaginationParam: api.AllPages(),
 	})
 
@@ -95,7 +103,7 @@ func ReportWithRange(
 		)
 	})
 
-	if fillMissingDates && len(log) > 0 {
+	if rf.FillMissingDates && len(log) > 0 {
 		newLog := make([]dto.TimeEntry, 0, len(log))
 
 		newLog = append(newLog,
@@ -111,7 +119,8 @@ func ReportWithRange(
 		log = append(newLog, fillMissing(nextDay, end)...)
 	}
 
-	return util.PrintTimeEntries(log, cmd.OutOrStdout(), f.Config(), of)
+	return util.PrintTimeEntries(
+		log, cmd.OutOrStdout(), f.Config(), rf.OutputFlags)
 }
 
 func fillMissing(first, last time.Time) []dto.TimeEntry {

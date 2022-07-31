@@ -9,7 +9,7 @@ import (
 
 // NewCmdLastMonth represents the report last-month command
 func NewCmdLastMonth(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "last-month",
 		Short: "List all time entries in last month",

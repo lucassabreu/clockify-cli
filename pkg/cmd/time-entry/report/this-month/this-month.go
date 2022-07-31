@@ -9,7 +9,7 @@ import (
 
 // reportThisMonthCmd represents the reports this-month command
 func NewCmdThisMonth(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "this-month",
 		Short: "List all time entries in this month",

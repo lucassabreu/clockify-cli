@@ -9,7 +9,7 @@ import (
 
 // NewCmdLastDay represents the report last-day command
 func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
-	of := util.NewOutputFlags()
+	of := util.NewReportFlags()
 	cmd := &cobra.Command{
 		Use:   "last-day",
 		Short: "List time entries from last day were a time entry was created",
