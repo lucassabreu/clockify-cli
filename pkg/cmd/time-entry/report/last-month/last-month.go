@@ -18,8 +18,9 @@ func NewCmdLastMonth(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			first, last := timehlp.GetMonthRange(timehlp.Today().AddDate(0, -1, 0))
-			return util.ReportWithRange(f, first, last, cmd, of)
+			first, last := timehlp.GetMonthRange(
+				timehlp.Today().AddDate(0, -1, 0))
+			return util.ReportWithRange(f, first, last, cmd.OutOrStdout(), of)
 		},
 	}
 

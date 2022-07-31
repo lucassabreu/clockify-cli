@@ -146,7 +146,8 @@ func NewCmdReport(f cmdutil.Factory) *cobra.Command {
 				}
 			}
 
-			return util.ReportWithRange(f, start, end, cmd, of)
+			return util.ReportWithRange(
+				f, start, end, cmd.OutOrStdout(), of)
 		},
 	}
 

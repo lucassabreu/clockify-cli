@@ -19,7 +19,7 @@ func NewCmdThisWeek(f cmdutil.Factory) *cobra.Command {
 			}
 
 			first, last := timehlp.GetWeekRange(timehlp.Today())
-			return util.ReportWithRange(f, first, last, cmd, of)
+			return util.ReportWithRange(f, first, last, cmd.OutOrStdout(), of)
 		},
 	}
 

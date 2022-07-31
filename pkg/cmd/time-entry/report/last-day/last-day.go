@@ -39,7 +39,8 @@ func NewCmdLastDay(f cmdutil.Factory) *cobra.Command {
 			}
 
 			return util.ReportWithRange(
-				f, te.TimeInterval.Start, te.TimeInterval.Start, cmd, of)
+				f, te.TimeInterval.Start, te.TimeInterval.Start,
+				cmd.OutOrStdout(), of)
 		},
 	}
 

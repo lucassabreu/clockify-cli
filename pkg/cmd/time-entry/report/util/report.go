@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"sort"
 	"time"
 
@@ -57,7 +58,7 @@ func AddReportFlags(
 // ReportWithRange fetches and prints out time entries
 func ReportWithRange(
 	f cmdutil.Factory, start, end time.Time,
-	cmd *cobra.Command, rf ReportFlags,
+	out io.Writer, rf ReportFlags,
 ) error {
 	userId, err := f.GetUserID()
 	if err != nil {
@@ -120,7 +121,7 @@ func ReportWithRange(
 	}
 
 	return util.PrintTimeEntries(
-		log, cmd.OutOrStdout(), f.Config(), rf.OutputFlags)
+		log, out, f.Config(), rf.OutputFlags)
 }
 
 func fillMissing(first, last time.Time) []dto.TimeEntry {

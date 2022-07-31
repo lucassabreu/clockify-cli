@@ -19,7 +19,7 @@ func NewCmdToday(f cmdutil.Factory) *cobra.Command {
 			}
 
 			today := timehlp.Today()
-			return util.ReportWithRange(f, today, today, cmd, of)
+			return util.ReportWithRange(f, today, today, cmd.OutOrStdout(), of)
 		},
 	}
 
