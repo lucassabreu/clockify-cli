@@ -13,7 +13,7 @@ import (
 
 // QueryAppender an interface to identify if the parameters should be sent through the query or body
 type QueryAppender interface {
-	AppendToQuery(url.URL) url.URL
+	AppendToQuery(*url.URL) *url.URL
 }
 
 // ErrorNotFound Not Found
@@ -41,7 +41,7 @@ func (c *client) NewRequest(method, uri string, body interface{}) (*http.Request
 	}
 
 	if qa, ok := body.(QueryAppender); ok {
-		*u = qa.AppendToQuery(*u)
+		u = qa.AppendToQuery(u)
 	}
 
 	if method == "GET" {

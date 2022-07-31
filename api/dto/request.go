@@ -91,7 +91,7 @@ func newPagination(page, size int) pagination {
 }
 
 // AppendToQuery decorates the URL with pagination parameters
-func (p pagination) AppendToQuery(u url.URL) url.URL {
+func (p pagination) AppendToQuery(u *url.URL) *url.URL {
 	v := u.Query()
 
 	if p.page != 0 {
@@ -117,7 +117,7 @@ type GetTimeEntryRequest struct {
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetTimeEntryRequest) AppendToQuery(u url.URL) url.URL {
+func (r GetTimeEntryRequest) AppendToQuery(u *url.URL) *url.URL {
 	v := u.Query()
 	if r.Hydrated != nil && *r.Hydrated {
 		v.Add("hydrated", "true")
@@ -156,7 +156,7 @@ func (r UserTimeEntriesRequest) WithPagination(page, size int) PaginatedRequest 
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r UserTimeEntriesRequest) AppendToQuery(u url.URL) url.URL {
+func (r UserTimeEntriesRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 	v := u.Query()
 
@@ -257,7 +257,7 @@ func (r GetClientsRequest) WithPagination(page, size int) PaginatedRequest {
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetClientsRequest) AppendToQuery(u url.URL) url.URL {
+func (r GetClientsRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
@@ -299,7 +299,7 @@ var boolString = map[bool]string{
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetProjectRequest) AppendToQuery(u url.URL) url.URL {
+func (r GetProjectRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
@@ -345,7 +345,7 @@ func (r GetTagsRequest) WithPagination(page, size int) PaginatedRequest {
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetTagsRequest) AppendToQuery(u url.URL) url.URL {
+func (r GetTagsRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
@@ -374,7 +374,7 @@ func (r GetTasksRequest) WithPagination(page, size int) PaginatedRequest {
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetTasksRequest) AppendToQuery(u url.URL) url.URL {
+func (r GetTasksRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
@@ -421,7 +421,7 @@ func (r WorkspaceUsersRequest) WithPagination(page, size int) PaginatedRequest {
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r WorkspaceUsersRequest) AppendToQuery(u url.URL) url.URL {
+func (r WorkspaceUsersRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()

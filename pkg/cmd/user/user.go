@@ -1,8 +1,11 @@
 package user
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/user/me"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/user/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -10,7 +13,10 @@ import (
 )
 
 // NewCmdUser represents the users command
-func NewCmdUser(f cmdutil.Factory) *cobra.Command {
+func NewCmdUser(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, []dto.User) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "user",
@@ -64,7 +70,11 @@ func NewCmdUser(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.Report(users, cmd.OutOrStdout(), of)
+			if report != nil {
+				return report(cmd.OutOrStderr(), &of, users)
+			}
+
+			return util.Report(users, cmd.OutOrStderr(), of)
 		},
 	}
 
@@ -75,7 +85,7 @@ func NewCmdUser(f cmdutil.Factory) *cobra.Command {
 
 	_ = cmd.MarkFlagRequired("workspace")
 
-	cmd.AddCommand(me.NewCmdMe(f))
+	cmd.AddCommand(me.NewCmdMe(f, nil))
 
 	return cmd
 }

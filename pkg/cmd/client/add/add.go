@@ -1,6 +1,8 @@
 package add
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -11,7 +13,10 @@ import (
 )
 
 // clientAddCmd represents the add command
-func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+func NewCmdAdd(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.Client) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "add",
@@ -56,6 +61,11 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 			}
 
 			out := cmd.OutOrStdout()
+
+			if report != nil {
+				return report(out, &of, cl)
+			}
+
 			if of.JSON {
 				client.ClientJSONPrint(cl, out)
 			}

@@ -15,8 +15,8 @@ func NewCmdProject(f cmdutil.Factory) *cobra.Command {
 		Short:   "Work with Clockify projects",
 	}
 
-	cmd.AddCommand(list.NewCmdList(f))
-	cmd.AddCommand(add.NewCmdAdd(f))
+	cmd.AddCommand(list.NewCmdList(f, nil))
+	cmd.AddCommand(add.NewCmdAdd(f, nil))
 
 	return cmd
 }

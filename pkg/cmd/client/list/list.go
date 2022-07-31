@@ -1,16 +1,23 @@
 package list
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/spf13/cobra"
 )
 
 // NewCmdList represents the list command
-func NewCmdList(f cmdutil.Factory) *cobra.Command {
+func NewCmdList(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, []dto.Client) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
+	var archived, notArchived bool
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
@@ -38,6 +45,13 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
+			if err := cmdutil.XorFlag(map[string]bool{
+				"archived":     archived,
+				"not-archived": notArchived,
+			}); err != nil {
+				return err
+			}
+
 			p := api.GetClientsParam{
 				PaginationParam: api.AllPages(),
 			}
@@ -53,18 +67,17 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 			}
 
 			p.Name, _ = cmd.Flags().GetString("name")
-			if ok, _ := cmd.Flags().GetBool("not-archived"); ok {
-				b := false
-				p.Archived = &b
-			}
-			if ok, _ := cmd.Flags().GetBool("archived"); ok {
-				b := true
-				p.Archived = &b
+			if archived || notArchived {
+				p.Archived = &archived
 			}
 
 			clients, err := c.GetClients(p)
 			if err != nil {
 				return err
+			}
+
+			if report != nil {
+				return report(cmd.OutOrStdout(), &of, clients)
 			}
 
 			return util.Report(clients, cmd.OutOrStdout(), of)
@@ -73,8 +86,10 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 
 	cmd.Flags().StringP("name", "n", "",
 		"will be used to filter the tag by name")
-	cmd.Flags().BoolP("not-archived", "", false, "list only active projects")
-	cmd.Flags().BoolP("archived", "", false, "list only archived projects")
+	cmd.Flags().BoolVarP(
+		&notArchived, "not-archived", "", false, "list only active projects")
+	cmd.Flags().BoolVarP(
+		&archived, "archived", "", false, "list only archived projects")
 
 	util.AddReportFlags(cmd, &of)
 

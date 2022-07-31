@@ -63,8 +63,8 @@ func NewCmdRoot(f cmdutil.Factory) *cobra.Command {
 
 	cmd.AddCommand(workspace.NewCmdWorkspace(f))
 
-	cmd.AddCommand(user.NewCmdUser(f))
-	cmd.AddCommand(me.NewCmdMe(f))
+	cmd.AddCommand(user.NewCmdUser(f, nil))
+	cmd.AddCommand(me.NewCmdMe(f, nil))
 
 	cmd.AddCommand(client.NewCmdClient(f))
 	cmd.AddCommand(project.NewCmdProject(f))
