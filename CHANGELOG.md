@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- flags `--billable` and `--not-billable` to report commands to filter time entries that are
+  billable or not respectively
+
 ## [v0.38.4] - 2022-07-27
 
 ### Fixed

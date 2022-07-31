@@ -27,8 +27,23 @@ type ReportFlags struct {
 
 	FillMissingDates bool
 
+	Billable    bool
+	NotBillable bool
+
 	Description string
 	Project     string
+}
+
+// Check will assure that there is no conflicting flag values
+func (rf ReportFlags) Check() error {
+	if err := rf.OutputFlags.Check(); err != nil {
+		return err
+	}
+
+	return cmdutil.XorFlag(map[string]bool{
+		"billable":     rf.Billable,
+		"not-billable": rf.NotBillable,
+	})
 }
 
 // NewReportFlags helps creating a util.ReportFlags for report commands
@@ -53,6 +68,11 @@ func AddReportFlags(
 		"Will filter time entries using this project")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))
+
+	cmd.Flags().BoolVar(&rf.Billable, "billable", false,
+		"Will filter time entries that are billable")
+	cmd.Flags().BoolVar(&rf.NotBillable, "not-billable", false,
+		"Will filter time entries that are not billable")
 }
 
 // ReportWithRange fetches and prints out time entries
@@ -98,6 +118,10 @@ func ReportWithRange(
 		return err
 	}
 
+	if rf.Billable || rf.NotBillable {
+		log = filterBilling(log, rf.Billable)
+	}
+
 	sort.Slice(log, func(i, j int) bool {
 		return log[j].TimeInterval.Start.After(
 			log[i].TimeInterval.Start,
@@ -122,6 +146,17 @@ func ReportWithRange(
 
 	return util.PrintTimeEntries(
 		log, out, f.Config(), rf.OutputFlags)
+}
+
+func filterBilling(l []dto.TimeEntry, billable bool) []dto.TimeEntry {
+	r := make([]dto.TimeEntry, 0, len(l))
+	for i := 0; i < len(l); i++ {
+		if l[i].Billable == billable {
+			r = append(r, l[i])
+		}
+	}
+
+	return r
 }
 
 func fillMissing(first, last time.Time) []dto.TimeEntry {
