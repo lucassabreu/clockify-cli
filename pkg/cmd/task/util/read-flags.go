@@ -1,7 +1,6 @@
 package util
 
 import (
-	"errors"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
@@ -40,9 +39,11 @@ type FlagsDTO struct {
 
 // TaskReadFlags read the common flags expected when editing a task
 func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error) {
-	if cmd.Flags().Changed("assignee") && cmd.Flags().Changed("no-assignee") {
-		return p, errors.New(
-			"`--assignee` and `--no-assignee` can't be used together")
+	if err := cmdutil.XorFlag(map[string]bool{
+		"assignee":    cmd.Flags().Changed("assignee"),
+		"no-assignee": cmd.Flags().Changed("no-assignee"),
+	}); err != nil {
+		return p, err
 	}
 
 	if err := cmdutil.XorFlag(map[string]bool{

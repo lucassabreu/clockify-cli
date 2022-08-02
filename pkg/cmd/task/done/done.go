@@ -2,6 +2,7 @@ package done
 
 import (
 	"errors"
+	"io"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
@@ -18,7 +19,10 @@ import (
 )
 
 // NewCmdDone represents the close command
-func NewCmdDone(f cmdutil.Factory) *cobra.Command {
+func NewCmdDone(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, []dto.Task),
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "done <task>...",

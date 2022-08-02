@@ -2,6 +2,7 @@ package util
 
 import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/output/task"
 	"github.com/spf13/cobra"
 )
@@ -12,6 +13,16 @@ type OutputFlags struct {
 	JSON   bool
 	CSV    bool
 	Quiet  bool
+}
+
+// Check guaranties that only one type of output is chosen
+func (of OutputFlags) Check() error {
+	return cmdutil.XorFlag(map[string]bool{
+		"format": of.Format != "",
+		"json":   of.JSON,
+		"csv":    of.CSV,
+		"quiet":  of.Quiet,
+	})
 }
 
 // TaskAddReportFlags will add common format flags used for tasks
