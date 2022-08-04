@@ -78,15 +78,17 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 	}
 
 	if cmd.Flags().Changed("assignee") {
-		c, err := f.Client()
-		if err != nil {
-			return p, err
-		}
-
 		assignees, _ := cmd.Flags().GetStringSlice("assignee")
-		if assignees, err = search.GetUsersByName(
-			c, p.Workspace, assignees); err != nil {
-			return p, err
+		if f.Config().IsAllowNameForID() {
+			c, err := f.Client()
+			if err != nil {
+				return p, err
+			}
+
+			if assignees, err = search.GetUsersByName(
+				c, p.Workspace, assignees); err != nil {
+				return p, err
+			}
 		}
 
 		p.AssigneeIDs = &assignees

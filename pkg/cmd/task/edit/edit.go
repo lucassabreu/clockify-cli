@@ -19,7 +19,7 @@ import (
 // NewCmdEdit represents the close command
 func NewCmdEdit(
 	f cmdutil.Factory,
-	report func(io.Writer, *util.OutputFlags, dto.Task),
+	report func(io.Writer, *util.OutputFlags, dto.Task) error,
 ) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
@@ -68,6 +68,10 @@ func NewCmdEdit(
 			task := strings.TrimSpace(args[0])
 			if task == "" {
 				return errors.New("task id should not be empty")
+			}
+
+			if err := of.Check(); err != nil {
+				return err
 			}
 
 			fl, err := util.TaskReadFlags(cmd, f)
@@ -127,7 +131,11 @@ func NewCmdEdit(
 				return err
 			}
 
-			return util.TaskReport(cmd, of, t)
+			if report == nil {
+				return util.TaskReport(cmd, of, t)
+			}
+
+			return report(cmd.OutOrStdout(), &of, t)
 		},
 	}
 
