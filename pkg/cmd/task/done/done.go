@@ -21,7 +21,7 @@ import (
 // NewCmdDone represents the close command
 func NewCmdDone(
 	f cmdutil.Factory,
-	report func(io.Writer, *util.OutputFlags, []dto.Task),
+	report func(io.Writer, *util.OutputFlags, []dto.Task) error,
 ) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
@@ -61,7 +61,12 @@ func NewCmdDone(
 			No active task with id or name containing 'five' was found
 		`, "clockify-cli task -p cli"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			project, _ := cmd.Flags().GetString("project")
+			project = strings.TrimSpace(project)
 			if project == "" {
 				return errors.New("project should not be empty")
 			}
@@ -136,7 +141,11 @@ func NewCmdDone(
 				return err
 			}
 
-			return util.TaskReport(cmd, of, tasks...)
+			if report == nil {
+				return util.TaskReport(cmd, of, tasks...)
+			}
+
+			return report(cmd.OutOrStdout(), &of, tasks)
 		},
 	}
 
