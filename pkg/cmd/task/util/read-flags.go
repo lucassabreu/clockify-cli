@@ -28,6 +28,7 @@ func TaskAddPropFlags(cmd *cobra.Command, f cmdutil.Factory) {
 	cmdutil.AddProjectFlags(cmd, f)
 }
 
+// FlagsDTO holds data about editing or creating a Task
 type FlagsDTO struct {
 	Workspace   string
 	ProjectID   string
@@ -58,17 +59,6 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 	}
 
 	p.ProjectID, _ = cmd.Flags().GetString("project")
-	if f.Config().IsAllowNameForID() {
-		c, err := f.Client()
-		if err != nil {
-			return p, err
-		}
-
-		if p.ProjectID, err = search.GetProjectByName(
-			c, p.Workspace, p.ProjectID); err != nil {
-			return p, err
-		}
-	}
 	p.Name, _ = cmd.Flags().GetString("name")
 
 	if cmd.Flags().Changed("estimate") {
@@ -79,19 +69,28 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 
 	if cmd.Flags().Changed("assignee") {
 		assignees, _ := cmd.Flags().GetStringSlice("assignee")
-		if f.Config().IsAllowNameForID() {
-			c, err := f.Client()
-			if err != nil {
-				return p, err
-			}
+		p.AssigneeIDs = &assignees
+	}
 
-			if assignees, err = search.GetUsersByName(
-				c, p.Workspace, assignees); err != nil {
-				return p, err
-			}
+	if f.Config().IsAllowNameForID() {
+		c, err := f.Client()
+		if err != nil {
+			return p, err
 		}
 
-		p.AssigneeIDs = &assignees
+		if p.ProjectID, err = search.GetProjectByName(
+			c, p.Workspace, p.ProjectID); err != nil {
+			return p, err
+		}
+
+		if p.AssigneeIDs != nil {
+			as := *p.AssigneeIDs
+			if as, err = search.GetUsersByName(
+				c, p.Workspace, as); err != nil {
+				return p, err
+			}
+			p.AssigneeIDs = &as
+		}
 	}
 
 	if cmd.Flags().Changed("no-assignee") {
