@@ -15,7 +15,7 @@ import (
 // NewCmdList represents the list command
 func NewCmdList(
 	f cmdutil.Factory,
-	report func(io.Writer, *util.OutputFlags, []dto.Task),
+	report func(io.Writer, *util.OutputFlags, []dto.Task) error,
 ) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
@@ -73,7 +73,11 @@ func NewCmdList(
 				return err
 			}
 
-			return util.TaskReport(cmd, of, tasks...)
+			if report == nil {
+				return util.TaskReport(cmd, of, tasks...)
+			}
+
+			return report(cmd.OutOrStdout(), &of, tasks)
 		},
 	}
 
