@@ -2,10 +2,12 @@ package edit
 
 import (
 	"errors"
+	"io"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
@@ -15,7 +17,10 @@ import (
 )
 
 // NewCmdEdit represents the close command
-func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
+func NewCmdEdit(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.Task) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "edit <task>",
@@ -63,6 +68,10 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 			task := strings.TrimSpace(args[0])
 			if task == "" {
 				return errors.New("task id should not be empty")
+			}
+
+			if err := of.Check(); err != nil {
+				return err
 			}
 
 			fl, err := util.TaskReadFlags(cmd, f)
@@ -122,7 +131,11 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, of, t)
+			if report == nil {
+				return util.TaskReport(cmd, of, t)
+			}
+
+			return report(cmd.OutOrStdout(), &of, t)
 		},
 	}
 

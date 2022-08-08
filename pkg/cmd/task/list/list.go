@@ -1,8 +1,11 @@
 package list
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/search"
@@ -10,7 +13,10 @@ import (
 )
 
 // NewCmdList represents the list command
-func NewCmdList(f cmdutil.Factory) *cobra.Command {
+func NewCmdList(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, []dto.Task) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:   "list",
@@ -67,7 +73,11 @@ func NewCmdList(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, of, tasks...)
+			if report == nil {
+				return util.TaskReport(cmd, of, tasks...)
+			}
+
+			return report(cmd.OutOrStdout(), &of, tasks)
 		},
 	}
 

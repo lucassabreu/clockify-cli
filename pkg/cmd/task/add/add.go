@@ -1,15 +1,21 @@
 package add
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/spf13/cobra"
 )
 
 // NewCmdAdd represents the add command
-func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
+func NewCmdAdd(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.Task) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:   "add",
@@ -47,6 +53,10 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 			+--------------------------+-----------------+--------+
 		`, "clockify-cli task add"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := of.Check(); err != nil {
+				return err
+			}
+
 			fl, err := util.TaskReadFlags(cmd, f)
 			if err != nil {
 				return err
@@ -67,6 +77,10 @@ func NewCmdAdd(f cmdutil.Factory) *cobra.Command {
 			})
 			if err != nil {
 				return err
+			}
+
+			if report != nil {
+				return report(cmd.OutOrStdout(), &of, task)
 			}
 
 			return util.TaskReport(cmd, of, task)

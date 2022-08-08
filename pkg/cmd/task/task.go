@@ -18,11 +18,11 @@ func NewCmdTask(f cmdutil.Factory) *cobra.Command {
 		Short:   "Work with Clockify tasks",
 	}
 
-	cmd.AddCommand(list.NewCmdList(f))
-	cmd.AddCommand(add.NewCmdAdd(f))
-	cmd.AddCommand(edit.NewCmdEdit(f))
-	cmd.AddCommand(del.NewCmdDelete(f))
-	cmd.AddCommand(done.NewCmdDone(f))
+	cmd.AddCommand(list.NewCmdList(f, nil))
+	cmd.AddCommand(add.NewCmdAdd(f, nil))
+	cmd.AddCommand(edit.NewCmdEdit(f, nil))
+	cmd.AddCommand(del.NewCmdDelete(f, nil))
+	cmd.AddCommand(done.NewCmdDone(f, nil))
 
 	return cmd
 }

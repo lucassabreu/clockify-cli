@@ -1,7 +1,6 @@
 package util
 
 import (
-	"errors"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
@@ -29,6 +28,7 @@ func TaskAddPropFlags(cmd *cobra.Command, f cmdutil.Factory) {
 	cmdutil.AddProjectFlags(cmd, f)
 }
 
+// FlagsDTO holds data about editing or creating a Task
 type FlagsDTO struct {
 	Workspace   string
 	ProjectID   string
@@ -40,9 +40,11 @@ type FlagsDTO struct {
 
 // TaskReadFlags read the common flags expected when editing a task
 func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error) {
-	if cmd.Flags().Changed("assignee") && cmd.Flags().Changed("no-assignee") {
-		return p, errors.New(
-			"`--assignee` and `--no-assignee` can't be used together")
+	if err := cmdutil.XorFlag(map[string]bool{
+		"assignee":    cmd.Flags().Changed("assignee"),
+		"no-assignee": cmd.Flags().Changed("no-assignee"),
+	}); err != nil {
+		return p, err
 	}
 
 	if err := cmdutil.XorFlag(map[string]bool{
@@ -57,6 +59,19 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 	}
 
 	p.ProjectID, _ = cmd.Flags().GetString("project")
+	p.Name, _ = cmd.Flags().GetString("name")
+
+	if cmd.Flags().Changed("estimate") {
+		e, _ := cmd.Flags().GetInt32("estimate")
+		d := time.Duration(e) * time.Hour
+		p.Estimate = &d
+	}
+
+	if cmd.Flags().Changed("assignee") {
+		assignees, _ := cmd.Flags().GetStringSlice("assignee")
+		p.AssigneeIDs = &assignees
+	}
+
 	if f.Config().IsAllowNameForID() {
 		c, err := f.Client()
 		if err != nil {
@@ -67,28 +82,15 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 			c, p.Workspace, p.ProjectID); err != nil {
 			return p, err
 		}
-	}
-	p.Name, _ = cmd.Flags().GetString("name")
 
-	if cmd.Flags().Changed("estimate") {
-		e, _ := cmd.Flags().GetInt32("estimate")
-		d := time.Duration(e) * time.Hour
-		p.Estimate = &d
-	}
-
-	if cmd.Flags().Changed("assignee") {
-		c, err := f.Client()
-		if err != nil {
-			return p, err
+		if p.AssigneeIDs != nil {
+			as := *p.AssigneeIDs
+			if as, err = search.GetUsersByName(
+				c, p.Workspace, as); err != nil {
+				return p, err
+			}
+			p.AssigneeIDs = &as
 		}
-
-		assignees, _ := cmd.Flags().GetStringSlice("assignee")
-		if assignees, err = search.GetUsersByName(
-			c, p.Workspace, assignees); err != nil {
-			return p, err
-		}
-
-		p.AssigneeIDs = &assignees
 	}
 
 	if cmd.Flags().Changed("no-assignee") {

@@ -2,10 +2,12 @@ package del
 
 import (
 	"errors"
+	"io"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/task/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
@@ -15,7 +17,10 @@ import (
 )
 
 // NewCmdDelete represents the close command
-func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
+func NewCmdDelete(
+	f cmdutil.Factory,
+	report func(io.Writer, *util.OutputFlags, dto.Task) error,
+) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:     "delete <task>",
@@ -87,7 +92,11 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.TaskReport(cmd, of, t)
+			if report == nil {
+				return util.TaskReport(cmd, of, t)
+			}
+
+			return report(cmd.OutOrStdout(), &of, t)
 		},
 	}
 
