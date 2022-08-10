@@ -48,3 +48,31 @@ func GetClientsByName(
 
 	return clients, g.Wait()
 }
+
+// GetClientByName will look for a client that the id or name Contains the
+// string on client parameter
+func GetClientByName(
+	c api.Client,
+	workspace string,
+	client string,
+) (string, error) {
+	return findByName(
+		client,
+		"client", func() ([]named, error) {
+
+			cs, err := c.GetClients(api.GetClientsParam{
+				Workspace:       workspace,
+				PaginationParam: api.AllPages(),
+			})
+			if err != nil {
+				return []named{}, err
+			}
+
+			ns := make([]named, len(cs))
+			for i := 0; i < len(ns); i++ {
+				ns[i] = cs[i]
+			}
+			return ns, nil
+		},
+	)
+}
