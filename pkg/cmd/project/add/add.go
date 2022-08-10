@@ -35,7 +35,7 @@ func NewCmdAdd(
 			| 62a8b52d67f40258719037f2 | New One |        |
 			+--------------------------+---------+--------+
 
-			$ %[1]s --name=Other
+			$ %[1]s --name=Other -q
 			62a8b59067f40258719038fc
 
 			$ %[1]s --name "Other" --client="Uber" --csv --color=#fff

@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - test coverage for `task` commands
+- new method `UpdateProject` on `api.Client` to update a project
+- new command `project edit` to allow batch editing multiple projects
+
+### Fixed
+
+- using `\t` and `\n` on format output will behaviour as expected
 
 ## [v0.39.0] - 2022-07-31
 

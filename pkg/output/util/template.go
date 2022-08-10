@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"text/template"
 	"time"
 
@@ -46,8 +47,13 @@ var funcMap = template.FuncMap{
 		return w.String()
 	},
 	"pad": strhlp.PadSpace,
+	"ident": func(s, prefix string) string {
+		return prefix + strings.ReplaceAll(s, "\n", "\n"+prefix)
+	},
 }
 
 func NewTemplate(format string) (*template.Template, error) {
+	format = strings.ReplaceAll(format, "\\n", "\n")
+	format = strings.ReplaceAll(format, "\\t", "\t")
 	return template.New("tmpl").Funcs(funcMap).Parse(format + "\n")
 }

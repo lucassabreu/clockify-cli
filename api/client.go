@@ -35,6 +35,7 @@ type Client interface {
 	GetClients(GetClientsParam) ([]dto.Client, error)
 
 	AddProject(AddProjectParam) (dto.Project, error)
+	UpdateProject(UpdateProjectParam) (dto.Project, error)
 	GetProject(GetProjectParam) (*dto.Project, error)
 	GetProjects(GetProjectsParam) ([]dto.Project, error)
 
@@ -75,18 +76,28 @@ const baseURL = "https://api.clockify.me/api"
 // ErrorMissingAPIKey returned if X-Api-Key is missing
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
 
-// NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
-func NewClient(apiKey string) (Client, error) {
+// ErrorMissingAPIURL returned if base url is missing
+var ErrorMissingAPIURL = errors.New("api URL must be informed")
+
+func NewClientFromUrlAndKey(
+	apiKey,
+	urlString string,
+) (Client, error) {
+
 	if apiKey == "" {
 		return nil, errors.WithStack(ErrorMissingAPIKey)
 	}
 
-	u, err := url.Parse(baseURL)
+	if urlString == "" {
+		return nil, errors.WithStack(ErrorMissingAPIURL)
+	}
+
+	u, err := url.Parse(urlString)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	c := &client{
+	return &client{
 		baseURL: u,
 		Client: http.Client{
 			Transport: transport{
@@ -94,9 +105,15 @@ func NewClient(apiKey string) (Client, error) {
 				next:   http.DefaultTransport,
 			},
 		},
-	}
+	}, nil
+}
 
-	return c, nil
+// NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
+func NewClient(apiKey string) (Client, error) {
+	return NewClientFromUrlAndKey(
+		apiKey,
+		baseURL,
+	)
 }
 
 // GetWorkspaces will be used to filter the workspaces
@@ -1295,6 +1312,26 @@ type AddProjectParam struct {
 	Public    bool
 }
 
+func parseColor(c string) (string, error) {
+	if !strings.HasPrefix(c, "#") {
+		c = "#" + c
+	}
+
+	if len(c) != 4 && len(c) != 7 {
+		return c, errors.New("color must have 3 (#000) or 6 (#ffffff) numbers")
+	}
+
+	if len(c) == 4 {
+		c = string([]byte{'#', c[1], c[1], c[2], c[2], c[3], c[3]})
+	}
+
+	if _, err := hex.DecodeString(c[1:]); err != nil {
+		return c, errors.Wrap(err, "color \""+c+"\" is not a hex string")
+	}
+
+	return c, nil
+}
+
 // AddProject adds a new project to a workspace
 func (c *client) AddProject(p AddProjectParam) (
 	project dto.Project, err error) {
@@ -1314,20 +1351,10 @@ func (c *client) AddProject(p AddProjectParam) (
 	}
 
 	if p.Color != "" {
-		c := p.Color
-
-		if !strings.HasPrefix(c, "#") {
-			c = "#" + c
-		}
-
-		if len(c) == 4 {
-			c = string([]byte{'#', c[1], c[1], c[2], c[2], c[3], c[3]})
-		}
-		if _, err = hex.DecodeString(c[1:]); err != nil {
-			err = errors.Wrap(err, "color \""+p.Color+"\" is not a hex string")
+		p.Color, err = parseColor(p.Color)
+		if err != nil {
 			return
 		}
-		p.Color = c
 	}
 
 	req, err := c.NewRequest(
@@ -1352,6 +1379,77 @@ func (c *client) AddProject(p AddProjectParam) (
 	}
 
 	_, err = c.Do(req, &project, "AddProject")
+	return project, err
+}
+
+// UpdateProjectParam sets the properties to change on a project
+// Workspace and ID are required
+type UpdateProjectParam struct {
+	Workspace string
+	ID        string
+	Name      string
+	ClientId  *string
+	Color     string
+	Note      *string
+	Billable  *bool
+	Public    *bool
+	Archived  *bool
+}
+
+// UpdateProject will change properties of a Project, leave the property as nil
+// or "empty" to not change it
+func (c *client) UpdateProject(p UpdateProjectParam) (
+	project dto.Project, err error) {
+	defer wrapError(&err, "update project")
+
+	if err = required(map[field]string{
+		projectField:   p.ID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return project, err
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return project, err
+	}
+
+	if p.Color != "" {
+		p.Color, err = parseColor(p.Color)
+		if err != nil {
+			return
+		}
+	}
+
+	var name, color *string
+	if p.Name != "" {
+		name = &p.Name
+	}
+	if p.Color != "" {
+		color = &p.Color
+	}
+
+	req, err := c.NewRequest(
+		"PUT",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ID,
+		dto.UpdateProjectRequest{
+			Name:     name,
+			ClientId: p.ClientId,
+			IsPublic: p.Public,
+			Color:    color,
+			Note:     p.Note,
+			Billable: p.Billable,
+			Archived: p.Archived,
+		},
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(req, &project, "UpdateProject")
 	return project, err
 }
 

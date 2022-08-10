@@ -321,6 +321,7 @@ func (r GetProjectRequest) AppendToQuery(u *url.URL) *url.URL {
 	return u
 }
 
+// AddProjectRequest represents the parameters to create a project
 type AddProjectRequest struct {
 	Name     string `json:"name"`
 	ClientId string `json:"clientId,omitempty"`
@@ -329,6 +330,17 @@ type AddProjectRequest struct {
 	Note     string `json:"note,omitempty"`
 	Billable bool   `json:"billable"`
 	Public   bool   `json:"public"`
+}
+
+// UpdateProjectRequest represents the parameters to update a project
+type UpdateProjectRequest struct {
+	Name     *string `json:"name,omitempty"`
+	ClientId *string `json:"clientId,omitempty"`
+	IsPublic *bool   `json:"isPublic,omitempty"`
+	Color    *string `json:"color,omitempty"`
+	Note     *string `json:"note,omitempty"`
+	Billable *bool   `json:"billable,omitempty"`
+	Archived *bool   `json:"archived,omitempty"`
 }
 
 type GetTagsRequest struct {
