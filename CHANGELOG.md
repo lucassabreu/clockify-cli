@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.40.0] - 2022-08-09
+
 ### Added
 
 - test coverage for `task` commands
@@ -1015,7 +1017,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.39.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.40.0...HEAD
+[v0.40.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.40.0
 [v0.39.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.39.0
 [v0.38.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.4
 [v0.38.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.38.3
