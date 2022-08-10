@@ -622,6 +622,27 @@ func (_m *MockClient) SetInfoLogger(logger api.Logger) api.Client {
 	return r0
 }
 
+// UpdateProject provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProject(_a0 api.UpdateProjectParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateTask provides a mock function with given fields: _a0
 func (_m *MockClient) UpdateTask(_a0 api.UpdateTaskParam) (dto.Task, error) {
 	ret := _m.Called(_a0)
