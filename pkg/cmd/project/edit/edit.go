@@ -23,7 +23,7 @@ func NewCmdEdit(
 ) *cobra.Command {
 	of := util.OutputFlags{}
 	cmd := &cobra.Command{
-		Use:     "edit <project>",
+		Use:     "edit <project>...",
 		Aliases: []string{"update"},
 		Short:   "Edit a project",
 		Example: heredoc.Docf(`
