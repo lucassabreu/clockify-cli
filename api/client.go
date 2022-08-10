@@ -110,26 +110,10 @@ func NewClientFromUrlAndKey(
 
 // NewClient create a new Client, based on: https://clockify.github.io/clockify_api_docs/
 func NewClient(apiKey string) (Client, error) {
-	if apiKey == "" {
-		return nil, errors.WithStack(ErrorMissingAPIKey)
-	}
-
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	c := &client{
-		baseURL: u,
-		Client: http.Client{
-			Transport: transport{
-				apiKey: apiKey,
-				next:   http.DefaultTransport,
-			},
-		},
-	}
-
-	return c, nil
+	return NewClientFromUrlAndKey(
+		apiKey,
+		baseURL,
+	)
 }
 
 // GetWorkspaces will be used to filter the workspaces
