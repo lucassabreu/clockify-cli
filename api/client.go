@@ -352,6 +352,7 @@ type LogRangeParam struct {
 	LastDate    time.Time
 	Description string
 	ProjectID   string
+	TagIDs      []string
 	PaginationParam
 }
 
@@ -366,6 +367,7 @@ func (c *client) LogRange(p LogRangeParam) ([]dto.TimeEntry, error) {
 		End:             &p.LastDate,
 		Description:     p.Description,
 		ProjectID:       p.ProjectID,
+		TagIDs:          p.TagIDs,
 		PaginationParam: p.PaginationParam,
 	})
 }
@@ -378,6 +380,7 @@ type GetUserTimeEntriesParam struct {
 	End            *time.Time
 	Description    string
 	ProjectID      string
+	TagIDs         []string
 
 	PaginationParam
 }
@@ -476,6 +479,7 @@ func (c *client) getUserTimeEntriesImpl(
 		Hydrated:       &hydrated,
 		Description:    p.Description,
 		Project:        p.ProjectID,
+		TagIDs:         p.TagIDs,
 	}
 
 	if p.Start != nil {

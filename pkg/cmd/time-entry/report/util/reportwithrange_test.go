@@ -334,6 +334,54 @@ func TestReportWithRange(t *testing.T) {
 				time-entry-2
 			`),
 		},
+		{
+			name: "not billable & tag cli only",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				cf := mocks.NewMockConfig(t)
+				f.On("Config").Return(cf)
+				cf.On("IsAllowNameForID").Return(true)
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				tag := dto.Tag{ID: "t1", Name: "Client"}
+				c.On("GetTags", api.GetTagsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.Tag{tag}, nil)
+
+				c.On("LogRange", api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					FirstDate:       first,
+					LastDate:        last,
+					TagIDs:          []string{tag.ID},
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "te-1", Tags: []dto.Tag{tag}, Billable: true},
+					{ID: "te-2", Tags: []dto.Tag{tag}, Billable: false},
+					{ID: "te-3", Tags: []dto.Tag{tag}, Billable: true},
+					{ID: "te-4", Tags: []dto.Tag{tag}, Billable: false},
+				}, nil)
+
+				return f
+			},
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.NotBillable = true
+				rf.Quiet = true
+				rf.TagIDs = []string{"cli"}
+				return rf
+			},
+			expected: heredoc.Doc(`
+				te-2
+				te-4
+			`),
+		},
 	}
 
 	for _, tt := range tts {

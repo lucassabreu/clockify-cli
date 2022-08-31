@@ -69,6 +69,7 @@ func TestCmdToday(t *testing.T) {
 					UserID:          "user-id",
 					FirstDate:       first,
 					LastDate:        last,
+					TagIDs:          []string{},
 					PaginationParam: api.AllPages(),
 				}).
 					Return(
@@ -94,6 +95,7 @@ func TestCmdToday(t *testing.T) {
 					UserID:          "user-id",
 					FirstDate:       first,
 					LastDate:        last,
+					TagIDs:          []string{},
 					PaginationParam: api.AllPages(),
 				}).
 					Return(
@@ -138,6 +140,7 @@ func TestCmdToday(t *testing.T) {
 					FirstDate:       first,
 					LastDate:        last,
 					ProjectID:       "project-id",
+					TagIDs:          []string{},
 					PaginationParam: api.AllPages(),
 				}).
 					Return(
@@ -168,6 +171,7 @@ func TestCmdToday(t *testing.T) {
 					FirstDate:       first,
 					LastDate:        last,
 					Description:     "desc",
+					TagIDs:          []string{},
 					PaginationParam: api.AllPages(),
 				}).
 					Return(
