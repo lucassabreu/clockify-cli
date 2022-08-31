@@ -61,7 +61,8 @@ func GetPropsInteractiveFn(
 	}
 
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		return askTimeEntryPropsInteractive(c, tei, dc)
+		return askTimeEntryPropsInteractive(c, tei, dc,
+			config.GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS))
 	}
 }
 
@@ -69,6 +70,7 @@ func askTimeEntryPropsInteractive(
 	c api.Client,
 	te dto.TimeEntryImpl,
 	dc DescriptionSuggestFn,
+	allowArchived bool,
 ) (dto.TimeEntryImpl, error) {
 	var err error
 	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
@@ -90,7 +92,7 @@ func askTimeEntryPropsInteractive(
 
 	te.Description = getDescription(te.Description, dc)
 
-	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
+	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c, allowArchived)
 
 	return te, err
 }
@@ -114,13 +116,13 @@ func getProjectID(
 	found := -1
 	projectNameSize := 0
 
-	for i, u := range projects {
-		projectsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	for i := range projects {
+		projectsString[i] = projects[i].ID + " - " + projects[i].Name
 		if c := utf8.RuneCountInString(projectsString[i]); projectNameSize < c {
 			projectNameSize = c
 		}
 
-		if found == -1 && u.ID == projectID {
+		if found == -1 && projects[i].ID == projectID {
 			projectID = projectsString[i]
 			found = i
 		}
@@ -128,10 +130,11 @@ func getProjectID(
 
 	format := fmt.Sprintf("%%-%ds| %%s", projectNameSize+1)
 
-	for i, u := range projects {
+	for i := range projects {
 		client := "Without Client"
-		if u.ClientID != "" {
-			client = fmt.Sprintf("Client: %s (%s)", u.ClientName, u.ClientID)
+		if projects[i].ClientID != "" {
+			client = "Client: " + projects[i].ClientName +
+				" (" + projects[i].ClientID + ")"
 		}
 
 		projectsString[i] = fmt.Sprintf(
@@ -194,10 +197,10 @@ func getTaskID(
 	tasksString := make([]string, len(tasks))
 	found := -1
 
-	for i, u := range tasks {
-		tasksString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
+	for i := range tasks {
+		tasksString[i] = tasks[i].ID + " - " + tasks[i].Name
 
-		if found == -1 && u.ID == taskID {
+		if found == -1 && tasks[i].ID == taskID {
 			taskID = tasksString[i]
 			found = i
 		}
@@ -232,9 +235,16 @@ func getDescription(description string, dc DescriptionSuggestFn) string {
 }
 
 func getTagIDs(
-	tagIDs []string, workspace string, c api.Client) ([]string, error) {
+	tagIDs []string, workspace string, c api.Client, allowArchived bool,
+) ([]string, error) {
+	var archived *bool
+	if !allowArchived {
+		f := false
+		archived = &f
+	}
 	tags, err := c.GetTags(api.GetTagsParam{
 		Workspace: workspace,
+		Archived:  archived,
 	})
 
 	if err != nil {

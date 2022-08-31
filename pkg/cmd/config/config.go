@@ -33,6 +33,7 @@ var validParameters = cmdcompl.ValidArgsMap{
 		"reports with the sum of the time entries duration",
 	cmdutil.CONF_LOG_LEVEL: "how much logs should be shown values: " +
 		"none , error , info and debug",
+	cmdutil.CONF_ALLOW_ARCHIVED_TAGS: "should allow and suggest archived tags",
 }
 
 // NewCmdConfig represents the config command
