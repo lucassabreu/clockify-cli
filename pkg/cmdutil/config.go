@@ -23,6 +23,7 @@ const (
 	CONF_DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
 	CONF_SHOW_TOTAL_DURATION = "show-total-duration"
 	CONF_LOG_LEVEL           = "log-level"
+	CONF_ALLOW_ARCHIVED_TAGS = "allow-archived-tags"
 )
 
 const (

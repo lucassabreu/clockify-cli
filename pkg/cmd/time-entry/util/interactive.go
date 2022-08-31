@@ -61,7 +61,8 @@ func GetPropsInteractiveFn(
 	}
 
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		return askTimeEntryPropsInteractive(c, tei, dc)
+		return askTimeEntryPropsInteractive(c, tei, dc,
+			config.GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS))
 	}
 }
 
@@ -69,6 +70,7 @@ func askTimeEntryPropsInteractive(
 	c api.Client,
 	te dto.TimeEntryImpl,
 	dc DescriptionSuggestFn,
+	allowArchived bool,
 ) (dto.TimeEntryImpl, error) {
 	var err error
 	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
@@ -90,7 +92,7 @@ func askTimeEntryPropsInteractive(
 
 	te.Description = getDescription(te.Description, dc)
 
-	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c)
+	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c, allowArchived)
 
 	return te, err
 }
@@ -232,9 +234,16 @@ func getDescription(description string, dc DescriptionSuggestFn) string {
 }
 
 func getTagIDs(
-	tagIDs []string, workspace string, c api.Client) ([]string, error) {
+	tagIDs []string, workspace string, c api.Client, allowArchived bool,
+) ([]string, error) {
+	var archived *bool
+	if !allowArchived {
+		f := false
+		archived = &f
+	}
 	tags, err := c.GetTags(api.GetTagsParam{
 		Workspace: workspace,
+		Archived:  archived,
 	})
 
 	if err != nil {

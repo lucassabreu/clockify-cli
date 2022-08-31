@@ -166,6 +166,14 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 
 	config.SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, daysToConsider)
 
+	if err := updateFlag(
+		config,
+		cmdutil.CONF_ALLOW_ARCHIVED_TAGS,
+		`Should suggest and allow creating time entries with archived tags?`,
+	); err != nil {
+		return err
+	}
+
 	return config.Save()
 }
 

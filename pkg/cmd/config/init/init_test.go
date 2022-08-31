@@ -58,8 +58,8 @@ func TestInitCmd(t *testing.T) {
 
 			client.On("GetWorkspaces", api.GetWorkspaces{}).
 				Return([]dto.Workspace{
-					dto.Workspace{ID: "1", Name: "First"},
-					dto.Workspace{ID: "2", Name: "Second"},
+					{ID: "1", Name: "First"},
+					{ID: "2", Name: "Second"},
 				}, nil)
 
 			call := setStringFn(config, cmdutil.CONF_WORKSPACE, "2")
@@ -70,8 +70,8 @@ func TestInitCmd(t *testing.T) {
 			}).
 				NotBefore(call).
 				Return([]dto.User{
-					dto.User{ID: "user-1", Name: "John Due"},
-					dto.User{ID: "user-2", Name: "Joana D'ark"},
+					{ID: "user-1", Name: "John Due"},
+					{ID: "user-2", Name: "Joana D'ark"},
 				}, nil)
 
 			setStringFn(config, cmdutil.CONF_USER_ID, "user-1")
@@ -96,6 +96,8 @@ func TestInitCmd(t *testing.T) {
 
 			config.On("GetInt", cmdutil.CONF_DESCR_AUTOCOMP_DAYS).Return(0)
 			config.On("SetInt", cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
+
+			setBoolFn(config, cmdutil.CONF_ALLOW_ARCHIVED_TAGS, true, false)
 
 			config.On("Save").Once().Return(nil)
 
@@ -171,6 +173,10 @@ func TestInitCmd(t *testing.T) {
 
 			c.ExpectString("How many days")
 			c.SendLine("10")
+
+			c.ExpectString("archived tags?")
+			c.SendLine("n")
+			c.ExpectString("No")
 
 			c.ExpectEOF()
 		})
