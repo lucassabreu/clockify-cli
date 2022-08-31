@@ -32,6 +32,7 @@ type ReportFlags struct {
 
 	Description string
 	Project     string
+	TagIDs      []string
 }
 
 // Check will assure that there is no conflicting flag values
@@ -68,6 +69,10 @@ func AddReportFlags(
 		"Will filter time entries using this project")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))
+	cmd.Flags().StringSliceVarP(&rf.TagIDs, "tag", "T", []string{},
+		"Will filter time entries using these tags")
+	_ = cmdcompl.AddSuggestionsToFlag(cmd, "tag",
+		cmdcomplutil.NewTagAutoComplete(f))
 
 	cmd.Flags().BoolVar(&rf.Billable, "billable", false,
 		"Will filter time entries that are billable")
@@ -102,6 +107,13 @@ func ReportWithRange(
 		}
 	}
 
+	if len(rf.TagIDs) > 0 && f.Config().IsAllowNameForID() {
+		if rf.TagIDs, err = search.GetTagsByName(
+			c, workspace, rf.TagIDs); err != nil {
+			return err
+		}
+	}
+
 	start = timehlp.TruncateDate(start)
 	end = timehlp.TruncateDate(end).Add(time.Hour * 24)
 	log, err := c.LogRange(api.LogRangeParam{
@@ -111,6 +123,7 @@ func ReportWithRange(
 		LastDate:        end,
 		Description:     rf.Description,
 		ProjectID:       rf.Project,
+		TagIDs:          rf.TagIDs,
 		PaginationParam: api.AllPages(),
 	})
 
@@ -134,12 +147,12 @@ func ReportWithRange(
 		newLog = append(newLog,
 			fillMissing(start, log[0].TimeInterval.Start)...)
 		nextDay := start
-		for _, t := range log {
+		for i := range log {
 			newLog = append(newLog,
-				fillMissing(nextDay, t.TimeInterval.Start)...)
-			newLog = append(newLog, t)
-			nextDay = t.TimeInterval.Start.Add(
-				time.Duration(24-t.TimeInterval.Start.Hour()) * time.Hour)
+				fillMissing(nextDay, log[i].TimeInterval.Start)...)
+			newLog = append(newLog, log[i])
+			nextDay = log[i].TimeInterval.Start.Add(
+				time.Duration(24-log[i].TimeInterval.Start.Hour()) * time.Hour)
 		}
 		log = append(newLog, fillMissing(nextDay, end)...)
 	}
