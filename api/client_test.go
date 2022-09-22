@@ -40,13 +40,13 @@ func TestUpdateProject(t *testing.T) {
 		},
 		{
 			name:  "workspace is required",
-			param: api.UpdateProjectParam{ID: "p-1"},
+			param: api.UpdateProjectParam{ProjectID: "p-1"},
 			err:   "update project: workspace is required",
 		},
 		{
 			name: "project should be a ID",
 			param: api.UpdateProjectParam{
-				ID:        "p-1",
+				ProjectID: "p-1",
 				Workspace: exampleID,
 			},
 			err: "update project: project id (.*) is not valid",
@@ -54,7 +54,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "workspace should be a ID",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: "w",
 			},
 			err: "update project: workspace (.*) is not valid",
@@ -62,7 +62,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "color is not hex",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 				Color:     "#zzz",
 			},
@@ -71,7 +71,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "color must have 3 or 6 numbers (4)",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 				Color:     "#0000",
 			},
@@ -80,7 +80,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "color must have 3 or 6 numbers (2)",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 				Color:     "#00",
 			},
@@ -89,7 +89,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "empty update",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 			},
 
@@ -103,7 +103,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "full update",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 				Name:      "a new name",
 				Public:    &bt,
@@ -132,7 +132,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "expand color and remove client",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 				ClientId:  &empty,
 				Color:     "#0f0",
@@ -151,7 +151,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "report 404",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 			},
 			err: "update project: Nothing was found .*404",
@@ -166,7 +166,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "report 403",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 			},
 			err: "update project: Forbidden.*403",
@@ -181,7 +181,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "report no response",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 			},
 			err: "update project: No response",
@@ -197,7 +197,7 @@ func TestUpdateProject(t *testing.T) {
 		{
 			name: "report error",
 			param: api.UpdateProjectParam{
-				ID:        exampleID,
+				ProjectID: exampleID,
 				Workspace: exampleID,
 			},
 			err: "update project: custom error.*code: 42",

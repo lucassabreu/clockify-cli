@@ -35,6 +35,7 @@ type Client interface {
 	GetClients(GetClientsParam) ([]dto.Client, error)
 
 	AddProject(AddProjectParam) (dto.Project, error)
+	// UpdateProject changes basic information about the project
 	UpdateProject(UpdateProjectParam) (dto.Project, error)
 	GetProject(GetProjectParam) (*dto.Project, error)
 	GetProjects(GetProjectsParam) ([]dto.Project, error)
@@ -1390,7 +1391,7 @@ func (c *client) AddProject(p AddProjectParam) (
 // Workspace and ID are required
 type UpdateProjectParam struct {
 	Workspace string
-	ID        string
+	ProjectID string
 	Name      string
 	ClientId  *string
 	Color     string
@@ -1407,14 +1408,14 @@ func (c *client) UpdateProject(p UpdateProjectParam) (
 	defer wrapError(&err, "update project")
 
 	if err = required(map[field]string{
-		projectField:   p.ID,
+		projectField:   p.ProjectID,
 		workspaceField: p.Workspace,
 	}); err != nil {
 		return project, err
 	}
 
 	if err = checkIDs(map[field]string{
-		projectField:   p.ID,
+		projectField:   p.ProjectID,
 		workspaceField: p.Workspace,
 	}); err != nil {
 		return project, err
@@ -1437,7 +1438,7 @@ func (c *client) UpdateProject(p UpdateProjectParam) (
 
 	req, err := c.NewRequest(
 		"PUT",
-		"v1/workspaces/"+p.Workspace+"/projects/"+p.ID,
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID,
 		dto.UpdateProjectRequest{
 			Name:     name,
 			ClientId: p.ClientId,
