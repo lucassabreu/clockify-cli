@@ -7,12 +7,1021 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/stretchr/testify/assert"
 )
 
 var exampleID = "62f2af744a912b05acc7c79e"
+
+func TestUpdateProjectMemberships(t *testing.T) {
+	exampleID2 := "62f2af744a912b05acc7c792"
+	errPrefix := `update project memberships: `
+	uri := "/v1/workspaces/" + exampleID +
+		"/projects/" + exampleID +
+		"/memberships"
+
+	tts := []testCase{
+		&simpleTestCase{
+			name:  "requires workspace",
+			param: api.UpdateProjectMembershipsParam{ProjectID: "p1"},
+			err:   errPrefix + "workspace is required",
+		},
+		&simpleTestCase{
+			name:  "requires project",
+			param: api.UpdateProjectMembershipsParam{Workspace: "w"},
+			err:   errPrefix + "project id is required",
+		},
+		&simpleTestCase{
+			name: "valid workspace",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: "w",
+				ProjectID: exampleID,
+			},
+			err: errPrefix + "workspace .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "valid project",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: "p1",
+			},
+			err: errPrefix + "project .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "valid user or groups",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Memberships: []api.UpdateMembership{{
+					UserOrGroupID: "ug",
+				}},
+			},
+			err: errPrefix + "user or group .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "required user or groups",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Memberships: []api.UpdateMembership{
+					{UserOrGroupID: ""},
+				},
+			},
+			err: errPrefix + `user or group is required`,
+		},
+		&simpleTestCase{
+			name: "valid user or groups (second one)",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Memberships: []api.UpdateMembership{
+					{UserOrGroupID: exampleID},
+					{UserOrGroupID: "ug"},
+				},
+			},
+			err: errPrefix + `user or group \("ug"\) is not valid ID`,
+		},
+		&simpleTestCase{
+			name: "simplest update",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			result: dto.Project{ID: "p1", Name: "project 1"},
+
+			requestMethod: "patch",
+			requestUrl:    uri,
+			requestBody:   `{"memberships":[]}`,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "update with members",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Memberships: []api.UpdateMembership{{
+					UserOrGroupID: exampleID,
+				}},
+			},
+
+			result: dto.Project{ID: "p1", Name: "project 1"},
+
+			requestMethod: "patch",
+			requestUrl:    uri,
+			requestBody: `{"memberships":[{
+				"userId":"` + exampleID + `", "hourlyRate":{"amount":0}
+			}]}`,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "update with many members",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Memberships: []api.UpdateMembership{
+					{UserOrGroupID: exampleID},
+					{UserOrGroupID: exampleID2, HourlyRateAmount: 10},
+				},
+			},
+
+			result: dto.Project{ID: "p1", Name: "project 1"},
+
+			requestMethod: "patch",
+			requestUrl:    uri,
+			requestBody: `{"memberships":[
+				{"userId":"` + exampleID + `", "hourlyRate":{"amount":0}},
+				{"userId":"` + exampleID2 + `", "hourlyRate":{"amount":10}}
+			]}`,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "error response",
+			param: api.UpdateProjectMembershipsParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			requestMethod: "patch",
+			requestUrl:    uri,
+			requestBody:   `{"memberships":[]}`,
+
+			responseStatus: 400,
+			responseBody:   `{"code": 10, "message":"error"}`,
+
+			err: errPrefix + `error`,
+		},
+	}
+
+	for _, tt := range tts {
+		runClient(t, tt,
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.UpdateProjectMemberships(
+					p.(api.UpdateProjectMembershipsParam))
+			})
+	}
+}
+
+func TestDeleteProject(t *testing.T) {
+	errPrefix := `delete project: `
+	uri := "/v1/workspaces/" + exampleID + "/projects/" + exampleID
+
+	tts := []testCase{
+		&simpleTestCase{
+			name:  "requires workspace",
+			param: api.DeleteProjectParam{ProjectID: "p1"},
+			err:   errPrefix + "workspace is required",
+		},
+		&simpleTestCase{
+			name:  "requires project",
+			param: api.DeleteProjectParam{Workspace: "w"},
+			err:   errPrefix + "project id is required",
+		},
+		&simpleTestCase{
+			name: "valid workspace",
+			param: api.DeleteProjectParam{
+				Workspace: "w",
+				ProjectID: exampleID,
+			},
+			err: errPrefix + "workspace .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "valid project",
+			param: api.DeleteProjectParam{
+				Workspace: exampleID,
+				ProjectID: "p1",
+			},
+			err: errPrefix + "project .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "delete",
+			param: api.DeleteProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			result: dto.Project{ID: "p1", Name: "project 1"},
+
+			requestMethod: "delete",
+			requestUrl:    uri,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "error response",
+			param: api.DeleteProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			requestMethod: "delete",
+			requestUrl:    uri,
+
+			responseStatus: 400,
+			responseBody:   `{"code": 10, "message":"error"}`,
+
+			err: errPrefix + `error`,
+		},
+	}
+
+	for _, tt := range tts {
+		runClient(t, tt,
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.DeleteProject(p.(api.DeleteProjectParam))
+			})
+	}
+}
+
+func TestGetProject(t *testing.T) {
+	errPrefix := `get project "\w*": `
+	uri := "/v1/workspaces/" + exampleID + "/projects/" + exampleID
+
+	tts := []testCase{
+		&simpleTestCase{
+			name:  "requires workspace",
+			param: api.GetProjectParam{ProjectID: "p1"},
+			err:   errPrefix + "workspace is required",
+		},
+		&simpleTestCase{
+			name:  "requires project",
+			param: api.GetProjectParam{Workspace: "w"},
+			err:   errPrefix + "project id is required",
+		},
+		&simpleTestCase{
+			name: "valid workspace",
+			param: api.GetProjectParam{
+				Workspace: "w",
+				ProjectID: exampleID,
+			},
+			err: errPrefix + "workspace .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "valid project",
+			param: api.GetProjectParam{
+				Workspace: exampleID,
+				ProjectID: "p1",
+			},
+			err: errPrefix + "project .* is not valid ID",
+		},
+		&simpleTestCase{
+			name: "simple",
+			param: api.GetProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			result: &dto.Project{ID: "p1", Name: "project 1"},
+
+			requestMethod: "get",
+			requestUrl:    uri,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "hydrated",
+			param: api.GetProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+				Hydrate:   true,
+			},
+
+			result: &dto.Project{ID: "p1", Name: "project 1", Hydrated: true},
+
+			requestMethod: "get",
+			requestUrl:    uri + "?hydrated=true",
+
+			responseStatus: 200,
+			responseBody:   `{"id":"p1", "name": "project 1"}`,
+		},
+		&simpleTestCase{
+			name: "error response",
+			param: api.GetProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			requestMethod: "get",
+			requestUrl:    uri,
+
+			responseStatus: 400,
+			responseBody:   `{"code": 10, "message":"error"}`,
+
+			err: errPrefix + `error`,
+		},
+		&simpleTestCase{
+			name: "not found",
+			param: api.GetProjectParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			requestMethod: "get",
+			requestUrl:    uri,
+
+			responseStatus: 404,
+			responseBody:   `{"code": 0, "message":"not found"}`,
+
+			err: errPrefix + `not found`,
+		},
+	}
+
+	for _, tt := range tts {
+		runClient(t, tt,
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.GetProject(p.(api.GetProjectParam))
+			})
+	}
+}
+
+func TestGetProjects(t *testing.T) {
+	errPrefix := "get projects: "
+	uri := "/v1/workspaces/" + exampleID + "/projects"
+	var l []dto.Project
+
+	tts := []testCase{
+		&simpleTestCase{
+			name:  "requires workspace",
+			param: api.GetProjectsParam{},
+			err:   errPrefix + "workspace is required",
+		},
+		&simpleTestCase{
+			name:  "valid workspace",
+			param: api.GetProjectsParam{Workspace: "w"},
+			err:   errPrefix + "workspace .* is not valid ID",
+		},
+		(&multiRequestTestCase{
+			name: "get all pages, but find none",
+			param: api.GetProjectsParam{
+				Workspace:       exampleID,
+				PaginationParam: api.AllPages(),
+			},
+
+			result: l,
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?page=1&page-size=50",
+				status:   200,
+				response: "[]",
+			}),
+		(&multiRequestTestCase{
+			name: "get all pages, find five",
+			param: api.GetProjectsParam{
+				Workspace: exampleID,
+				PaginationParam: api.PaginationParam{
+					PageSize: 2,
+					AllPages: true,
+				},
+			},
+
+			result: []dto.Project{
+				{ID: "p1"},
+				{ID: "p2"},
+				{ID: "p3"},
+				{ID: "p4"},
+				{ID: "p5"},
+			},
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?page=1&page-size=2",
+				status:   200,
+				response: `[{"id":"p1"},{"id":"p2"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?page=2&page-size=2",
+				status:   200,
+				response: `[{"id":"p3"},{"id":"p4"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?page=3&page-size=2",
+				status:   200,
+				response: `[{"id":"p5"}]`,
+			}),
+		(&multiRequestTestCase{
+			name: "get all pages, hydrated",
+			param: api.GetProjectsParam{
+				Workspace: exampleID,
+				Hydrate:   true,
+				PaginationParam: api.PaginationParam{
+					PageSize: 1,
+					AllPages: true,
+				},
+			},
+
+			result: []dto.Project{
+				{ID: "p1", Hydrated: true},
+				{ID: "p2", Hydrated: true},
+			},
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?hydrated=true&page=1&page-size=1",
+				status:   200,
+				response: `[{"id":"p1"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?hydrated=true&page=2&page-size=1",
+				status:   200,
+				response: `[{"id":"p2"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      uri + "?hydrated=true&page=3&page-size=1",
+				status:   200,
+				response: `[]`,
+			}),
+		&simpleTestCase{
+			name: "all parameters",
+			param: api.GetProjectsParam{
+				Workspace:       exampleID,
+				Hydrate:         true,
+				Name:            "project",
+				Clients:         []string{"c1", "c2"},
+				PaginationParam: api.AllPages(),
+			},
+
+			result: []dto.Project{{
+				ID: "p1", Name: "project 1", Hydrated: true}},
+
+			requestMethod: "get",
+			requestUrl: uri +
+				"?clients=c1%2Cc2&hydrated=true&name=project&" +
+				"page=1&page-size=50",
+
+			responseStatus: 200,
+			responseBody:   `[{"id":"p1", "name": "project 1"}]`,
+		},
+		&simpleTestCase{
+			name: "error response",
+			param: api.GetProjectsParam{
+				Workspace:       exampleID,
+				PaginationParam: api.PaginationParam{Page: 2},
+			},
+
+			requestMethod: "get",
+			requestUrl:    uri + "?page=2&page-size=50",
+
+			responseStatus: 400,
+			responseBody:   `{"code": 10, "message":"error"}`,
+
+			err: `get projects: error \(code: 10\)`,
+		},
+	}
+
+	for _, tt := range tts {
+		runClient(t, tt,
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.GetProjects(p.(api.GetProjectsParam))
+			})
+	}
+}
+
+func TestUpdateProjectTemplate(t *testing.T) {
+	errPrefix := "update project template: "
+	tts := []simpleTestCase{
+		{
+			name: "workspace require",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: exampleID,
+			},
+
+			err: errPrefix + "workspace is required",
+		},
+		{
+			name: "project require",
+			param: api.UpdateProjectTemplateParam{
+				Workspace: exampleID,
+			},
+
+			err: errPrefix + "project id is required",
+		},
+		{
+			name: "valid workspace",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: exampleID,
+				Workspace: "w",
+			},
+
+			err: errPrefix + "workspace .* is not valid ID",
+		},
+		{
+			name: "valid project",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: "p",
+				Workspace: exampleID,
+			},
+
+			err: errPrefix + "project .* is not valid ID",
+		},
+		{
+			name: "into template",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Template:  true,
+			},
+
+			result: dto.Project{ID: exampleID},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/template",
+			requestBody: `{"isTemplate":true}`,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"` + exampleID + `"}`,
+		},
+		{
+			name: "not a template",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Template:  false,
+			},
+
+			result: dto.Project{ID: exampleID},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/template",
+			requestBody: `{"isTemplate":false}`,
+
+			responseStatus: 200,
+			responseBody:   `{"id":"` + exampleID + `"}`,
+		},
+		{
+			name: "error",
+			param: api.UpdateProjectTemplateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Template:  false,
+			},
+
+			err: errPrefix + "failed .code: 90.",
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/template",
+			requestBody: `{"isTemplate":false}`,
+
+			responseStatus: 400,
+			responseBody:   `{"message":"failed", "code": 90}`,
+		},
+	}
+
+	for i := range tts {
+		runClient(t, &tts[i],
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.UpdateProjectTemplate(
+					p.(api.UpdateProjectTemplateParam))
+			})
+	}
+}
+
+func TestUpdateProjectEstimate(t *testing.T) {
+	errPrefix := "update project estimate: "
+	tts := []simpleTestCase{
+		{
+			name: "workspace require",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Method:    api.EstimateMethodNone,
+			},
+
+			err: errPrefix + "workspace is required",
+		},
+		{
+			name: "project require",
+			param: api.UpdateProjectEstimateParam{
+				Workspace: exampleID,
+				Method:    api.EstimateMethodNone,
+			},
+
+			err: errPrefix + "project id is required",
+		},
+		{
+			name: "estimate method required",
+			param: api.UpdateProjectEstimateParam{
+				Workspace: exampleID,
+				ProjectID: exampleID,
+			},
+
+			err: errPrefix + "estimate method is required",
+		},
+		{
+			name: "valid workspace",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: "w",
+				Method:    api.EstimateMethodNone,
+			},
+
+			err: errPrefix + "workspace .* is not valid ID",
+		},
+		{
+			name: "valid project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: "p",
+				Workspace: exampleID,
+				Method:    api.EstimateMethodNone,
+			},
+
+			err: errPrefix + "project .* is not valid ID",
+		},
+		{
+			name: "valid method",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    "m",
+			},
+
+			err: errPrefix + "valid options for estimate method are",
+		},
+		{
+			name: "type should be set for budget",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodBudget,
+				Type:      "t",
+			},
+
+			err: errPrefix + "valid options for estimate type are",
+		},
+		{
+			name: "valid reset option",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID:   exampleID,
+				Workspace:   exampleID,
+				Method:      api.EstimateMethodBudget,
+				Type:        api.EstimateTypeTask,
+				ResetOption: "daily",
+			},
+
+			err: errPrefix + "valid options for reset option are",
+		},
+		{
+			name: "type should be set for time",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+			},
+
+			err: errPrefix + "valid options for estimate type are",
+		},
+		{
+			name: "estimate should be set for budget method & type project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodBudget,
+				Type:      api.EstimateTypeProject,
+			},
+
+			err: errPrefix +
+				"estimate should be greater than zero for type project",
+		},
+		{
+			name: "estimate should be set for time method & type project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+				Type:      api.EstimateTypeProject,
+			},
+
+			err: errPrefix +
+				"estimate should be greater than zero for type project",
+		},
+		{
+			name: "estimate should be positive for time method & type project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+				Type:      api.EstimateTypeProject,
+				Estimate:  -1,
+			},
+
+			err: errPrefix +
+				"estimate should be greater than zero for type project",
+		},
+		{
+			name: "estimate should be positive for time method & type project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+				Type:      api.EstimateTypeProject,
+				Estimate:  -1,
+			},
+
+			err: errPrefix +
+				"estimate should be greater than zero for type project",
+		},
+		{
+			name: "set estimate with budget for project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodBudget,
+				Type:      api.EstimateTypeProject,
+				Estimate:  1000,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"timeEstimate": {"active": false},
+				"budgetEstimate": {
+					"active": true,
+					"estimate": 1000,
+					"type": "MANUAL"
+				}
+			}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "set estimate with time for project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+				Type:      api.EstimateTypeProject,
+				Estimate:  int64(time.Minute)*90 + int64(time.Second)*15,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"budgetEstimate": {"active": false},
+				"timeEstimate": {
+					"active": true,
+					"estimate": "PT1H30M15S",
+					"type": "MANUAL"
+				}
+			}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "set estimate to none for project",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodNone,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"budgetEstimate": {"active": false},
+				"timeEstimate": {"active": false}
+			}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "set estimate with budget for tasks",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodBudget,
+				Type:      api.EstimateTypeTask,
+				Estimate:  1000,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"timeEstimate": {"active": false},
+				"budgetEstimate": {
+					"active": true,
+					"type": "AUTO"
+				}
+			}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "set estimate with time for task",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				Method:    api.EstimateMethodTime,
+				Type:      api.EstimateTypeTask,
+				Estimate:  int64(time.Minute)*90 + int64(time.Second)*15,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"budgetEstimate": {"active": false},
+				"timeEstimate": {
+					"active": true,
+					"type": "AUTO"
+				}
+			}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "set estimate with time for task, and monthly reset",
+			param: api.UpdateProjectEstimateParam{
+				ProjectID:   exampleID,
+				Workspace:   exampleID,
+				Method:      api.EstimateMethodTime,
+				Type:        api.EstimateTypeTask,
+				ResetOption: api.EstimateResetOptionMonthly,
+			},
+
+			requestMethod: "patch",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID + "/estimate",
+			requestBody: `{
+				"budgetEstimate": {"active": false},
+				"timeEstimate": {
+					"active": true,
+					"type": "AUTO",
+					"resetOption": "MONTHLY"
+				}
+			}`,
+
+			responseStatus: 200,
+		},
+	}
+
+	for i := range tts {
+		runClient(t, &tts[i],
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.UpdateProjectEstimate(
+					p.(api.UpdateProjectEstimateParam))
+			})
+	}
+}
+
+func TestUpdateProjectUserCostRate(t *testing.T) {
+	testUpdateProjectUserRate(t,
+		"update project user cost rate: ",
+		"cost-rate",
+		func(c api.Client, p interface{}) (interface{}, error) {
+			return c.UpdateProjectUserCostRate(
+				p.(api.UpdateProjectUserRateParam))
+		})
+}
+
+func TestUpdateProjectUserBillableRate(t *testing.T) {
+	testUpdateProjectUserRate(t,
+		"update project user billable rate: ",
+		"hourly-rate",
+		func(c api.Client, p interface{}) (interface{}, error) {
+			return c.UpdateProjectUserBillableRate(
+				p.(api.UpdateProjectUserRateParam))
+		})
+}
+
+func testUpdateProjectUserRate(t *testing.T,
+	errPrefix, uriSufix string,
+	fn func(api.Client, interface{}) (interface{}, error)) {
+	since, _ := time.Parse("2006-01-02", "2022-02-02")
+	tts := []simpleTestCase{
+		{
+			name: "project is required",
+			param: api.UpdateProjectUserRateParam{
+				Workspace: "w",
+				UserID:    "u",
+			},
+			err: errPrefix + "project id is required",
+		},
+		{
+			name: "workspace is required",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: "p-1",
+				UserID:    "u",
+			},
+			err: errPrefix + "workspace is required",
+		},
+		{
+			name: "user is required",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: "p-1",
+				Workspace: "w",
+			},
+			err: errPrefix + "user id is required",
+		},
+		{
+			name: "project should be a ID",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: "p-1",
+				Workspace: exampleID,
+				UserID:    exampleID,
+			},
+			err: errPrefix + "project id (.*) is not valid",
+		},
+		{
+			name: "user should be a ID",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				UserID:    "u-1",
+			},
+			err: errPrefix + "user id (.*) is not valid",
+		},
+		{
+			name: "workspace should be a ID",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: exampleID,
+				Workspace: "w",
+				UserID:    exampleID,
+			},
+			err: errPrefix + "workspace (.*) is not valid",
+		},
+		{
+			name: "only amount",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				UserID:    exampleID,
+				Amount:    10,
+			},
+
+			requestMethod: "put",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID +
+				"/users/" + exampleID + "/" + uriSufix,
+			requestBody: `{"amount":10}`,
+
+			responseStatus: 200,
+		},
+		{
+			name: "amount and since",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				UserID:    exampleID,
+				Amount:    10,
+				Since:     &since,
+			},
+
+			requestMethod: "put",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID +
+				"/users/" + exampleID + "/" + uriSufix,
+			requestBody: `{"amount":10,"since":"2022-02-02T00:00:00Z"}`,
+
+			err:            errPrefix + "custom error.*code: 42",
+			responseStatus: 400,
+			responseBody:   `{"message":"custom error","code":42}`,
+		},
+		{
+			name: "fail",
+			param: api.UpdateProjectUserRateParam{
+				ProjectID: exampleID,
+				Workspace: exampleID,
+				UserID:    exampleID,
+				Amount:    10,
+				Since:     &since,
+			},
+
+			requestMethod: "put",
+			requestUrl: "/v1/workspaces/" + exampleID +
+				"/projects/" + exampleID +
+				"/users/" + exampleID + "/" + uriSufix,
+			requestBody: `{"amount":10,"since":"2022-02-02T00:00:00Z"}`,
+
+			err:            errPrefix + "custom error.*code: 42",
+			responseStatus: 400,
+			responseBody:   `{"message":"custom error","code":42}`,
+		},
+	}
+
+	for i := range tts {
+		runClient(t, &tts[i], fn)
+	}
+}
 
 func TestUpdateProject(t *testing.T) {
 	bt := true

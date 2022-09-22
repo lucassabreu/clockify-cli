@@ -112,6 +112,27 @@ func (_m *MockClient) CreateTimeEntry(_a0 api.CreateTimeEntryParam) (dto.TimeEnt
 	return r0, r1
 }
 
+// DeleteProject provides a mock function with given fields: _a0
+func (_m *MockClient) DeleteProject(_a0 api.DeleteProjectParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.DeleteProjectParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.DeleteProjectParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteTask provides a mock function with given fields: _a0
 func (_m *MockClient) DeleteTask(_a0 api.DeleteTaskParam) (dto.Task, error) {
 	ret := _m.Called(_a0)
@@ -635,6 +656,111 @@ func (_m *MockClient) UpdateProject(_a0 api.UpdateProjectParam) (dto.Project, er
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(api.UpdateProjectParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateProjectEstimate provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProjectEstimate(_a0 api.UpdateProjectEstimateParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectEstimateParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectEstimateParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateProjectMemberships provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProjectMemberships(_a0 api.UpdateProjectMembershipsParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectMembershipsParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectMembershipsParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateProjectTemplate provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProjectTemplate(_a0 api.UpdateProjectTemplateParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectTemplateParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectTemplateParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateProjectUserBillableRate provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProjectUserBillableRate(_a0 api.UpdateProjectUserRateParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectUserRateParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectUserRateParam) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateProjectUserCostRate provides a mock function with given fields: _a0
+func (_m *MockClient) UpdateProjectUserCostRate(_a0 api.UpdateProjectUserRateParam) (dto.Project, error) {
+	ret := _m.Called(_a0)
+
+	var r0 dto.Project
+	if rf, ok := ret.Get(0).(func(api.UpdateProjectUserRateParam) dto.Project); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(dto.Project)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(api.UpdateProjectUserRateParam) error); ok {
 		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
