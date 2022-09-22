@@ -39,7 +39,7 @@ go-generate: deps-install ## recreates generate files
 	go install github.com/vektra/mockery/v2@latest
 	go generate ./...
 
-test-install: deps-install
+test-install: deps-install go-generate
 	go install gotest.tools/gotestsum@latest
 
 test: test-install ## runs all tests
@@ -54,7 +54,7 @@ test-coverage: test-install ## runs all tests and output coverage
 		./...
 
 test-watch: test-install ## runs all tests and watch changes
-	gotestsum --format testname --watch
+	gotestsum --format testname --watch -- -failfast
 
 goreleaser-test: tag=Unreleased
 goreleaser-test: release
