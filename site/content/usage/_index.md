@@ -8,7 +8,7 @@ After you [install the CLI][install] the first thing to do is run the command `c
 init`, it will interactively ask you the information necessary to setup your environment.
 
 ```console
-$ clockify-cli config --init
+$ clockify-cli config init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: <workspace-id> - John Doe's workspace
 ? Choose your user: <user-id> - John Doe

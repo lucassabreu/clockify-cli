@@ -11,7 +11,7 @@ related resources.
 
 - Generate a API key by visiting your user [settings on Clockify.me][settings], in the "API"
   section generate with you don't have one and copy your API key.
-- Run the command `clockify-cli config --init`, it will ask for the API key you copied.
+- Run the command `clockify-cli config init`, it will ask for the API key you copied.
   - The CLI will also ask for your preferences and default settings. You can change these
     preferences any time, see [clockify-cli config][cli-config] about the options.
 - After this run the command `clockify-cli in` to start a time entry.
