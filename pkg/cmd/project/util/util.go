@@ -51,3 +51,13 @@ func Report(list []dto.Project, out io.Writer, f OutputFlags) error {
 		return project.ProjectPrint(list, os.Stdout)
 	}
 }
+
+// ReportOne will print a project as set by the flags
+func ReportOne(p dto.Project, out io.Writer, f OutputFlags) error {
+	switch {
+	case f.JSON:
+		return project.ProjectJSONPrint(p, out)
+	default:
+		return Report([]dto.Project{p}, os.Stdout, f)
+	}
+}

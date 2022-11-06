@@ -3,6 +3,7 @@ package project
 import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/add"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/edit"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/get"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/project/list"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/spf13/cobra"
@@ -17,6 +18,7 @@ func NewCmdProject(f cmdutil.Factory) *cobra.Command {
 	}
 
 	cmd.AddCommand(list.NewCmdList(f, nil))
+	cmd.AddCommand(get.NewCmdGet(f, nil))
 	cmd.AddCommand(add.NewCmdAdd(f, nil))
 	cmd.AddCommand(edit.NewCmdEdit(f, nil))
 
