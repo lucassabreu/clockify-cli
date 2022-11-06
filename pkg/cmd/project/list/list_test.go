@@ -54,7 +54,7 @@ func TestCmdList(t *testing.T) {
 			args: []string{"-n=a"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("", errors.New("workspace error"))
 				return f
 			},
@@ -64,9 +64,9 @@ func TestCmdList(t *testing.T) {
 			err:  "client error",
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
-				f.On("Client").Return(nil, errors.New("client error"))
+				f.EXPECT().Client().Return(nil, errors.New("client error"))
 				return f
 			},
 		},
@@ -77,15 +77,16 @@ func TestCmdList(t *testing.T) {
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
 				c := mocks.NewMockClient(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
-				f.On("Client").Return(c, nil)
+				f.EXPECT().Client().Return(c, nil)
+				f.EXPECT()
 
 				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(cf)
+				cf.EXPECT().IsAllowNameForID().Return(true)
 
-				c.On("GetClients", api.GetClientsParam{
+				c.EXPECT().GetClients(api.GetClientsParam{
 					Workspace:       "w",
 					PaginationParam: api.AllPages(),
 				}).
@@ -100,15 +101,15 @@ func TestCmdList(t *testing.T) {
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
 				c := mocks.NewMockClient(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
-				f.On("Client").Return(c, nil)
+				f.EXPECT().Client().Return(c, nil)
 
 				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(cf)
+				cf.EXPECT().IsAllowNameForID().Return(true)
 
-				c.On("GetClients", api.GetClientsParam{
+				c.EXPECT().GetClients(api.GetClientsParam{
 					Workspace:       "w",
 					PaginationParam: api.AllPages(),
 				}).
@@ -123,10 +124,10 @@ func TestCmdList(t *testing.T) {
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
 				c := mocks.NewMockClient(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
-				f.On("Client").Return(c, nil)
-				c.On("GetProjects", api.GetProjectsParam{
+				f.EXPECT().Client().Return(c, nil)
+				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
 					Name:            "error",
 					Clients:         []string{},
@@ -145,16 +146,16 @@ func TestCmdList(t *testing.T) {
 			},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
 
 				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(cf)
+				cf.EXPECT().IsAllowNameForID().Return(true)
 
 				c := mocks.NewMockClient(t)
-				f.On("Client").Return(c, nil)
-				c.On("GetClients", api.GetClientsParam{
+				f.EXPECT().Client().Return(c, nil)
+				c.EXPECT().GetClients(api.GetClientsParam{
 					Workspace:       "w",
 					PaginationParam: api.AllPages(),
 				}).
@@ -164,7 +165,7 @@ func TestCmdList(t *testing.T) {
 					}, nil)
 
 				b := true
-				c.On("GetProjects", api.GetProjectsParam{
+				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
 					Name:            "cli",
 					Clients:         []string{"c1", "c2"},
@@ -184,18 +185,42 @@ func TestCmdList(t *testing.T) {
 			},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
-				f.On("GetWorkspaceID").
+				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
 
 				c := mocks.NewMockClient(t)
-				f.On("Client").Return(c, nil)
+				f.EXPECT().Client().Return(c, nil)
 
 				b := false
-				c.On("GetProjects", api.GetProjectsParam{
+				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
 					Name:            "cli",
 					Clients:         []string{},
 					Archived:        &b,
+					PaginationParam: api.AllPages(),
+				}).
+					Return([]dto.Project{}, nil)
+				return f
+			},
+			report: shouldCall,
+		},
+		{
+			name: "hydrated",
+			args: []string{
+				"--hydrated",
+			},
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().GetWorkspaceID().
+					Return("w", nil)
+
+				c := mocks.NewMockClient(t)
+				f.EXPECT().Client().Return(c, nil)
+
+				c.EXPECT().GetProjects(api.GetProjectsParam{
+					Workspace:       "w",
+					Clients:         []string{},
+					Hydrate:         true,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{}, nil)
@@ -282,11 +307,11 @@ func TestCmdListReport(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := mocks.NewMockFactory(t)
 			c := mocks.NewMockClient(t)
-			f.On("Client").Return(c, nil)
-			f.On("GetWorkspaceID").
+			f.EXPECT().Client().Return(c, nil)
+			f.EXPECT().GetWorkspaceID().
 				Return("w", nil)
 
-			c.On("GetProjects", api.GetProjectsParam{
+			c.EXPECT().GetProjects(api.GetProjectsParam{
 				Workspace:       "w",
 				Clients:         []string{},
 				PaginationParam: api.AllPages(),
