@@ -17,7 +17,6 @@ import (
 )
 
 func TestCmdToday(t *testing.T) {
-
 	first := time.Now()
 	first = time.Date(
 		first.Year(),
@@ -191,7 +190,8 @@ func TestCmdToday(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tts {
+	for i := range tts {
+		tt := tts[i]
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := today.NewCmdToday(tt.factory(t))
 			cmd.SilenceUsage = true
@@ -212,6 +212,7 @@ func TestCmdToday(t *testing.T) {
 				return
 			}
 
+			assert.Equal(t, tt.expected, out.String())
 			assert.NoError(t, err)
 		})
 	}
