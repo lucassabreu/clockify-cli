@@ -1,8 +1,11 @@
 package edit
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -12,7 +15,10 @@ import (
 )
 
 // NewCmdEdit represents the edit command
-func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
+func NewCmdEdit(
+	f cmdutil.Factory,
+	report func(dto.TimeEntryImpl, io.Writer, util.OutputFlags) error,
+) *cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	va := cmdcompl.ValidArgsSlide{
 		timeentryhlp.AliasCurrent, timeentryhlp.AliasLast}
@@ -140,6 +146,10 @@ func NewCmdEdit(f cmdutil.Factory) *cobra.Command {
 				TagIDs:      tei.TagIDs,
 			}); err != nil {
 				return err
+			}
+
+			if report != nil {
+				return report(tei, cmd.OutOrStdout(), of)
 			}
 
 			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)

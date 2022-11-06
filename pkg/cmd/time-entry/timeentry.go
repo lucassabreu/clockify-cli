@@ -16,21 +16,25 @@ import (
 )
 
 func NewCmdTimeEntry(f cmdutil.Factory) (cmds []*cobra.Command) {
-	cmds = append(cmds, in.NewCmdIn(f))
-	cmds = append(cmds, manual.NewCmdManual(f))
-	cmds = append(cmds, clone.NewCmdClone(f))
+	cmds = append(
+		cmds,
 
-	cmds = append(cmds, edit.NewCmdEdit(f))
-	cmds = append(cmds, em.NewCmdEditMultiple(f))
+		in.NewCmdIn(f),
+		manual.NewCmdManual(f),
+		clone.NewCmdClone(f),
 
-	cmds = append(cmds, out.NewCmdOut(f))
+		edit.NewCmdEdit(f, nil),
+		em.NewCmdEditMultiple(f),
+
+		out.NewCmdOut(f),
+
+		del.NewCmdDelete(f),
+
+		show.NewCmdShow(f),
+		report.NewCmdReport(f),
+	)
 
 	cmds = append(cmds, invoiced.NewCmdInvoiced(f)...)
-
-	cmds = append(cmds, del.NewCmdDelete(f))
-
-	cmds = append(cmds, show.NewCmdShow(f))
-	cmds = append(cmds, report.NewCmdReport(f))
 
 	return
 }
