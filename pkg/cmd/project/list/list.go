@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectListCmd represents the projectList command
+// NewCmdList builds command to list projects
 func NewCmdList(
 	f cmdutil.Factory,
 	report func(io.Writer, *util.OutputFlags, []dto.Project) error,
