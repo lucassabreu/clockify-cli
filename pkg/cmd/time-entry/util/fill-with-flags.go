@@ -12,7 +12,11 @@ import (
 func FillTimeEntryWithFlags(flags *pflag.FlagSet) DoFn {
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		if flags.Changed("project") {
-			tei.ProjectID, _ = flags.GetString("project")
+			p, _ := flags.GetString("project")
+			if p != tei.ProjectID {
+				tei.TaskID = ""
+			}
+			tei.ProjectID = p
 		}
 
 		if flags.Changed("description") {

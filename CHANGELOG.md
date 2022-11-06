@@ -25,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   memberships in one call, these can be accessed using the `format` or `json` output formats.
 - new command `project get` to show a project using its ID or name.
 
+### Fixed
+
+- when running `edit` for a time entry that had a task to change its project, the command was failing if no
+  task set, because it tried to find the task from the older project in the new one.
+
 ## [v0.41.0] - 2022-08-31
 
 ### Added
