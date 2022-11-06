@@ -27,10 +27,11 @@ type Workspace struct {
 
 // Membership DTO
 type Membership struct {
-	HourlyRate Rate             `json:"hourlyRate"`
+	HourlyRate *Rate            `json:"hourlyRate"`
+	CostRate   *Rate            `json:"costRate"`
 	Status     MembershipStatus `json:"membershipStatus"`
 	Type       string           `json:"membershipType"`
-	Target     string           `json:"target"`
+	TargetID   string           `json:"targetId"`
 	UserID     string           `json:"userId"`
 }
 
@@ -96,8 +97,8 @@ type Round struct {
 
 // Rate DTO
 type Rate struct {
-	Amount   int32  `json:"amount"`
-	Currency string `json:"currency"`
+	Amount   int64  `json:"amount"`
+	Currency string `json:"currency,omitempty"`
 }
 
 // TimeEntry DTO
@@ -146,15 +147,18 @@ const TaskStatusDone = TaskStatus("DONE")
 
 // Task DTO
 type Task struct {
-	AssigneeIDs []string   `json:"assigneeIds"`
-	Estimate    Duration   `json:"estimate"`
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	ProjectID   string     `json:"projectId"`
-	Billable    bool       `json:"billable"`
-	HourlyRate  Rate       `json:"hourlyRate"`
-	CostRate    Rate       `json:"costRate"`
-	Status      TaskStatus `json:"status"`
+	AssigneeIDs  []string   `json:"assigneeIds"`
+	UserGroupIDs []string   `json:"userGroupIds"`
+	Estimate     Duration   `json:"estimate"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	ProjectID    string     `json:"projectId"`
+	Billable     bool       `json:"billable"`
+	HourlyRate   *Rate      `json:"hourlyRate"`
+	CostRate     *Rate      `json:"costRate"`
+	Status       TaskStatus `json:"status"`
+	Duration     *Duration  `json:"duration"`
+	Favorite     bool       `json:"favorite"`
 }
 
 func (e Task) GetID() string   { return e.ID }
@@ -171,24 +175,46 @@ type Client struct {
 func (e Client) GetID() string   { return e.ID }
 func (e Client) GetName() string { return e.Name }
 
+// CustomField DTO
+type CustomField struct {
+	CustomFieldID string `json:"customFieldId"`
+	Status        string `json:"status"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+	Value         string `json:"value"`
+}
+
 // Project DTO
 type Project struct {
-	ID             string         `json:"id"`
-	Name           string         `json:"name"`
-	HourlyRate     Rate           `json:"hourlyRate"`
-	ClientID       string         `json:"clientId"`
-	WorkspaceID    string         `json:"workspaceId"`
-	Billable       bool           `json:"billable"`
-	Memberships    []Membership   `json:"memberships"`
-	Color          string         `json:"color"`
-	TimeEstimate   TimeEstimate   `json:"timeEstimate"`
-	BudgetEstimate BudgetEstimate `json:"budgetEstimate"`
-	Archived       bool           `json:"archived"`
-	Duration       string         `json:"duration"`
-	ClientName     string         `json:"clientName"`
-	Note           string         `json:"note"`
-	Template       bool           `json:"template"`
-	Public         bool           `json:"public"`
+	WorkspaceID string `json:"workspaceId"`
+
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Note  string `json:"note"`
+	Color string `json:"color"`
+
+	ClientID   string `json:"clientId"`
+	ClientName string `json:"clientName"`
+
+	HourlyRate Rate  `json:"hourlyRate"`
+	CostRate   *Rate `json:"costRate"`
+	Billable   bool  `json:"billable"`
+
+	TimeEstimate   TimeEstimate `json:"timeEstimate"`
+	BudgetEstimate BaseEstimate `json:"budgetEstimate"`
+	Duration       Duration     `json:"duration"`
+
+	Archived bool `json:"archived"`
+	Template bool `json:"template"`
+	Public   bool `json:"public"`
+	Favorite bool `json:"favorite"`
+
+	Memberships []Membership `json:"memberships"`
+
+	// Hydrated indicates if the attributes CustomFields and Tasks are filled
+	Hydrated     bool          `json:"-"`
+	CustomFields []CustomField `json:"customFields,omitempty"`
+	Tasks        []Task        `json:"tasks,omitempty"`
 }
 
 func (p Project) GetID() string   { return p.ID }
@@ -203,23 +229,30 @@ const EstimateTypeAuto = EstimateType("AUTO")
 // EstimateTypeManual estimate is Manual
 const EstimateTypeManual = EstimateType("MANUAL")
 
-// EstimateBase DTO
-type EstimateBase struct {
-	Type         EstimateType `json:"type"`
-	Active       bool         `json:"active"`
-	ResetOptions *string      `json:"resetOptions"`
+// EstimateResetOption possible Estimate Reset Options
+type EstimateResetOption string
+
+// EstimateResetOptionMonthly estimate is Auto
+const EstimateResetOptionMonthly = EstimateResetOption("MONTHLY")
+
+// BaseEstimate DTO
+type BaseEstimate struct {
+	Type         EstimateType         `json:"type"`
+	Active       bool                 `json:"active"`
+	ResetOptions *EstimateResetOption `json:"resetOptions"`
 }
 
 // TimeEstimate DTO
 type TimeEstimate struct {
-	EstimateBase
-	Estimate string `json:"estimate"`
+	BaseEstimate
+	Estimate           Duration `json:"estimate"`
+	IncludeNonBillable bool     `json:"includeNonBillable"`
 }
 
 // BudgetEstimate DTO
 type BudgetEstimate struct {
-	EstimateBase
-	Estimate int `json:"estimate"`
+	BaseEstimate
+	Estimate uint `json:"estimate"`
 }
 
 // UserStatus possible user status

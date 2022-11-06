@@ -34,10 +34,30 @@ type Client interface {
 	AddClient(AddClientParam) (dto.Client, error)
 	GetClients(GetClientsParam) ([]dto.Client, error)
 
-	AddProject(AddProjectParam) (dto.Project, error)
-	UpdateProject(UpdateProjectParam) (dto.Project, error)
-	GetProject(GetProjectParam) (*dto.Project, error)
+	// GetProjects get all project of a workspace
 	GetProjects(GetProjectsParam) ([]dto.Project, error)
+	// GetProject get a single Project, if exists
+	GetProject(GetProjectParam) (*dto.Project, error)
+	// AddProject creates a new project
+	AddProject(AddProjectParam) (dto.Project, error)
+	// UpdateProject changes basic information about the project
+	UpdateProject(UpdateProjectParam) (dto.Project, error)
+	// UpdateProjectUserCostRate will update the hourly rate of a user on a
+	// project
+	UpdateProjectUserBillableRate(UpdateProjectUserRateParam) (
+		dto.Project, error)
+	// UpdateProjectUserCostRate will update the cost of a user on a project
+	UpdateProjectUserCostRate(UpdateProjectUserRateParam) (
+		dto.Project, error)
+	// UpdateProjectEstimate change how the estime of a project is measured
+	UpdateProjectEstimate(UpdateProjectEstimateParam) (dto.Project, error)
+	// UpdateProjectMemberships changes who has access to add time entries to
+	// the project
+	UpdateProjectMemberships(UpdateProjectMembershipsParam) (dto.Project, error)
+	// UpdateProjectTemplate changes if a project is a template or not
+	UpdateProjectTemplate(UpdateProjectTemplateParam) (dto.Project, error)
+	// DeleteProject removes a project forever
+	DeleteProject(DeleteProjectParam) (dto.Project, error)
 
 	AddTask(AddTaskParam) (dto.Task, error)
 	DeleteTask(DeleteTaskParam) (dto.Task, error)
@@ -83,7 +103,6 @@ func NewClientFromUrlAndKey(
 	apiKey,
 	urlString string,
 ) (Client, error) {
-
 	if apiKey == "" {
 		return nil, errors.WithStack(ErrorMissingAPIKey)
 	}
@@ -155,12 +174,16 @@ func (c *client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 type field string
 
 const (
-	workspaceField   = field("workspace")
-	userIDField      = field("user id")
-	projectField     = field("project id")
-	timeEntryIDField = field("time entry id")
-	nameField        = field("name")
-	taskIDField      = field("task id")
+	workspaceField      = field("workspace")
+	userIDField         = field("user id")
+	userOrGroupIDField  = field("user or group")
+	projectField        = field("project id")
+	timeEntryIDField    = field("time entry id")
+	nameField           = field("name")
+	taskIDField         = field("task id")
+	estimateMethodField = field("estimate method")
+	estimateTypeField   = field("estimate type")
+	resetOptionField    = field("reset option")
 )
 
 // RequiredFieldError indicates that a field should be filled, but was not
@@ -704,6 +727,7 @@ func (c *client) GetTag(p GetTagParam) (*dto.Tag, error) {
 type GetProjectParam struct {
 	Workspace string
 	ProjectID string
+	Hydrate   bool
 }
 
 // GetProject get a single Project, if exists
@@ -730,7 +754,7 @@ func (c *client) GetProject(p GetProjectParam) (pr *dto.Project, err error) {
 			p.Workspace,
 			p.ProjectID,
 		),
-		nil,
+		dto.GetProjectRequest{Hydrated: p.Hydrate},
 	)
 
 	if err != nil {
@@ -738,6 +762,10 @@ func (c *client) GetProject(p GetProjectParam) (pr *dto.Project, err error) {
 	}
 
 	_, err = c.Do(r, &pr, "GetProject")
+	if p.Hydrate && pr != nil {
+		pr.Hydrated = true
+	}
+
 	return pr, err
 }
 
@@ -1266,6 +1294,7 @@ type GetProjectsParam struct {
 	Name      string
 	Clients   []string
 	Archived  *bool
+	Hydrate   bool
 
 	PaginationParam
 }
@@ -1286,10 +1315,11 @@ func (c *client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
 			p.Workspace,
 		),
 		p.PaginationParam,
-		dto.GetProjectRequest{
+		dto.GetProjectsRequest{
 			Name:     p.Name,
 			Archived: p.Archived,
 			Clients:  p.Clients,
+			Hydrated: p.Hydrate,
 		},
 		&tmpl,
 		func(res interface{}) (int, error) {
@@ -1303,6 +1333,13 @@ func (c *client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
 		},
 		"GetProjects",
 	)
+
+	if p.Hydrate {
+		for i := range ps {
+			ps[i].Hydrated = true
+		}
+	}
+
 	return ps, err
 }
 
@@ -1390,7 +1427,7 @@ func (c *client) AddProject(p AddProjectParam) (
 // Workspace and ID are required
 type UpdateProjectParam struct {
 	Workspace string
-	ID        string
+	ProjectID string
 	Name      string
 	ClientId  *string
 	Color     string
@@ -1407,14 +1444,14 @@ func (c *client) UpdateProject(p UpdateProjectParam) (
 	defer wrapError(&err, "update project")
 
 	if err = required(map[field]string{
-		projectField:   p.ID,
+		projectField:   p.ProjectID,
 		workspaceField: p.Workspace,
 	}); err != nil {
 		return project, err
 	}
 
 	if err = checkIDs(map[field]string{
-		projectField:   p.ID,
+		projectField:   p.ProjectID,
 		workspaceField: p.Workspace,
 	}); err != nil {
 		return project, err
@@ -1437,7 +1474,7 @@ func (c *client) UpdateProject(p UpdateProjectParam) (
 
 	req, err := c.NewRequest(
 		"PUT",
-		"v1/workspaces/"+p.Workspace+"/projects/"+p.ID,
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID,
 		dto.UpdateProjectRequest{
 			Name:     name,
 			ClientId: p.ClientId,
@@ -1455,6 +1492,427 @@ func (c *client) UpdateProject(p UpdateProjectParam) (
 
 	_, err = c.Do(req, &project, "UpdateProject")
 	return project, err
+}
+
+// UpdateMembership represents the membership of a User or User Group to a
+// project
+type UpdateMembership struct {
+	UserOrGroupID    string
+	HourlyRateAmount int64
+}
+
+// UpdateProjectMembershipsParam will change which users and groups have
+// access to the project
+type UpdateProjectMembershipsParam struct {
+	Workspace   string
+	ProjectID   string
+	Memberships []UpdateMembership
+}
+
+// UpdateProjectMemberships changes who has access to add time entries to
+// the project
+func (c *client) UpdateProjectMemberships(p UpdateProjectMembershipsParam) (
+	pr dto.Project, err error) {
+	defer wrapError(&err, "update project memberships")
+
+	if err = required(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return
+	}
+
+	members := make([]dto.UpdateProjectMembership, len(p.Memberships))
+	for i := range p.Memberships {
+		id := map[field]string{
+			userOrGroupIDField: p.Memberships[i].UserOrGroupID}
+		if err = required(id); err != nil {
+			return
+		}
+
+		if err = checkIDs(id); err != nil {
+			return
+		}
+
+		members[i].UserID = p.Memberships[i].UserOrGroupID
+		members[i].HourlyRate.Amount = p.Memberships[i].HourlyRateAmount
+	}
+
+	req, err := c.NewRequest(
+		"PATCH",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID+"/memberships",
+		dto.UpdateProjectMembershipsRequest{
+			Memberships: members,
+		},
+	)
+
+	if err != nil {
+		return pr, err
+	}
+
+	_, err = c.Do(req, &pr, "UpdateProjectMemberships")
+	return pr, err
+}
+
+// UpdateProjectTemplateParam sets which project will be updated,and if it will
+// became a template or not
+type UpdateProjectTemplateParam struct {
+	Workspace string
+	ProjectID string
+	Template  bool
+}
+
+// UpdateProjectTemplate changes if a project is a template or not
+func (c *client) UpdateProjectTemplate(p UpdateProjectTemplateParam) (
+	pr dto.Project, err error) {
+	defer wrapError(&err, "update project template")
+
+	if err = required(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return
+	}
+
+	req, err := c.NewRequest(
+		"PATCH",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID+"/template",
+		dto.UpdateProjectTemplateRequest{
+			IsTemplate: p.Template,
+		},
+	)
+
+	if err != nil {
+		return pr, err
+	}
+
+	_, err = c.Do(req, &pr, "UpdateProjectTemplate")
+	return pr, err
+}
+
+// UpdateProjectUserRateParam sets the parameters to update the billable/cost
+// rate, if Since is not nil, then all time entries after that time will be
+// updated to new rate
+type UpdateProjectUserRateParam struct {
+	Workspace string
+	ProjectID string
+	UserID    string
+	Amount    uint
+	Since     *time.Time
+}
+
+func (c *client) UpdateProjectUserBillableRate(
+	p UpdateProjectUserRateParam) (project dto.Project, err error) {
+	defer wrapError(&err, "update project user billable rate")
+
+	if err = required(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	}); err != nil {
+		return
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	}); err != nil {
+		return
+	}
+
+	var since *dto.DateTime
+	if p.Since != nil {
+		since = &dto.DateTime{Time: *p.Since}
+	}
+
+	req, err := c.NewRequest(
+		"PUT",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID+
+			"/users/"+p.UserID+"/hourly-rate",
+		dto.UpdateProjectUserRateRequest{
+			Amount: p.Amount,
+			Since:  since,
+		},
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(req, &project, "UpdateProjectUserBillableRate")
+	return project, err
+}
+
+func (c *client) UpdateProjectUserCostRate(
+	p UpdateProjectUserRateParam) (project dto.Project, err error) {
+	defer wrapError(&err, "update project user cost rate")
+
+	if err = required(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	}); err != nil {
+		return
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+		userIDField:    p.UserID,
+	}); err != nil {
+		return
+	}
+
+	var since *dto.DateTime
+	if p.Since != nil {
+		since = &dto.DateTime{Time: *p.Since}
+	}
+
+	req, err := c.NewRequest(
+		"PUT",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID+
+			"/users/"+p.UserID+"/cost-rate",
+		dto.UpdateProjectUserRateRequest{
+			Amount: p.Amount,
+			Since:  since,
+		},
+	)
+
+	if err != nil {
+		return project, err
+	}
+
+	_, err = c.Do(req, &project, "UpdateProjectUserCostRate")
+	return project, err
+}
+
+// EstimateMethod are methods to estimate projects (none, budget and time)
+type EstimateMethod string
+
+const (
+	// EstimateMethodNone dont estimate the project
+	EstimateMethodNone = EstimateMethod("none")
+	// EstimateMethodTime estimate by time
+	EstimateMethodTime = EstimateMethod("time")
+	// EstimateMethodBudget estimate by budget
+	EstimateMethodBudget = EstimateMethod("budget")
+)
+
+// EstimateType sets if the estimate is for the role project or per task
+type EstimateType string
+
+const (
+	EstimateTypeProject = EstimateType("project")
+	EstimateTypeTask    = EstimateType("task")
+)
+
+func (t EstimateType) toRequestType() *dto.EstimateType {
+	switch t {
+	case EstimateTypeTask:
+		v := dto.EstimateTypeAuto
+		return &v
+	case EstimateTypeProject:
+		v := dto.EstimateTypeManual
+		return &v
+	default:
+		return nil
+	}
+}
+
+// EstimateResetOption defines the period in which the estimates reset
+type EstimateResetOption string
+
+const (
+	EstimateResetOptionDefault = EstimateType("")
+	EstimateResetOptionMonthly = EstimateResetOption("monthly")
+)
+
+func (t EstimateResetOption) toRequestType() *dto.EstimateResetOption {
+	switch t {
+	case EstimateResetOptionMonthly:
+		v := dto.EstimateResetOptionMonthly
+		return &v
+	default:
+		return nil
+	}
+}
+
+// UpdateProjectEstimateParam holds parameters to change project estimate
+type UpdateProjectEstimateParam struct {
+	Workspace   string
+	ProjectID   string
+	Method      EstimateMethod
+	Type        EstimateType
+	ResetOption EstimateResetOption
+	Estimate    int64
+}
+
+// UpdateProjectEstimate change how the estime of a project is measured
+func (c *client) UpdateProjectEstimate(p UpdateProjectEstimateParam) (
+	r dto.Project, err error) {
+	defer wrapError(&err, "update project estimate")
+
+	if err = required(map[field]string{
+		projectField:        p.ProjectID,
+		workspaceField:      p.Workspace,
+		estimateMethodField: string(p.Method),
+	}); err != nil {
+		return
+	}
+
+	if err = checkIDs(map[field]string{
+		projectField:   p.ProjectID,
+		workspaceField: p.Workspace,
+	}); err != nil {
+		return
+	}
+
+	if err = shouldBeOneOf(estimateMethodField, string(p.Method), []string{
+		string(EstimateMethodNone),
+		string(EstimateMethodTime),
+		string(EstimateMethodBudget),
+	}); err != nil {
+		return
+	}
+
+	if p.Method != EstimateMethodNone {
+		if err = shouldBeOneOf(estimateTypeField, string(p.Type), []string{
+			string(EstimateTypeProject),
+			string(EstimateTypeTask),
+		}); err != nil {
+			return
+		}
+
+		if err = shouldBeOneOf(resetOptionField, string(p.ResetOption),
+			[]string{
+				string(EstimateResetOptionDefault),
+				string(EstimateResetOptionMonthly),
+			}); err != nil {
+			return
+		}
+
+		if p.Type != EstimateTypeProject {
+			p.Estimate = 0
+		} else if p.Estimate <= 0 {
+			err = errors.New(
+				"estimate should be greater than zero for type project")
+			return
+		}
+	}
+
+	b := dto.UpdateProjectEstimateRequest{}
+	if p.Method != EstimateMethodNone {
+		be := dto.BaseEstimateRequest{
+			Active:       true,
+			Type:         p.Type.toRequestType(),
+			ResetOptions: p.ResetOption.toRequestType(),
+		}
+
+		switch p.Method {
+		case EstimateMethodBudget:
+			b.BudgetEstimate.BaseEstimateRequest = be
+			if p.Estimate > 0 {
+				e := uint64(p.Estimate)
+				b.BudgetEstimate.Estimate = &e
+			}
+		case EstimateMethodTime:
+			b.TimeEstimate.BaseEstimateRequest = be
+			if p.Estimate > 0 {
+				b.TimeEstimate.Estimate = &dto.Duration{
+					Duration: time.Duration(p.Estimate)}
+			}
+		}
+	}
+
+	req, err := c.NewRequest(
+		"PATCH",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID+"/estimate",
+		b,
+	)
+
+	if err != nil {
+		return
+	}
+
+	_, err = c.Do(req, &r, "UpdateProjectEstimate")
+
+	return
+}
+
+// DeleteProjectParam identifies which project to delete
+type DeleteProjectParam struct {
+	Workspace string
+	ProjectID string
+}
+
+// DeleteProject removes a project forever
+func (c *client) DeleteProject(p DeleteProjectParam) (
+	pr dto.Project, err error) {
+	defer wrapError(&err, "delete project")
+
+	ids := map[field]string{
+		workspaceField: p.Workspace,
+		projectField:   p.ProjectID,
+	}
+
+	if err = required(ids); err != nil {
+		return pr, err
+	}
+
+	if err = checkIDs(ids); err != nil {
+		return pr, err
+	}
+
+	r, err := c.NewRequest(
+		"DELETE",
+		"v1/workspaces/"+p.Workspace+"/projects/"+p.ProjectID,
+		nil,
+	)
+
+	if err != nil {
+		return pr, err
+	}
+
+	_, err = c.Do(r, &pr, "DeleteProject")
+
+	return pr, err
+}
+
+// InvalidOptionError indicates that the parameter has a limited set of valid
+// values, and the one used is not one of them (see Options for the valid ones)
+type InvalidOptionError struct {
+	Field   string
+	Options []string
+}
+
+func (i *InvalidOptionError) Error() string {
+	return "valid options for " + i.Field + " are " + strhlp.ListForHumans(i.Options)
+}
+
+func shouldBeOneOf(f field, s string, o []string) error {
+	if strhlp.InSlice(s, o) {
+		return nil
+	}
+
+	return &InvalidOptionError{
+		Field:   string(f),
+		Options: o,
+	}
 }
 
 // OutParam params to end the current time entry

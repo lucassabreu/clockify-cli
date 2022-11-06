@@ -176,7 +176,7 @@ func NewCmdEdit(
 				j := i
 				g.Go(func() error {
 					cp := p
-					cp.ID = ids[j]
+					cp.ProjectID = ids[j]
 					projects[j], err = c.UpdateProject(cp)
 					return err
 				})

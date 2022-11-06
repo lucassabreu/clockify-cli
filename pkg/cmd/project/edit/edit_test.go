@@ -145,7 +145,7 @@ func TestEditCmd(t *testing.T) {
 				client := ""
 				c.On("UpdateProject", api.UpdateProjectParam{
 					Workspace: "w",
-					ID:        "cli",
+					ProjectID: "cli",
 					ClientId:  &client,
 					Public:    &b,
 					Billable:  &b,
@@ -154,7 +154,7 @@ func TestEditCmd(t *testing.T) {
 
 				c.On("UpdateProject", api.UpdateProjectParam{
 					Workspace: "w",
-					ID:        "second",
+					ProjectID: "second",
 					ClientId:  &client,
 					Public:    &b,
 					Billable:  &b,
@@ -203,7 +203,7 @@ func TestEditCmd(t *testing.T) {
 				n := "active, but not billable"
 				c.On("UpdateProject", api.UpdateProjectParam{
 					Workspace: "w",
-					ID:        "p-1",
+					ProjectID: "p-1",
 					ClientId:  &client,
 					Public:    &b,
 					Billable:  &b,
@@ -213,7 +213,7 @@ func TestEditCmd(t *testing.T) {
 
 				c.On("UpdateProject", api.UpdateProjectParam{
 					Workspace: "w",
-					ID:        "p-2",
+					ProjectID: "p-2",
 					ClientId:  &client,
 					Public:    &b,
 					Billable:  &b,
@@ -265,7 +265,7 @@ func TestEditCmd(t *testing.T) {
 				client := "c-1"
 				c.On("UpdateProject", api.UpdateProjectParam{
 					Workspace: "w",
-					ID:        "p-1",
+					ProjectID: "p-1",
 					ClientId:  &client,
 					Name:      "First Project",
 					Color:     "0f0",
@@ -372,7 +372,7 @@ func TestEditCmdReport(t *testing.T) {
 
 			c.On("UpdateProject", api.UpdateProjectParam{
 				Workspace: "w",
-				ID:        "p-1",
+				ProjectID: "p-1",
 				Name:      "Myself",
 			}).
 				Return(pr, nil)

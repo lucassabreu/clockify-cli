@@ -21,6 +21,48 @@ func TestNormalize(t *testing.T) {
 		})
 	}
 }
+func TestInSlice(t *testing.T) {
+	tts := []struct {
+		name   string
+		b      bool
+		search string
+		list   []string
+	}{
+		{
+			name:   "unique",
+			b:      true,
+			search: "str 3",
+			list:   []string{"str 0", "str 1", "str 2", "str 3", "str 4"},
+		},
+		{
+			name:   "first",
+			b:      true,
+			search: "str 1",
+			list:   []string{"str 0", "str 1", "str 1", "str 1", "str 2"},
+		},
+		{
+			name:   "unordered",
+			b:      true,
+			search: "str 1",
+			list:   []string{"str 0", "str 3", "str 4", "str 2", "str 1"},
+		},
+		{
+			name:   "not found",
+			b:      false,
+			search: "str a",
+			list:   []string{"str 0", "str 3", "str 4", "str 2", "str 1"},
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.b, strhlp.InSlice(
+				tt.search,
+				tt.list,
+			))
+		})
+	}
+}
 
 func TestSearch(t *testing.T) {
 	tts := []struct {

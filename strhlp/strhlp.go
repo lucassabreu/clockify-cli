@@ -26,6 +26,11 @@ func Normalize(s string) string {
 	return s
 }
 
+// InSlice will return true if the needle is one of the values in list
+func InSlice(needle string, list []string) bool {
+	return Search(needle, list) != -1
+}
+
 // Search will search for a exact match of the string on the slide
 // provided and if found will return its index position, or -1 if not
 func Search(s string, list []string) int {

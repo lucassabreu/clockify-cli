@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectListCmd represents the projectList command
+// NewCmdList builds command to list projects
 func NewCmdList(
 	f cmdutil.Factory,
 	report func(io.Writer, *util.OutputFlags, []dto.Project) error,
@@ -118,6 +118,10 @@ func NewCmdList(
 		&notArchived, "not-archived", "", false, "list only active projects")
 	cmd.Flags().BoolVarP(
 		&archived, "archived", "", false, "list only archived projects")
+	cmd.Flags().BoolVarP(
+		&p.Hydrate, "hydrated", "H", false,
+		"projects will have custom fields, tasks and memberships "+
+			"filled for json and format outputs")
 
 	util.AddReportFlags(cmd, &of)
 

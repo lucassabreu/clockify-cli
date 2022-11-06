@@ -110,7 +110,7 @@ type PaginatedRequest interface {
 	WithPagination(page, size int) PaginatedRequest
 }
 
-// TimeEntryStartEndRequest to get a time entry
+// GetTimeEntryRequest to get a time entry
 type GetTimeEntryRequest struct {
 	Hydrated               *bool
 	ConsiderDurationFormat *bool
@@ -215,32 +215,35 @@ type OutTimeEntryRequest struct {
 
 // CreateTimeEntryRequest to create a time entry is created
 type CreateTimeEntryRequest struct {
-	Start        DateTime      `json:"start,omitempty"`
-	End          *DateTime     `json:"end,omitempty"`
-	Billable     bool          `json:"billable,omitempty"`
-	Description  string        `json:"description,omitempty"`
-	ProjectID    string        `json:"projectId,omitempty"`
-	TaskID       string        `json:"taskId,omitempty"`
-	TagIDs       []string      `json:"tagIds,omitempty"`
-	CustomFields []CustomField `json:"customFields,omitempty"`
+	Start        DateTime           `json:"start,omitempty"`
+	End          *DateTime          `json:"end,omitempty"`
+	Billable     bool               `json:"billable,omitempty"`
+	Description  string             `json:"description,omitempty"`
+	ProjectID    string             `json:"projectId,omitempty"`
+	TaskID       string             `json:"taskId,omitempty"`
+	TagIDs       []string           `json:"tagIds,omitempty"`
+	CustomFields []CustomFieldValue `json:"customFields,omitempty"`
 }
 
-// CustomField DTO
-type CustomField struct {
+// CustomFieldValue DTO
+type CustomFieldValue struct {
 	CustomFieldID string `json:"customFieldId"`
+	Status        string `json:"status"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
 	Value         string `json:"value"`
 }
 
 // UpdateTimeEntryRequest to update a time entry
 type UpdateTimeEntryRequest struct {
-	Start        DateTime      `json:"start,omitempty"`
-	End          *DateTime     `json:"end,omitempty"`
-	Billable     bool          `json:"billable,omitempty"`
-	Description  string        `json:"description,omitempty"`
-	ProjectID    string        `json:"projectId,omitempty"`
-	TaskID       string        `json:"taskId,omitempty"`
-	TagIDs       []string      `json:"tagIds,omitempty"`
-	CustomFields []CustomField `json:"customFields,omitempty"`
+	Start        DateTime           `json:"start,omitempty"`
+	End          *DateTime          `json:"end,omitempty"`
+	Billable     bool               `json:"billable,omitempty"`
+	Description  string             `json:"description,omitempty"`
+	ProjectID    string             `json:"projectId,omitempty"`
+	TaskID       string             `json:"taskId,omitempty"`
+	TagIDs       []string           `json:"tagIds,omitempty"`
+	CustomFields []CustomFieldValue `json:"customFields,omitempty"`
 }
 
 type GetClientsRequest struct {
@@ -279,16 +282,17 @@ type AddClientRequest struct {
 	Name string `json:"name"`
 }
 
-type GetProjectRequest struct {
+type GetProjectsRequest struct {
 	Name     string
 	Archived *bool
 	Clients  []string
+	Hydrated bool
 
 	pagination
 }
 
 // WithPagination add pagination to the GetProjectRequest
-func (r GetProjectRequest) WithPagination(page, size int) PaginatedRequest {
+func (r GetProjectsRequest) WithPagination(page, size int) PaginatedRequest {
 	r.pagination = newPagination(page, size)
 	return r
 }
@@ -299,13 +303,17 @@ var boolString = map[bool]string{
 }
 
 // AppendToQuery decorates the URL with the query string needed for this Request
-func (r GetProjectRequest) AppendToQuery(u *url.URL) *url.URL {
+func (r GetProjectsRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
 
 	if r.Name != "" {
 		v.Add("name", r.Name)
+	}
+
+	if r.Hydrated {
+		v.Add("hydrated", "true")
 	}
 
 	if r.Archived != nil {
@@ -318,6 +326,24 @@ func (r GetProjectRequest) AppendToQuery(u *url.URL) *url.URL {
 
 	u.RawQuery = v.Encode()
 
+	return u
+}
+
+// GetProjectRequest query parameters to fetch a project
+type GetProjectRequest struct {
+	Hydrated bool
+}
+
+// AppendToQuery decorates the URL with a query string
+func (r GetProjectRequest) AppendToQuery(u *url.URL) *url.URL {
+
+	v := u.Query()
+
+	if r.Hydrated {
+		v.Add("hydrated", "true")
+	}
+
+	u.RawQuery = v.Encode()
 	return u
 }
 
@@ -341,6 +367,25 @@ type UpdateProjectRequest struct {
 	Note     *string `json:"note,omitempty"`
 	Billable *bool   `json:"billable,omitempty"`
 	Archived *bool   `json:"archived,omitempty"`
+}
+
+// UpdateProjectMembershipsRequest represents a request to change which users
+// and groups have access to a project
+type UpdateProjectMembershipsRequest struct {
+	Memberships []UpdateProjectMembership `json:"memberships"`
+}
+
+// UpdateProjectMembership sets which user or group has access, and their
+// hourly rate
+type UpdateProjectMembership struct {
+	UserID     string `json:"userId"`
+	HourlyRate Rate   `json:"hourlyRate"`
+}
+
+// UpdateProjectTemplateRequest represents a request to change isTemplate flag
+// of a project
+type UpdateProjectTemplateRequest struct {
+	IsTemplate bool `json:"isTemplate"`
 }
 
 type GetTagsRequest struct {
@@ -445,4 +490,37 @@ func (r WorkspaceUsersRequest) AppendToQuery(u *url.URL) *url.URL {
 	u.RawQuery = v.Encode()
 
 	return u
+}
+
+// UpdateProjectUserRateRequest represents a request to change a user
+// billable rate on a project
+type UpdateProjectUserRateRequest struct {
+	Amount uint      `json:"amount"`
+	Since  *DateTime `json:"since,omitempty"`
+}
+
+// BaseEstimateRequest is basic information to estime a project
+type BaseEstimateRequest struct {
+	Type         *EstimateType        `json:"type,omitempty"`
+	Active       bool                 `json:"active"`
+	ResetOptions *EstimateResetOption `json:"resetOption,omitempty"`
+}
+
+// TimeEstimateRequest set parameters for time estimate on a project
+type TimeEstimateRequest struct {
+	BaseEstimateRequest
+	Estimate *Duration `json:"estimate,omitempty"`
+}
+
+// BudgetEstimateRequest set parameters for time estimate on a project
+type BudgetEstimateRequest struct {
+	BaseEstimateRequest
+	Estimate *uint64 `json:"estimate,omitempty"`
+}
+
+// UpdateProjectEstimateRequest represents a request to set a estimate of a
+// project
+type UpdateProjectEstimateRequest struct {
+	TimeEstimate   TimeEstimateRequest   `json:"timeEstimate"`
+	BudgetEstimate BudgetEstimateRequest `json:"budgetEstimate"`
 }

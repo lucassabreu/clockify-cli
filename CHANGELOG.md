@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- test help function `runClient` to mock calls to Clockfy's API
+- added the following methods on `api.Client` (with test coverage)
+  + UpdateProjectUserBillableRate
+  + UpdateProjectUserCostRate
+  + UpdateProjectEstimate
+  + UpdateProjectMemberships
+  + UpdateProjectTemplate
+  + DeleteProject
+- added flag `hydrated` at `project list` to get "enriched" projects with their custom fields, tasks and
+  memberships in one call, these can be accessed using the `format` or `json` output formats.
+- new command `project get` to show a project using its ID or name.
+
 ## [v0.41.0] - 2022-08-31
 
 ### Added
