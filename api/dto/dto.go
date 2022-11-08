@@ -118,6 +118,28 @@ type TimeEntry struct {
 	WorkspaceID   string       `json:"workspaceId"`
 }
 
+// NewTimeInterval will create a TimeInterval from start and end times
+func NewTimeInterval(start time.Time, end *time.Time) TimeInterval {
+	start = start.UTC()
+	if end != nil {
+		*end = end.UTC()
+	}
+
+	t := TimeInterval{
+		Start: start.UTC(),
+		End:   end,
+	}
+
+	if end == nil {
+		t := time.Now().UTC()
+		end = &t
+	}
+
+	t.Duration = Duration{end.Sub(t.Start)}.String()
+
+	return t
+}
+
 // TimeInterval DTO
 type TimeInterval struct {
 	Duration string     `json:"duration"`

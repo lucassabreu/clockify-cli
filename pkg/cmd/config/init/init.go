@@ -112,6 +112,7 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 				"Which days of the week do you work?",
 				cmdutil.GetWeekdays(),
 				workweekDays,
+				nil,
 			); err != nil {
 				return err
 			}

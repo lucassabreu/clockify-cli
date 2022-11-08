@@ -9,6 +9,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	timeentry "github.com/lucassabreu/clockify-cli/pkg/output/time-entry"
 	"github.com/lucassabreu/clockify-cli/pkg/timeentryhlp"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/spf13/cobra"
 )
 
@@ -109,16 +110,17 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 			}
 
 			tec.UserID = u
-			tec.TimeInterval.End = nil
+			tec.TimeInterval = dto.NewTimeInterval(timehlp.Now(), nil)
 
 			noClosing, _ := cmd.Flags().GetBool("no-closing")
 
 			dc := util.NewDescriptionCompleter(f)
 
-			if tec, err = util.Do(
-				tec,
+			te := util.TimeEntryImplToDTO(tec)
+			if te, err = util.Do(
+				te,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
-				func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				func(tec util.TimeEntryDTO) (util.TimeEntryDTO, error) {
 					if noClosing {
 						return tec, nil
 					}
@@ -129,7 +131,7 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 				util.GetPropsInteractiveFn(dc, f),
 				util.GetDatesInteractiveFn(f),
 				util.GetValidateTimeEntryFn(f),
-				func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				func(tec util.TimeEntryDTO) (util.TimeEntryDTO, error) {
 					if noClosing {
 						return tec, nil
 					}
@@ -141,7 +143,8 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tec, f, cmd.OutOrStdout(), of)
+			return util.PrintTimeEntryImpl(
+				util.TimeEntryDTOToImpl(te), f, cmd.OutOrStdout(), of)
 		},
 	}
 

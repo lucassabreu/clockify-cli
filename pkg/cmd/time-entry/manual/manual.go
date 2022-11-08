@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
@@ -41,9 +40,11 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var whenToCloseDate time.Time
 			var err error
-			tei := dto.TimeEntryImpl{}
+			tei := util.TimeEntryDTO{
+				Start: timehlp.Now(),
+			}
 
-			if tei.WorkspaceID, err = f.GetWorkspaceID(); err != nil {
+			if tei.Workspace, err = f.GetWorkspaceID(); err != nil {
 				return err
 			}
 
@@ -61,7 +62,7 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 			}
 
 			if len(args) > 1 {
-				tei.TimeInterval.Start, err = timehlp.ConvertToTime(args[1])
+				tei.Start, err = timehlp.ConvertToTime(args[1])
 				if err != nil {
 					return fmt.Errorf(
 						"fail to convert when to start: %w", err)
@@ -74,7 +75,7 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 					return fmt.Errorf(
 						"fail to convert when to end: %w", err)
 				}
-				tei.TimeInterval.End = &whenToCloseDate
+				tei.End = &whenToCloseDate
 			}
 
 			if len(args) > 3 {
@@ -86,13 +87,13 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 			if tei, err = util.Do(
 				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
-				func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-					if tei.TimeInterval.End != nil {
+				func(tei util.TimeEntryDTO) (util.TimeEntryDTO, error) {
+					if tei.End != nil {
 						return tei, nil
 					}
 
 					now, _ := timehlp.ConvertToTime(timehlp.NowTimeFormat)
-					tei.TimeInterval.End = &now
+					tei.End = &now
 					return tei, nil
 				},
 				util.GetAllowNameForIDsFn(f.Config(), c),
@@ -104,8 +105,8 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei,
-				f, cmd.OutOrStdout(), of)
+			return util.PrintTimeEntryImpl(
+				util.TimeEntryDTOToImpl(tei), f, cmd.OutOrStdout(), of)
 		},
 	}
 

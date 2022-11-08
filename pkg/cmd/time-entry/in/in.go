@@ -2,12 +2,12 @@ package in
 
 import (
 	"github.com/MakeNowJust/heredoc"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/time-entry"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 
 	"github.com/spf13/cobra"
 )
@@ -89,9 +89,11 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 			}
 
 			var err error
-			tei := dto.TimeEntryImpl{}
+			tei := util.TimeEntryDTO{
+				Start: timehlp.Now(),
+			}
 
-			if tei.WorkspaceID, err = f.GetWorkspaceID(); err != nil {
+			if tei.Workspace, err = f.GetWorkspaceID(); err != nil {
 				return err
 			}
 
@@ -128,7 +130,8 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
+			return util.PrintTimeEntryImpl(
+				util.TimeEntryDTOToImpl(tei), f, cmd.OutOrStdout(), of)
 		},
 	}
 

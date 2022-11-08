@@ -6,23 +6,22 @@ import (
 	"strings"
 
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 )
 
 // GetValidateTimeEntryFn will check if the time entry is valid given the
 // workspace parameters
-func GetValidateTimeEntryFn(f cmdutil.Factory) DoFn {
+func GetValidateTimeEntryFn(f cmdutil.Factory) Step {
 	if f.Config().GetBool(cmdutil.CONF_ALLOW_INCOMPLETE) {
-		return nullCallback
+		return skip
 	}
 
-	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return func(tei TimeEntryDTO) (TimeEntryDTO, error) {
 		return tei, validateTimeEntry(tei, f)
 	}
 }
 
-func validateTimeEntry(te dto.TimeEntryImpl, f cmdutil.Factory) error {
+func validateTimeEntry(te TimeEntryDTO, f cmdutil.Factory) error {
 	w, err := f.GetWorkspace()
 	if err != nil {
 		return err
@@ -30,6 +29,10 @@ func validateTimeEntry(te dto.TimeEntryImpl, f cmdutil.Factory) error {
 
 	if w.Settings.ForceProjects && te.ProjectID == "" {
 		return errors.New("workspace requires project")
+	}
+
+	if w.Settings.ForceTasks && te.TaskID == "" {
+		return errors.New("workspace requires task")
 	}
 
 	if w.Settings.ForceDescription && strings.TrimSpace(te.Description) == "" {
@@ -50,7 +53,7 @@ func validateTimeEntry(te dto.TimeEntryImpl, f cmdutil.Factory) error {
 	}
 
 	p, err := c.GetProject(api.GetProjectParam{
-		Workspace: te.WorkspaceID,
+		Workspace: te.Workspace,
 		ProjectID: te.ProjectID,
 	})
 

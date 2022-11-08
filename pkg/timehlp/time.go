@@ -36,7 +36,8 @@ func ConvertToTime(timeString string) (t time.Time, err error) {
 	}
 
 	if strings.HasPrefix(timeString, "yesterday ") {
-		timeString = Today().Add(-1).Format("2006-01-02") + " " + timeString[10:]
+		timeString = Today().
+			Add(-1).Format("2006-01-02") + " " + timeString[10:]
 	}
 
 	l := len(timeString)
@@ -62,7 +63,7 @@ func ConvertToTime(timeString string) (t time.Time, err error) {
 	}
 
 	if len(OnlyTimeFormat) == l {
-		timeString = time.Now().Format("2006-01-02") + " " + timeString
+		timeString = Today().Format("2006-01-02") + " " + timeString
 	}
 
 	return time.ParseInLocation(FullTimeFormat, timeString, time.Local)

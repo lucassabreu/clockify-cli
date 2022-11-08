@@ -2,21 +2,26 @@ package util
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 )
 
 // CreateTimeEntryFn will create a time entry
-func CreateTimeEntryFn(c api.Client) DoFn {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		return c.CreateTimeEntry(api.CreateTimeEntryParam{
-			Workspace:   te.WorkspaceID,
-			Billable:    &te.Billable,
-			Start:       te.TimeInterval.Start,
-			End:         te.TimeInterval.End,
-			ProjectID:   te.ProjectID,
-			Description: te.Description,
-			TagIDs:      te.TagIDs,
-			TaskID:      te.TaskID,
+func CreateTimeEntryFn(c api.Client) Step {
+	return func(dto TimeEntryDTO) (TimeEntryDTO, error) {
+		te, err := c.CreateTimeEntry(api.CreateTimeEntryParam{
+			Workspace:   dto.Workspace,
+			Billable:    dto.Billable,
+			Start:       dto.Start,
+			End:         dto.End,
+			ProjectID:   dto.ProjectID,
+			Description: dto.Description,
+			TagIDs:      dto.TagIDs,
+			TaskID:      dto.TaskID,
 		})
+
+		if err != nil {
+			return dto, err
+		}
+
+		return TimeEntryImplToDTO(te), nil
 	}
 }
