@@ -10,7 +10,7 @@ func CreateTimeEntryFn(c api.Client) DoFn {
 	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 		return c.CreateTimeEntry(api.CreateTimeEntryParam{
 			Workspace:   te.WorkspaceID,
-			Billable:    te.Billable,
+			Billable:    &te.Billable,
 			Start:       te.TimeInterval.Start,
 			End:         te.TimeInterval.End,
 			ProjectID:   te.ProjectID,

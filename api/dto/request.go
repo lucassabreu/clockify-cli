@@ -217,7 +217,7 @@ type OutTimeEntryRequest struct {
 type CreateTimeEntryRequest struct {
 	Start        DateTime           `json:"start,omitempty"`
 	End          *DateTime          `json:"end,omitempty"`
-	Billable     bool               `json:"billable,omitempty"`
+	Billable     *bool              `json:"billable,omitempty"`
 	Description  string             `json:"description,omitempty"`
 	ProjectID    string             `json:"projectId,omitempty"`
 	TaskID       string             `json:"taskId,omitempty"`
