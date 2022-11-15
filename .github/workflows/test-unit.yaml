@@ -30,3 +30,10 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.txt
           flags: unittests
+
+      - name: Report test coverage to DeepSource
+        uses: deepsourcelabs/test-coverage-action@master
+        with:
+          key: go
+          coverage-file: ./coverage.txt
+          dsn: ${{ secrets.DEEPSOURCE_DSN }}

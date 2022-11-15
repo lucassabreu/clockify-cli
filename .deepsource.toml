@@ -7,3 +7,7 @@ enabled = true
   [analyzers.meta]
   import_root = "github.com/lucassabreu/clockify-cli"
   dependencies_vendored = false
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
