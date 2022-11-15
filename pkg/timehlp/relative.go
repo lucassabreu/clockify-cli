@@ -28,7 +28,7 @@ func relativeToTime(timeString string) (t time.Time, err error) {
 		d = d * -1
 	}
 
-	t = time.Now().In(time.Local).Add(d)
+	t = Now().Add(d)
 	return
 }
 

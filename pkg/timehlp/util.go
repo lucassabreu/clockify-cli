@@ -13,3 +13,8 @@ func Today() time.Time {
 	now := time.Now()
 	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 }
+
+// Now returns a time.Time using the local timezone
+func Now() time.Time {
+	return time.Now().In(time.Local).Truncate(time.Second)
+}
