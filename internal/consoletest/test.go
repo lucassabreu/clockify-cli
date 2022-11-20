@@ -1,8 +1,10 @@
 package consoletest
 
 import (
+	"bytes"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/Netflix/go-expect"
 	"github.com/hinshun/vt10x"
@@ -73,10 +75,12 @@ func RunTestConsole(
 		t.Fatalf("failed to open pseudotty: %v", err)
 	}
 
+	b := bytes.NewBufferString("")
 	term := vt10x.New(vt10x.WithWriter(tty))
 	c, err := expect.NewConsole(
 		expect.WithStdin(pty),
 		expect.WithStdout(term),
+		expect.WithStdout(b),
 		expect.WithCloser(pty, tty),
 	)
 
@@ -88,18 +92,23 @@ func RunTestConsole(
 	donec := make(chan struct{})
 	go func() {
 		defer close(donec)
-		procedure(&console{
-			c: c,
-			t: t,
-		})
+
+		go procedure(&console{c: c, t: t})
+		if err = setup(c.Tty(), c.Tty()); err != nil {
+			t.Error(err)
+		}
+
+		if err := c.Tty().Close(); err != nil {
+			t.Errorf("error closing Tty: %v", err)
+		}
 	}()
 
-	if err = setup(c.Tty(), c.Tty()); err != nil {
-		t.Error(err)
+	select {
+	case <-time.After(time.Second * 10):
+		t.Error(
+			"console test timeout exceeded\n" +
+				"current output:\n" +
+				b.String())
+	case <-donec:
 	}
-
-	if err := c.Tty().Close(); err != nil {
-		t.Errorf("error closing Tty: %v", err)
-	}
-	<-donec
 }
