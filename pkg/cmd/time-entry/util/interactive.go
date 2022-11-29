@@ -123,7 +123,7 @@ func getProjectID(
 		PaginationParam: api.AllPages(),
 	})
 
-	if err != nil {
+	if err != nil || len(projects) == 0 {
 		return "", err
 	}
 
@@ -282,7 +282,7 @@ func getTagIDs(
 		Archived:  archived,
 	})
 
-	if err != nil {
+	if err != nil || len(tags) == 0 {
 		return nil, err
 	}
 

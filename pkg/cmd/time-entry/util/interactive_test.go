@@ -7,6 +7,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/internal/consoletest"
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -379,4 +380,187 @@ func TestGetPropsInteractive_ShouldForceAnswer_WhenWorkspaceForces(
 
 			c.ExpectEOF()
 		})
+}
+
+func TestGetPropsInteractive_ShouldNotAsk_WhenThereAreNoOptions(
+	t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			c := mocks.NewMockClient(t)
+
+			c.EXPECT().GetWorkspace(mock.Anything).
+				Return(dto.Workspace{ID: "w"}, nil)
+
+			c.EXPECT().GetProjects(mock.Anything).
+				Return([]dto.Project{}, nil)
+
+			c.EXPECT().GetTags(mock.Anything).
+				Return([]dto.Tag{}, nil)
+
+			f := mocks.NewMockFactory(t)
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+			f.EXPECT().Client().Return(c, nil)
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{Interactive: true})
+
+			output, err := GetPropsInteractiveFn(
+				func(string) []string { return []string{} },
+				f,
+			)(TimeEntryDTO{Workspace: "w"})
+
+			assert.NoError(t, err)
+			assert.Equal(t,
+				TimeEntryDTO{
+					Workspace:   "w",
+					ProjectID:   "",
+					TaskID:      "",
+					Description: "something",
+					TagIDs:      nil,
+				},
+				output,
+			)
+
+			return err
+		}, func(c consoletest.ExpectConsole) {
+			c.ExpectString("Description:")
+			c.SendLine("something")
+
+			c.ExpectEOF()
+		})
+}
+
+func TestGetDatesInteractive_ShouldSkip_WhenDisabled(t *testing.T) {
+	f := mocks.NewMockFactory(t)
+	f.EXPECT().Config().Return(&mocks.SimpleConfig{Interactive: false})
+
+	s := GetDatesInteractiveFn(f)
+
+	te := TimeEntryDTO{}
+	te2, err := s(te)
+
+	assert.NoError(t, err)
+	assert.Equal(t, te, te2)
+}
+
+func TestGetDatesInteractive_ShouldValidateString_WhenWrongFormat(
+	t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			f := mocks.NewMockFactory(t)
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{Interactive: true})
+
+			s := GetDatesInteractiveFn(f)
+
+			te, err := s(TimeEntryDTO{
+				Start: timehlp.Now(),
+			})
+
+			assert.NoError(t, err)
+			start, _ := timehlp.ConvertToTime(timehlp.FullTimeFormat)
+			assert.Equal(t,
+				TimeEntryDTO{
+					Start: start,
+					End:   nil,
+				},
+				te)
+
+			return nil
+		},
+		func(c consoletest.ExpectConsole) {
+			wrongInputs := func() {
+				for _, v := range []string{
+					"wrong",
+					"99:99",
+					"99:99:99",
+				} {
+					c.SendLine(v)
+					c.ExpectString("Sorry, your reply was invalid")
+				}
+			}
+
+			c.ExpectString("Start:")
+			wrongInputs()
+			c.SendLine(timehlp.FullTimeFormat)
+
+			c.ExpectString("End")
+			wrongInputs()
+			c.SendLine("")
+
+			c.ExpectEOF()
+		},
+	)
+}
+
+func TestGetDatesInteractive_ShouldAccept_ValideTimeFormats(t *testing.T) {
+	// toTimeRef := func(t time.Time) *time.Time { return &t }
+	fromTimeString := func(s string) TimeEntryDTO {
+		t, _ := timehlp.ConvertToTime(s)
+		return TimeEntryDTO{
+			Start: t,
+			End:   &t,
+		}
+	}
+
+	tts := []struct {
+		timeString string
+		input      TimeEntryDTO
+		output     TimeEntryDTO
+	}{
+		{
+			timeString: timehlp.FullTimeFormat,
+			output:     fromTimeString(timehlp.FullTimeFormat),
+		},
+		{
+			timeString: timehlp.SimplerTimeFormat,
+			output:     fromTimeString(timehlp.SimplerTimeFormat),
+		},
+		{
+			timeString: timehlp.OnlyTimeFormat,
+			output:     fromTimeString(timehlp.OnlyTimeFormat),
+		},
+		{
+			timeString: timehlp.SimplerOnlyTimeFormat,
+			output:     fromTimeString(timehlp.SimplerOnlyTimeFormat),
+		},
+		{
+			timeString: timehlp.NowTimeFormat,
+			output:     fromTimeString(timehlp.NowTimeFormat),
+		},
+		{
+			timeString: "",
+			input:      fromTimeString(timehlp.FullTimeFormat),
+			output:     fromTimeString(timehlp.FullTimeFormat),
+		},
+	}
+
+	for i := range tts {
+		tt := &tts[i]
+
+		t.Run(tt.timeString, func(t *testing.T) {
+			consoletest.RunTestConsole(t,
+				func(out consoletest.FileWriter, in consoletest.FileReader) error {
+					f := mocks.NewMockFactory(t)
+					f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+					f.EXPECT().Config().Return(&mocks.SimpleConfig{Interactive: true})
+
+					s := GetDatesInteractiveFn(f)
+
+					te, err := s(tt.input)
+
+					assert.NoError(t, err)
+					assert.Equal(t, tt.output, te)
+					return nil
+				},
+				func(c consoletest.ExpectConsole) {
+					c.ExpectString("Start:")
+					c.SendLine(tt.timeString)
+
+					c.ExpectString("End")
+					c.SendLine(tt.timeString)
+
+					c.ExpectEOF()
+				},
+			)
+		})
+	}
 }
