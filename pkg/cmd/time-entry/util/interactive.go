@@ -253,7 +253,7 @@ func getDescription(
 	if force {
 		v = func(s string) error {
 			if s == "" {
-				return errors.New("description should be informed !")
+				return errors.New("description should be informed")
 			}
 			return nil
 		}
