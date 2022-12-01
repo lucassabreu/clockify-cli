@@ -481,6 +481,49 @@ func TestGetProjects(t *testing.T) {
 
 			err: `get projects: error \(code: 10\)`,
 		},
+		&simpleTestCase{
+			name: "missing duration",
+			param: api.GetProjectsParam{
+				Workspace:       exampleID,
+				PaginationParam: api.AllPages(),
+			},
+
+			result: []dto.Project{
+				{
+					ID:       "wod",
+					Name:     "without duration",
+					Archived: true,
+					Duration: nil,
+				},
+				{
+					ID:       "wd",
+					Name:     "with duration",
+					Archived: true,
+					Duration: &dto.Duration{
+						Duration: 561*time.Hour +
+							13*time.Minute + 28*time.Second,
+					},
+				},
+			},
+
+			requestMethod: "get",
+			requestUrl:    uri + "?page=1&page-size=50",
+
+			responseStatus: 200,
+			responseBody: `[{
+				"id":"wod",
+				"name":"without duration",
+				"archived":true,
+				"duration":null,
+				"note":""
+			}, {
+				"id":"wd",
+				"name":"with duration",
+				"archived":true,
+				"duration":"PT561H13M28S",
+				"note":""
+			}]`,
+		},
 	}
 
 	for _, tt := range tts {
