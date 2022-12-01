@@ -1,6 +1,7 @@
 package init_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -46,14 +47,13 @@ func TestInitCmd(t *testing.T) {
 			config := mocks.NewMockConfig(t)
 			client := mocks.NewMockClient(t)
 
-			f.On("Config").Return(config)
+			f.EXPECT().Config().Return(config)
+			config.EXPECT().GetString(cmdutil.CONF_TOKEN).Return("")
+			config.EXPECT().SetString(cmdutil.CONF_TOKEN, "new token")
 
-			f.On("Client").NotBefore(
-				config.On("GetString", cmdutil.CONF_TOKEN).Return(""),
-				config.On("SetString", cmdutil.CONF_TOKEN, "new token"),
-			).Return(client, nil)
+			f.EXPECT().Client().Return(client, nil)
 
-			client.On("GetWorkspaces", api.GetWorkspaces{}).
+			client.EXPECT().GetWorkspaces(api.GetWorkspaces{}).
 				Return([]dto.Workspace{
 					{ID: "1", Name: "First"},
 					{ID: "2", Name: "Second"},
@@ -61,7 +61,7 @@ func TestInitCmd(t *testing.T) {
 
 			call := setStringFn(config, cmdutil.CONF_WORKSPACE, "2")
 
-			client.On("WorkspaceUsers", api.WorkspaceUsersParam{
+			client.EXPECT().WorkspaceUsers(api.WorkspaceUsersParam{
 				Workspace:       "2",
 				PaginationParam: api.AllPages(),
 			}).
@@ -81,9 +81,9 @@ func TestInitCmd(t *testing.T) {
 			config.EXPECT().
 				SetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE, 10)
 
-			config.On("GetStringSlice", cmdutil.CONF_WORKWEEK_DAYS).
+			config.EXPECT().GetStringSlice(cmdutil.CONF_WORKWEEK_DAYS).
 				Return([]string{})
-			config.On("SetStringSlice", cmdutil.CONF_WORKWEEK_DAYS, []string{
+			config.EXPECT().SetStringSlice(cmdutil.CONF_WORKWEEK_DAYS, []string{
 				strings.ToLower(time.Sunday.String()),
 				strings.ToLower(time.Tuesday.String()),
 				strings.ToLower(time.Thursday.String()),
@@ -96,12 +96,12 @@ func TestInitCmd(t *testing.T) {
 			setBoolFn(config, cmdutil.CONF_SHOW_TOTAL_DURATION, true, true)
 			setBoolFn(config, cmdutil.CONF_DESCR_AUTOCOMP, false, true)
 
-			config.On("GetInt", cmdutil.CONF_DESCR_AUTOCOMP_DAYS).Return(0)
-			config.On("SetInt", cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
+			config.EXPECT().GetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS).Return(0)
+			config.EXPECT().SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
 
 			setBoolFn(config, cmdutil.CONF_ALLOW_ARCHIVED_TAGS, true, false)
 
-			config.On("Save").Once().Return(nil)
+			config.EXPECT().Save().Once().Return(nil)
 
 			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
 
@@ -109,7 +109,7 @@ func TestInitCmd(t *testing.T) {
 			return err
 		},
 		func(c consoletest.ExpectConsole) {
-			c.ExpectString("Token: ")
+			c.ExpectString("Token:")
 			c.SendLine("new token")
 			c.ExpectString("new token")
 
@@ -196,14 +196,14 @@ func TestInitCmdCtrlC(t *testing.T) {
 			f := mocks.NewMockFactory(t)
 			config := mocks.NewMockConfig(t)
 
-			f.On("Config").Return(config)
-			config.On("GetString", cmdutil.CONF_TOKEN).Return("")
+			f.EXPECT().Config().Return(config)
+			config.EXPECT().GetString(cmdutil.CONF_TOKEN).Return("")
 
 			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
 
 			_, err := ini.NewCmdInit(f).ExecuteC()
 			if !assert.Error(t, err) {
-				return nil
+				return errors.New("should have failed")
 			}
 
 			assert.ErrorIs(t, err, terminal.InterruptErr)
@@ -211,7 +211,7 @@ func TestInitCmdCtrlC(t *testing.T) {
 		},
 		func(c consoletest.ExpectConsole) {
 			c.ExpectString("Token: ")
-			c.SendLine(string(terminal.KeyInterrupt))
+			c.Send(string(terminal.KeyInterrupt))
 
 			c.ExpectEOF()
 		})

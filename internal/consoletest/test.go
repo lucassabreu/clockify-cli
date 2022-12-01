@@ -70,6 +70,8 @@ func RunTestConsole(
 	setup func(out FileWriter, in FileReader) error,
 	procedure func(c ExpectConsole),
 ) {
+	t.Parallel()
+
 	pty, tty, err := pseudotty.Open()
 	if err != nil {
 		t.Fatalf("failed to open pseudotty: %v", err)
@@ -89,26 +91,35 @@ func RunTestConsole(
 	}
 	defer c.Close()
 
+	finished := false
+	t.Cleanup(func() {
+		if finished {
+			return
+		}
+		t.Error(
+			"console test failed\n" +
+				"current output:\n" +
+				b.String() + "\n")
+	})
+
 	donec := make(chan struct{})
 	go func() {
 		defer close(donec)
+		procedure(&console{c: c, t: t})
+	}()
 
-		go procedure(&console{c: c, t: t})
+	go func() {
+		defer c.Tty().Close()
 		if err = setup(c.Tty(), c.Tty()); err != nil {
 			t.Error(err)
-		}
-
-		if err := c.Tty().Close(); err != nil {
-			t.Errorf("error closing Tty: %v", err)
+			return
 		}
 	}()
 
 	select {
 	case <-time.After(time.Second * 10):
-		t.Error(
-			"console test timeout exceeded\n" +
-				"current output:\n" +
-				b.String())
+		t.Error("console test timeout exceeded")
 	case <-donec:
+		finished = true
 	}
 }
