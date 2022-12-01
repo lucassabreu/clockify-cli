@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.42.1] - 2022-12-01
+
 ### Fixed
 
 - when the `duration` of a project is `null`, a error "duration null is invalid" was blocking the use of the
@@ -1050,7 +1052,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.42.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.42.1...HEAD
+[v0.42.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.42.1
 [v0.42.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.42.0
 [v0.41.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.41.0
 [v0.40.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.40.0
