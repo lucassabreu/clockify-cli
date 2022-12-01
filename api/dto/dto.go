@@ -202,7 +202,7 @@ type Project struct {
 
 	TimeEstimate   TimeEstimate `json:"timeEstimate"`
 	BudgetEstimate BaseEstimate `json:"budgetEstimate"`
-	Duration       Duration     `json:"duration"`
+	Duration       *Duration    `json:"duration"`
 
 	Archived bool `json:"archived"`
 	Template bool `json:"template"`

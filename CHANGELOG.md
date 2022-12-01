@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- when the `duration` of a project is `null`, a error "duration null is invalid" was blocking the use of the
+  cli
+
 ## [v0.42.0] - 2022-11-09
 
 ### Added
