@@ -149,7 +149,7 @@ const TaskStatusDone = TaskStatus("DONE")
 type Task struct {
 	AssigneeIDs  []string   `json:"assigneeIds"`
 	UserGroupIDs []string   `json:"userGroupIds"`
-	Estimate     Duration   `json:"estimate"`
+	Estimate     *Duration  `json:"estimate"`
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
 	ProjectID    string     `json:"projectId"`
