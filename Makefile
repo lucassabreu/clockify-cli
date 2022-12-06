@@ -36,7 +36,7 @@ go-install: deps-install ## install dev version
 	go install $(MAIN_PKG)
 
 go-generate: deps-install ## recreates generate files
-	go install github.com/vektra/mockery/v2@latest
+	go install github.com/vektra/mockery/v2@v2.15.0
 	go generate ./...
 
 test-install: deps-install go-generate

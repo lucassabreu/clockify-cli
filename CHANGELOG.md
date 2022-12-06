@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `duration` and `estimate` of a task can be `null`, and when the `estimate` where null the cli was failing
+   with: "duration null is invalid"
+
 ## [v0.42.1] - 2022-12-01
 
 ### Fixed
