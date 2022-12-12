@@ -13,7 +13,7 @@ import (
 
 // NewCmdDelete represents the delete command
 func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
-	va := cmdcompl.ValidArgsSlide{timeentryhlp.AliasCurrent}
+	va := cmdcompl.ValidArgsSlide{timeentryhlp.AliasCurrent, timeentryhlp.AliasLast}
 	cmd := &cobra.Command{
 		Use: "delete { <time-entry-id> | " +
 			va.IntoUseOptions() + " }...",
@@ -40,8 +40,16 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 			$ %[1]s current
 			# no output
 
+			# deleting the last time entry
+			$ %[1]s last
+			# no output
+
 			# deleting multiple time entries
 			$ %[1]s 62b5b51085815e619d7ae18d 62b5d55185815e619d7af928
+			# no output
+
+			# deleting last two entries
+			$ %[1]s last last
 			# no output
 		`, "clockify-cli delete"),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -80,6 +88,16 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 
 					if te == nil {
 						return errors.New("there is no time entry in progress")
+					}
+
+					p.TimeEntryID = te.ID
+				}
+
+				if p.TimeEntryID == timeentryhlp.AliasLast {
+					te, err := timeentryhlp.GetLatestEntryEntry(c, p.Workspace, u)
+
+					if err != nil {
+						return err
 					}
 
 					p.TimeEntryID = te.ID
