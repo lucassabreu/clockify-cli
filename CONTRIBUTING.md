@@ -2,18 +2,18 @@
 
 Thank you for the interest in Contributing to Clockify CLI.
 
-We accept pull requests for bug fixes and features (preferably that were discussed on a issue
+We accept pull requests for bug fixes and features (preferably that were discussed on an issue
 before). Also opening issues with feature requests and reporting bugs are very important
 contributions.
 
 Please do:
 
-- Check in the [issues][issues] if the [bug][bugs] or [feature request][features] has not been
-  submitted.
+- Check in the [issues](https://github.com/lucassabreu/clockify-cli/issues) if the [bug][bugs]
+ or [feature request][enhancement] has not been submitted.
 - Open an issue if things aren't working as expected.
 - Open an issue to propose new features or improvements on existing ones.
 - Open a pull request to fix a [bug][bugs].
-- Open a pull request for any open issue labelled [`type: enhancement`][enhancement]
+- Open a pull request for any open issue labelled [`type: enhancement`][enhancement].
 
 Please avoid:
 
