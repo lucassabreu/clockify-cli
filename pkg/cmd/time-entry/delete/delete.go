@@ -47,10 +47,6 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 			# deleting multiple time entries
 			$ %[1]s 62b5b51085815e619d7ae18d 62b5d55185815e619d7af928
 			# no output
-
-			# deleting last two entries
-			$ %[1]s last last
-			# no output
 		`, "clockify-cli delete"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
