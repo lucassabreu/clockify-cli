@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- support to `last` alias when deleting a time entry.
+
+### Thanks
+
+Thank you to [@jjnilton](https://github.com/jjnilton) for fixing the issue
+[#229](https://github.com/lucassabreu/clockify-cli/issues/229) on PR
+[#238](https://github.com/lucassabreu/clockify-cli/pull/238).
+
 ## [v0.42.2] - 2022-12-06
 
 ### Fixed
