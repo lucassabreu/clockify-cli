@@ -13,7 +13,7 @@ import (
 
 // NewCmdDelete represents the delete command
 func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
-	va := cmdcompl.ValidArgsSlide{timeentryhlp.AliasCurrent}
+	va := cmdcompl.ValidArgsSlide{timeentryhlp.AliasCurrent, timeentryhlp.AliasLast}
 	cmd := &cobra.Command{
 		Use: "delete { <time-entry-id> | " +
 			va.IntoUseOptions() + " }...",
@@ -38,6 +38,10 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 
 			# deleting the running time entry
 			$ %[1]s current
+			# no output
+
+			# deleting the last time entry
+			$ %[1]s last
 			# no output
 
 			# deleting multiple time entries
@@ -80,6 +84,16 @@ func NewCmdDelete(f cmdutil.Factory) *cobra.Command {
 
 					if te == nil {
 						return errors.New("there is no time entry in progress")
+					}
+
+					p.TimeEntryID = te.ID
+				}
+
+				if p.TimeEntryID == timeentryhlp.AliasLast {
+					te, err := timeentryhlp.GetLatestEntryEntry(c, p.Workspace, u)
+
+					if err != nil {
+						return err
 					}
 
 					p.TimeEntryID = te.ID
