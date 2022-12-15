@@ -11,19 +11,20 @@ import (
 )
 
 const (
-	CONF_WORKWEEK_DAYS       = "workweek-days"
-	CONF_INTERACTIVE         = "interactive"
-	CONF_ALLOW_NAME_FOR_ID   = "allow-name-for-id"
-	CONF_USER_ID             = "user.id"
-	CONF_WORKSPACE           = "workspace"
-	CONF_TOKEN               = "token"
-	CONF_ALLOW_INCOMPLETE    = "allow-incomplete"
-	CONF_SHOW_TASKS          = "show-task"
-	CONF_DESCR_AUTOCOMP      = "description-autocomplete"
-	CONF_DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
-	CONF_SHOW_TOTAL_DURATION = "show-total-duration"
-	CONF_LOG_LEVEL           = "log-level"
-	CONF_ALLOW_ARCHIVED_TAGS = "allow-archived-tags"
+	CONF_WORKWEEK_DAYS         = "workweek-days"
+	CONF_INTERACTIVE           = "interactive"
+	CONF_ALLOW_NAME_FOR_ID     = "allow-name-for-id"
+	CONF_USER_ID               = "user.id"
+	CONF_WORKSPACE             = "workspace"
+	CONF_TOKEN                 = "token"
+	CONF_ALLOW_INCOMPLETE      = "allow-incomplete"
+	CONF_SHOW_TASKS            = "show-task"
+	CONF_DESCR_AUTOCOMP        = "description-autocomplete"
+	CONF_DESCR_AUTOCOMP_DAYS   = "description-autocomplete-days"
+	CONF_SHOW_TOTAL_DURATION   = "show-total-duration"
+	CONF_LOG_LEVEL             = "log-level"
+	CONF_ALLOW_ARCHIVED_TAGS   = "allow-archived-tags"
+	CONF_INTERACTIVE_PAGE_SIZE = "interactive-page-size"
 )
 
 const (
@@ -50,6 +51,9 @@ type Config interface {
 	IsAllowNameForID() bool
 	IsInteractive() bool
 	GetWorkWeekdays() []string
+	// InteractivePageSize sets how many items are shown when prompting
+	// projects
+	InteractivePageSize() int
 
 	Get(string) interface{}
 	All() map[string]interface{}
@@ -61,6 +65,14 @@ type Config interface {
 
 type config struct{}
 
+func (c *config) InteractivePageSize() int {
+	i := c.GetInt(CONF_INTERACTIVE_PAGE_SIZE)
+	if i <= 0 {
+		return 7
+	}
+	return i
+}
+
 func (c *config) LogLevel() string {
 	l := c.GetString(CONF_LOG_LEVEL)
 	switch l {
@@ -69,7 +81,6 @@ func (c *config) LogLevel() string {
 	default:
 		return LOG_LEVEL_NONE
 	}
-
 }
 
 func (*config) GetBool(param string) bool {

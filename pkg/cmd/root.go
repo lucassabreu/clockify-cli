@@ -43,6 +43,9 @@ func NewCmdRoot(f cmdutil.Factory) *cobra.Command {
 		"will prompt you to confirm/complement commands input before "+
 			"executing the action ")
 
+	cmd.PersistentFlags().IntP("interactive-page-size", "L", 7,
+		"will set how many items will be shown on interactive mode")
+
 	cmd.PersistentFlags().BoolP("allow-name-for-id", "", false,
 		"allow use of project/client/tag's name when id is asked")
 

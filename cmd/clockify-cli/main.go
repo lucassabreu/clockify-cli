@@ -121,6 +121,12 @@ func bindViper(rootCmd *cobra.Command) error {
 		return err
 	}
 
+	if err = bind(l("interactive-page-size"),
+		cmdutil.CONF_INTERACTIVE_PAGE_SIZE,
+		"INTERACTIVE_PAGE_SIZE"); err != nil {
+		return err
+	}
+
 	f := l("interactive")
 	f.Usage = f.Usage + "\n" +
 		"You can be disable it temporally by setting it to 0 " +

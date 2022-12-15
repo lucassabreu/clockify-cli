@@ -87,7 +87,8 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 	}
 
 	userID := ""
-	if userID, err = ui.AskFromOptions("Choose your user:", usersString, dUser); err != nil {
+	if userID, err = ui.AskFromOptions(
+		"Choose your user:", usersString, dUser); err != nil {
 		return err
 	}
 	config.SetString(cmdutil.CONF_USER_ID,
@@ -106,6 +107,12 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 		cmdutil.CONF_INTERACTIVE,
 		`Should use "Interactive Mode" by default?`,
 	); err != nil {
+		return err
+	}
+
+	if err = updateInt(config, cmdutil.CONF_INTERACTIVE_PAGE_SIZE,
+		"How many items should be shown when asking for "+
+			"projects, tasks or tags?"); err != nil {
 		return err
 	}
 
@@ -143,28 +150,22 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 		return err
 	}
 
-	if err := updateFlag(
-		config,
-		cmdutil.CONF_DESCR_AUTOCOMP,
-		`Allow description suggestions using recent time entries' descriptions?`,
+	if err := updateFlag(config, cmdutil.CONF_DESCR_AUTOCOMP,
+		`Allow description suggestions using `+
+			`recent time entries' descriptions?`,
 	); err != nil {
 		return err
 	}
 
-	daysToConsider := config.GetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS)
 	if config.GetBool(cmdutil.CONF_DESCR_AUTOCOMP) {
-		daysToConsider, err = ui.AskForInt(
+		if err := updateInt(config, cmdutil.CONF_DESCR_AUTOCOMP_DAYS,
 			`How many days should be used for a time entry to be "recent"?`,
-			daysToConsider,
-		)
-		if err != nil {
+		); err != nil {
 			return err
 		}
 	} else {
-		daysToConsider = 0
+		config.SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 0)
 	}
-
-	config.SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, daysToConsider)
 
 	if err := updateFlag(
 		config,
@@ -177,8 +178,17 @@ func run(config cmdutil.Config, getClient func() (api.Client, error)) error {
 	return config.Save()
 }
 
-func updateFlag(config cmdutil.Config,
-	param string, description string) (err error) {
+func updateInt(config cmdutil.Config, param, desc string) error {
+	value := config.GetInt(param)
+	value, err := ui.AskForInt(desc, value)
+	if err != nil {
+		return err
+	}
+	config.SetInt(param, value)
+	return nil
+}
+
+func updateFlag(config cmdutil.Config, param, description string) (err error) {
 	b := config.GetBool(param)
 	if b, err = ui.Confirm(description, b); err != nil {
 		return

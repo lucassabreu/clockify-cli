@@ -79,6 +79,11 @@ func TestInitCmd(t *testing.T) {
 			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true)
 			setBoolFn(config, cmdutil.CONF_INTERACTIVE, false, false)
 
+			config.EXPECT().GetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE).
+				Return(7)
+			config.EXPECT().
+				SetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE, 10)
+
 			config.On("GetStringSlice", cmdutil.CONF_WORKWEEK_DAYS).
 				Return([]string{})
 			config.On("SetStringSlice", cmdutil.CONF_WORKWEEK_DAYS, []string{
@@ -130,6 +135,11 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectString("Interactive Mode\" by default?")
 			c.SendLine("n")
 			c.ExpectString("No")
+
+			c.ExpectString("How many items should be shown when asking for " +
+				"projects, tasks or tags?")
+			c.ExpectString("7")
+			c.SendLine("10")
 
 			c.ExpectString("Which days of the week do you work?")
 			c.ExpectString("sunday")

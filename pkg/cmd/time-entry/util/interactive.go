@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -61,6 +62,8 @@ func GetPropsInteractiveFn(
 	}
 
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		ui.AddDefaultOptions(survey.WithPageSize(config.InteractivePageSize()))
+
 		return askTimeEntryPropsInteractive(c, tei, dc,
 			config.GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS))
 	}

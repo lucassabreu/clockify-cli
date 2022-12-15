@@ -14,8 +14,14 @@ import (
 
 var options []survey.AskOpt
 
+// SetDefaultOptions change the default options for all "Asks"
 func SetDefaultOptions(opt ...survey.AskOpt) {
 	options = opt
+}
+
+// AddDefaultOptions add options to the current options for all "Asks"
+func AddDefaultOptions(opt ...survey.AskOpt) {
+	options = append(options, opt...)
 }
 
 func selectFilter(filter, value string, _ int) bool {
