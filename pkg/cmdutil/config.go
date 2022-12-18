@@ -35,31 +35,47 @@ const (
 
 // Config manages configs and parameters used locally by the CLI
 type Config interface {
+	// GetBool retrieves a config by its name as a bool
 	GetBool(string) bool
+	// SetBool changes a bool config by its name
 	SetBool(string, bool)
 
+	// GetInt retrieves a config by its name as a int
 	GetInt(string) int
+	// SetInt changes a int config by its name
 	SetInt(string, int)
 
+	// GetString retrieves a config by its name as a string
 	GetString(string) string
+	// SetString changes a string config by its name
 	SetString(string, string)
 
+	// SetStringSlice retrieves a config by its name as a []string
 	GetStringSlice(string) []string
+	// SetStringSlice changes a []string config by its name
 	SetStringSlice(string, []string)
 
+	// IsDebuging configures CLI to log most of the data being used
 	IsDebuging() bool
+	// IsAllowNameForID configures the CLI to lookup entities ids by their name
 	IsAllowNameForID() bool
+	// IsInteractive configures the CLI to prompt the user interactively
 	IsInteractive() bool
+	// GetWorkWeekdays set which days of the week the user is expected to work
 	GetWorkWeekdays() []string
 	// InteractivePageSize sets how many items are shown when prompting
 	// projects
 	InteractivePageSize() int
 
+	// Get retrieves a config by its name
 	Get(string) interface{}
+	// All retrieves all the configurations of the CLI as a map
 	All() map[string]interface{}
 
+	// LogLevel sets how much should be logged during execution
 	LogLevel() string
 
+	// Save will persist the changes made to the configuration
 	Save() error
 }
 
