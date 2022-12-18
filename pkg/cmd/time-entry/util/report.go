@@ -55,7 +55,7 @@ func AddPrintTimeEntriesFlags(cmd *cobra.Command, of *OutputFlags) {
 		`prints only the sum of duration as a "float hour"`)
 }
 
-// PrintTimeEntries will print out a time entries using parameters and flags
+// PrintTimeEntryImpl will print out a time entries using parameters and flags
 func PrintTimeEntryImpl(
 	tei dto.TimeEntryImpl,
 	f cmdutil.Factory,
@@ -79,7 +79,7 @@ func PrintTimeEntryImpl(
 	return PrintTimeEntry(fte, out, f.Config(), of)
 }
 
-// PrintTimeEntries will print out a time entries using parameters and flags
+// PrintTimeEntry will print out a time entries using parameters and flags
 func PrintTimeEntry(
 	te *dto.TimeEntry, out io.Writer, config cmdutil.Config, of OutputFlags,
 ) error {

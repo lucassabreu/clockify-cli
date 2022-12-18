@@ -32,7 +32,8 @@ const (
 	TimeFormatSimple = "15:04:05"
 )
 
-// TimeEntryOptions sets how the "table" format should print the time entries
+// TimeEntryOutputOptions sets how the "table" format should print the time
+// entries
 type TimeEntryOutputOptions struct {
 	ShowTasks         bool
 	ShowTotalDuration bool
@@ -55,7 +56,7 @@ func WithShowTasks() TimeEntryOutputOpt {
 	}
 }
 
-// WithDurationTotal shows a footer with the sum of the durations of the time
+// WithTotalDuration shows a footer with the sum of the durations of the time
 // entries
 func WithTotalDuration() TimeEntryOutputOpt {
 	return func(teoo *TimeEntryOutputOptions) error {

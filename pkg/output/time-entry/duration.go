@@ -27,7 +27,7 @@ func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Write
 	)
 }
 
-// TimeEntryTotalDurationOnlyFormatted will only print the total duration as
+// TimeEntriesTotalDurationOnlyFormatted will only print the total duration as
 // float
 func TimeEntriesTotalDurationOnlyFormatted(
 	timeEntries []dto.TimeEntry, w io.Writer) error {

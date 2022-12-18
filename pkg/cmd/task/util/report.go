@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// OutputFlags
+// OutputFlags sets how the tasks will be printed
 type OutputFlags struct {
 	Format string
 	JSON   bool

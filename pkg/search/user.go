@@ -5,7 +5,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// GetUsesByName receives a list of id or names of clients and returns their
+// GetUsersByName receives a list of id or names of clients and returns their
 // ids
 func GetUsersByName(
 	c api.Client,
