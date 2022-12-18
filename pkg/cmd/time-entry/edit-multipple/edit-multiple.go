@@ -181,7 +181,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.GetAllowNameForIDsFn(f.Config(), c),
-				util.GetPropsInteractiveFn(c, dc, f.Config()),
+				util.GetPropsInteractiveFn(dc, f),
 				util.GetValidateTimeEntryFn(f),
 				fn,
 			); err != nil {

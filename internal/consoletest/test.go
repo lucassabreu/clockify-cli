@@ -33,7 +33,7 @@ func (c *console) ExpectEOF() {
 
 func (c *console) ExpectString(s string) {
 	if _, err := c.c.ExpectString(s); err != nil {
-		c.t.Errorf("failed to ExpectString %v", err)
+		c.t.Errorf("failed to ExpectString (%s) %v", s, err)
 	}
 }
 

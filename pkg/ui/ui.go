@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,23 +11,69 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/strhlp"
+	"github.com/pkg/errors"
 )
 
-var options []survey.AskOpt
-
-// SetDefaultOptions change the default options for all "Asks"
-func SetDefaultOptions(opt ...survey.AskOpt) {
-	options = opt
+// FileReader represents the input of a terminal
+type FileReader interface {
+	io.Reader
+	Fd() uintptr
 }
 
-// AddDefaultOptions add options to the current options for all "Asks"
-func AddDefaultOptions(opt ...survey.AskOpt) {
-	options = append(options, opt...)
+// FileWriter represents the output of a terminal
+type FileWriter interface {
+	io.Writer
+	Fd() uintptr
+}
+
+// NewUI creates a new UI instance
+func NewUI(in FileReader, out FileWriter, err io.Writer) UI {
+	return &ui{
+		options: []survey.AskOpt{
+			survey.WithStdio(in, out, err),
+		},
+	}
+}
+
+// UI provides functions to prompt information from a terminal
+type UI interface {
+	// SetPageSize changes how many entries are shown on AskFromOptions and
+	// AskManyFromOptions at a time
+	SetPageSize(p uint) UI
+	// AskForText interactively ask for one string from the user
+	AskForText(m string, opts ...InputOption) (string, error)
+	// AskForDateTime interactively ask for one date and time from the user
+	AskForDateTime(m, d string, ct convertTime) (time.Time, error)
+	// AskForDateTimeOrNil interactively ask for one date and time from the
+	// user, but allows a empty response
+	AskForDateTimeOrNil(m, d string, ct convertTime) (*time.Time, error)
+	// AskForInt interactively ask for one int from the user
+	AskForInt(m string, d int) (int, error)
+	// AskFromOptions interactively ask the user to choose one option or none
+	AskFromOptions(m string, o []string, d string) (string, error)
+	// AskManyFromOptions interactively ask the user to choose none or many
+	// option
+	AskManyFromOptions(m string, o []string, d []string) ([]string, error)
+	// Confirm interactively ask the user a yes/no question
+	Confirm(m string, d bool) (bool, error)
+}
+
+type ui struct {
+	options []survey.AskOpt
+}
+
+func (u *ui) SetPageSize(p uint) UI {
+	if p == 0 {
+		p = 7
+	}
+	u.options = append(u.options, survey.WithPageSize(int(p)))
+	return u
 }
 
 func selectFilter(filter, value string, _ int) bool {
 	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
-	filter = regexp.MustCompile("["+r+"]+").ReplaceAllString(strhlp.Normalize(filter), "")
+	filter = regexp.MustCompile("["+r+"]+").
+		ReplaceAllString(strhlp.Normalize(filter), "")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
 	filter = strings.ReplaceAll(filter, " ", ".*")
 	filter = strings.ReplaceAll(filter, "*", ".*")
@@ -34,9 +81,9 @@ func selectFilter(filter, value string, _ int) bool {
 	return regexp.MustCompile(filter).MatchString(strhlp.Normalize(value))
 }
 
-func askString(p survey.Prompt) (string, error) {
+func askString(p survey.Prompt, options ...survey.AskOpt) (string, error) {
 	answer := ""
-	return answer, survey.AskOne(p, &answer, options...)
+	return answer, errors.WithStack(survey.AskOne(p, &answer, options...))
 }
 
 // WithSuggestion applies the suggestion function to the input question
@@ -64,7 +111,7 @@ func WithDefault(d string) InputOption {
 type InputOption func(*survey.Input)
 
 // AskForText interactively ask for one string from the user
-func AskForText(message string, opts ...InputOption) (string, error) {
+func (u *ui) AskForText(message string, opts ...InputOption) (string, error) {
 	i := &survey.Input{
 		Message: message,
 	}
@@ -73,7 +120,7 @@ func AskForText(message string, opts ...InputOption) (string, error) {
 		o(i)
 	}
 
-	return askString(i)
+	return askString(i, u.options...)
 }
 
 type timeAnswer struct {
@@ -106,11 +153,13 @@ func (ans *timeAnswer) WriteAnswer(_ string, v interface{}) error {
 	return nil
 }
 
+type convertTime func(string) (time.Time, error)
+
 // AskForDateTime interactively ask for one date and time from the user
-func AskForDateTime(
+func (u *ui) AskForDateTime(
 	name,
 	value string,
-	convert func(string) (time.Time, error),
+	convert convertTime,
 ) (time.Time, error) {
 	i := &survey.Input{
 		Message: name + ":",
@@ -119,7 +168,7 @@ func AskForDateTime(
 
 	t := timeAnswer{convert: convert}
 	opts := make([]survey.AskOpt, 0)
-	opts = append(opts, options...)
+	opts = append(opts, u.options...)
 	opts = append(opts,
 		survey.WithValidator(survey.Required),
 		survey.WithValidator(t.validate),
@@ -137,14 +186,14 @@ func AskForDateTime(
 	}
 }
 
-func AskForDateTimeOrNil(
+func (u *ui) AskForDateTimeOrNil(
 	name,
 	value string,
-	convert func(string) (time.Time, error),
+	convert convertTime,
 ) (*time.Time, error) {
 	t := timeAnswer{convert: convert}
 	opts := []survey.AskOpt{survey.WithValidator(t.validate)}
-	opts = append(opts, options...)
+	opts = append(opts, u.options...)
 	return t.Time, survey.AskOne(
 		&survey.Input{
 			Message: name + " (leave it blank for empty):",
@@ -156,7 +205,7 @@ func AskForDateTimeOrNil(
 }
 
 // AskForInt interactively ask for one int from the user
-func AskForInt(message string, d int) (int, error) {
+func (u *ui) AskForInt(message string, d int) (int, error) {
 	opts := []survey.AskOpt{survey.WithValidator(func(ans interface{}) error {
 		v, ok := ans.(string)
 		if !ok {
@@ -166,7 +215,7 @@ func AskForInt(message string, d int) (int, error) {
 		_, err := strconv.Atoi(v)
 		return err
 	})}
-	opts = append(opts, options...)
+	opts = append(opts, u.options...)
 	return d, survey.AskOne(
 		&survey.Input{
 			Message: message,
@@ -178,7 +227,7 @@ func AskForInt(message string, d int) (int, error) {
 }
 
 // AskFromOptions interactively ask the user to choose one option or none
-func AskFromOptions(message string, options []string, d string) (string, error) {
+func (u *ui) AskFromOptions(message string, options []string, d string) (string, error) {
 	p := &survey.Select{
 		Message: message,
 		Options: options,
@@ -189,11 +238,11 @@ func AskFromOptions(message string, options []string, d string) (string, error) 
 		p.Default = d
 	}
 
-	return askString(p)
+	return askString(p, u.options...)
 }
 
 // AskManyFromOptions interactively ask the user to choose none or many option
-func AskManyFromOptions(message string, opts, d []string) ([]string, error) {
+func (u *ui) AskManyFromOptions(message string, opts, d []string) ([]string, error) {
 	var choices []string
 	return choices, survey.AskOne(
 		&survey.MultiSelect{
@@ -203,12 +252,12 @@ func AskManyFromOptions(message string, opts, d []string) ([]string, error) {
 			Filter:  selectFilter,
 		},
 		&choices,
-		options...,
+		u.options...,
 	)
 }
 
 // Confirm interactively ask the user a yes/no question
-func Confirm(message string, d bool) (bool, error) {
+func (u *ui) Confirm(message string, d bool) (bool, error) {
 	v := false
 	return v, survey.AskOne(
 		&survey.Confirm{
@@ -216,6 +265,6 @@ func Confirm(message string, d bool) (bool, error) {
 			Default: d,
 		},
 		&v,
-		options...,
+		u.options...,
 	)
 }

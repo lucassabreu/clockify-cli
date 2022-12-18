@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -43,8 +42,6 @@ func setBoolFn(config *mocks.MockConfig, name string, first, value bool) *mock.C
 func TestInitCmd(t *testing.T) {
 	consoletest.RunTestConsole(t,
 		func(out consoletest.FileWriter, in consoletest.FileReader) error {
-			ui.SetDefaultOptions(survey.WithStdio(in, out, out))
-
 			f := mocks.NewMockFactory(t)
 			config := mocks.NewMockConfig(t)
 			client := mocks.NewMockClient(t)
@@ -106,8 +103,9 @@ func TestInitCmd(t *testing.T) {
 
 			config.On("Save").Once().Return(nil)
 
-			cmd := ini.NewCmdInit(f)
-			_, err := cmd.ExecuteC()
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+
+			_, err := ini.NewCmdInit(f).ExecuteC()
 			return err
 		},
 		func(c consoletest.ExpectConsole) {
@@ -191,19 +189,19 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectEOF()
 		})
 }
+
 func TestInitCmdCtrlC(t *testing.T) {
 	consoletest.RunTestConsole(t,
 		func(out consoletest.FileWriter, in consoletest.FileReader) error {
-			ui.SetDefaultOptions(survey.WithStdio(in, out, out))
-
 			f := mocks.NewMockFactory(t)
 			config := mocks.NewMockConfig(t)
 
 			f.On("Config").Return(config)
 			config.On("GetString", cmdutil.CONF_TOKEN).Return("")
 
-			cmd := ini.NewCmdInit(f)
-			_, err := cmd.ExecuteC()
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+
+			_, err := ini.NewCmdInit(f).ExecuteC()
 			if !assert.Error(t, err) {
 				return nil
 			}
