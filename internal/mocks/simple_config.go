@@ -7,6 +7,7 @@ import "github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 type SimpleConfig struct {
 	WorkweekDays                []string
 	Interactive                 bool
+	InteractivePageSizeNumber   int
 	AllowNameForID              bool
 	UserID                      string
 	Workspace                   string
@@ -18,6 +19,12 @@ type SimpleConfig struct {
 	ShowTotalDuration           bool
 	LogLevelValue               string
 	AllowArchivedTags           bool
+}
+
+// InteractivePageSize sets how many items are shown when prompting
+// projects
+func (s *SimpleConfig) InteractivePageSize() int {
+	return s.InteractivePageSizeNumber
 }
 
 func (d *SimpleConfig) GetBool(n string) bool {
@@ -49,6 +56,8 @@ func (d *SimpleConfig) GetInt(n string) int {
 	switch n {
 	case cmdutil.CONF_DESCR_AUTOCOMP_DAYS:
 		return d.DescriptionAutocompleteDays
+	case cmdutil.CONF_INTERACTIVE_PAGE_SIZE:
+		return d.InteractivePageSize()
 	default:
 		return 0
 	}

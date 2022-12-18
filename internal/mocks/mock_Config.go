@@ -282,6 +282,42 @@ func (_c *MockConfig_GetWorkWeekdays_Call) Return(_a0 []string) *MockConfig_GetW
 	return _c
 }
 
+// InteractivePageSize provides a mock function with given fields:
+func (_m *MockConfig) InteractivePageSize() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
+// MockConfig_InteractivePageSize_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InteractivePageSize'
+type MockConfig_InteractivePageSize_Call struct {
+	*mock.Call
+}
+
+// InteractivePageSize is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) InteractivePageSize() *MockConfig_InteractivePageSize_Call {
+	return &MockConfig_InteractivePageSize_Call{Call: _e.mock.On("InteractivePageSize")}
+}
+
+func (_c *MockConfig_InteractivePageSize_Call) Run(run func()) *MockConfig_InteractivePageSize_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_InteractivePageSize_Call) Return(_a0 int) *MockConfig_InteractivePageSize_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // IsAllowNameForID provides a mock function with given fields:
 func (_m *MockConfig) IsAllowNameForID() bool {
 	ret := _m.Called()

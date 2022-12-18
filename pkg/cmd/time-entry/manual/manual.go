@@ -96,8 +96,8 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 					return tei, nil
 				},
 				util.GetAllowNameForIDsFn(f.Config(), c),
-				util.GetPropsInteractiveFn(c, dc, f.Config()),
-				util.GetDatesInteractiveFn(f.Config()),
+				util.GetPropsInteractiveFn(dc, f),
+				util.GetDatesInteractiveFn(f),
 				util.ValidateClosingTimeEntry(f),
 				util.CreateTimeEntryFn(c),
 			); err != nil {

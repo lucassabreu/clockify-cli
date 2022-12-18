@@ -15,15 +15,18 @@ import (
 )
 
 // GetDatesInteractiveFn will ask the user the start and end times of the entry
-func GetDatesInteractiveFn(config cmdutil.Config) DoFn {
-	if config.IsInteractive() {
-		return askTimeEntryDatesInteractive
+func GetDatesInteractiveFn(f cmdutil.Factory) DoFn {
+	if !f.Config().IsInteractive() {
+		return nullCallback
 	}
 
-	return nullCallback
+	return func(t dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		return askTimeEntryDatesInteractive(f.UI(), t)
+	}
 }
 
 func askTimeEntryDatesInteractive(
+	ui ui.UI,
 	te dto.TimeEntryImpl,
 ) (dto.TimeEntryImpl, error) {
 	var err error
@@ -52,23 +55,33 @@ func askTimeEntryDatesInteractive(
 // interactively about the properties of the time entry, only if the parameter
 // cmdutil.CONF_INTERACTIVE is active
 func GetPropsInteractiveFn(
-	c api.Client,
 	dc DescriptionSuggestFn,
-	config cmdutil.Config,
+	f cmdutil.Factory,
 ) DoFn {
-	if !config.IsInteractive() {
+	if !f.Config().IsInteractive() {
 		return nullCallback
 	}
 
 	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-		return askTimeEntryPropsInteractive(c, tei, dc,
-			config.GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS))
+		c, err := f.Client()
+		if err != nil {
+			return tei, err
+		}
+
+		return askTimeEntryPropsInteractive(
+			tei,
+			c,
+			f.UI(),
+			dc,
+			f.Config().GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS),
+		)
 	}
 }
 
 func askTimeEntryPropsInteractive(
-	c api.Client,
 	te dto.TimeEntryImpl,
+	c api.Client,
+	ui ui.UI,
 	dc DescriptionSuggestFn,
 	allowArchived bool,
 ) (dto.TimeEntryImpl, error) {
@@ -78,21 +91,21 @@ func askTimeEntryPropsInteractive(
 		return te, err
 	}
 
-	te.ProjectID, err = getProjectID(te.ProjectID, w, c)
+	te.ProjectID, err = getProjectID(te.ProjectID, w, c, ui)
 	if err != nil {
 		return te, err
 	}
 
 	if te.ProjectID != "" {
-		te.TaskID, err = getTaskID(te.TaskID, te.ProjectID, w, c)
+		te.TaskID, err = getTaskID(te.TaskID, te.ProjectID, w, c, ui)
 		if err != nil {
 			return te, err
 		}
 	}
 
-	te.Description = getDescription(te.Description, dc)
+	te.Description = getDescription(te.Description, dc, ui)
 
-	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c, allowArchived)
+	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c, allowArchived, ui)
 
 	return te, err
 }
@@ -100,7 +113,8 @@ func askTimeEntryPropsInteractive(
 const noProject = "No Project"
 
 func getProjectID(
-	projectID string, w dto.Workspace, c api.Client) (string, error) {
+	projectID string, w dto.Workspace, c api.Client, ui ui.UI,
+) (string, error) {
 	b := false
 	projects, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       w.ID,
@@ -169,7 +183,8 @@ func getProjectID(
 const noTask = "No Task"
 
 func getTaskID(
-	taskID, projectID string, w dto.Workspace, c api.Client) (string, error) {
+	taskID, projectID string, w dto.Workspace, c api.Client, ui ui.UI,
+) (string, error) {
 	tasks, err := c.GetTasks(api.GetTasksParam{
 		Workspace:       w.ID,
 		ProjectID:       projectID,
@@ -227,8 +242,9 @@ func getTaskID(
 	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
 }
 
-func getDescription(description string, dc DescriptionSuggestFn) string {
-	description, _ = ui.AskForText("Description:",
+func getDescription(
+	description string, dc DescriptionSuggestFn, i ui.UI) string {
+	description, _ = i.AskForText("Description:",
 		ui.WithDefault(description),
 		ui.WithSuggestion(dc))
 	return description
@@ -236,6 +252,7 @@ func getDescription(description string, dc DescriptionSuggestFn) string {
 
 func getTagIDs(
 	tagIDs []string, workspace string, c api.Client, allowArchived bool,
+	ui ui.UI,
 ) ([]string, error) {
 	var archived *bool
 	if !allowArchived {

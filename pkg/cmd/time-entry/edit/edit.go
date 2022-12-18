@@ -127,8 +127,8 @@ func NewCmdEdit(
 				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.GetAllowNameForIDsFn(f.Config(), c),
-				util.GetPropsInteractiveFn(c, dc, f.Config()),
-				util.GetDatesInteractiveFn(f.Config()),
+				util.GetPropsInteractiveFn(dc, f),
+				util.GetDatesInteractiveFn(f),
 				util.GetValidateTimeEntryFn(f),
 			); err != nil {
 				return err

@@ -6,15 +6,26 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/ui"
 )
 
 // Factory is a container/factory builder for the commands and its helpers
 type Factory interface {
+	// Version of the CLI
 	Version() Version
+
+	// Config returns configurations set by the user
 	Config() Config
+	// Client builds a client for Clockify's API
 	Client() (api.Client, error)
+	// UI builds a control to prompt information from the user
+	UI() ui.UI
+
+	// GetUserID returns the current user id
 	GetUserID() (string, error)
+	// GetWorkspaceID returns the current workspace id
 	GetWorkspaceID() (string, error)
+	// GetWorkspaceID returns the current workspace
 	GetWorkspace() (dto.Workspace, error)
 }
 
@@ -23,6 +34,7 @@ type factory struct {
 
 	config func() Config
 	client func() (api.Client, error)
+	ui     func() ui.UI
 
 	getUserID      func() (string, error)
 	getWorkspaceID func() (string, error)
@@ -39,6 +51,10 @@ func (f *factory) Config() Config {
 
 func (f *factory) Client() (api.Client, error) {
 	return f.client()
+}
+
+func (f *factory) UI() ui.UI {
+	return f.ui()
 }
 
 func (f *factory) GetUserID() (string, error) {
@@ -58,6 +74,8 @@ func NewFactory(v Version) Factory {
 		version: func() Version { return v },
 		config:  configFunc(),
 	}
+
+	f.ui = getUi(f)
 
 	f.client = clientFunc(f)
 
@@ -187,4 +205,17 @@ func clientFunc(f Factory) func() (api.Client, error) {
 
 		return c, err
 	}
+}
+
+func getUi(f Factory) func() ui.UI {
+	var i ui.UI
+	return func() ui.UI {
+		if i == nil {
+			i = ui.NewUI(os.Stdin, os.Stdout, os.Stderr)
+			i.SetPageSize(uint(f.Config().InteractivePageSize()))
+		}
+
+		return i
+	}
+
 }

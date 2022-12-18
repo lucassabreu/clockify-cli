@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -43,8 +42,6 @@ func setBoolFn(config *mocks.MockConfig, name string, first, value bool) *mock.C
 func TestInitCmd(t *testing.T) {
 	consoletest.RunTestConsole(t,
 		func(out consoletest.FileWriter, in consoletest.FileReader) error {
-			ui.SetDefaultOptions(survey.WithStdio(in, out, out))
-
 			f := mocks.NewMockFactory(t)
 			config := mocks.NewMockConfig(t)
 			client := mocks.NewMockClient(t)
@@ -79,6 +76,11 @@ func TestInitCmd(t *testing.T) {
 			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true)
 			setBoolFn(config, cmdutil.CONF_INTERACTIVE, false, false)
 
+			config.EXPECT().GetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE).
+				Return(7)
+			config.EXPECT().
+				SetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE, 10)
+
 			config.On("GetStringSlice", cmdutil.CONF_WORKWEEK_DAYS).
 				Return([]string{})
 			config.On("SetStringSlice", cmdutil.CONF_WORKWEEK_DAYS, []string{
@@ -101,8 +103,9 @@ func TestInitCmd(t *testing.T) {
 
 			config.On("Save").Once().Return(nil)
 
-			cmd := ini.NewCmdInit(f)
-			_, err := cmd.ExecuteC()
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+
+			_, err := ini.NewCmdInit(f).ExecuteC()
 			return err
 		},
 		func(c consoletest.ExpectConsole) {
@@ -130,6 +133,11 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectString("Interactive Mode\" by default?")
 			c.SendLine("n")
 			c.ExpectString("No")
+
+			c.ExpectString("How many items should be shown when asking for " +
+				"projects, tasks or tags?")
+			c.ExpectString("7")
+			c.SendLine("10")
 
 			c.ExpectString("Which days of the week do you work?")
 			c.ExpectString("sunday")
@@ -181,19 +189,19 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectEOF()
 		})
 }
+
 func TestInitCmdCtrlC(t *testing.T) {
 	consoletest.RunTestConsole(t,
 		func(out consoletest.FileWriter, in consoletest.FileReader) error {
-			ui.SetDefaultOptions(survey.WithStdio(in, out, out))
-
 			f := mocks.NewMockFactory(t)
 			config := mocks.NewMockConfig(t)
 
 			f.On("Config").Return(config)
 			config.On("GetString", cmdutil.CONF_TOKEN).Return("")
 
-			cmd := ini.NewCmdInit(f)
-			_, err := cmd.ExecuteC()
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+
+			_, err := ini.NewCmdInit(f).ExecuteC()
 			if !assert.Error(t, err) {
 				return nil
 			}

@@ -11,19 +11,20 @@ import (
 )
 
 const (
-	CONF_WORKWEEK_DAYS       = "workweek-days"
-	CONF_INTERACTIVE         = "interactive"
-	CONF_ALLOW_NAME_FOR_ID   = "allow-name-for-id"
-	CONF_USER_ID             = "user.id"
-	CONF_WORKSPACE           = "workspace"
-	CONF_TOKEN               = "token"
-	CONF_ALLOW_INCOMPLETE    = "allow-incomplete"
-	CONF_SHOW_TASKS          = "show-task"
-	CONF_DESCR_AUTOCOMP      = "description-autocomplete"
-	CONF_DESCR_AUTOCOMP_DAYS = "description-autocomplete-days"
-	CONF_SHOW_TOTAL_DURATION = "show-total-duration"
-	CONF_LOG_LEVEL           = "log-level"
-	CONF_ALLOW_ARCHIVED_TAGS = "allow-archived-tags"
+	CONF_WORKWEEK_DAYS         = "workweek-days"
+	CONF_INTERACTIVE           = "interactive"
+	CONF_ALLOW_NAME_FOR_ID     = "allow-name-for-id"
+	CONF_USER_ID               = "user.id"
+	CONF_WORKSPACE             = "workspace"
+	CONF_TOKEN                 = "token"
+	CONF_ALLOW_INCOMPLETE      = "allow-incomplete"
+	CONF_SHOW_TASKS            = "show-task"
+	CONF_DESCR_AUTOCOMP        = "description-autocomplete"
+	CONF_DESCR_AUTOCOMP_DAYS   = "description-autocomplete-days"
+	CONF_SHOW_TOTAL_DURATION   = "show-total-duration"
+	CONF_LOG_LEVEL             = "log-level"
+	CONF_ALLOW_ARCHIVED_TAGS   = "allow-archived-tags"
+	CONF_INTERACTIVE_PAGE_SIZE = "interactive-page-size"
 )
 
 const (
@@ -34,32 +35,59 @@ const (
 
 // Config manages configs and parameters used locally by the CLI
 type Config interface {
+	// GetBool retrieves a config by its name as a bool
 	GetBool(string) bool
+	// SetBool changes a bool config by its name
 	SetBool(string, bool)
 
+	// GetInt retrieves a config by its name as a int
 	GetInt(string) int
+	// SetInt changes a int config by its name
 	SetInt(string, int)
 
+	// GetString retrieves a config by its name as a string
 	GetString(string) string
+	// SetString changes a string config by its name
 	SetString(string, string)
 
+	// SetStringSlice retrieves a config by its name as a []string
 	GetStringSlice(string) []string
+	// SetStringSlice changes a []string config by its name
 	SetStringSlice(string, []string)
 
+	// IsDebuging configures CLI to log most of the data being used
 	IsDebuging() bool
+	// IsAllowNameForID configures the CLI to lookup entities ids by their name
 	IsAllowNameForID() bool
+	// IsInteractive configures the CLI to prompt the user interactively
 	IsInteractive() bool
+	// GetWorkWeekdays set which days of the week the user is expected to work
 	GetWorkWeekdays() []string
+	// InteractivePageSize sets how many items are shown when prompting
+	// projects
+	InteractivePageSize() int
 
+	// Get retrieves a config by its name
 	Get(string) interface{}
+	// All retrieves all the configurations of the CLI as a map
 	All() map[string]interface{}
 
+	// LogLevel sets how much should be logged during execution
 	LogLevel() string
 
+	// Save will persist the changes made to the configuration
 	Save() error
 }
 
 type config struct{}
+
+func (c *config) InteractivePageSize() int {
+	i := c.GetInt(CONF_INTERACTIVE_PAGE_SIZE)
+	if i <= 0 {
+		return 7
+	}
+	return i
+}
 
 func (c *config) LogLevel() string {
 	l := c.GetString(CONF_LOG_LEVEL)
@@ -69,7 +97,6 @@ func (c *config) LogLevel() string {
 	default:
 		return LOG_LEVEL_NONE
 	}
-
 }
 
 func (*config) GetBool(param string) bool {

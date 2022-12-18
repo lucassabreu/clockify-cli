@@ -126,8 +126,8 @@ func NewCmdClone(f cmdutil.Factory) *cobra.Command {
 					return util.ValidateClosingTimeEntry(f)(tec)
 				},
 				util.GetAllowNameForIDsFn(f.Config(), c),
-				util.GetPropsInteractiveFn(c, dc, f.Config()),
-				util.GetDatesInteractiveFn(f.Config()),
+				util.GetPropsInteractiveFn(dc, f),
+				util.GetDatesInteractiveFn(f),
 				util.GetValidateTimeEntryFn(f),
 				func(tec dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
 					if noClosing {
