@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.44.0] - 2022-12-18
+
 ### Added
 
 - new flag and config `interactive-page-size` to set how many entries should be shown on select prompts.
@@ -1076,7 +1078,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.43.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.0...HEAD
+[v0.44.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.0
 [v0.43.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.43.0
 [v0.42.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.42.2
 [v0.42.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.42.1
