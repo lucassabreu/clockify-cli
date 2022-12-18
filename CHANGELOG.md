@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - new flag and config `interactive-page-size` to set how many entries should be shown on select prompts.
+- new command `task quick-add` to easily create multiple tasks on a project.
 
 ## [v0.43.0] - 2022-12-13
 
