@@ -64,7 +64,7 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 				tei.TimeInterval.Start, err = timehlp.ConvertToTime(args[1])
 				if err != nil {
 					return fmt.Errorf(
-						"Fail to convert when to start: %w", err)
+						"fail to convert when to start: %w", err)
 				}
 			}
 
@@ -72,7 +72,7 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 				whenToCloseDate, err = timehlp.ConvertToTime(args[2])
 				if err != nil {
 					return fmt.Errorf(
-						"Fail to convert when to end: %w", err)
+						"fail to convert when to end: %w", err)
 				}
 				tei.TimeInterval.End = &whenToCloseDate
 			}
