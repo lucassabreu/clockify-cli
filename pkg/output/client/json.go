@@ -7,7 +7,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
 
-// ClientsJSONPrint will print as JSON
+// ClientJSONPrint will print as JSON
 func ClientJSONPrint(t dto.Client, w io.Writer) error {
 	return json.NewEncoder(w).Encode(t)
 }

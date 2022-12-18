@@ -17,7 +17,7 @@ const (
 	powershell = "powershell"
 )
 
-// completionCmd represents the completion command
+// NewCmdCompletion represents the completion command
 func NewCmdCompletion() *cobra.Command {
 	args := cmdcompl.ValidArgsSlide{bash, zsh, fish, powershell}
 

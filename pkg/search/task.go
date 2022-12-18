@@ -5,7 +5,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// GetTasksByName will try to find the first task containing the string on its
+// GetTaskByName will try to find the first task containing the string on its
 // name or id that matches the value
 func GetTaskByName(
 	c api.Client,

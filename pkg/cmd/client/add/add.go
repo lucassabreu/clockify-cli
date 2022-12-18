@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// clientAddCmd represents the add command
+// NewCmdAdd represents the add command
 func NewCmdAdd(
 	f cmdutil.Factory,
 	report func(io.Writer, *util.OutputFlags, dto.Client) error,

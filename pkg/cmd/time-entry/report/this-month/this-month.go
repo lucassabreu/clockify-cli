@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// reportThisMonthCmd represents the reports this-month command
+// NewCmdThisMonth represents the reports this-month command
 func NewCmdThisMonth(f cmdutil.Factory) *cobra.Command {
 	of := util.NewReportFlags()
 	cmd := &cobra.Command{
