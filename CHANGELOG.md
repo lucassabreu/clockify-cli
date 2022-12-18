@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- add new flag and config `interactive-page-size` to set how many entries should be shown on select prompts.
+- new flag and config `interactive-page-size` to set how many entries should be shown on select prompts.
 
 ## [v0.43.0] - 2022-12-13
 
