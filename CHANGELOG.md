@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- time entries were created as billable without user input.
+
+### Added
+
+- test coverage for interactive mode components and `in` command.
+
 ## [v0.44.0] - 2022-12-18
 
 ### Added
