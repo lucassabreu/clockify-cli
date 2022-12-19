@@ -19,7 +19,7 @@ func NewCmdTimeEntry(f cmdutil.Factory) (cmds []*cobra.Command) {
 	cmds = append(
 		cmds,
 
-		in.NewCmdIn(f),
+		in.NewCmdIn(f, nil),
 		manual.NewCmdManual(f),
 		clone.NewCmdClone(f),
 

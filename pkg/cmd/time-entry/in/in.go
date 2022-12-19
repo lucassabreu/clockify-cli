@@ -1,7 +1,10 @@
 package in
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
@@ -13,7 +16,10 @@ import (
 )
 
 // NewCmdIn represents the in command
-func NewCmdIn(f cmdutil.Factory) *cobra.Command {
+func NewCmdIn(
+	f cmdutil.Factory,
+	report func(dto.TimeEntryImpl, io.Writer, util.OutputFlags) error,
+) *cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use:   "in [<project-id>] [<description>]",
@@ -128,6 +134,11 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 				util.CreateTimeEntryFn(c),
 			); err != nil {
 				return err
+			}
+
+			if report != nil {
+				return report(
+					util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
 			}
 
 			return util.PrintTimeEntryImpl(

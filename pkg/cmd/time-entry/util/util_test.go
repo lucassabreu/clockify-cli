@@ -311,6 +311,14 @@ func TestFillTimeEntryWithFlags_ShouldNotSetProperties_WhenNotChanged(
 				Billable:    &bFalse,
 			},
 		},
+		{
+			name: "should not be billable and not billable",
+			flags: &flagSetMock{flags: map[string]interface{}{
+				"billable":     true,
+				"not-billable": true,
+			}},
+			err: "flags can't be used together",
+		},
 	}
 
 	for i := range tts {

@@ -14,6 +14,8 @@ import (
 func AddTimeEntryFlags(
 	cmd *cobra.Command, f cmdutil.Factory, of *OutputFlags,
 ) {
+	cmd.Flags().BoolP("billable", "b", false,
+		"this time entry is billable")
 	cmd.Flags().BoolP("not-billable", "n", false,
 		"this time entry is not billable")
 	cmd.Flags().String("task", "", "add a task to the entry")

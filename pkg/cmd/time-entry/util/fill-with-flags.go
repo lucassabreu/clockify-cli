@@ -3,6 +3,7 @@ package util
 import (
 	"time"
 
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 )
 
@@ -15,6 +16,13 @@ type flagSet interface {
 // FillTimeEntryWithFlags will read the flags and fill the time entry with they
 func FillTimeEntryWithFlags(flags flagSet) Step {
 	return func(dto TimeEntryDTO) (TimeEntryDTO, error) {
+		if err := cmdutil.XorFlag(map[string]bool{
+			"billable":     flags.Changed("billable"),
+			"not-billable": flags.Changed("not-billable"),
+		}); err != nil {
+			return dto, err
+		}
+
 		if flags.Changed("project") {
 			p, _ := flags.GetString("project")
 			if p != dto.ProjectID {
