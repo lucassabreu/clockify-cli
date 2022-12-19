@@ -1113,7 +1113,7 @@ type CreateTimeEntryParam struct {
 	Workspace   string
 	Start       time.Time
 	End         *time.Time
-	Billable    bool
+	Billable    *bool
 	Description string
 	ProjectID   string
 	TaskID      string

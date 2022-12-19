@@ -1,6 +1,8 @@
 package in
 
 import (
+	"io"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
@@ -8,12 +10,16 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcomplutil"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	output "github.com/lucassabreu/clockify-cli/pkg/output/time-entry"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 
 	"github.com/spf13/cobra"
 )
 
 // NewCmdIn represents the in command
-func NewCmdIn(f cmdutil.Factory) *cobra.Command {
+func NewCmdIn(
+	f cmdutil.Factory,
+	report func(dto.TimeEntryImpl, io.Writer, util.OutputFlags) error,
+) *cobra.Command {
 	of := util.OutputFlags{TimeFormat: output.TimeFormatSimple}
 	cmd := &cobra.Command{
 		Use:   "in [<project-id>] [<description>]",
@@ -89,9 +95,11 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 			}
 
 			var err error
-			tei := dto.TimeEntryImpl{}
+			tei := util.TimeEntryDTO{
+				Start: timehlp.Now(),
+			}
 
-			if tei.WorkspaceID, err = f.GetWorkspaceID(); err != nil {
+			if tei.Workspace, err = f.GetWorkspaceID(); err != nil {
 				return err
 			}
 
@@ -128,7 +136,13 @@ func NewCmdIn(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
+			if report != nil {
+				return report(
+					util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
+			}
+
+			return util.PrintTimeEntryImpl(
+				util.TimeEntryDTOToImpl(tei), f, cmd.OutOrStdout(), of)
 		},
 	}
 

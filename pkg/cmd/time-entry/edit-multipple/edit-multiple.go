@@ -103,33 +103,37 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			teis := make([]dto.TimeEntryImpl, len(args))
+			teis := make([]util.TimeEntryDTO, len(args))
 			for i := range args {
-				if teis[i], err = timeentryhlp.GetTimeEntry(
-					c, w, u, args[i]); err != nil {
+				t, err := timeentryhlp.GetTimeEntry(c, w, u, args[i])
+				if err != nil {
 					return err
 				}
+				teis[i] = util.TimeEntryImplToDTO(t)
 			}
 
 			tei := teis[0]
-			editFn := func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
-				return c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-					Workspace:   tei.WorkspaceID,
+			editFn := func(tei util.TimeEntryDTO) (util.TimeEntryDTO, error) {
+				t, err := c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+					Workspace:   tei.Workspace,
 					TimeEntryID: tei.ID,
 					Description: tei.Description,
-					Start:       tei.TimeInterval.Start,
-					End:         tei.TimeInterval.End,
-					Billable:    tei.Billable,
+					Start:       tei.Start,
+					End:         tei.End,
+					Billable:    *tei.Billable,
 					ProjectID:   tei.ProjectID,
 					TaskID:      tei.TaskID,
 					TagIDs:      tei.TagIDs,
 				})
+
+				return util.TimeEntryImplToDTO(t), err
 			}
 
-			fn := func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+			fn := func(input util.TimeEntryDTO) (util.TimeEntryDTO, error) {
 				var err error
 				for i, tei := range teis {
-					input.TimeInterval = tei.TimeInterval
+					input.Start = tei.Start
+					input.End = tei.End
 					input.ID = tei.ID
 
 					if tei, err = editFn(input); err != nil {
@@ -143,7 +147,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 			}
 
 			if !f.Config().IsInteractive() {
-				fn = func(input dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+				fn = func(input util.TimeEntryDTO) (util.TimeEntryDTO, error) {
 					c := cmd.Flags().Changed
 					for i, tei := range teis {
 						if c("project") {
@@ -193,7 +197,7 @@ func NewCmdEditMultiple(f cmdutil.Factory) *cobra.Command {
 			for i, tei := range teis {
 				t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
 					TimeEntryID: tei.ID,
-					Workspace:   tei.WorkspaceID,
+					Workspace:   tei.Workspace,
 				})
 
 				if err != nil {

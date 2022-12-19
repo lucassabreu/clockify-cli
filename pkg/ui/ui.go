@@ -42,6 +42,11 @@ type UI interface {
 	SetPageSize(p uint) UI
 	// AskForText interactively ask for one string from the user
 	AskForText(m string, opts ...InputOption) (string, error)
+	// AskForValidText for a string interactively from the user and validates
+	// it
+	AskForValidText(
+		m string, validate func(string) error, opts ...InputOption,
+	) (string, error)
 	// AskForDateTime interactively ask for one date and time from the user
 	AskForDateTime(m, d string, ct convertTime) (time.Time, error)
 	// AskForDateTimeOrNil interactively ask for one date and time from the
@@ -53,7 +58,9 @@ type UI interface {
 	AskFromOptions(m string, o []string, d string) (string, error)
 	// AskManyFromOptions interactively ask the user to choose none or many
 	// option
-	AskManyFromOptions(m string, o []string, d []string) ([]string, error)
+	AskManyFromOptions(
+		m string, o, d []string, validade func([]string) error,
+	) ([]string, error)
 	// Confirm interactively ask the user a yes/no question
 	Confirm(m string, d bool) (bool, error)
 }
@@ -109,6 +116,30 @@ func WithDefault(d string) InputOption {
 
 // InputOption represets a funcion the customizes a survey.Input object
 type InputOption func(*survey.Input)
+
+// AskForValidText for a string interactively from the user and validates it
+func (u *ui) AskForValidText(
+	message string,
+	validateFn func(string) error,
+	opts ...InputOption,
+) (string, error) {
+	i := &survey.Input{
+		Message: message,
+	}
+
+	for _, o := range opts {
+		o(i)
+	}
+
+	os := u.options
+	if validateFn != nil {
+		os = append(os, survey.WithValidator(func(ans interface{}) error {
+			return validateFn(ans.(string))
+		}))
+	}
+
+	return askString(i, os...)
+}
 
 // AskForText interactively ask for one string from the user
 func (u *ui) AskForText(message string, opts ...InputOption) (string, error) {
@@ -242,8 +273,25 @@ func (u *ui) AskFromOptions(message string, options []string, d string) (string,
 }
 
 // AskManyFromOptions interactively ask the user to choose none or many option
-func (u *ui) AskManyFromOptions(message string, opts, d []string) ([]string, error) {
+func (u *ui) AskManyFromOptions(
+	message string,
+	opts, d []string,
+	validateFn func([]string) error,
+) ([]string, error) {
 	var choices []string
+
+	os := u.options
+	if validateFn != nil {
+		os = append(os, survey.WithValidator(func(ans interface{}) error {
+			o := ans.([]survey.OptionAnswer)
+			s := make([]string, len(o))
+			for i := range o {
+				s[i] = o[i].Value
+			}
+			return validateFn(s)
+		}))
+	}
+
 	return choices, survey.AskOne(
 		&survey.MultiSelect{
 			Message: message,
@@ -252,7 +300,7 @@ func (u *ui) AskManyFromOptions(message string, opts, d []string) ([]string, err
 			Filter:  selectFilter,
 		},
 		&choices,
-		u.options...,
+		os...,
 	)
 }
 

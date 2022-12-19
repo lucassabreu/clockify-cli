@@ -2,19 +2,18 @@ package util
 
 import (
 	"github.com/lucassabreu/clockify-cli/api"
-	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/search"
 )
 
 // GetAllowNameForIDsFn will try to find project/task/tags by their names if
 // the value provided was not a ID
-func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) DoFn {
+func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) Step {
 	if !config.GetBool(cmdutil.CONF_ALLOW_NAME_FOR_ID) {
-		return nullCallback
+		return skip
 	}
 
-	cbs := []DoFn{
+	cbs := []Step{
 		lookupProject(c),
 		lookupTask(c),
 		lookupTags(c),
@@ -27,22 +26,22 @@ func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) DoFn {
 	return compose(cbs...)
 }
 
-func lookupProject(c api.Client) DoFn {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func lookupProject(c api.Client) Step {
+	return func(te TimeEntryDTO) (TimeEntryDTO, error) {
 		if te.ProjectID == "" {
 			return te, nil
 		}
 
 		var err error
 		te.ProjectID, err = search.GetProjectByName(
-			c, te.WorkspaceID, te.ProjectID)
+			c, te.Workspace, te.ProjectID)
 		return te, err
 	}
 
 }
 
-func lookupTask(c api.Client) DoFn {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func lookupTask(c api.Client) Step {
+	return func(te TimeEntryDTO) (TimeEntryDTO, error) {
 		if te.TaskID == "" {
 			return te, nil
 		}
@@ -51,7 +50,7 @@ func lookupTask(c api.Client) DoFn {
 		te.TaskID, err = search.GetTaskByName(
 			c,
 			api.GetTasksParam{
-				Workspace: te.WorkspaceID,
+				Workspace: te.Workspace,
 				ProjectID: te.ProjectID,
 				Active:    true,
 			},
@@ -60,23 +59,23 @@ func lookupTask(c api.Client) DoFn {
 	}
 }
 
-func lookupTags(c api.Client) DoFn {
-	return func(te dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+func lookupTags(c api.Client) Step {
+	return func(te TimeEntryDTO) (TimeEntryDTO, error) {
 		if len(te.TagIDs) == 0 {
 			return te, nil
 		}
 
 		var err error
-		te.TagIDs, err = search.GetTagsByName(c, te.WorkspaceID, te.TagIDs)
+		te.TagIDs, err = search.GetTagsByName(c, te.Workspace, te.TagIDs)
 		return te, err
 	}
 
 }
 
-func disableErrorReporting(cbs []DoFn) []DoFn {
+func disableErrorReporting(cbs []Step) []Step {
 	for i := range cbs {
 		cb := cbs[i]
-		cbs[i] = func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+		cbs[i] = func(tei TimeEntryDTO) (TimeEntryDTO, error) {
 			tei, _ = cb(tei)
 			return tei, nil
 		}

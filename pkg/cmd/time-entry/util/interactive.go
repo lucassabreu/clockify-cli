@@ -15,40 +15,40 @@ import (
 )
 
 // GetDatesInteractiveFn will ask the user the start and end times of the entry
-func GetDatesInteractiveFn(f cmdutil.Factory) DoFn {
+func GetDatesInteractiveFn(f cmdutil.Factory) Step {
 	if !f.Config().IsInteractive() {
-		return nullCallback
+		return skip
 	}
 
-	return func(t dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return func(t TimeEntryDTO) (TimeEntryDTO, error) {
 		return askTimeEntryDatesInteractive(f.UI(), t)
 	}
 }
 
 func askTimeEntryDatesInteractive(
 	ui ui.UI,
-	te dto.TimeEntryImpl,
-) (dto.TimeEntryImpl, error) {
+	dto TimeEntryDTO,
+) (TimeEntryDTO, error) {
 	var err error
-	dateString := te.TimeInterval.Start.In(time.Local).
+	dateString := dto.Start.In(time.Local).
 		Format(timehlp.FullTimeFormat)
-	if te.TimeInterval.Start, err = ui.AskForDateTime(
+	if dto.Start, err = ui.AskForDateTime(
 		"Start", dateString, timehlp.ConvertToTime); err != nil {
-		return te, err
+		return dto, err
 	}
 
 	dateString = ""
-	if te.TimeInterval.End != nil {
-		dateString = te.TimeInterval.End.In(time.Local).
+	if dto.End != nil {
+		dateString = dto.End.In(time.Local).
 			Format(timehlp.FullTimeFormat)
 	}
 
-	if te.TimeInterval.End, err = ui.AskForDateTimeOrNil(
+	if dto.End, err = ui.AskForDateTimeOrNil(
 		"End", dateString, timehlp.ConvertToTime); err != nil {
-		return te, err
+		return dto, err
 	}
 
-	return te, nil
+	return dto, nil
 }
 
 // GetPropsInteractiveFn will return a callback that asks the user
@@ -57,12 +57,12 @@ func askTimeEntryDatesInteractive(
 func GetPropsInteractiveFn(
 	dc DescriptionSuggestFn,
 	f cmdutil.Factory,
-) DoFn {
+) Step {
 	if !f.Config().IsInteractive() {
-		return nullCallback
+		return skip
 	}
 
-	return func(tei dto.TimeEntryImpl) (dto.TimeEntryImpl, error) {
+	return func(tei TimeEntryDTO) (TimeEntryDTO, error) {
 		c, err := f.Client()
 		if err != nil {
 			return tei, err
@@ -79,14 +79,14 @@ func GetPropsInteractiveFn(
 }
 
 func askTimeEntryPropsInteractive(
-	te dto.TimeEntryImpl,
+	te TimeEntryDTO,
 	c api.Client,
 	ui ui.UI,
 	dc DescriptionSuggestFn,
 	allowArchived bool,
-) (dto.TimeEntryImpl, error) {
+) (TimeEntryDTO, error) {
 	var err error
-	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.WorkspaceID})
+	w, err := c.GetWorkspace(api.GetWorkspace{ID: te.Workspace})
 	if err != nil {
 		return te, err
 	}
@@ -103,9 +103,10 @@ func askTimeEntryPropsInteractive(
 		}
 	}
 
-	te.Description = getDescription(te.Description, dc, ui)
+	te.Description = getDescription(te.Description, dc, ui,
+		w.Settings.ForceDescription)
 
-	te.TagIDs, err = getTagIDs(te.TagIDs, te.WorkspaceID, c, allowArchived, ui)
+	te.TagIDs, err = getTagIDs(te.TagIDs, w, c, allowArchived, ui)
 
 	return te, err
 }
@@ -122,7 +123,7 @@ func getProjectID(
 		PaginationParam: api.AllPages(),
 	})
 
-	if err != nil {
+	if err != nil || len(projects) == 0 {
 		return "", err
 	}
 
@@ -243,15 +244,32 @@ func getTaskID(
 }
 
 func getDescription(
-	description string, dc DescriptionSuggestFn, i ui.UI) string {
-	description, _ = i.AskForText("Description:",
+	description string,
+	dc DescriptionSuggestFn,
+	i ui.UI,
+	force bool,
+) string {
+	var v func(string) error
+	if force {
+		v = func(s string) error {
+			if s == "" {
+				return errors.New("description should be informed")
+			}
+			return nil
+		}
+	}
+
+	description, _ = i.AskForValidText(
+		"Description:",
+		v,
 		ui.WithDefault(description),
-		ui.WithSuggestion(dc))
+		ui.WithSuggestion(dc),
+	)
 	return description
 }
 
 func getTagIDs(
-	tagIDs []string, workspace string, c api.Client, allowArchived bool,
+	tagIDs []string, w dto.Workspace, c api.Client, allowArchived bool,
 	ui ui.UI,
 ) ([]string, error) {
 	var archived *bool
@@ -260,11 +278,11 @@ func getTagIDs(
 		archived = &f
 	}
 	tags, err := c.GetTags(api.GetTagsParam{
-		Workspace: workspace,
+		Workspace: w.ID,
 		Archived:  archived,
 	})
 
-	if err != nil {
+	if err != nil || len(tags) == 0 {
 		return nil, err
 	}
 
@@ -273,10 +291,11 @@ func getTagIDs(
 		tagsString[i] = fmt.Sprintf("%s - %s", u.ID, u.Name)
 	}
 
+	current := make([]string, len(tagIDs))
 	for i, t := range tagIDs {
 		for _, s := range tagsString {
 			if strings.HasPrefix(s, t) {
-				tagIDs[i] = s
+				current[i] = s
 				break
 			}
 		}
@@ -284,7 +303,13 @@ func getTagIDs(
 
 	var newTags []string
 	if newTags, err = ui.AskManyFromOptions("Choose your tags:",
-		tagsString, tagIDs); err != nil {
+		tagsString, current, func(s []string) error {
+			if w.Settings.ForceTags && len(s) == 0 {
+				return errors.New("at least one tag should be selected")
+			}
+
+			return nil
+		}); err != nil {
 		return nil, nil
 	}
 

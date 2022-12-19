@@ -121,10 +121,11 @@ func NewCmdEdit(
 				return err
 			}
 
+			te := util.TimeEntryImplToDTO(tei)
 			dc := util.NewDescriptionCompleter(f)
 
-			if tei, err = util.Do(
-				tei,
+			if te, err = util.Do(
+				te,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.GetAllowNameForIDsFn(f.Config(), c),
 				util.GetPropsInteractiveFn(dc, f),
@@ -135,15 +136,15 @@ func NewCmdEdit(
 			}
 
 			if tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-				Workspace:   tei.WorkspaceID,
-				TimeEntryID: tei.ID,
-				Description: tei.Description,
-				Start:       tei.TimeInterval.Start,
-				End:         tei.TimeInterval.End,
-				Billable:    tei.Billable,
-				ProjectID:   tei.ProjectID,
-				TaskID:      tei.TaskID,
-				TagIDs:      tei.TagIDs,
+				Workspace:   te.Workspace,
+				TimeEntryID: te.ID,
+				Description: te.Description,
+				Start:       te.Start,
+				End:         te.End,
+				Billable:    *te.Billable,
+				ProjectID:   te.ProjectID,
+				TaskID:      te.TaskID,
+				TagIDs:      te.TagIDs,
 			}); err != nil {
 				return err
 			}
