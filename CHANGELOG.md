@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - time entries were created as billable without user input.
+- bump golang.org/x/text from 0.3.7 to 0.3.8 ([#244](https://github.com/lucassabreu/clockify-cli/pull/244))
 
 ### Added
 
