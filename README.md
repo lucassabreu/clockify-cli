@@ -76,11 +76,10 @@ go get -u github.com/lucassabreu/clockify-cli
 go install github.com/lucassabreu/clockify-cli/cmd/clockify-cli@latest
 ```
 
-The installed application for a default `go` installation should be located on `~/go/bin/clockify-cli`. You can move it or symlink it to `/usr/local/bin` so it appears on your path. You will need `root` privileges.
+The installed application for a default `go` installation should be located on  your [$GOBIN path][go-envs]. You can add `$GOBIN` to your `$PATH`, or move it to a directory listed on your `$PATH` (e.g.: `/usr/local/bin`).
 
-```sh
-ln -s ~/go/bin/clockify-cli /usr/local/bin/clockify-cli
-```
+[go-envs]: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+
 
 
 #### By Hand
