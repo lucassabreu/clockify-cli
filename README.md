@@ -68,11 +68,9 @@ sudo snap install clockify-cli
 go install github.com/lucassabreu/clockify-cli/cmd/clockify-cli@latest
 ```
 
-The installed application for a default `go` installation should be located on  your [$GOBIN path][go-envs]. You can add `$GOBIN` to your `$PATH`, or move it to a directory listed on your `$PATH` (e.g.: `/usr/local/bin`).
+The installed application for a default `go` installation should be located on your [$GOBIN path][go-envs]. You can add `$GOBIN` to your `$PATH`, or move it to a directory listed on your `$PATH` (e.g.: `/usr/local/bin`).
 
 [go-envs]: https://pkg.go.dev/cmd/go#hdr-Environment_variables
-
-
 
 #### By Hand
 
