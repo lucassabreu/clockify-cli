@@ -62,14 +62,6 @@ brew install lucassabreu/tap/clockify-cli
 sudo snap install clockify-cli
 ```
 
-#### Using `go get`
-
-```sh
-go get -u github.com/lucassabreu/clockify-cli
-```
-
-> Starting in Go 1.17, installing executables with go get is deprecated. go install may be used instead. Read more about it in <https://go.dev/doc/go-get-install-deprecation>
-
 #### Using `go install`
 
 ```sh
