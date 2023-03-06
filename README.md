@@ -68,6 +68,21 @@ sudo snap install clockify-cli
 go get -u github.com/lucassabreu/clockify-cli
 ```
 
+> Starting in Go 1.17, installing executables with go get is deprecated. go install may be used instead. Read more about it in <https://go.dev/doc/go-get-install-deprecation>
+
+#### Using `go install`
+
+```sh
+go install github.com/lucassabreu/clockify-cli/cmd/clockify-cli@latest
+```
+
+The installed application for a default `go` installation should be located on `~/go/bin/clockify-cli`. You can move it or symlink it to `/usr/local/bin` so it appears on your path. You will need `root` privileges.
+
+```sh
+ln -s ~/go/bin/clockify-cli /usr/local/bin/clockify-cli
+```
+
+
 #### By Hand
 
 Go to the [releases page](https://github.com/lucassabreu/clockify-cli/releases) and download the pre-compiled
