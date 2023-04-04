@@ -78,9 +78,8 @@ func (u *ui) SetPageSize(p uint) UI {
 }
 
 func selectFilter(filter, value string, _ int) bool {
-	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
-	filter = regexp.MustCompile("["+r+"]+").
-		ReplaceAllString(strhlp.Normalize(filter), "")
+	filter = regexp.MustCompile(`[\]\^\\\,\.\(\)\-]+`).
+		ReplaceAllString(strhlp.Normalize(filter), " ")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
 	filter = strings.ReplaceAll(filter, " ", ".*")
 	filter = strings.ReplaceAll(filter, "*", ".*")
