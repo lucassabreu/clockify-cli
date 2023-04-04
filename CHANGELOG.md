@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.44.2] - 2023-04-04
+
 ### Fixed
 
 - when searching for task names with special characters ("-" for example), this was fixed for the filter
@@ -1100,7 +1102,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.2...HEAD
+[v0.44.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.2
 [v0.44.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.1
 [v0.44.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.0
 [v0.43.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.43.0
