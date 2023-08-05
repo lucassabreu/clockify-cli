@@ -78,9 +78,9 @@ func (u *ui) SetPageSize(p uint) UI {
 }
 
 func selectFilter(filter, value string, _ int) bool {
-	r := strings.Join([]string{"]", "^", `\\`, "[", ".", "(", ")", "-"}, "")
-	filter = regexp.MustCompile("["+r+"]+").
-		ReplaceAllString(strhlp.Normalize(filter), "")
+	// skipcq: GO-C4007
+	filter = regexp.MustCompile(`[\]\^\\\,\.\(\)\-]+`).
+		ReplaceAllString(strhlp.Normalize(filter), " ")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
 	filter = strings.ReplaceAll(filter, " ", ".*")
 	filter = strings.ReplaceAll(filter, "*", ".*")
@@ -159,7 +159,7 @@ type timeAnswer struct {
 	convert func(string) (time.Time, error)
 }
 
-func (ans timeAnswer) validate(v interface{}) error {
+func (ans *timeAnswer) validate(v interface{}) error {
 	s, ok := v.(string)
 	if !ok || s == "" {
 		return nil

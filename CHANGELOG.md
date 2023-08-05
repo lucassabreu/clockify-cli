@@ -11,14 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.44.2] - 2023-04-04
+
+### Fixed
+
+- when searching for task names with special characters ("-" for example), this was fixed for the filter
+
+## [v0.44.1] - 2023-03-06
+
 ### Fixed
 
 - time entries were created as billable without user input.
 - bump golang.org/x/text from 0.3.7 to 0.3.8 ([#244](https://github.com/lucassabreu/clockify-cli/pull/244))
+- `go get` is not a supported option to install the cli
+  ([#245](https://github.com/lucassabreu/clockify-cli/pull/245))
 
 ### Added
 
 - test coverage for interactive mode components and `in` command.
+
+### Thanks
+
+Thank you to [@diegoquintanav](https://github.com/diegoquintanav) for reporting and fixing the documentation
+on PR [#245](https://github.com/lucassabreu/clockify-cli/pull/245).
 
 ## [v0.44.0] - 2022-12-18
 
@@ -1087,7 +1102,9 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.2...HEAD
+[v0.44.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.2
+[v0.44.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.1
 [v0.44.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.0
 [v0.43.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.43.0
 [v0.42.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.42.2
