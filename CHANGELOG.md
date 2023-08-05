@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.45.0] - 2023-08-05
+
 ### Added
 
 - new function `since` to be used on the time entry format to help working with time
