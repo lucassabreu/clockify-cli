@@ -12,12 +12,13 @@ builds:
 
 archives:
   - id: default
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    name_template: >-
+      {{- .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
     format_overrides:
       - goos: windows
         format: zip
@@ -25,17 +26,17 @@ archives:
       - LICENSE
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 snapshot:
-  name_template: '{{ .Tag }}-next'
+  name_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
 snapcrafts:
   - name: clockify-cli
@@ -47,10 +48,10 @@ snapcrafts:
 
     apps:
       clockify-cli:
-        plugs: ['network']
+        plugs: ["network"]
 
 brews:
-  - tap:
+  - repository:
       owner: lucassabreu
       name: homebrew-tap
     folder: Formula
