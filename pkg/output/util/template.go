@@ -7,6 +7,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"gopkg.in/yaml.v3"
@@ -25,7 +26,7 @@ var funcMap = template.FuncMap{
 	"ft":             formatTime(timehlp.OnlyTimeFormat),
 	"now": func(t *time.Time) time.Time {
 		if t == nil {
-			return time.Now().UTC()
+			return timehlp.Now().UTC()
 		}
 
 		return *t
@@ -50,6 +51,23 @@ var funcMap = template.FuncMap{
 	"ident": func(s, prefix string) string {
 		return prefix + strings.ReplaceAll(s, "\n", "\n"+prefix)
 	},
+	"since": func(s time.Time, e ...time.Time) dto.Duration {
+		return diff(s, firstOrNow(e))
+	},
+	"until": func(s time.Time, e ...time.Time) dto.Duration {
+		return diff(firstOrNow(e), s)
+	},
+}
+
+func firstOrNow(ts []time.Time) time.Time {
+	if len(ts) == 0 {
+		return timehlp.Now().UTC()
+	}
+	return ts[0]
+}
+
+func diff(s, e time.Time) dto.Duration {
+	return dto.Duration{Duration: e.Sub(s)}
 }
 
 func NewTemplate(format string) (*template.Template, error) {
