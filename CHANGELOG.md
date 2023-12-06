@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - update github actions workflows to use newer actions
 
+### Thanks
+
+Thank you to [@aVolpe](https://github.com/aVolpe) for implementing new time formats as input
+on PR [#251](https://github.com/lucassabreu/clockify-cli/pull/251).
+
 ## [v0.45.0] - 2023-08-05
 
 ### Added
