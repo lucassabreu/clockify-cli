@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - support for the formats `HMM` and `HHMM` for time input
 
+### Fixed
+
+- update github actions workflows to use newer actions
+
 ## [v0.45.0] - 2023-08-05
 
 ### Added
@@ -1115,7 +1119,9 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.44.2...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.46.0...HEAD
+[v0.46.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.46.0
+[v0.45.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.45.0
 [v0.44.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.2
 [v0.44.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.1
 [v0.44.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.0
