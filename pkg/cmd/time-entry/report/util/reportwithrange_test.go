@@ -246,6 +246,7 @@ func TestReportWithRange(t *testing.T) {
 			},
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
+				rf.TimeZone = "UTC"
 				rf.FillMissingDates = true
 				rf.Format = "{{.ID}};{{ .TimeInterval.Start.Format " +
 					`"2006-01-02"` +
