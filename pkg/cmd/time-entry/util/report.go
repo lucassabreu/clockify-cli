@@ -25,7 +25,6 @@ type OutputFlags struct {
 }
 
 func (of OutputFlags) Check() error {
-
 	if err := cmdutil.XorFlag(map[string]bool{
 		"format":             of.Format != "",
 		"json":               of.JSON,
@@ -103,7 +102,7 @@ func PrintTimeEntry(
 	b := config.GetBool(cmdutil.CONF_SHOW_TOTAL_DURATION)
 	config.SetBool(cmdutil.CONF_SHOW_TOTAL_DURATION, false)
 
-	err := PrintTimeEntries(updateTimeZone(ts, of), out, config, of)
+	err := PrintTimeEntries(ts, out, config, of)
 
 	config.SetBool(cmdutil.CONF_SHOW_TOTAL_DURATION, b)
 
@@ -111,14 +110,12 @@ func PrintTimeEntry(
 }
 
 func updateTimeZone(tes []dto.TimeEntry, of OutputFlags) []dto.TimeEntry {
-
 	if of.TimeZone == "" {
 		return tes
 	}
 
 	var loc *time.Location
-
-	if of.TimeZone == "local" || of.TimeFormat == "" {
+	if of.TimeZone == "local" {
 		loc = time.Local
 	} else {
 		// parses of.TimeZone as a time.Location
