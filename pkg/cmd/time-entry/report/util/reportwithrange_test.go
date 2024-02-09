@@ -136,6 +136,71 @@ func TestReportWithRange(t *testing.T) {
 			err: "No project.*wrong' was found",
 		},
 		{
+			name: "invalid client",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				cf := mocks.NewMockConfig(t)
+				f.On("Config").Return(cf)
+				cf.On("IsAllowNameForID").Return(true)
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.On("GetProjects", api.GetProjectsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.Project{{Name: "right"}}, nil)
+
+				return f
+			},
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Client = "right"
+				rf.Project = "wrong"
+				return rf
+			},
+			err: "No client.*right' was found",
+		},
+		{
+			name: "invalid project for client",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				cf := mocks.NewMockConfig(t)
+				f.On("Config").Return(cf)
+				cf.On("IsAllowNameForID").Return(true)
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.On("GetProjects", api.GetProjectsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).
+					Return(
+						[]dto.Project{{
+							Name:       "right",
+							ClientName: "right",
+							ClientID:   "r1",
+						}},
+						nil)
+
+				return f
+			},
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Client = "right"
+				rf.Project = "wrong"
+				return rf
+			},
+			err: "No project.*wrong' was found for client 'right'",
+		},
+		{
 			name: "range http error",
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
@@ -152,7 +217,21 @@ func TestReportWithRange(t *testing.T) {
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
 					PaginationParam: api.AllPages(),
-				}).Return([]dto.Project{{ID: "p", Name: "right"}}, nil)
+				}).
+					Return([]dto.Project{
+						{
+							ID:         "p",
+							Name:       "right",
+							ClientName: "right",
+							ClientID:   "c1",
+						},
+						{
+							ID:         "p",
+							Name:       "right",
+							ClientName: "wrong",
+							ClientID:   "c2",
+						},
+					}, nil)
 
 				c.On("LogRange", api.LogRangeParam{
 					Workspace:       "w",
@@ -169,6 +248,7 @@ func TestReportWithRange(t *testing.T) {
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
 				rf.Project = "right"
+				rf.Client = "right"
 				return rf
 			},
 			err: "http error",

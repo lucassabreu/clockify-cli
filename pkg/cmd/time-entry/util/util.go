@@ -15,6 +15,7 @@ type TimeEntryDTO struct {
 	Workspace   string
 	UserID      string
 	ProjectID   string
+	Client      string
 	TaskID      string
 	Description string
 	Start       time.Time

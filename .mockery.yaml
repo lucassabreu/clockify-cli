@@ -1,0 +1,8 @@
+with-expecter: true
+dir: "internal/mocks"
+packages:
+  github.com/lucassabreu/clockify-cli/internal/mocks:
+    interfaces:
+      Client:
+      Config:
+      Factory:

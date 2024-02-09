@@ -88,7 +88,7 @@ func NewCmdDone(
 
 			if f.Config().IsAllowNameForID() {
 				if project, err = search.GetProjectByName(
-					c, workspace, project); err != nil {
+					c, workspace, project, ""); err != nil {
 					return err
 				}
 

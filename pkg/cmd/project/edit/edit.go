@@ -126,11 +126,6 @@ func NewCmdEdit(
 					return err
 				}
 
-				if ids, err = search.GetProjectsByName(
-					c, w, ids); err != nil {
-					return err
-				}
-
 				if client != nil && *client != "" {
 					if *client, err = search.GetClientByName(
 						c, w, *client); err != nil {
