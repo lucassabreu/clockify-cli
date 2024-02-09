@@ -2,6 +2,7 @@ package in_test
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"testing"
 	"time"
@@ -147,6 +148,157 @@ func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
 				t.Cleanup(func() {
 					assert.True(t, called)
 				})
+				return
+			}
+
+			t.Fatalf("err: %s", err)
+		})
+	}
+}
+
+func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
+	defaultStart := timehlp.Today().Add(8 * time.Hour)
+
+	projects := []dto.Project{
+		{ID: "p1", Name: "first", ClientID: "c1", ClientName: "other"},
+		{ID: "p2", Name: "second", ClientID: "c2", ClientName: "me"},
+		{ID: "p3", Name: "second", ClientID: "c3", ClientName: "clockify"},
+		{ID: "p4", Name: "third"},
+		{ID: "p5", Name: "notonclient", ClientID: "c3", ClientName: "clockify"},
+	}
+
+	tts := []struct {
+		name  string
+		args  []string
+		param api.CreateTimeEntryParam
+		err   error
+	}{
+		{
+			name: "only project",
+			args: []string{"-s=08:00", "-p=first"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[0].ID,
+			},
+		},
+		{
+			name: "project and client",
+			args: []string{"-s=08:00", "-p=second", "-c=me"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[1].ID,
+			},
+		},
+		{
+			name: "project and other client",
+			args: []string{"-s=08:00", "-p=second", "-c=clockify"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[2].ID,
+			},
+		},
+		{
+			name: "project without client",
+			args: []string{"-s=08:00", "-p=third"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[3].ID,
+			},
+		},
+		{
+			name: "project does not exist",
+			args: []string{"-s=08:00", "-p=notfound"},
+			err: errors.New(
+				"No project with id or name containing 'notfound' " +
+					"was found"),
+		},
+		{
+			name: "project does not exist in this client",
+			args: []string{"-s=08:00", "-p=notonclient", "-c=me"},
+			err: errors.New(
+				"No project with id or name containing 'notonclient' " +
+					"was found for client 'me'"),
+		},
+	}
+
+	for i := range tts {
+		tt := &tts[i]
+
+		t.Run(tt.name, func(t *testing.T) {
+			f := mocks.NewMockFactory(t)
+
+			f.EXPECT().GetUserID().Return("u", nil)
+			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{
+				AllowNameForID: true,
+			})
+
+			c := mocks.NewMockClient(t)
+			f.EXPECT().Client().Return(c, nil)
+
+			c.EXPECT().GetProjects(api.GetProjectsParam{
+				Workspace:       w.ID,
+				PaginationParam: api.AllPages(),
+			}).
+				Return(projects, nil)
+
+			c.EXPECT().GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+				Workspace: w.ID,
+				UserID:    "u",
+			}).
+				Return(nil, nil)
+
+			if tt.err == nil {
+				c.EXPECT().GetProject(api.GetProjectParam{
+					Workspace: w.ID,
+					ProjectID: tt.param.ProjectID,
+				}).
+					Return(&dto.Project{ID: tt.param.ProjectID}, nil)
+
+				f.EXPECT().GetWorkspace().Return(w, nil)
+
+				c.EXPECT().Out(api.OutParam{
+					Workspace: w.ID,
+					UserID:    "u",
+					End:       tt.param.Start,
+				}).Return(api.ErrorNotFound)
+
+				c.EXPECT().CreateTimeEntry(tt.param).
+					Return(dto.TimeEntryImpl{ID: "te"}, nil)
+			}
+
+			called := false
+			cmd := in.NewCmdIn(f, func(
+				_ dto.TimeEntryImpl, _ io.Writer, _ util.OutputFlags) error {
+				called = true
+				return nil
+			})
+
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
+
+			out := bytes.NewBufferString("")
+			cmd.SetOut(out)
+			cmd.SetErr(out)
+
+			cmd.SetArgs(append(tt.args, "-q"))
+			_, err := cmd.ExecuteC()
+
+			if tt.err != nil {
+				assert.EqualError(t, err, tt.err.Error())
+				return
+			}
+
+			t.Cleanup(func() {
+				assert.True(t, called)
+			})
+
+			if assert.NoError(t, err) {
 				return
 			}
 

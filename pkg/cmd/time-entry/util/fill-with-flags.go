@@ -29,6 +29,14 @@ func FillTimeEntryWithFlags(flags flagSet) Step {
 				dto.TaskID = ""
 			}
 			dto.ProjectID = p
+
+			if flags.Changed("client") {
+				c, _ := flags.GetString("client")
+				if c != dto.Client {
+					dto.TaskID = ""
+				}
+				dto.Client = c
+			}
 		}
 
 		if flags.Changed("description") {

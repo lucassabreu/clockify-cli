@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"io"
 	"sort"
 	"time"
@@ -31,6 +32,7 @@ type ReportFlags struct {
 	NotBillable bool
 
 	Description string
+	Client      string
 	Project     string
 	TagIDs      []string
 }
@@ -39,6 +41,12 @@ type ReportFlags struct {
 func (rf ReportFlags) Check() error {
 	if err := rf.OutputFlags.Check(); err != nil {
 		return err
+	}
+
+	if rf.Client != "" && rf.Project == "" {
+		return cmdutil.FlagErrorWrap(errors.New(
+			"flag 'client' can't be used without flag 'project'",
+		))
 	}
 
 	return cmdutil.XorFlag(map[string]bool{
@@ -67,6 +75,10 @@ func AddReportFlags(
 		"will filter time entries that contains this on the description field")
 	cmd.Flags().StringVarP(&rf.Project, "project", "p", "",
 		"Will filter time entries using this project")
+	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
+		cmdcomplutil.NewProjectAutoComplete(f))
+	cmd.Flags().StringVarP(&rf.Client, "client", "c", "",
+		"Will filter projects from this client")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))
 	cmd.Flags().StringSliceVarP(&rf.TagIDs, "tag", "T", []string{},
@@ -102,7 +114,7 @@ func ReportWithRange(
 
 	if rf.Project != "" && f.Config().IsAllowNameForID() {
 		if rf.Project, err = search.GetProjectByName(
-			c, workspace, rf.Project); err != nil {
+			c, workspace, rf.Project, rf.Client); err != nil {
 			return err
 		}
 	}
