@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.47.0] - 2024-02-09
+
 ### Added
 
 - new flag `--client` to filter projects by client when managing time entries
@@ -1133,7 +1135,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.46.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.47.0...HEAD
+[v0.47.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.47.0
 [v0.46.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.46.0
 [v0.45.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.45.0
 [v0.44.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.44.2
