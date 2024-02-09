@@ -29,6 +29,10 @@ func AddTimeEntryFlags(
 	cmd.Flags().BoolP("allow-incomplete", "A", false,
 		"allow creation of incomplete time entries to be edited later")
 
+	cmd.Flags().StringP("client", "c", "", "client of the project to use for time entry")
+	_ = cmdcompl.AddSuggestionsToFlag(cmd, "client",
+		cmdcomplutil.NewClientAutoComplete(f))
+
 	cmd.Flags().StringP("project", "p", "", "project to use for time entry")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))

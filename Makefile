@@ -36,8 +36,8 @@ go-install: deps-install ## install dev version
 	go install $(MAIN_PKG)
 
 go-generate: deps-install ## recreates generate files
-	go install github.com/vektra/mockery/v2@v2.15.0
-	go generate ./...
+	go install github.com/vektra/mockery/v2@v2.40.3
+	mockery
 
 test-install: deps-install go-generate
 	go install gotest.tools/gotestsum@latest
@@ -66,7 +66,7 @@ tag=
 release: ## releases a tagged version
 	sed "/^## \[$(tag)/, /^## \[/!d" CHANGELOG.md | tail -n +2 | head -n -2 > /tmp/rn.md
 	curl -sL https://git.io/goreleaser | bash /dev/stdin --release-notes /tmp/rn.md \
-		--rm-dist $(if $(SNAPSHOT),--snapshot --skip-publish,)
+		--clean $(if $(SNAPSHOT),--snapshot --skip-publish,)
 ifneq ($(SNAPSHOT),1)
 	curl -X POST -d '{"trigger_branch":"$(tag)","trigger_title":"Releasing $(tag)"}' https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6 -v
 endif

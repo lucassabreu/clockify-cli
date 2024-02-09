@@ -61,7 +61,7 @@ func NewCmdQuickAdd(
 
 			p, _ := cmd.Flags().GetString("project")
 			if f.Config().IsAllowNameForID() {
-				if p, err = search.GetProjectByName(c, w, p); err != nil {
+				if p, err = search.GetProjectByName(c, w, p, ""); err != nil {
 					return err
 				}
 			}

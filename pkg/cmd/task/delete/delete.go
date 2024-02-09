@@ -70,7 +70,7 @@ func NewCmdDelete(
 
 			if f.Config().IsAllowNameForID() {
 				if project, err = search.GetProjectByName(
-					c, w, project); err != nil {
+					c, w, project, ""); err != nil {
 					return err
 				}
 

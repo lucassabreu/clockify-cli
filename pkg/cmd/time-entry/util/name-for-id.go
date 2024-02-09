@@ -34,7 +34,7 @@ func lookupProject(c api.Client) Step {
 
 		var err error
 		te.ProjectID, err = search.GetProjectByName(
-			c, te.Workspace, te.ProjectID)
+			c, te.Workspace, te.ProjectID, te.Client)
 		return te, err
 	}
 

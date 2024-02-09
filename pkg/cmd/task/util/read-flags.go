@@ -79,7 +79,7 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 		}
 
 		if p.ProjectID, err = search.GetProjectByName(
-			c, p.Workspace, p.ProjectID); err != nil {
+			c, p.Workspace, p.ProjectID, ""); err != nil {
 			return p, err
 		}
 

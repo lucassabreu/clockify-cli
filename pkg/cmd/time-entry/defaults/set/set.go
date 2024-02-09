@@ -209,7 +209,8 @@ func updateIDsByNames(
 ) {
 	var err error
 	if d.ProjectID != "" {
-		d.ProjectID, err = search.GetProjectByName(c, d.Workspace, d.ProjectID)
+		d.ProjectID, err = search.GetProjectByName(
+			c, d.Workspace, d.ProjectID, "")
 		if err != nil {
 			d.ProjectID = ""
 			d.TaskID = ""
