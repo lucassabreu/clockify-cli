@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new flag `--client` to filter projects by client when managing time entries
+
 ## [v0.46.0] - 2023-12-06
 
 ### Added
