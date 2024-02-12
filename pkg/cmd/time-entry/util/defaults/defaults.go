@@ -67,6 +67,10 @@ type timeEntryDefaults struct {
 	DefaultTimeEntry
 }
 
+// FailedToOpenErr error returned when failing to open file without an explicit
+// error
+var FailedToOpenErr = errors.New("failed to open file")
+
 // Write persists the default values to the folder
 func (t *timeEntryDefaults) Write(d DefaultTimeEntry) error {
 	println(filepath.Join(t.Dir, t.Filename))
@@ -74,6 +78,12 @@ func (t *timeEntryDefaults) Write(d DefaultTimeEntry) error {
 	if err != nil {
 		return err
 	}
+
+	if f == nil {
+		return FailedToOpenErr
+
+	}
+
 	defer f.Close()
 
 	if strings.HasSuffix(f.Name(), "json") {
@@ -110,6 +120,11 @@ func (t *timeEntryDefaults) Read() (DefaultTimeEntry, error) {
 
 			dir = nDir
 			continue
+		}
+
+		if f == nil {
+			return d, FailedToOpenErr
+
 		}
 		defer f.Close()
 
