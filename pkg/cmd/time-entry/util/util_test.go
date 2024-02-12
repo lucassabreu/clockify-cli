@@ -586,6 +586,7 @@ func TestGetAllowNameForIDsFn_ShouldLookupEntityIDs_WhenFilled(t *testing.T) {
 	c.EXPECT().GetProjects(api.GetProjectsParam{
 		Workspace:       te.Workspace,
 		PaginationParam: api.AllPages(),
+		Archived:        &bFalse,
 	}).
 		Return([]dto.Project{{ID: "pj_id", Name: "project"}}, nil)
 
@@ -599,6 +600,7 @@ func TestGetAllowNameForIDsFn_ShouldLookupEntityIDs_WhenFilled(t *testing.T) {
 
 	c.EXPECT().GetTags(api.GetTagsParam{
 		Workspace:       te.Workspace,
+		Archived:        &bFalse,
 		PaginationParam: api.AllPages(),
 	}).
 		Return([]dto.Tag{
@@ -674,6 +676,7 @@ func TestGetAllowNameForIDsFn_ShouldFail_WhenEntitiesNotFound(t *testing.T) {
 
 	c.EXPECT().GetProjects(api.GetProjectsParam{
 		Workspace:       te.Workspace,
+		Archived:        &bFalse,
 		PaginationParam: api.AllPages(),
 	}).
 		Return([]dto.Project{{ID: "pj_id", Name: "project"}}, nil)
@@ -700,6 +703,7 @@ func TestGetAllowNameForIDsFn_ShouldFail_WhenEntitiesNotFound(t *testing.T) {
 
 	c.EXPECT().GetTags(api.GetTagsParam{
 		Workspace:       te.Workspace,
+		Archived:        &bFalse,
 		PaginationParam: api.AllPages(),
 	}).
 		Return([]dto.Tag{{ID: "tg_id_1", Name: "t1"}}, nil)

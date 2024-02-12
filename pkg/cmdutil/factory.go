@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util/defaults"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
 )
 
@@ -20,6 +21,8 @@ type Factory interface {
 	Client() (api.Client, error)
 	// UI builds a control to prompt information from the user
 	UI() ui.UI
+	// TimeEntryDefaults manages the default properties of a time entry
+	TimeEntryDefaults() defaults.TimeEntryDefaults
 
 	// GetUserID returns the current user id
 	GetUserID() (string, error)
@@ -32,13 +35,19 @@ type Factory interface {
 type factory struct {
 	version func() Version
 
-	config func() Config
-	client func() (api.Client, error)
-	ui     func() ui.UI
+	config            func() Config
+	client            func() (api.Client, error)
+	ui                func() ui.UI
+	timeEntryDefaults func() defaults.TimeEntryDefaults
 
 	getUserID      func() (string, error)
 	getWorkspaceID func() (string, error)
 	getWorkspace   func() (dto.Workspace, error)
+}
+
+// TimeEntryDefaults manages the default properties of a time entry
+func (f *factory) TimeEntryDefaults() defaults.TimeEntryDefaults {
+	return f.timeEntryDefaults()
 }
 
 func (f *factory) Version() Version {
@@ -69,10 +78,12 @@ func (f *factory) GetWorkspace() (dto.Workspace, error) {
 	return f.getWorkspace()
 }
 
+// NewFactory creates a new instance of Factory
 func NewFactory(v Version) Factory {
 	f := &factory{
-		version: func() Version { return v },
-		config:  configFunc(),
+		version:           func() Version { return v },
+		config:            configFunc(),
+		timeEntryDefaults: getTED(),
 	}
 
 	f.ui = getUi(f)
@@ -218,4 +229,20 @@ func getUi(f Factory) func() ui.UI {
 		return i
 	}
 
+}
+
+func getTED() func() defaults.TimeEntryDefaults {
+	var ted defaults.TimeEntryDefaults
+	return func() defaults.TimeEntryDefaults {
+		if ted != nil {
+			return ted
+		}
+
+		wd, _ := os.Getwd()
+		ted = defaults.NewTimeEntryDefaults(defaults.ScanParam{
+			Dir: wd,
+		})
+
+		return ted
+	}
 }

@@ -121,8 +121,10 @@ func TestCmdToday(t *testing.T) {
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
 
+				bFalse := false
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w-id",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return(

@@ -9,12 +9,14 @@ import (
 
 func GetProjectByName(
 	c api.Client,
-	workspace string,
-	project string,
+	workspace,
+	project,
 	client string,
 ) (string, error) {
+	b := false
 	ps, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       workspace,
+		Archived:        &b,
 		PaginationParam: api.AllPages(),
 	})
 	if err != nil {

@@ -106,8 +106,10 @@ func TestNewCmdEditWhenChangingProjectOrTask(t *testing.T) {
 
 			p := tt.project
 			if p != nil {
+				bFalse := false
 				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       w.ID,
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{*p}, nil)

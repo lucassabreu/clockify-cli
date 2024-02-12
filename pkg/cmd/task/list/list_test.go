@@ -16,6 +16,8 @@ import (
 
 type report func(io.Writer, *util.OutputFlags, []dto.Task) error
 
+var bFalse = false
+
 func TestCmdList(t *testing.T) {
 	tts := []struct {
 		name   string
@@ -69,6 +71,7 @@ func TestCmdList(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{}, nil)
 
@@ -117,6 +120,7 @@ func TestCmdList(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{
 					{ID: "p-1", Name: "Cli"},

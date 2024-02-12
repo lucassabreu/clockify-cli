@@ -21,6 +21,11 @@ type SimpleConfig struct {
 	AllowArchivedTags           bool
 }
 
+// IsAllowArchivedTags defines if archived tags should be suggested
+func (s *SimpleConfig) IsAllowArchivedTags() bool {
+	return s.AllowArchivedTags
+}
+
 // InteractivePageSize sets how many items are shown when prompting
 // projects
 func (s *SimpleConfig) InteractivePageSize() int {

@@ -159,6 +159,7 @@ func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
 func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 	defaultStart := timehlp.Today().Add(8 * time.Hour)
 
+	bFalse := false
 	projects := []dto.Project{
 		{ID: "p1", Name: "first", ClientID: "c1", ClientName: "other"},
 		{ID: "p2", Name: "second", ClientID: "c2", ClientName: "me"},
@@ -243,6 +244,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 
 			c.EXPECT().GetProjects(api.GetProjectsParam{
 				Workspace:       w.ID,
+				Archived:        &bFalse,
 				PaginationParam: api.AllPages(),
 			}).
 				Return(projects, nil)

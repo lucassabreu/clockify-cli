@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var bFalse = false
+
 func TestCmdEdit(t *testing.T) {
 	te := dto.Task{ID: "task-id"}
 	shouldCall := func(t *testing.T) func(
@@ -130,6 +132,7 @@ func TestCmdEdit(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{}, errors.New("no project"))
@@ -153,6 +156,7 @@ func TestCmdEdit(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{{Name: "Cli"}}, nil)
@@ -183,6 +187,7 @@ func TestCmdEdit(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{{ID: "p-1", Name: "Cli"}}, nil)
@@ -245,6 +250,7 @@ func TestCmdEdit(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return(
 					[]dto.Project{{ID: "p-1", Name: "Clockify CLI"}}, nil)
@@ -296,6 +302,7 @@ func TestCmdEdit(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return(
 					[]dto.Project{{ID: "p-1", Name: "Clockify CLI"}}, nil)

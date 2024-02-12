@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var bFalse = false
+
 func TestCmdGet(t *testing.T) {
 	shouldCall := func(t *testing.T) func(
 		io.Writer, *util.OutputFlags, dto.Project) error {
@@ -130,6 +132,7 @@ func TestCmdGet(t *testing.T) {
 
 				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{{Name: "project", ID: "p1"}}, nil)
@@ -161,6 +164,7 @@ func TestCmdGet(t *testing.T) {
 
 				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{{Name: "project", ID: "p1"}}, nil)

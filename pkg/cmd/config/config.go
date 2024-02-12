@@ -34,6 +34,10 @@ var validParameters = cmdcompl.ValidArgsMap{
 	cmdutil.CONF_LOG_LEVEL: "how much logs should be shown values: " +
 		"none , error , info and debug",
 	cmdutil.CONF_ALLOW_ARCHIVED_TAGS: "should allow and suggest archived tags",
+	cmdutil.CONF_INTERACTIVE_PAGE_SIZE: "how many entries should be listed " +
+		"when prompting options",
+	cmdutil.CONF_TIME_ENTRY_DEFAULTS: "should load defaults for time " +
+		"entries from current folder",
 }
 
 // NewCmdConfig represents the config command

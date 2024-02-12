@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var bFalse = false
+
 func TestCmdAdd(t *testing.T) {
 	shouldCall := func(t *testing.T) func(
 		io.Writer, *util.OutputFlags, dto.Task) error {
@@ -121,6 +123,7 @@ func TestCmdAdd(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{}, errors.New("no project"))
@@ -144,6 +147,7 @@ func TestCmdAdd(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{{Name: "Cli"}}, nil)
@@ -202,6 +206,7 @@ func TestCmdAdd(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return(
 					[]dto.Project{{ID: "p-1", Name: "Clockify CLI"}}, nil)
@@ -243,6 +248,7 @@ func TestCmdAdd(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return(
 					[]dto.Project{{ID: "p-1", Name: "Clockify CLI"}}, nil)

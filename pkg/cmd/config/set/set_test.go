@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/set"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSetCmdArgs(t *testing.T) {
 	tt := map[string][]string{
-		"zero":  []string{},
-		"one":   []string{"param"},
-		"three": []string{"param", "value", "other value"},
+		"zero":  {},
+		"one":   {"param"},
+		"three": {"param", "value", "other value"},
 	}
 
 	for name := range tt {
@@ -36,14 +36,12 @@ func TestSetCmdArgs(t *testing.T) {
 }
 
 func TestSetCmdRun(t *testing.T) {
-	type tc struct {
+	ts := []struct {
 		name   string
 		args   []string
 		config func(t *testing.T) cmdutil.Config
-	}
-
-	ts := []tc{
-		tc{
+	}{
+		{
 			name: "set token",
 			args: []string{"token", "some value"},
 			config: func(t *testing.T) cmdutil.Config {
@@ -53,7 +51,7 @@ func TestSetCmdRun(t *testing.T) {
 				return c
 			},
 		},
-		tc{
+		{
 			name: "set weekdays",
 			args: []string{cmdutil.CONF_WORKWEEK_DAYS, "SUNDAY,SATURDAY"},
 			config: func(t *testing.T) cmdutil.Config {
@@ -65,7 +63,7 @@ func TestSetCmdRun(t *testing.T) {
 				return c
 			},
 		},
-		tc{
+		{
 			name: "set wrong weekdays",
 			args: []string{cmdutil.CONF_WORKWEEK_DAYS, "monday,sunday,june"},
 			config: func(t *testing.T) cmdutil.Config {

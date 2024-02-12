@@ -2,6 +2,7 @@ package timeentry
 
 import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/clone"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/defaults"
 	del "github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/delete"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/edit"
 	em "github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/edit-multipple"
@@ -32,6 +33,8 @@ func NewCmdTimeEntry(f cmdutil.Factory) (cmds []*cobra.Command) {
 
 		show.NewCmdShow(f),
 		report.NewCmdReport(f),
+
+		defaults.NewCmdDefaults(f),
 	)
 
 	cmds = append(cmds, invoiced.NewCmdInvoiced(f)...)

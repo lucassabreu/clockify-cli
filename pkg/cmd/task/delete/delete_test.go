@@ -16,6 +16,8 @@ import (
 
 type report func(io.Writer, *util.OutputFlags, dto.Task) error
 
+var bFalse = false
+
 func TestCmdDelete(t *testing.T) {
 	tts := []struct {
 		name   string
@@ -79,6 +81,7 @@ func TestCmdDelete(t *testing.T) {
 				f.On("Client").Return(c, nil)
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{}, nil)
 
@@ -101,6 +104,7 @@ func TestCmdDelete(t *testing.T) {
 				f.On("Client").Return(c, nil)
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{{ID: "p-1"}}, nil)
 
@@ -129,6 +133,7 @@ func TestCmdDelete(t *testing.T) {
 				f.On("Client").Return(c, nil)
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{{ID: "p-1"}}, nil)
 
@@ -167,6 +172,7 @@ func TestCmdDelete(t *testing.T) {
 				f.On("Client").Return(c, nil)
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{{ID: "p-1"}}, nil)
 

@@ -25,6 +25,7 @@ const (
 	CONF_LOG_LEVEL             = "log-level"
 	CONF_ALLOW_ARCHIVED_TAGS   = "allow-archived-tags"
 	CONF_INTERACTIVE_PAGE_SIZE = "interactive-page-size"
+	CONF_TIME_ENTRY_DEFAULTS   = "time-entry-defaults"
 )
 
 const (
@@ -66,6 +67,8 @@ type Config interface {
 	// InteractivePageSize sets how many items are shown when prompting
 	// projects
 	InteractivePageSize() int
+	// IsAllowArchivedTags defines if archived tags should be suggested
+	IsAllowArchivedTags() bool
 
 	// Get retrieves a config by its name
 	Get(string) interface{}
@@ -80,6 +83,11 @@ type Config interface {
 }
 
 type config struct{}
+
+// IsAllowArchivedTags defines if archived tags should be suggested
+func (c *config) IsAllowArchivedTags() bool {
+	return c.GetBool(CONF_ALLOW_ARCHIVED_TAGS)
+}
 
 func (c *config) InteractivePageSize() int {
 	i := c.GetInt(CONF_INTERACTIVE_PAGE_SIZE)

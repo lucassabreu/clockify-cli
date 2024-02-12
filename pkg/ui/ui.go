@@ -62,7 +62,7 @@ type UI interface {
 		m string, o, d []string, validade func([]string) error,
 	) ([]string, error)
 	// Confirm interactively ask the user a yes/no question
-	Confirm(m string, d bool) (bool, error)
+	Confirm(m string, d bool, opts ...ConfirmOption) (bool, error)
 }
 
 type ui struct {
@@ -304,15 +304,26 @@ func (u *ui) AskManyFromOptions(
 	)
 }
 
+// ConfirmOption as extra options to customize a Confirm input
+type ConfirmOption func(*survey.Confirm)
+
+// WithConfirmHelp add help to input question
+func WithConfirmHelp(help string) ConfirmOption {
+	return func(i *survey.Confirm) {
+		i.Help = help
+	}
+}
+
 // Confirm interactively ask the user a yes/no question
-func (u *ui) Confirm(message string, d bool) (bool, error) {
+func (u *ui) Confirm(message string, d bool, opts ...ConfirmOption) (bool, error) {
+	c := &survey.Confirm{
+		Message: message,
+		Default: d,
+	}
+	for _, o := range opts {
+		o(c)
+	}
+
 	v := false
-	return v, survey.AskOne(
-		&survey.Confirm{
-			Message: message,
-			Default: d,
-		},
-		&v,
-		u.options...,
-	)
+	return v, survey.AskOne(c, &v, u.options...)
 }

@@ -163,6 +163,23 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
+			if err := updateFlag(i, config, cmdutil.CONF_TIME_ENTRY_DEFAULTS,
+				"Look for default parameters for time entries per folder?",
+				ui.WithConfirmHelp(
+					"This will set the default parameters of a time entry "+
+						"when using `clockify-cli in` and `clockify-cli "+
+						"manual` to the closest .clockify-defaults.yaml file "+
+						"looking up the current folder you were running the"+
+						" commands.\n"+
+						"For more information and examples go to "+
+						"https://clockify-cli.netlify.app/",
+				),
+			); err != nil {
+				return err
+			}
+
+			config.SetString(cmdutil.CONF_TOKEN, token)
+
 			return config.Save()
 		},
 	}
@@ -181,9 +198,10 @@ func updateInt(ui ui.UI, config cmdutil.Config, param, desc string) error {
 }
 
 func updateFlag(
-	ui ui.UI, config cmdutil.Config, param, description string) (err error) {
+	ui ui.UI, config cmdutil.Config, param, description string,
+	opts ...ui.ConfirmOption) (err error) {
 	b := config.GetBool(param)
-	if b, err = ui.Confirm(description, b); err != nil {
+	if b, err = ui.Confirm(description, b, opts...); err != nil {
 		return
 	}
 	config.SetBool(param, b)

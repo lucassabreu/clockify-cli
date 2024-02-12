@@ -20,6 +20,8 @@ func newDate(s string) time.Time {
 	return date
 }
 
+var bFalse = false
+
 func TestReportWithRange(t *testing.T) {
 	date := newDate("2006-01-02")
 	first := time.Date(
@@ -95,6 +97,7 @@ func TestReportWithRange(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{}, errors.New("http error"))
 
@@ -123,6 +126,7 @@ func TestReportWithRange(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{{Name: "right"}}, nil)
 
@@ -151,6 +155,7 @@ func TestReportWithRange(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Project{{Name: "right"}}, nil)
 
@@ -180,6 +185,7 @@ func TestReportWithRange(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return(
@@ -216,6 +222,7 @@ func TestReportWithRange(t *testing.T) {
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).
 					Return([]dto.Project{
@@ -431,6 +438,7 @@ func TestReportWithRange(t *testing.T) {
 				tag := dto.Tag{ID: "t1", Name: "Client"}
 				c.On("GetTags", api.GetTagsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Tag{tag}, nil)
 
