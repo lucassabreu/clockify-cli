@@ -14,7 +14,7 @@ func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) Step {
 	}
 
 	cbs := []Step{
-		lookupProject(c),
+		lookupProject(c, config),
 		lookupTask(c),
 		lookupTags(c),
 	}
@@ -26,7 +26,7 @@ func GetAllowNameForIDsFn(config cmdutil.Config, c api.Client) Step {
 	return compose(cbs...)
 }
 
-func lookupProject(c api.Client) Step {
+func lookupProject(c api.Client, cnf cmdutil.Config) Step {
 	return func(te TimeEntryDTO) (TimeEntryDTO, error) {
 		if te.ProjectID == "" {
 			return te, nil
@@ -34,7 +34,7 @@ func lookupProject(c api.Client) Step {
 
 		var err error
 		te.ProjectID, err = search.GetProjectByName(
-			c, te.Workspace, te.ProjectID, te.Client)
+			c, cnf, te.Workspace, te.ProjectID, te.Client)
 		return te, err
 	}
 

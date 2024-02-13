@@ -5,20 +5,27 @@ import "github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 // SimpleConfig is used to set configs for tests were changing the config or
 // accessing them with Get and All is not important
 type SimpleConfig struct {
-	WorkweekDays                []string
-	Interactive                 bool
-	InteractivePageSizeNumber   int
-	AllowNameForID              bool
-	UserID                      string
-	Workspace                   string
-	Token                       string
-	AllowIncomplete             bool
-	ShowTask                    bool
-	DescriptionAutocomplete     bool
-	DescriptionAutocompleteDays int
-	ShowTotalDuration           bool
-	LogLevelValue               string
-	AllowArchivedTags           bool
+	WorkweekDays                 []string
+	Interactive                  bool
+	InteractivePageSizeNumber    int
+	AllowNameForID               bool
+	UserID                       string
+	Workspace                    string
+	Token                        string
+	AllowIncomplete              bool
+	ShowTask                     bool
+	DescriptionAutocomplete      bool
+	DescriptionAutocompleteDays  int
+	ShowTotalDuration            bool
+	LogLevelValue                string
+	AllowArchivedTags            bool
+	SearchProjectWithClientsName bool
+}
+
+// IsSearchProjectWithClientName defines if the project name for ID should
+// include the client's name
+func (s *SimpleConfig) IsSearchProjectWithClientsName() bool {
+	return s.SearchProjectWithClientsName
 }
 
 // InteractivePageSize sets how many items are shown when prompting

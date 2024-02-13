@@ -95,6 +95,16 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
+			if config.IsAllowNameForID() {
+				if err := updateFlag(i, config,
+					cmdutil.CONF_SEARCH_PROJECTS_WITH_CLIENT_NAME,
+					`Should search projects looking into their `+
+						`client's name too?`,
+				); err != nil {
+					return err
+				}
+			}
+
 			if err := updateFlag(i, config, cmdutil.CONF_INTERACTIVE,
 				`Should use "Interactive Mode" by default?`,
 			); err != nil {
