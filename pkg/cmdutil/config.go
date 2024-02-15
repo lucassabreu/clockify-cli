@@ -67,7 +67,7 @@ type Config interface {
 	// InteractivePageSize sets how many items are shown when prompting
 	// projects
 	InteractivePageSize() int
-	// IsSearchProjectWithClientName defines if the project name for ID should
+	// IsSearchProjectWithClientsName defines if the project name for ID should
 	// include the client's name
 	IsSearchProjectWithClientsName() bool
 
@@ -85,7 +85,7 @@ type Config interface {
 
 type config struct{}
 
-// IsSearchProjectWithClientName defines if the project name for ID should
+// IsSearchProjectWithClientsName defines if the project name for ID should
 // include the client's name
 func (c *config) IsSearchProjectWithClientsName() bool {
 	return c.GetBool(CONF_SEARCH_PROJECTS_WITH_CLIENT_NAME)

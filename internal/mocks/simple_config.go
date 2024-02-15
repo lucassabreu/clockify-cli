@@ -22,7 +22,7 @@ type SimpleConfig struct {
 	SearchProjectWithClientsName bool
 }
 
-// IsSearchProjectWithClientName defines if the project name for ID should
+// IsSearchProjectWithClientsName defines if the project name for ID should
 // include the client's name
 func (s *SimpleConfig) IsSearchProjectWithClientsName() bool {
 	return s.SearchProjectWithClientsName
