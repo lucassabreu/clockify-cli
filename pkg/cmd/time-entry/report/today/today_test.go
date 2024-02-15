@@ -86,6 +86,7 @@ func TestCmdToday(t *testing.T) {
 				f := mocks.NewMockFactory(t)
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -114,9 +115,9 @@ func TestCmdToday(t *testing.T) {
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)

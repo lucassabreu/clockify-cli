@@ -85,9 +85,7 @@ func TestCmdAdd(t *testing.T) {
 				f.On("GetWorkspaceID").
 					Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(false)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				f.On("Client").Return(nil, errors.New("client error"))
 				return f
@@ -115,9 +113,9 @@ func TestCmdAdd(t *testing.T) {
 					Return("w", nil)
 				f.On("Client").Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
@@ -138,9 +136,9 @@ func TestCmdAdd(t *testing.T) {
 					Return("w", nil)
 				f.On("Client").Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
@@ -168,9 +166,7 @@ func TestCmdAdd(t *testing.T) {
 					Return("w", nil)
 				f.On("Client").Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(false)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				c.On("AddTask", api.AddTaskParam{
 					Workspace: "w",
@@ -196,9 +192,9 @@ func TestCmdAdd(t *testing.T) {
 					Return("w", nil)
 				f.On("Client").Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
@@ -237,9 +233,9 @@ func TestCmdAdd(t *testing.T) {
 					Return("w", nil)
 				f.On("Client").Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
