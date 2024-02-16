@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.48.1] - 2024-02-16
+
+### Fixed
+
+- match how strings are compared when using `allow-name-for-id` and filtering on interactive mode.
+
 ## [v0.48.0] - 2024-02-16
 
 ### Added
@@ -1142,7 +1148,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.48.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.48.1...HEAD
+[v0.48.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.1
 [v0.48.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.0
 [v0.47.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.47.0
 [v0.46.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.46.0

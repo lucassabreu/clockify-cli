@@ -3,9 +3,7 @@ package ui
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -78,14 +76,7 @@ func (u *ui) SetPageSize(p uint) UI {
 }
 
 func selectFilter(filter, value string, _ int) bool {
-	// skipcq: GO-C4007
-	filter = regexp.MustCompile(`[\]\^\\\,\.\(\)\-]+`).
-		ReplaceAllString(strhlp.Normalize(filter), " ")
-	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
-	filter = strings.ReplaceAll(filter, " ", ".*")
-	filter = strings.ReplaceAll(filter, "*", ".*")
-
-	return regexp.MustCompile(filter).MatchString(strhlp.Normalize(value))
+	return strhlp.IsSimilar(filter)(value)
 }
 
 func askString(p survey.Prompt, options ...survey.AskOpt) (string, error) {

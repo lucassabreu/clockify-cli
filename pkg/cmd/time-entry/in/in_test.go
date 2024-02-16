@@ -232,7 +232,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 		},
 		{
 			name: "project and client's name",
-			args: []string{"-s=08:00", "-p", "second me"},
+			args: []string{"-s=08:00", "-p", "sec me"},
 			param: api.CreateTimeEntryParam{
 				Workspace: w.ID,
 				Start:     defaultStart,
@@ -241,7 +241,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 		},
 		{
 			name: "project and client's name (other)",
-			args: []string{"-s=08:00", "-p=second clockify"},
+			args: []string{"-s=08:00", "-p", "sec cloc"},
 			param: api.CreateTimeEntryParam{
 				Workspace: w.ID,
 				Start:     defaultStart,

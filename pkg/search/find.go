@@ -26,12 +26,13 @@ func findByName(
 		return r, err
 	}
 
+	isSimilar := strhlp.IsSimilar(name)
 	for _, e := range l {
 		if strings.ToLower(e.GetID()) == name {
 			return e.GetID(), nil
 		}
 
-		if strings.Contains(strhlp.Normalize(e.GetName()), name) {
+		if isSimilar(e.GetName()) {
 			return e.GetID(), nil
 		}
 	}

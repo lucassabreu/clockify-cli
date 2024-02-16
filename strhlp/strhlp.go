@@ -1,6 +1,7 @@
 package strhlp
 
 import (
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -96,4 +97,24 @@ func PadSpace(s string, size int) string {
 		s = s + " "
 	}
 	return s
+}
+
+// IsSimilar will convert the string into a regex and return a function the
+// checks if a second string is similar to it.
+//
+// Both strings will normalized before mathing and any space on the filter
+// string will be taken as .* on a regex
+func IsSimilar(filter string) func(string) bool {
+	// skipcq: GO-C4007
+	filter = regexp.MustCompile(`[\]\^\\\,\.\(\)\-]+`).
+		ReplaceAllString(Normalize(filter), " ")
+	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
+	filter = strings.ReplaceAll(filter, " ", ".*")
+	filter = strings.ReplaceAll(filter, "*", ".*")
+
+	r := regexp.MustCompile(filter)
+
+	return func(s string) bool {
+		return r.MatchString(Normalize(s))
+	}
 }
