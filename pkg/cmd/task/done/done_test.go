@@ -146,6 +146,7 @@ func TestCmdDone(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
@@ -178,6 +179,7 @@ func TestCmdDone(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",
@@ -237,6 +239,7 @@ func TestCmdDone(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c.On("GetProjects", api.GetProjectsParam{
 					Workspace:       "w",

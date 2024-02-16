@@ -3,12 +3,14 @@ package search
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
 func GetProjectByName(
 	c api.Client,
+	cnf cmdutil.Config,
 	workspace string,
 	project string,
 	client string,
@@ -25,10 +27,20 @@ func GetProjectByName(
 		return "", err
 	}
 
+	toNamed := func(p dto.Project) named { return p }
+	if cnf.IsSearchProjectWithClientsName() {
+		toNamed = func(p dto.Project) named {
+			return namedStruct{
+				ID:   p.ID,
+				Name: p.Name + " " + p.ClientName,
+			}
+		}
+	}
+
 	id, err := findByName(project, "project", func() ([]named, error) {
 		ns := make([]named, len(ps))
 		for i := 0; i < len(ps); i++ {
-			ns[i] = ps[i]
+			ns[i] = toNamed(ps[i])
 		}
 
 		return ns, nil

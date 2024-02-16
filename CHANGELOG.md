@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new config `search-project-with-client` to set whether or not the cli should lookup projects using the
+  client's name too
+
 ## [v0.47.0] - 2024-02-09
 
 ### Added

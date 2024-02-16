@@ -140,9 +140,9 @@ func TestCmdQuickAdd(t *testing.T) {
 					Return("w", nil)
 				f.EXPECT().Client().Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.EXPECT().Config().Return(cf)
-				cf.EXPECT().IsAllowNameForID().Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",
@@ -176,9 +176,9 @@ func TestCmdQuickAdd(t *testing.T) {
 					Return("w", nil)
 				f.EXPECT().Client().Return(c, nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.EXPECT().Config().Return(cf)
-				cf.EXPECT().IsAllowNameForID().Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c.EXPECT().GetProjects(api.GetProjectsParam{
 					Workspace:       "w",

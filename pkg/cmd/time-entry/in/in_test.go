@@ -223,6 +223,31 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				"No project with id or name containing 'notonclient' " +
 					"was found for client 'me'"),
 		},
+		{
+			name: "project with client name does not exist",
+			args: []string{"-s=08:00", "-p", "notonclient me"},
+			err: errors.New(
+				"No project with id or name containing 'notonclient me' " +
+					"was found"),
+		},
+		{
+			name: "project and client's name",
+			args: []string{"-s=08:00", "-p", "second me"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[1].ID,
+			},
+		},
+		{
+			name: "project and client's name (other)",
+			args: []string{"-s=08:00", "-p=second clockify"},
+			param: api.CreateTimeEntryParam{
+				Workspace: w.ID,
+				Start:     defaultStart,
+				ProjectID: projects[2].ID,
+			},
+		},
 	}
 
 	for i := range tts {
@@ -235,7 +260,8 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
 
 			f.EXPECT().Config().Return(&mocks.SimpleConfig{
-				AllowNameForID: true,
+				AllowNameForID:               true,
+				SearchProjectWithClientsName: true,
 			})
 
 			c := mocks.NewMockClient(t)

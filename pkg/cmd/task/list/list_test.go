@@ -63,6 +63,7 @@ func TestCmdList(t *testing.T) {
 				f.On("Config").Return(cf)
 
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(false)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -111,6 +112,7 @@ func TestCmdList(t *testing.T) {
 				f.On("Config").Return(cf)
 
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(false)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)

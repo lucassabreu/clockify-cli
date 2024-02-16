@@ -124,6 +124,7 @@ func TestCmdGet(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.EXPECT().Config().Return(cf)
 				cf.EXPECT().IsAllowNameForID().Return(true)
+				cf.EXPECT().IsSearchProjectWithClientsName().Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.EXPECT().Client().Return(c, nil)
@@ -155,6 +156,7 @@ func TestCmdGet(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.EXPECT().Config().Return(cf)
 				cf.EXPECT().IsAllowNameForID().Return(true)
+				cf.EXPECT().IsSearchProjectWithClientsName().Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.EXPECT().Client().Return(c, nil)

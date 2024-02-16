@@ -112,9 +112,10 @@ func ReportWithRange(
 		return err
 	}
 
+	cnf := f.Config()
 	if rf.Project != "" && f.Config().IsAllowNameForID() {
 		if rf.Project, err = search.GetProjectByName(
-			c, workspace, rf.Project, rf.Client); err != nil {
+			c, cnf, workspace, rf.Project, rf.Client); err != nil {
 			return err
 		}
 	}
@@ -171,7 +172,7 @@ func ReportWithRange(
 	}
 
 	return util.PrintTimeEntries(
-		log, out, f.Config(), rf.OutputFlags)
+		log, out, cnf, rf.OutputFlags)
 }
 
 func filterBilling(l []dto.TimeEntry, billable bool) []dto.TimeEntry {

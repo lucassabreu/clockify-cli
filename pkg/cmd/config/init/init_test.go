@@ -73,7 +73,12 @@ func TestInitCmd(t *testing.T) {
 
 			setStringFn(config, cmdutil.CONF_USER_ID, "user-1")
 
-			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true)
+			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true).
+				Run(func(args mock.Arguments) {
+					config.EXPECT().IsAllowNameForID().Return(true)
+				})
+			setBoolFn(config, cmdutil.CONF_SEARCH_PROJECTS_WITH_CLIENT_NAME,
+				false, true)
 			setBoolFn(config, cmdutil.CONF_INTERACTIVE, false, false)
 
 			config.EXPECT().GetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE).
@@ -127,6 +132,10 @@ func TestInitCmd(t *testing.T) {
 
 			c.ExpectString("Should try to find")
 			c.ExpectString("by their names?")
+			c.SendLine("y")
+			c.ExpectString("Yes")
+
+			c.ExpectString("search projects looking into their client's name")
 			c.SendLine("y")
 			c.ExpectString("Yes")
 

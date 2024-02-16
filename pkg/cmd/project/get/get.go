@@ -63,7 +63,7 @@ func NewCmdGet(
 
 			if f.Config().IsAllowNameForID() {
 				if p.ProjectID, err = search.GetProjectByName(
-					c, p.Workspace, p.ProjectID, ""); err != nil {
+					c, f.Config(), p.Workspace, p.ProjectID, ""); err != nil {
 					return err
 				}
 			}
