@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- using name for id options with `[` in the name makes the cli panic
+
 ## [v0.48.1] - 2024-02-16
 
 ### Fixed

@@ -106,7 +106,7 @@ func PadSpace(s string, size int) string {
 // string will be taken as .* on a regex
 func IsSimilar(filter string) func(string) bool {
 	// skipcq: GO-C4007
-	filter = regexp.MustCompile(`[\]\^\\\,\.\(\)\-]+`).
+	filter = regexp.MustCompile(`[\[\]\^\\\,\.\(\)\-]+`).
 		ReplaceAllString(Normalize(filter), " ")
 	filter = regexp.MustCompile(`\s+`).ReplaceAllString(filter, " ")
 	filter = strings.ReplaceAll(filter, " ", ".*")
