@@ -2,6 +2,7 @@ package util
 
 import (
 	"io"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -19,12 +20,12 @@ type OutputFlags struct {
 	Markdown          bool
 	DurationFormatted bool
 	DurationFloat     bool
-
-	TimeFormat string
+	TimeFormat        string
+	TimeZone          string
 }
 
 func (of OutputFlags) Check() error {
-	return cmdutil.XorFlag(map[string]bool{
+	if err := cmdutil.XorFlag(map[string]bool{
 		"format":             of.Format != "",
 		"json":               of.JSON,
 		"csv":                of.CSV,
@@ -32,7 +33,15 @@ func (of OutputFlags) Check() error {
 		"md":                 of.Markdown,
 		"duration-float":     of.DurationFloat,
 		"duration-formatted": of.DurationFormatted,
-	})
+	}); err != nil {
+		return err
+	}
+
+	if of.TimeZone != "local" && of.TimeFormat != "" {
+		_, err := time.LoadLocation(of.TimeZone)
+		return err
+	}
+	return nil
 }
 
 // AddPrintMultipleTimeEntriesFlags add flags to print multiple time entries
@@ -45,6 +54,8 @@ func AddPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
 func AddPrintTimeEntriesFlags(cmd *cobra.Command, of *OutputFlags) {
 	cmd.Flags().StringVarP(&of.Format, "format", "f", "",
 		"golang text/template format to be applied on each time entry")
+	cmd.Flags().StringVarP(&of.TimeZone, "time-zone", "z", "local",
+		"time zone to be used on the time entries")
 	cmd.Flags().BoolVarP(&of.JSON, "json", "j", false, "print as JSON")
 	cmd.Flags().BoolVarP(&of.CSV, "csv", "v", false, "print as CSV")
 	cmd.Flags().BoolVarP(&of.Quiet, "quiet", "q", false, "print only ID")
@@ -98,11 +109,35 @@ func PrintTimeEntry(
 	return err
 }
 
+func updateTimeZone(tes []dto.TimeEntry, of OutputFlags) []dto.TimeEntry {
+	if of.TimeZone == "" {
+		return tes
+	}
+
+	var loc *time.Location
+	if of.TimeZone == "local" {
+		loc = time.Local
+	} else {
+		// parses of.TimeZone as a time.Location
+		loc, _ = time.LoadLocation(of.TimeZone)
+	}
+
+	for i := range tes {
+		tes[i].TimeInterval.Start = tes[i].TimeInterval.Start.In(loc)
+		if tes[i].TimeInterval.End != nil {
+			end := tes[i].TimeInterval.End.In(loc)
+			tes[i].TimeInterval.End = &end
+		}
+	}
+	return tes
+}
+
 // PrintTimeEntries will print out a list of time entries using parameters and
 // flags
 func PrintTimeEntries(
 	tes []dto.TimeEntry, out io.Writer, config cmdutil.Config, of OutputFlags,
 ) error {
+	tes = updateTimeZone(tes, of)
 	switch {
 	case of.Markdown:
 		return output.TimeEntriesMarkdownPrint(tes, out)
