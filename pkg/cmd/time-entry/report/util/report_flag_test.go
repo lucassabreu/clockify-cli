@@ -32,21 +32,17 @@ func TestReportBillableFlagsChecks(t *testing.T) {
 func TestReportProjectFlagsChecks(t *testing.T) {
 	rf := util.NewReportFlags()
 	rf.Client = "me"
-	rf.Project = ""
+	rf.Projects = []string{}
 
-	err := rf.Check()
-	if assert.Error(t, err) {
-		assert.Equal(t,
-			"flag 'client' can't be used without flag 'project'", err.Error())
-	}
+	assert.NoError(t, rf.Check())
 
 	rf.Client = ""
-	rf.Project = "mine"
+	rf.Projects = []string{"mine"}
 
 	assert.NoError(t, rf.Check())
 
 	rf.Client = "me"
-	rf.Project = "mine"
+	rf.Projects = []string{"mine"}
 
 	assert.NoError(t, rf.Check())
 }

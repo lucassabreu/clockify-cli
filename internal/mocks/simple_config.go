@@ -1,6 +1,8 @@
 package mocks
 
-import "github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+import (
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+)
 
 // SimpleConfig is used to set configs for tests were changing the config or
 // accessing them with Get and All is not important

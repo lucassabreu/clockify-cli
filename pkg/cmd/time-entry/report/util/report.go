@@ -1,7 +1,6 @@
 package util
 
 import (
-	"errors"
 	"io"
 	"sort"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/search"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -33,7 +33,7 @@ type ReportFlags struct {
 
 	Description string
 	Client      string
-	Project     string
+	Projects    []string
 	TagIDs      []string
 }
 
@@ -41,12 +41,6 @@ type ReportFlags struct {
 func (rf ReportFlags) Check() error {
 	if err := rf.OutputFlags.Check(); err != nil {
 		return err
-	}
-
-	if rf.Client != "" && rf.Project == "" {
-		return cmdutil.FlagErrorWrap(errors.New(
-			"flag 'client' can't be used without flag 'project'",
-		))
 	}
 
 	return cmdutil.XorFlag(map[string]bool{
@@ -73,7 +67,7 @@ func AddReportFlags(
 		"add empty lines for dates without time entries")
 	cmd.Flags().StringVarP(&rf.Description, "description", "d", "",
 		"will filter time entries that contains this on the description field")
-	cmd.Flags().StringVarP(&rf.Project, "project", "p", "",
+	cmd.Flags().StringSliceVarP(&rf.Projects, "project", "p", []string{},
 		"Will filter time entries using this project")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
 		cmdcomplutil.NewProjectAutoComplete(f))
@@ -113,10 +107,34 @@ func ReportWithRange(
 	}
 
 	cnf := f.Config()
-	if rf.Project != "" && f.Config().IsAllowNameForID() {
-		if rf.Project, err = search.GetProjectByName(
-			c, cnf, workspace, rf.Project, rf.Client); err != nil {
+	if len(rf.Projects) != 0 {
+		if f.Config().IsAllowNameForID() {
+			if rf.Projects, err = search.GetProjectsByName(
+				c, cnf, workspace, rf.Client, rf.Projects); err != nil {
+				return err
+			}
+		}
+	} else if rf.Client != "" {
+		if f.Config().IsAllowNameForID() {
+			if rf.Client, err = search.GetClientByName(
+				c, workspace, rf.Client); err != nil {
+				return err
+			}
+		}
+
+		ps, err := c.GetProjects(api.GetProjectsParam{
+			Workspace:       workspace,
+			Clients:         []string{rf.Client},
+			Hydrate:         false,
+			PaginationParam: api.AllPages(),
+		})
+		if err != nil {
 			return err
+		}
+
+		rf.Projects = make([]string, len(ps))
+		for i := range ps {
+			rf.Projects[i] = ps[i].ID
 		}
 	}
 
@@ -127,21 +145,42 @@ func ReportWithRange(
 		}
 	}
 
+	if len(rf.Projects) == 0 {
+		rf.Projects = []string{""}
+	}
+
 	start = timehlp.TruncateDate(start)
 	end = timehlp.TruncateDate(end).Add(time.Hour * 24)
-	log, err := c.LogRange(api.LogRangeParam{
-		Workspace:       workspace,
-		UserID:          userId,
-		FirstDate:       start,
-		LastDate:        end,
-		Description:     rf.Description,
-		ProjectID:       rf.Project,
-		TagIDs:          rf.TagIDs,
-		PaginationParam: api.AllPages(),
-	})
 
-	if err != nil {
+	wg := errgroup.Group{}
+	logs := make([][]dto.TimeEntry, len(rf.Projects))
+
+	for i := range rf.Projects {
+		i := i
+		wg.Go(func() error {
+			var err error
+			logs[i], err = c.LogRange(api.LogRangeParam{
+				Workspace:       workspace,
+				UserID:          userId,
+				FirstDate:       start,
+				LastDate:        end,
+				Description:     rf.Description,
+				ProjectID:       rf.Projects[i],
+				TagIDs:          rf.TagIDs,
+				PaginationParam: api.AllPages(),
+			})
+
+			return err
+		})
+	}
+
+	if err = wg.Wait(); err != nil {
 		return err
+	}
+
+	log := make([]dto.TimeEntry, 0)
+	for i := range logs {
+		log = append(log, logs[i]...)
 	}
 
 	if rf.Billable || rf.NotBillable {

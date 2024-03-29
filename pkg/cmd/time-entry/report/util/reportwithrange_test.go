@@ -102,7 +102,7 @@ func TestReportWithRange(t *testing.T) {
 			},
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
-				rf.Project = "p"
+				rf.Projects = []string{"p"}
 				return rf
 			},
 			err: "http error",
@@ -131,7 +131,7 @@ func TestReportWithRange(t *testing.T) {
 			},
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
-				rf.Project = "wrong"
+				rf.Projects = []string{"wrong"}
 				return rf
 			},
 			err: "No project.*wrong' was found",
@@ -160,7 +160,7 @@ func TestReportWithRange(t *testing.T) {
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
 				rf.Client = "right"
-				rf.Project = "wrong"
+				rf.Projects = []string{"wrong"}
 				return rf
 			},
 			err: "No client.*right' was found",
@@ -197,7 +197,7 @@ func TestReportWithRange(t *testing.T) {
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
 				rf.Client = "right"
-				rf.Project = "wrong"
+				rf.Projects = []string{"wrong"}
 				return rf
 			},
 			err: "No project.*wrong' was found for client 'right'",
@@ -250,7 +250,7 @@ func TestReportWithRange(t *testing.T) {
 			},
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
-				rf.Project = "right"
+				rf.Projects = []string{"right"}
 				rf.Client = "right"
 				return rf
 			},
@@ -289,7 +289,7 @@ func TestReportWithRange(t *testing.T) {
 			},
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
-				rf.Project = "p"
+				rf.Projects = []string{"p"}
 				rf.Description = "desc"
 				rf.Quiet = true
 				return rf
@@ -306,8 +306,7 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
+				f.On("Config").Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -349,8 +348,7 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -387,8 +385,7 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -424,9 +421,9 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -463,6 +460,163 @@ func TestReportWithRange(t *testing.T) {
 			expected: heredoc.Doc(`
 				te-2
 				te-4
+			`),
+		},
+		{
+			name: "multiple projects",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				f.EXPECT().Config().Return(
+					&mocks.SimpleConfig{AllowNameForID: true})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.EXPECT().GetProjects(api.GetProjectsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.Project{
+					{ID: "p1", Name: "p1"},
+					{ID: "p2", Name: "p2"},
+					{ID: "p3", Name: "p3"},
+				}, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p1",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "te-1",
+						TimeInterval: dto.TimeInterval{
+							Start: first,
+						},
+					},
+					{ID: "te-3",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(2)),
+						},
+					},
+				}, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p2",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "te-2",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(1)),
+						},
+					},
+					{ID: "te-4",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(3)),
+						},
+					},
+				}, nil)
+
+				return f
+			},
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Quiet = true
+				rf.Projects = []string{"p1", "p2"}
+				return rf
+			},
+			expected: heredoc.Doc(`
+				te-1
+				te-2
+				te-3
+				te-4
+			`),
+		},
+		{
+			name: "projects form a client",
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Quiet = true
+				rf.Client = "me"
+				return rf
+			},
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				f.EXPECT().Config().Return(
+					&mocks.SimpleConfig{AllowNameForID: true})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.EXPECT().GetClients(api.GetClientsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).
+					Return([]dto.Client{
+						{ID: "c1", Name: "me"},
+						{ID: "c2", Name: "you"},
+					}, nil)
+
+				c.EXPECT().GetProjects(api.GetProjectsParam{
+					Workspace:       "w",
+					Clients:         []string{"c1"},
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.Project{
+					{ID: "p1", Name: "p1", ClientID: "c1", ClientName: "me"},
+					{ID: "p3", Name: "p3", ClientID: "c1", ClientName: "me"},
+				}, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p1",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "te-1",
+						TimeInterval: dto.TimeInterval{
+							Start: first,
+						},
+					},
+					{ID: "te-3",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(2)),
+						},
+					},
+				}, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p3",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "te-2",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(1)),
+						},
+					},
+				}, nil)
+
+				return f
+			},
+			expected: heredoc.Doc(`
+				te-1
+				te-2
+				te-3
 			`),
 		},
 	}
