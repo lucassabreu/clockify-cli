@@ -107,8 +107,7 @@ func TestEditCmd(t *testing.T) {
 				f := mocks.NewMockFactory(t)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				cf.On("IsAllowNameForID").Return(true)
+				cf := &mocks.SimpleConfig{AllowNameForID: true}
 				f.On("Config").Return(cf)
 
 				c := mocks.NewMockClient(t)
@@ -134,8 +133,7 @@ func TestEditCmd(t *testing.T) {
 				f := mocks.NewMockFactory(t)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				cf.On("IsAllowNameForID").Return(false)
+				cf := &mocks.SimpleConfig{}
 				f.On("Config").Return(cf)
 
 				c := mocks.NewMockClient(t)
@@ -176,8 +174,7 @@ func TestEditCmd(t *testing.T) {
 				f := mocks.NewMockFactory(t)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				cf.On("IsAllowNameForID").Return(true)
+				cf := &mocks.SimpleConfig{AllowNameForID: true}
 				f.On("Config").Return(cf)
 
 				c := mocks.NewMockClient(t)
@@ -241,8 +238,7 @@ func TestEditCmd(t *testing.T) {
 				f := mocks.NewMockFactory(t)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				cf.On("IsAllowNameForID").Return(true)
+				cf := &mocks.SimpleConfig{AllowNameForID: true}
 				f.On("Config").Return(cf)
 
 				c := mocks.NewMockClient(t)
@@ -366,8 +362,7 @@ func TestEditCmdReport(t *testing.T) {
 			f.On("GetWorkspaceID").
 				Return("w", nil)
 
-			cf := mocks.NewMockConfig(t)
-			cf.On("IsAllowNameForID").Return(false)
+			cf := &mocks.SimpleConfig{AllowNameForID: false}
 			f.On("Config").Return(cf)
 
 			c.On("UpdateProject", api.UpdateProjectParam{

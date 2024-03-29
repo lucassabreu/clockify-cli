@@ -122,7 +122,7 @@ func NewCmdEdit(
 
 			if f.Config().IsAllowNameForID() {
 				if ids, err = search.GetProjectsByName(
-					c, w, ids); err != nil {
+					c, f.Config(), w, "", ids); err != nil {
 					return err
 				}
 

@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- report subcommands now allowing passing multiple projects to search/filter
+- report subcommands now will search all the time entries of a client with the flag `--client` without using
+  `--project`
+
 ## [v0.48.2] - 2024-02-22
 
 ### Fixed
