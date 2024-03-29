@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.49.0] - 2024-03-29
+
 ### Added
 
 - report subcommands now allowing passing multiple projects to search/filter
@@ -1160,7 +1162,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.48.2...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.49.0...HEAD
+[v0.49.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.49.0
 [v0.48.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.2
 [v0.48.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.1
 [v0.48.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.0
