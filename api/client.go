@@ -445,7 +445,18 @@ func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	user, err := c.GetUser(GetUser{p.Workspace, p.UserID})
+	var user dto.User
+	tries := 0
+	for tries < 5 {
+		tries++
+		user, err = c.GetUser(GetUser{p.Workspace, p.UserID})
+		if err == nil || !errors.Is(err, ErrorTooManyRequests) {
+			break
+		}
+
+		time.Sleep(time.Duration(5))
+	}
+
 	if err != nil {
 		return timeEntries, err
 	}

@@ -22,6 +22,9 @@ var ErrorNotFound = dto.Error{Message: "Nothing was found", Code: 404}
 // ErrorForbidden Forbidden
 var ErrorForbidden = dto.Error{Message: "Forbidden", Code: 403}
 
+// ErrorTooManyRequests Too Many Requests
+var ErrorTooManyRequests = dto.Error{Message: "Too Many Requests", Code: 429}
+
 type transport struct {
 	apiKey string
 	next   http.RoundTripper
@@ -110,6 +113,10 @@ func (c *client) Do(
 
 		if r.StatusCode == 403 && apiErr.Message == "" {
 			apiErr = ErrorForbidden
+		}
+
+		if r.StatusCode == 429 && apiErr.Message == "" {
+			apiErr = ErrorTooManyRequests
 		}
 
 		if apiErr.Message == "" {
