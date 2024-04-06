@@ -41,6 +41,8 @@ var validParameters = cmdcompl.ValidArgsMap{
 	cmdutil.CONF_LANGUAGE: "which language to use for number " +
 		"formatting",
 	cmdutil.CONF_TIMEZONE: "which timezone to use to input/output time",
+	cmdutil.CONF_TIME_ENTRY_DEFAULTS: "should load defaults for time " +
+		"entries from current folder",
 }
 
 // NewCmdConfig represents the config command

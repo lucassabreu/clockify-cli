@@ -31,6 +31,7 @@ const (
 	CONF_INTERACTIVE_PAGE_SIZE            = "interactive-page-size"
 	CONF_LANGUAGE                         = "lang"
 	CONF_TIMEZONE                         = "time-zone"
+	CONF_TIME_ENTRY_DEFAULTS              = "time-entry-defaults"
 )
 
 const (
