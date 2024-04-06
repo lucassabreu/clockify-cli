@@ -36,6 +36,8 @@ var validParameters = cmdcompl.ValidArgsMap{
 	cmdutil.CONF_LOG_LEVEL: "how much logs should be shown values: " +
 		"none , error , info and debug",
 	cmdutil.CONF_ALLOW_ARCHIVED_TAGS: "should allow and suggest archived tags",
+	cmdutil.CONF_INTERACTIVE_PAGE_SIZE: "how many entries should be listed " +
+		"when prompting options",
 	cmdutil.CONF_LANGUAGE: "which language to use for number " +
 		"formatting",
 	cmdutil.CONF_TIMEZONE: "which timezone to use to input/output time",
