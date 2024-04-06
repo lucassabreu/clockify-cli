@@ -66,7 +66,7 @@ func lookupTags(c api.Client) Step {
 		}
 
 		var err error
-		te.TagIDs, err = search.GetTagsByName(c, te.Workspace, te.TagIDs)
+		te.TagIDs, err = search.GetTagsByName(c, te.Workspace, true, te.TagIDs)
 		return te, err
 	}
 

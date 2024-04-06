@@ -73,7 +73,7 @@ func GetPropsInteractiveFn(
 			c,
 			f.UI(),
 			dc,
-			f.Config().GetBool(cmdutil.CONF_ALLOW_ARCHIVED_TAGS),
+			f.Config().IsAllowArchivedTags(),
 		)
 	}
 }
