@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
+	"github.com/lucassabreu/clockify-cli/pkg/uiutil"
 )
 
 // GetDatesInteractiveFn will ask the user the start and end times of the entry
@@ -111,8 +111,6 @@ func askTimeEntryPropsInteractive(
 	return te, err
 }
 
-const noProject = "No Project"
-
 func getProjectID(
 	projectID string, w dto.Workspace, c api.Client, ui ui.UI,
 ) (string, error) {
@@ -127,61 +125,19 @@ func getProjectID(
 		return "", err
 	}
 
-	projectsString := make([]string, len(projects))
-	found := -1
-	projectNameSize := 0
+	p, err := uiutil.AskProject(uiutil.AskProjectParam{
+		UI:            ui,
+		ProjectID:     projectID,
+		Projects:      projects,
+		ForceProjects: w.Settings.ForceDescription,
+	})
 
-	for i := range projects {
-		projectsString[i] = projects[i].ID + " - " + projects[i].Name
-		if c := utf8.RuneCountInString(projectsString[i]); projectNameSize < c {
-			projectNameSize = c
-		}
-
-		if found == -1 && projects[i].ID == projectID {
-			projectID = projectsString[i]
-			found = i
-		}
+	if p != nil {
+		return p.ID, err
 	}
 
-	format := fmt.Sprintf("%%-%ds| %%s", projectNameSize+1)
-
-	for i := range projects {
-		client := "Without Client"
-		if projects[i].ClientID != "" {
-			client = "Client: " + projects[i].ClientName +
-				" (" + projects[i].ClientID + ")"
-		}
-
-		projectsString[i] = fmt.Sprintf(
-			format,
-			projectsString[i],
-			client,
-		)
-	}
-
-	if found == -1 {
-		if projectID != "" {
-			fmt.Printf("Project '%s' informed was not found.\n", projectID)
-			projectID = ""
-		}
-	} else {
-		projectID = projectsString[found]
-	}
-
-	if !w.Settings.ForceProjects {
-		projectsString = append([]string{noProject}, projectsString...)
-	}
-
-	projectID, err = ui.AskFromOptions("Choose your project:",
-		projectsString, projectID)
-	if err != nil || projectID == noProject || projectID == "" {
-		return "", err
-	}
-
-	return strings.TrimSpace(projectID[0:strings.Index(projectID, " - ")]), nil
+	return "", err
 }
-
-const noTask = "No Task"
 
 func getTaskID(
 	taskID, projectID string, w dto.Workspace, c api.Client, ui ui.UI,
@@ -210,37 +166,18 @@ func getTaskID(
 		return "", nil
 	}
 
-	tasksString := make([]string, len(tasks))
-	found := -1
+	t, err := uiutil.AskTask(uiutil.AskTaskParam{
+		UI:     ui,
+		TaskID: taskID,
+		Tasks:  tasks,
+		Force:  w.Settings.ForceTasks,
+	})
 
-	for i := range tasks {
-		tasksString[i] = tasks[i].ID + " - " + tasks[i].Name
-
-		if found == -1 && tasks[i].ID == taskID {
-			taskID = tasksString[i]
-			found = i
-		}
+	if t != nil {
+		return t.ID, err
 	}
 
-	if found == -1 {
-		if taskID != "" {
-			fmt.Printf("Task '%s' informed was not found.\n", taskID)
-			taskID = ""
-		}
-	} else {
-		taskID = tasksString[found]
-	}
-
-	if !w.Settings.ForceTasks {
-		tasksString = append([]string{noTask}, tasksString...)
-	}
-
-	taskID, err = ui.AskFromOptions("Choose your task:", tasksString, taskID)
-	if err != nil || taskID == noTask || taskID == "" {
-		return "", err
-	}
-
-	return strings.TrimSpace(taskID[0:strings.Index(taskID, " - ")]), nil
+	return "", err
 }
 
 func getDescription(
@@ -301,21 +238,21 @@ func getTagIDs(
 		}
 	}
 
-	var newTags []string
-	if newTags, err = ui.AskManyFromOptions("Choose your tags:",
-		tagsString, current, func(s []string) error {
-			if w.Settings.ForceTags && len(s) == 0 {
-				return errors.New("at least one tag should be selected")
-			}
+	ts, err := uiutil.AskTags(uiutil.AskTagsParam{
+		UI:     ui,
+		TagIDs: tagIDs,
+		Tags:   tags,
+		Force:  w.Settings.ForceTags,
+	})
 
-			return nil
-		}); err != nil {
-		return nil, nil
+	if err != nil || len(ts) == 0 {
+		return nil, err
 	}
 
-	for i, t := range newTags {
-		newTags[i] = strings.TrimSpace(t[0:strings.Index(t, " - ")])
+	newTags := make([]string, len(ts))
+	for i := range ts {
+		newTags[i] = ts[i].ID
 	}
 
-	return newTags, nil
+	return newTags, err
 }

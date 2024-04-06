@@ -9,6 +9,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
+	"github.com/lucassabreu/clockify-cli/pkg/uiutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -95,7 +96,7 @@ func TestGetPropsInteractive_ShouldAskValues(t *testing.T) {
 			return err
 		}, func(c consoletest.ExpectConsole) {
 			c.ExpectString("Choose your project:")
-			c.ExpectString(noProject)
+			c.ExpectString(uiutil.NoProject)
 			c.ExpectString("1 - First  | Without Client")
 			c.ExpectString("2 - Second | Client: Client One (1)")
 			c.ExpectString("3 - Third  | Client: Client Two (2)")
@@ -106,10 +107,10 @@ func TestGetPropsInteractive_ShouldAskValues(t *testing.T) {
 			c.ExpectString("3 - Third  | Client: Client Two (2)")
 
 			c.Send(string(terminal.KeyArrowDown))
-			c.SendLine("")
+			c.SendLine()
 
 			c.ExpectString("Choose your task:")
-			c.ExpectString(noTask)
+			c.ExpectString(uiutil.NoTask)
 			c.ExpectString("t1 - First")
 			c.ExpectString("t2 - Second")
 			c.ExpectString("t3 - Third")
@@ -127,7 +128,7 @@ func TestGetPropsInteractive_ShouldAskValues(t *testing.T) {
 
 			c.Send("end")
 			c.Send(string(terminal.KeyArrowRight))
-			c.SendLine("")
+			c.SendLine()
 
 			c.ExpectEOF()
 		})
@@ -186,7 +187,7 @@ func TestGetPropsInteractive_ShouldAllowEmptyValues(t *testing.T) {
 			return err
 		}, func(c consoletest.ExpectConsole) {
 			c.ExpectString("Choose your project:")
-			c.ExpectString(noProject)
+			c.ExpectString(uiutil.NoProject)
 			c.ExpectString("1 - First | Without Client")
 
 			c.SendLine("")
@@ -267,7 +268,7 @@ func TestGetPropsInteractive_ShouldUseInputAsSelected(t *testing.T) {
 			)(input)
 
 			assert.NoError(t, err)
-			assert.Equal(t, input, output)
+			assert.Equal(t, output, input)
 
 			return err
 		}, func(c consoletest.ExpectConsole) {
