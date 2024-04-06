@@ -1,0 +1,7 @@
+workspace: "w"
+projectId: "p"
+task: "t"
+description: "d"
+tags:
+  - "t1"
+  - "t2"

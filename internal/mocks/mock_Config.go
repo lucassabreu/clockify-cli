@@ -395,6 +395,51 @@ func (_c *MockConfig_InteractivePageSize_Call) RunAndReturn(run func() int) *Moc
 	return _c
 }
 
+// IsAllowArchivedTags provides a mock function with given fields:
+func (_m *MockConfig) IsAllowArchivedTags() bool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsAllowArchivedTags")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// MockConfig_IsAllowArchivedTags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsAllowArchivedTags'
+type MockConfig_IsAllowArchivedTags_Call struct {
+	*mock.Call
+}
+
+// IsAllowArchivedTags is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) IsAllowArchivedTags() *MockConfig_IsAllowArchivedTags_Call {
+	return &MockConfig_IsAllowArchivedTags_Call{Call: _e.mock.On("IsAllowArchivedTags")}
+}
+
+func (_c *MockConfig_IsAllowArchivedTags_Call) Run(run func()) *MockConfig_IsAllowArchivedTags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_IsAllowArchivedTags_Call) Return(_a0 bool) *MockConfig_IsAllowArchivedTags_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockConfig_IsAllowArchivedTags_Call) RunAndReturn(run func() bool) *MockConfig_IsAllowArchivedTags_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IsAllowNameForID provides a mock function with given fields:
 func (_m *MockConfig) IsAllowNameForID() bool {
 	ret := _m.Called()
