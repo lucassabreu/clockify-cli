@@ -54,12 +54,12 @@ func NewCmdSet(
 				return err
 			}
 
+			c, err := f.Client()
 			if changed || d.Workspace != n.Workspace {
 				if n.TaskID != "" && n.ProjectID == "" {
 					return errors.New("can't set task without project")
 				}
 
-				c, err := f.Client()
 				if err != nil {
 					return err
 				}
@@ -71,16 +71,16 @@ func NewCmdSet(
 					}
 				}
 
-				if f.Config().IsInteractive() {
-					if n, err = ask(n, f.Config(), c, f.UI()); err != nil {
-						return err
-					}
-				}
-
 				if !f.Config().IsAllowNameForID() {
 					if err = checkIDs(c, n); err != nil {
 						return err
 					}
+				}
+			}
+
+			if f.Config().IsInteractive() {
+				if n, err = ask(n, f.Config(), c, f.UI()); err != nil {
+					return err
 				}
 			}
 

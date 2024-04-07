@@ -515,6 +515,9 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 
 				f.EXPECT().GetWorkspaceID().Return("w", nil)
 
+				f.EXPECT().Client().
+					Return(mocks.NewMockClient(t), nil)
+
 				return f
 			},
 		},
@@ -622,15 +625,20 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 	for i := range tts {
 		tt := &tts[i]
 		t.Run(tt.name, func(t *testing.T) {
+
 			f := mocks.NewMockFactory(t)
+
+			c := mocks.NewMockClient(t)
+			f.EXPECT().Client().
+				Return(c, nil)
+
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 			if len(tt.args) != 0 {
 				f.EXPECT().Config().Return(&mocks.SimpleConfig{
 					AllowNameForID: false,
 					Interactive:    false,
 				})
-
-				c := mocks.NewMockClient(t)
 
 				tasks := make([]dto.Task, 0)
 
@@ -656,8 +664,6 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 
 					c.On("GetTags", mock.Anything).Return(tags, nil)
 				}
-
-				f.EXPECT().Client().Return(c, nil)
 			}
 
 			f.EXPECT().GetWorkspaceID().Return(tt.expected.Workspace, nil)
