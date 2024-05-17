@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -86,12 +87,16 @@ type Client interface {
 type client struct {
 	baseURL *url.URL
 	http.Client
-	debugLogger Logger
-	infoLogger  Logger
+	debugLogger    Logger
+	infoLogger     Logger
+	requestTickets chan struct{}
 }
 
 // baseURL is the Clockify API base URL
 const baseURL = "https://api.clockify.me/api"
+
+// REQUEST_RATE_LIMIT maximum number of requests per second
+const REQUEST_RATE_LIMIT = 50
 
 // ErrorMissingAPIKey returned if X-Api-Key is missing
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
@@ -124,6 +129,7 @@ func NewClientFromUrlAndKey(
 				next:   http.DefaultTransport,
 			},
 		},
+		requestTickets: startRequestTick(REQUEST_RATE_LIMIT),
 	}, nil
 }
 
@@ -133,6 +139,39 @@ func NewClient(apiKey string) (Client, error) {
 		apiKey,
 		baseURL,
 	)
+}
+
+func startRequestTick(limit int) chan struct{} {
+	ch := make(chan struct{}, limit)
+
+	running := true
+	release := func() {
+		i := len(ch)
+		for i < limit {
+			if !running {
+				return
+			}
+
+			i = i + 1
+			ch <- struct{}{}
+		}
+	}
+
+	go func() {
+		release()
+		for {
+			select {
+			case <-time.After(time.Second):
+				go release()
+			case <-context.Background().Done():
+				running = false
+				defer close(ch)
+				return
+			}
+		}
+	}()
+
+	return ch
 }
 
 // GetWorkspaces will be used to filter the workspaces
@@ -445,18 +484,7 @@ func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	var user dto.User
-	tries := 0
-	for tries < 5 {
-		tries++
-		user, err = c.GetUser(GetUser{p.Workspace, p.UserID})
-		if err == nil || !errors.Is(err, ErrorTooManyRequests) {
-			break
-		}
-
-		time.Sleep(time.Duration(5))
-	}
-
+	user, err := c.GetUser(GetUser{p.Workspace, p.UserID})
 	if err != nil {
 		return timeEntries, err
 	}
