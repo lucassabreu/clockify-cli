@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- more unit tests
+
 ### Changed
 
 - using throttle/ticket providing system to limit requests per second to the clockify's api to prevent the
