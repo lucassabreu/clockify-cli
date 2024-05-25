@@ -406,7 +406,10 @@ func (r GetTagsRequest) AppendToQuery(u *url.URL) *url.URL {
 	u = r.pagination.AppendToQuery(u)
 
 	v := u.Query()
-	v.Add("name", r.Name)
+	if r.Name != "" {
+		v.Add("name", r.Name)
+	}
+
 	if r.Archived != nil {
 		v.Add("archived", boolString[*r.Archived])
 	}
