@@ -11,10 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- more unit tests
+
 ### Changed
 
 - using throttle/ticket providing system to limit requests per second to the clockify's api to prevent the
     error message: `Too Many Requests (code: 429)`
+- upgrade go version to 1.19
 
 ## [v0.49.0] - 2024-03-29
 

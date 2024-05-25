@@ -9,7 +9,6 @@ import (
 )
 
 func TestParseTime(t *testing.T) {
-
 	now := timehlp.Today()
 	nowStr := now.Format("2006-01-02")
 
@@ -46,5 +45,10 @@ func TestParseTime(t *testing.T) {
 			assert.Equal(t, fmt.Sprintf("%s %s", nowStr, tt.expected), parsed.Format("2006-01-02 15:04:05"))
 		})
 	}
+}
 
+func TestFailParseTime(t *testing.T) {
+	_, err := timehlp.ConvertToTime("2024-05-25 25:61")
+	assert.Error(t, err,
+		"parsing time \"2024-05-25 25:61:00\": hour out of range")
 }
