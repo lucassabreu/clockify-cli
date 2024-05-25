@@ -21,7 +21,7 @@ func Normalize(s string) string {
 		),
 		strings.ToLower(s),
 	); err == nil {
-		return r
+		s = r
 	}
 
 	return s

@@ -21,6 +21,7 @@ func TestNormalize(t *testing.T) {
 		})
 	}
 }
+
 func TestInSlice(t *testing.T) {
 	tts := []struct {
 		name   string
@@ -276,6 +277,25 @@ func TestListForHumans(t *testing.T) {
 	for _, tt := range tts {
 		t.Run(tt.expected, func(t *testing.T) {
 			assert.Equal(t, tt.expected, strhlp.ListForHumans(tt.args))
+		})
+	}
+}
+
+func TestIsSimilar(t *testing.T) {
+	tts := [][]string{
+		{"similar", "similar"},
+		{"some long string", "Some Long STRING"},
+		{"atencao", "Atenção"},
+		{"it should've this kind of keep \"stuff\"",
+			"It should've this kind of keep \"STUFF\""},
+	}
+
+	for i := range tts {
+		t.Run(tts[i][0], func(t *testing.T) {
+			assert.True(t, strhlp.IsSimilar(tts[i][0])(tts[i][1]),
+				"first should be similar to second")
+			assert.True(t, strhlp.IsSimilar(tts[i][1])(tts[i][0]),
+				"second should be similar to first")
 		})
 	}
 }
