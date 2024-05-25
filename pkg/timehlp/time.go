@@ -64,8 +64,12 @@ func ConvertToTime(timeString string) (t time.Time, err error) {
 	}
 
 	timeString = normalizeFormats(timeString)
+	t, err = time.ParseInLocation(FullTimeFormat, timeString, time.Local)
+	if err != nil {
+		return t, err
+	}
 
-	return time.ParseInLocation(FullTimeFormat, timeString, time.Local)
+	return t.Truncate(time.Second), nil
 }
 
 // Adds data to the partial timeString to match a full
