@@ -45,6 +45,7 @@ snapcrafts:
 
     grade: stable
     publish: true
+    confinement: strict
 
     apps:
       clockify-cli:
