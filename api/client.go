@@ -553,7 +553,7 @@ func paginate[K any](
 		p.PageSize = 50
 	}
 
-	ls := make([]K, 0)
+	var ls []K
 	stop := false
 	for !stop {
 		r, err := c.NewRequest(
