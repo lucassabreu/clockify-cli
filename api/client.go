@@ -439,15 +439,13 @@ type GetUserTimeEntriesParam struct {
 
 // GetUserTimeEntries will list the time entries of a user on a workspace, can be paginated
 func (c *client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error) {
-	var tes []dto.TimeEntryImpl
-	return getUserTimeEntriesImpl(c, p, false, &tes)
+	return getUserTimeEntriesImpl[dto.TimeEntryImpl](c, p, false)
 
 }
 
 // GetUsersHydratedTimeEntries will list hydrated time entries of a user on a workspace, can be paginated
 func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntry, error) {
-	var timeEntries []dto.TimeEntry
-	timeEntries, err := getUserTimeEntriesImpl(c, p, true, &timeEntries)
+	timeEntries, err := getUserTimeEntriesImpl[dto.TimeEntry](c, p, true)
 
 	if err != nil {
 		return timeEntries, err
@@ -469,7 +467,6 @@ func getUserTimeEntriesImpl[K dto.TimeEntry | dto.TimeEntryImpl](
 	c *client,
 	p GetUserTimeEntriesParam,
 	hydrated bool,
-	tmpl *[]K,
 ) (tes []K, err error) {
 	defer wrapError(&err, "get time entries from user \"%s\"", p.UserID)
 
