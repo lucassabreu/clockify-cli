@@ -24,7 +24,7 @@ size/complexity of it.
 ## Building the project
 
 Prerequisites:
-- Go 1.22+
+- Go 1.19+
 
 Run `make deps-install` to install the packages used by the project.
 

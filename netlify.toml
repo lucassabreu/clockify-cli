@@ -1,5 +1,5 @@
 [build]
     command = "make site-build"
     publish = "site/public"
-    environment = { GO_VERSION = "1.22" }
+    environment = { GO_VERSION = "1.19" }
 
