@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- new config `show-client` that sets the reports/output of time entries to show its client, if exists
+
 ## [v0.50.1] - 2024-05-25
 
 ### Fixed

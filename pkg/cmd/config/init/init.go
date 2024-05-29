@@ -140,6 +140,12 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
+			if err := updateFlag(i, config, cmdutil.CONF_SHOW_CLIENT,
+				`Should show client on time entries as a separated column?`,
+			); err != nil {
+				return err
+			}
+
 			if err := updateFlag(i, config, cmdutil.CONF_SHOW_TOTAL_DURATION,
 				`Should show a line with the sum of `+
 					`the time entries duration?`,

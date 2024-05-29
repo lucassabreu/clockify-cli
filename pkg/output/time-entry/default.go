@@ -36,66 +36,65 @@ const (
 // entries
 type TimeEntryOutputOptions struct {
 	ShowTasks         bool
+	ShowClients       bool
 	ShowTotalDuration bool
 	TimeFormat        string
 }
 
-// WithTimeFormat sets the date-time output format
-func WithTimeFormat(format string) TimeEntryOutputOpt {
-	return func(teo *TimeEntryOutputOptions) error {
-		teo.TimeFormat = format
-		return nil
+// NewTimeEntryOutputOptions creates a default TimeEntryOutputOptions
+func NewTimeEntryOutputOptions() TimeEntryOutputOptions {
+	return TimeEntryOutputOptions{
+		TimeFormat:        TimeFormatSimple,
+		ShowTasks:         false,
+		ShowClients:       false,
+		ShowTotalDuration: false,
 	}
 }
 
+// WithTimeFormat sets the date-time output format
+func (teo TimeEntryOutputOptions) WithTimeFormat(
+	format string) TimeEntryOutputOptions {
+	teo.TimeFormat = format
+	return teo
+
+}
+
 // WithShowTasks shows a new column with the task of the time entry
-func WithShowTasks() TimeEntryOutputOpt {
-	return func(teoo *TimeEntryOutputOptions) error {
-		teoo.ShowTasks = true
-		return nil
-	}
+func (teo TimeEntryOutputOptions) WithShowTasks() TimeEntryOutputOptions {
+	teo.ShowTasks = true
+	return teo
+}
+
+// WithShowCliens shows a new column with the client of the time entry
+func (teo TimeEntryOutputOptions) WithShowClients() TimeEntryOutputOptions {
+	teo.ShowClients = true
+	return teo
 }
 
 // WithTotalDuration shows a footer with the sum of the durations of the time
 // entries
-func WithTotalDuration() TimeEntryOutputOpt {
-	return func(teoo *TimeEntryOutputOptions) error {
-		teoo.ShowTotalDuration = true
-		return nil
-	}
+func (teo TimeEntryOutputOptions) WithTotalDuration() TimeEntryOutputOptions {
+	teo.ShowTotalDuration = true
+	return teo
 }
 
-// TimeEntryOutputOpt allows the setting of TimeEntryOutputOptions values
-type TimeEntryOutputOpt func(*TimeEntryOutputOptions) error
-
 // TimeEntriesPrint will print more details
-func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Writer) error {
-	options := &TimeEntryOutputOptions{
-		TimeFormat:        TimeFormatSimple,
-		ShowTasks:         false,
-		ShowTotalDuration: false,
-	}
-
-	for _, o := range opts {
-		err := o(options)
-		if err != nil {
-			return func(te []dto.TimeEntry, w io.Writer) error { return err }
-		}
-	}
-
+func TimeEntriesPrint(
+	options TimeEntryOutputOptions) func([]dto.TimeEntry, io.Writer) error {
 	return func(timeEntries []dto.TimeEntry, w io.Writer) error {
 		tw := tablewriter.NewWriter(w)
-		taskColumn := 6
 		projectColumn := 4
-		header := []string{"ID", "Start", "End", "Dur",
-			"Project", "Description", "Tags"}
+		header := []string{"ID", "Start", "End", "Dur", "Project"}
+
 		if options.ShowTasks {
-			header = append(
-				header[:taskColumn],
-				header[taskColumn-1:]...,
-			)
-			header[taskColumn] = "Task"
+			header = append(header, "Client")
 		}
+
+		if options.ShowTasks {
+			header = append(header, "Task")
+		}
+
+		header = append(header, "Description", "Tags")
 
 		tw.SetHeader(header)
 		tw.SetRowLine(true)
@@ -124,17 +123,30 @@ func TimeEntriesPrint(opts ...TimeEntryOutputOpt) func([]dto.TimeEntry, io.Write
 				end.In(time.Local).Format(options.TimeFormat),
 				durationToString(end.Sub(t.TimeInterval.Start)),
 				projectName,
-				t.Description,
-				strings.Join(tagsToStringSlice(t.Tags), "\n"),
+			}
+
+			if options.ShowClients {
+				client := ""
+				if t.Project.ClientName != "" {
+					colors[len(line)] = colors[projectColumn]
+					client = t.Project.ClientName
+				}
+				line = append(line, client)
 			}
 
 			if options.ShowTasks {
-				line = append(line[:taskColumn], line[taskColumn-1:]...)
-				line[taskColumn] = ""
+				task := ""
 				if t.Task != nil {
-					line[taskColumn] = fmt.Sprintf("%s (%s)", t.Task.Name, t.Task.ID)
+					task = fmt.Sprintf("%s (%s)", t.Task.Name, t.Task.ID)
 				}
+				line = append(line, task)
 			}
+
+			line = append(
+				line,
+				t.Description,
+				strings.Join(tagsToStringSlice(t.Tags), "\n"),
+			)
 
 			tw.Rich(line, colors)
 		}
