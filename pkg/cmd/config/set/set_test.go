@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/config/set"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,6 +72,18 @@ func TestSetCmdRun(t *testing.T) {
 				c := mocks.NewMockConfig(t)
 				c.On("SetStringSlice", cmdutil.CONF_WORKWEEK_DAYS,
 					[]string{"monday", "sunday"}).
+					Return(nil).Once()
+				c.On("Save").Once().Return(nil)
+				return c
+			},
+		},
+		tc{
+			name: "set show client",
+			args: []string{cmdutil.CONF_SHOW_CLIENT, "true"},
+			config: func(t *testing.T) cmdutil.Config {
+				c := mocks.NewMockConfig(t)
+				c.On("SetString", cmdutil.CONF_SHOW_CLIENT,
+					"true").
 					Return(nil).Once()
 				c.On("Save").Once().Return(nil)
 				return c
