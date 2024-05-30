@@ -86,7 +86,7 @@ func TimeEntriesPrint(
 		projectColumn := 4
 		header := []string{"ID", "Start", "End", "Dur", "Project"}
 
-		if options.ShowTasks {
+		if options.ShowClients {
 			header = append(header, "Client")
 		}
 
@@ -99,7 +99,11 @@ func TimeEntriesPrint(
 		tw.SetHeader(header)
 		tw.SetRowLine(true)
 		if width, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
-			tw.SetColWidth(width / 3)
+			if options.ShowClients || options.ShowTasks {
+				tw.SetColWidth(width / 4)
+			} else {
+				tw.SetColWidth(width / 3)
+			}
 		}
 
 		colors := make([]tablewriter.Colors, len(header))

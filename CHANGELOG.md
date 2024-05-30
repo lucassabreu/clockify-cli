@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.51.1] - 2024-05-30
+
+### Fixed
+
+- when using `show-client` without `show-task` column headers became unaligned
+
 ## [v0.51.0] - 2024-05-29
 
 ### Added
