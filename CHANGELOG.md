@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.52.0] - 2024-06-02
+
 ### Added
 
 - new command `split` to allow break a time entry into others with break points
@@ -1194,7 +1196,9 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.51.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.52.0...HEAD
+[v0.52.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.2
+[v0.51.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.1
 [v0.51.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.0
 [v0.50.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.50.1
 [v0.50.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.50.0
