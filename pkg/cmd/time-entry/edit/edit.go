@@ -149,11 +149,7 @@ func NewCmdEdit(
 				return err
 			}
 
-			if report != nil {
-				return report(tei, cmd.OutOrStdout(), of)
-			}
-
-			return util.PrintTimeEntryImpl(tei, f, cmd.OutOrStdout(), of)
+			return report(tei, cmd.OutOrStdout(), of)
 		},
 	}
 
