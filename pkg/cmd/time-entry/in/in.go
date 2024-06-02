@@ -136,13 +136,8 @@ func NewCmdIn(
 				return err
 			}
 
-			if report != nil {
-				return report(
-					util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
-			}
-
-			return util.PrintTimeEntryImpl(
-				util.TimeEntryDTOToImpl(tei), f, cmd.OutOrStdout(), of)
+			return report(
+				util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
 		},
 	}
 

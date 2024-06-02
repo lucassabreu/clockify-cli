@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new command `split` to allow break a time entry into others with break points
+
 ## [v0.51.1] - 2024-05-30
 
 ### Fixed
