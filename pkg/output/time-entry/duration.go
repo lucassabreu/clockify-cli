@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+	"golang.org/x/text/number"
 )
 
 func timeEntriesTotalDurationOnly(
@@ -19,9 +22,16 @@ func timeEntriesTotalDurationOnly(
 
 // TimeEntriesTotalDurationOnlyAsFloat will only print the total duration as
 // float
-func TimeEntriesTotalDurationOnlyAsFloat(timeEntries []dto.TimeEntry, w io.Writer) error {
+func TimeEntriesTotalDurationOnlyAsFloat(
+	timeEntries []dto.TimeEntry, w io.Writer,
+	l language.Tag) error {
+	p := message.NewPrinter(l)
+	println(l.String())
+
 	return timeEntriesTotalDurationOnly(
-		func(d time.Duration) string { return fmt.Sprintf("%f", d.Hours()) },
+		func(d time.Duration) string {
+			return p.Sprintf("%f", number.Decimal(d.Hours()))
+		},
 		timeEntries,
 		w,
 	)

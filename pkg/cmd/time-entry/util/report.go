@@ -115,7 +115,8 @@ func PrintTimeEntries(
 	case of.Quiet:
 		return output.TimeEntriesPrintQuietly(tes, out)
 	case of.DurationFloat:
-		return output.TimeEntriesTotalDurationOnlyAsFloat(tes, out)
+		return output.TimeEntriesTotalDurationOnlyAsFloat(
+			tes, out, config.Language())
 	case of.DurationFormatted:
 		return output.TimeEntriesTotalDurationOnlyFormatted(tes, out)
 	default:

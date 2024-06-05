@@ -8,6 +8,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -27,6 +28,7 @@ const (
 	CONF_LOG_LEVEL                        = "log-level"
 	CONF_ALLOW_ARCHIVED_TAGS              = "allow-archived-tags"
 	CONF_INTERACTIVE_PAGE_SIZE            = "interactive-page-size"
+	CONF_LANGUAGE                         = "lang"
 )
 
 const (
@@ -71,6 +73,12 @@ type Config interface {
 	// IsSearchProjectWithClientsName defines if the project name for ID should
 	// include the client's name
 	IsSearchProjectWithClientsName() bool
+
+	// Language what is the language to used when printing numbers
+	Language() language.Tag
+
+	// SetLanguage changes the language used for printing numbers
+	SetLanguage(language.Tag)
 
 	// Get retrieves a config by its name
 	Get(string) interface{}
@@ -156,6 +164,24 @@ func (c *config) IsAllowNameForID() bool {
 
 func (c *config) IsInteractive() bool {
 	return c.GetBool(CONF_INTERACTIVE)
+}
+
+func (c *config) SetLanguage(l language.Tag) {
+	c.SetString(CONF_LANGUAGE, l.String())
+}
+
+func (c *config) Language() language.Tag {
+	lang := c.GetString(CONF_LANGUAGE)
+	if lang == "" {
+		return language.English
+	}
+
+	l, err := language.Parse(lang)
+	if err == nil {
+		return l
+	}
+
+	return language.English
 }
 
 func (*config) Get(p string) interface{} {

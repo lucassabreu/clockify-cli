@@ -16,6 +16,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/text/language"
 )
 
 func setStringFn(config *mocks.MockConfig, name, value string) *mock.Call {
@@ -106,6 +107,9 @@ func TestInitCmd(t *testing.T) {
 			config.EXPECT().SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
 
 			setBoolFn(config, cmdutil.CONF_ALLOW_ARCHIVED_TAGS, true, false)
+
+			config.EXPECT().Language().Return(language.English)
+			config.EXPECT().SetLanguage(language.German)
 
 			config.EXPECT().Save().Once().Return(nil)
 
@@ -199,6 +203,11 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectString("archived tags?")
 			c.SendLine("n")
 			c.ExpectString("No")
+
+			c.ExpectString("preferred language")
+			c.Send("e")
+			c.Send(string(terminal.KeyTab))
+			c.SendLine(string(terminal.KeyTab))
 
 			c.ExpectEOF()
 		})

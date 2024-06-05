@@ -7,7 +7,9 @@ import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
+	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
+	"golang.org/x/text/language"
 )
 
 func NewCmdInit(f cmdutil.Factory) *cobra.Command {
@@ -178,6 +180,35 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 			); err != nil {
 				return err
 			}
+
+			suggestLanguages := []string{
+				language.English.String(),
+				language.German.String(),
+				language.Afrikaans.String(),
+				language.Chinese.String(),
+				language.Portuguese.String(),
+			}
+
+			lang, err := i.AskForValidText("What is your preferred language:",
+				func(s string) error {
+					_, err := language.Parse(s)
+					return err
+				},
+				ui.WithHelp("Accepts any IETF language tag "+
+					"https://en.wikipedia.org/wiki/IETF_language_tag"),
+				ui.WithSuggestion(func(toComplete string) []string {
+					return strhlp.Filter(
+						strhlp.IsSimilar(toComplete),
+						suggestLanguages,
+					)
+				}),
+				ui.WithDefault(config.Language().String()),
+			)
+			if err != nil {
+				return err
+			}
+
+			config.SetLanguage(language.MustParse(lang))
 
 			return config.Save()
 		},
