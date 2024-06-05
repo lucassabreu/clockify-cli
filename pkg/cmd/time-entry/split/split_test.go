@@ -18,8 +18,8 @@ import (
 
 func TestNewCmdSplitShouldFail(t *testing.T) {
 	w := dto.Workspace{ID: "w"}
-	start, _ := timehlp.ConvertToTime("2024-06-02 08:15")
-	end, _ := timehlp.ConvertToTime("2024-06-02 12:15")
+	start, _ := timehlp.ConvertToTime("08:15")
+	end, _ := timehlp.ConvertToTime("12:15")
 	te := dto.TimeEntryImpl{
 		WorkspaceID: w.ID,
 		ID:          "timeentryid",
@@ -106,13 +106,13 @@ func TestNewCmdSplitShouldFail(t *testing.T) {
 			name: "split must be after the time entry start",
 			f:    findTT,
 			args: []string{te.ID, "7:00"},
-			err:  "time splits must be after 2024-06-02 08:15",
+			err:  "time splits must be after .* 08:15",
 		},
 		{
 			name: "split must be before the time entry ends",
 			f:    findTT,
 			args: []string{te.ID, "18:00"},
-			err:  "time splits must be before 2024-06-02 12:15",
+			err:  "time splits must be before .* 12:15",
 		},
 	}
 
@@ -145,7 +145,7 @@ func TestNewCmdSplitShouldFail(t *testing.T) {
 
 func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 	w := dto.Workspace{ID: "w"}
-	start, _ := timehlp.ConvertToTime("2024-06-02 08:00")
+	start, _ := timehlp.ConvertToTime("08:00")
 	te := dto.TimeEntryImpl{
 		WorkspaceID: w.ID,
 		ID:          "timeentryid",
@@ -229,7 +229,7 @@ func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 			name: "split in two",
 			args: []string{te.ID, "8:30"},
 			f: func(t *testing.T) cmdutil.Factory {
-				s, _ := timehlp.ConvertToTime("2024-06-02 08:30")
+				s, _ := timehlp.ConvertToTime("08:30")
 				f, c := getAndUpdate(t, te, s)
 
 				create(c, "123", util.TimeEntryDTO{
@@ -249,10 +249,10 @@ func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 			name: "split in three",
 			args: []string{te.ID, "08:20", "8:30"},
 			f: func(t *testing.T) cmdutil.Factory {
-				s, _ := timehlp.ConvertToTime("2024-06-02 08:20")
+				s, _ := timehlp.ConvertToTime("08:20")
 				f, c := getAndUpdate(t, te, s)
 
-				e, _ := timehlp.ConvertToTime("2024-06-02 08:30")
+				e, _ := timehlp.ConvertToTime("08:30")
 				create(c, "123", util.TimeEntryDTO{
 					Workspace:   te.ID,
 					UserID:      te.UserID,
@@ -280,7 +280,7 @@ func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 			name: "split in three with end",
 			args: []string{te.ID, "08:30", "9:00"},
 			f: func(t *testing.T) cmdutil.Factory {
-				end, _ := timehlp.ConvertToTime("2024-06-02 10:00")
+				end, _ := timehlp.ConvertToTime("10:00")
 				te := dto.TimeEntryImpl{
 					WorkspaceID: w.ID,
 					ID:          "timeentryid",
@@ -293,10 +293,10 @@ func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 					),
 				}
 
-				s, _ := timehlp.ConvertToTime("2024-06-02 08:30")
+				s, _ := timehlp.ConvertToTime("08:30")
 				f, c := getAndUpdate(t, te, s)
 
-				e, _ := timehlp.ConvertToTime("2024-06-02 09:00")
+				e, _ := timehlp.ConvertToTime("09:00")
 				create(c, "123", util.TimeEntryDTO{
 					Workspace:   te.ID,
 					UserID:      te.UserID,
@@ -342,7 +342,11 @@ func TestNewCmdSplitShouldCreateNewEntries(t *testing.T) {
 			cmd.SetArgs(tt.args)
 			_, err := cmd.ExecuteC()
 
-			if assert.True(t, called) || assert.NoError(t, err) {
+			if assert.NoError(t, err) {
+				return
+			}
+
+			if assert.True(t, called) {
 				return
 			}
 		})
