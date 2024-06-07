@@ -27,7 +27,9 @@ func TestCmdList(t *testing.T) {
 			name: "missing project",
 			err:  "required flag.*project",
 			params: func(t *testing.T) (cmdutil.Factory, report) {
-				return mocks.NewMockFactory(t), nil
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+				return f, nil
 			},
 		},
 		{
@@ -36,6 +38,7 @@ func TestCmdList(t *testing.T) {
 			args: []string{"-p=p-1"},
 			params: func(t *testing.T) (cmdutil.Factory, report) {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").Return("", errors.New("error"))
 				return f, nil
 			},
@@ -46,6 +49,7 @@ func TestCmdList(t *testing.T) {
 			args: []string{"-p=p-1"},
 			params: func(t *testing.T) (cmdutil.Factory, report) {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").Return("w", nil)
 				f.On("Client").Return(nil, errors.New("error"))
 				return f, nil

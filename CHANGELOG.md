@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - new config `lang` to allow setting the number format to be used when printing
+- support to using client's name or id for autocompletion on bash
 
 ## [v0.52.0] - 2024-06-02
 

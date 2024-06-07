@@ -35,7 +35,7 @@ func AddTimeEntryFlags(
 
 	cmd.Flags().StringP("project", "p", "", "project to use for time entry")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
-		cmdcomplutil.NewProjectAutoComplete(f))
+		cmdcomplutil.NewProjectAutoComplete(f, f.Config()))
 
 	cmd.Flags().StringP("description", "d", "", "time entry description")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "description",

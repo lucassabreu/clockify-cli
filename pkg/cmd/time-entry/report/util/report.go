@@ -70,11 +70,11 @@ func AddReportFlags(
 	cmd.Flags().StringSliceVarP(&rf.Projects, "project", "p", []string{},
 		"Will filter time entries using this project")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
-		cmdcomplutil.NewProjectAutoComplete(f))
+		cmdcomplutil.NewProjectAutoComplete(f, f.Config()))
 	cmd.Flags().StringVarP(&rf.Client, "client", "c", "",
 		"Will filter projects from this client")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
-		cmdcomplutil.NewProjectAutoComplete(f))
+		cmdcomplutil.NewProjectAutoComplete(f, f.Config()))
 	cmd.Flags().StringSliceVarP(&rf.TagIDs, "tag", "T", []string{},
 		"Will filter time entries using these tags")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "tag",

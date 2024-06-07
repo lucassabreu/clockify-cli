@@ -36,7 +36,7 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 			util.HelpMoreInfoAboutPrinting,
 		Args: cobra.MaximumNArgs(4),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
-			cmdcomplutil.NewProjectAutoComplete(f)),
+			cmdcomplutil.NewProjectAutoComplete(f, f.Config())),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var whenToCloseDate time.Time
 			var err error

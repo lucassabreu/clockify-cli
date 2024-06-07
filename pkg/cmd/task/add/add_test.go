@@ -28,6 +28,12 @@ func TestCmdAdd(t *testing.T) {
 		}
 	}
 
+	dFactory := func(t *testing.T) cmdutil.Factory {
+		f := mocks.NewMockFactory(t)
+		f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+		return f
+	}
+
 	tts := []struct {
 		name    string
 		args    []string
@@ -37,44 +43,34 @@ func TestCmdAdd(t *testing.T) {
 		err string
 	}{
 		{
-			name: "only one format",
-			args: []string{"--format={}", "-q", "-j", "-n=OK", "-p=OK"},
-			err:  "flags can't be used together.*format.*json.*quiet",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "only one format",
+			args:    []string{"--format={}", "-q", "-j", "-n=OK", "-p=OK"},
+			err:     "flags can't be used together.*format.*json.*quiet",
+			factory: dFactory,
 		},
 		{
-			name: "billable or not",
-			args: []string{"--billable", "--not-billable", "-n=OK", "-p=OK"},
-			err:  "flags can't be used together.*billable.*not-billable",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "billable or not",
+			args:    []string{"--billable", "--not-billable", "-n=OK", "-p=OK"},
+			err:     "flags can't be used together.*billable.*not-billable",
+			factory: dFactory,
 		},
 		{
-			name: "assignee or no assignee",
-			args: []string{"--assignee=l", "--no-assignee", "-n=OK", "-p=OK"},
-			err:  "flags can't be used together.*assignee.*no-assignee",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "assignee or no assignee",
+			args:    []string{"--assignee=l", "--no-assignee", "-n=OK", "-p=OK"},
+			err:     "flags can't be used together.*assignee.*no-assignee",
+			factory: dFactory,
 		},
 		{
-			name: "name required",
-			args: []string{"-p=OK"},
-			err:  `"name" not set`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "name required",
+			args:    []string{"-p=OK"},
+			err:     `"name" not set`,
+			factory: dFactory,
 		},
 		{
-			name: "project required",
-			args: []string{"-n=OK"},
-			err:  `"project" not set`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "project required",
+			args:    []string{"-n=OK"},
+			err:     `"project" not set`,
+			factory: dFactory,
 		},
 		{
 			name: "client error",
@@ -97,6 +93,7 @@ func TestCmdAdd(t *testing.T) {
 			args: []string{"-n=a", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").
 					Return("", errors.New("workspace error"))
 				return f

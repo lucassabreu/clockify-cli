@@ -29,6 +29,12 @@ func TestCmdDone(t *testing.T) {
 		}
 	}
 
+	dFactory := func(t *testing.T) cmdutil.Factory {
+		f := mocks.NewMockFactory(t)
+		f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+		return f
+	}
+
 	tts := []struct {
 		name    string
 		args    []string
@@ -38,52 +44,40 @@ func TestCmdDone(t *testing.T) {
 		err string
 	}{
 		{
-			name: "task id required",
-			args: []string{"-p=cli"},
-			err:  `requires arg task`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "task id required",
+			args:    []string{"-p=cli"},
+			err:     `requires arg task`,
+			factory: dFactory,
 		},
 		{
-			name: "project required",
-			args: []string{"task"},
-			err:  `"project" not set`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "project required",
+			args:    []string{"task"},
+			err:     `"project" not set`,
+			factory: dFactory,
 		},
 		{
-			name: "project not empty",
-			args: []string{"task", "-p=          "},
-			err:  `project should not be empty`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "project not empty",
+			args:    []string{"task", "-p=          "},
+			err:     `project should not be empty`,
+			factory: dFactory,
 		},
 		{
-			name: "task id not empty",
-			args: []string{"   ", "-p=cli"},
-			err:  `task id/name should not be empty`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "task id not empty",
+			args:    []string{"   ", "-p=cli"},
+			err:     `task id/name should not be empty`,
+			factory: dFactory,
 		},
 		{
-			name: "task id not empty (nice try)",
-			args: []string{"not-empty", "  ", "-p=cli"},
-			err:  `task id/name should not be empty`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "task id not empty (nice try)",
+			args:    []string{"not-empty", "  ", "-p=cli"},
+			err:     `task id/name should not be empty`,
+			factory: dFactory,
 		},
 		{
-			name: "only one format",
-			args: []string{"--format={}", "-q", "-j", "-p=OK", "done"},
-			err:  "flags can't be used together.*format.*json.*quiet",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "only one format",
+			args:    []string{"--format={}", "-q", "-j", "-p=OK", "done"},
+			err:     "flags can't be used together.*format.*json.*quiet",
+			factory: dFactory,
 		},
 		{
 			name: "client error",
@@ -91,6 +85,7 @@ func TestCmdDone(t *testing.T) {
 			args: []string{"done", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").
 					Return("w", nil)
 
@@ -104,6 +99,7 @@ func TestCmdDone(t *testing.T) {
 			args: []string{"done", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").
 					Return("", errors.New("workspace error"))
 				return f
