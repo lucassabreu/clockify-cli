@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	"golang.org/x/text/language"
 )
 
 // SimpleConfig is used to set configs for tests were changing the config or
@@ -22,6 +23,7 @@ type SimpleConfig struct {
 	LogLevelValue                string
 	AllowArchivedTags            bool
 	SearchProjectWithClientsName bool
+	LanguageTag                  language.Tag
 }
 
 // IsSearchProjectWithClientsName defines if the project name for ID should
@@ -123,6 +125,14 @@ func (d *SimpleConfig) IsInteractive() bool {
 
 func (d *SimpleConfig) GetWorkWeekdays() []string {
 	return d.WorkweekDays
+}
+
+func (d *SimpleConfig) SetLanguage(l language.Tag) {
+	d.LanguageTag = l
+}
+
+func (d *SimpleConfig) Language() language.Tag {
+	return d.LanguageTag
 }
 
 func (*SimpleConfig) Get(_ string) interface{} {
