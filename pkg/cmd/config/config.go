@@ -25,6 +25,8 @@ var validParameters = cmdcompl.ValidArgsMap{
 		"missing required values",
 	cmdutil.CONF_SHOW_TASKS: "should show an extra column with the task " +
 		"description",
+	cmdutil.CONF_SHOW_CLIENT: "should show an extra column with the client " +
+		"description",
 	cmdutil.CONF_DESCR_AUTOCOMP: "autocomplete description looking at " +
 		"recent time entries",
 	cmdutil.CONF_DESCR_AUTOCOMP_DAYS: "how many days should be considered " +

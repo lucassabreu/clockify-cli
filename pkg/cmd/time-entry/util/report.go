@@ -150,21 +150,26 @@ func PrintTimeEntries(
 	case of.Quiet:
 		return output.TimeEntriesPrintQuietly(tes, out)
 	case of.DurationFloat:
-		return output.TimeEntriesTotalDurationOnlyAsFloat(tes, out)
+		return output.TimeEntriesTotalDurationOnlyAsFloat(
+			tes, out, config.Language())
 	case of.DurationFormatted:
 		return output.TimeEntriesTotalDurationOnlyFormatted(tes, out)
 	default:
-		opts := []output.TimeEntryOutputOpt{
-			output.WithTimeFormat(of.TimeFormat)}
+		opts := output.NewTimeEntryOutputOptions().
+			WithTimeFormat(of.TimeFormat)
 
 		if config.GetBool(cmdutil.CONF_SHOW_TASKS) {
-			opts = append(opts, output.WithShowTasks())
+			opts = opts.WithShowTasks()
+		}
+
+		if config.GetBool(cmdutil.CONF_SHOW_CLIENT) {
+			opts = opts.WithShowClients()
 		}
 
 		if config.GetBool(cmdutil.CONF_SHOW_TOTAL_DURATION) {
-			opts = append(opts, output.WithTotalDuration())
+			opts = opts.WithTotalDuration()
 		}
 
-		return output.TimeEntriesPrint(opts...)(tes, out)
+		return output.TimeEntriesPrint(opts)(tes, out)
 	}
 }

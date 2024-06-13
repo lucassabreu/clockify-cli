@@ -37,7 +37,10 @@ func TestCmdGet(t *testing.T) {
 			args: []string{"--format={}", "-q", "-j", "p1"},
 			err:  "flags can't be used together.*format.*json.*quiet",
 			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+
+				return f
 			},
 		},
 		{
@@ -46,6 +49,8 @@ func TestCmdGet(t *testing.T) {
 			args: []string{"p1"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+
 				f.EXPECT().GetWorkspaceID().
 					Return("", errors.New("workspace error"))
 				return f
@@ -57,6 +62,8 @@ func TestCmdGet(t *testing.T) {
 			args: []string{"p1"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+
 				f.EXPECT().GetWorkspaceID().
 					Return("w", nil)
 				f.EXPECT().Client().Return(nil, errors.New("client error"))
@@ -124,6 +131,7 @@ func TestCmdGet(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.EXPECT().Config().Return(cf)
 				cf.EXPECT().IsAllowNameForID().Return(true)
+				cf.EXPECT().IsSearchProjectWithClientsName().Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.EXPECT().Client().Return(c, nil)
@@ -155,6 +163,7 @@ func TestCmdGet(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.EXPECT().Config().Return(cf)
 				cf.EXPECT().IsAllowNameForID().Return(true)
+				cf.EXPECT().IsSearchProjectWithClientsName().Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.EXPECT().Client().Return(c, nil)

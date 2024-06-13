@@ -45,6 +45,7 @@ snapcrafts:
 
     grade: stable
     publish: true
+    confinement: strict
 
     apps:
       clockify-cli:
@@ -54,7 +55,7 @@ brews:
   - repository:
       owner: lucassabreu
       name: homebrew-tap
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/lucassabreu/clockify-cli
     description: Helps to interact with Clockfy's API
     test: |

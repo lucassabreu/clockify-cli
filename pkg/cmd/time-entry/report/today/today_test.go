@@ -42,7 +42,9 @@ func TestCmdToday(t *testing.T) {
 			args: "--format {} --json --csv -q --md " +
 				"--duration-float --duration-formatted",
 			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+				return f
 			},
 			err: errors.New(
 				"the following flags can't be used together: " +
@@ -55,6 +57,7 @@ func TestCmdToday(t *testing.T) {
 			args: "-q",
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
 
@@ -84,8 +87,10 @@ func TestCmdToday(t *testing.T) {
 			name: "all of them, but fails",
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -114,9 +119,9 @@ func TestCmdToday(t *testing.T) {
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(true)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: true,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)

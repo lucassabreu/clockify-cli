@@ -11,6 +11,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- new config `lang` to allow setting the number format to be used when printing
+- support to using client's name or id for autocompletion on bash
+
+## [v0.52.0] - 2024-06-02
+
+### Added
+
+- new command `split` to allow break a time entry into others with break points
+
+## [v0.51.1] - 2024-05-30
+
+### Fixed
+
+- when using `show-client` without `show-task` column headers became unaligned
+
+## [v0.51.0] - 2024-05-29
+
+### Added
+- new config `show-client` that sets the reports/output of time entries to show its client, if exists
+
+## [v0.50.1] - 2024-05-25
+
+### Fixed
+
+- snapcraft requires explicit confinement
+
+## [v0.50.0] - 2024-05-25
+
+### Added
+- more unit tests
+
+### Changed
+
+- using throttle/ticket providing system to limit requests per second to the clockify's api to prevent the
+    error message: `Too Many Requests (code: 429)`
+- upgrade go version to 1.19
+
+## [v0.49.0] - 2024-03-29
+
+### Added
+
+- report subcommands now allowing passing multiple projects to search/filter
+- report subcommands now will search all the time entries of a client with the flag `--client` without using
+  `--project`
+
+## [v0.48.2] - 2024-02-22
+
+### Fixed
+
+- using name for id options with `[` in the name makes the cli panic
+
+## [v0.48.1] - 2024-02-16
+
+### Fixed
+
+- match how strings are compared when using `allow-name-for-id` and filtering on interactive mode.
+
+## [v0.48.0] - 2024-02-16
+
+### Added
+
+- new config `search-project-with-client` to set whether or not the cli should lookup projects using the
+  client's name too
+
 ## [v0.47.0] - 2024-02-09
 
 ### Added
@@ -1135,7 +1201,16 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.47.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.52.0...HEAD
+[v0.52.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.2
+[v0.51.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.1
+[v0.51.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.0
+[v0.50.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.50.1
+[v0.50.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.50.0
+[v0.49.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.49.0
+[v0.48.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.2
+[v0.48.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.1
+[v0.48.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.48.0
 [v0.47.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.47.0
 [v0.46.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.46.0
 [v0.45.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.45.0

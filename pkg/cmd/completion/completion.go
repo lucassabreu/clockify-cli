@@ -26,7 +26,10 @@ func NewCmdCompletion() *cobra.Command {
 		Short:                 "Generate completion script",
 		DisableFlagsInUseLine: true,
 		ValidArgs:             args.OnlyArgs(),
-		Args:                  cobra.ExactValidArgs(1),
+		Args: cobra.MatchAll(
+			cobra.OnlyValidArgs,
+			cobra.ExactArgs(1),
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
 			switch strings.ToLower(args[0]) {

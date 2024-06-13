@@ -1,24 +1,35 @@
 package mocks
 
-import "github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+import (
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	"golang.org/x/text/language"
+)
 
 // SimpleConfig is used to set configs for tests were changing the config or
 // accessing them with Get and All is not important
 type SimpleConfig struct {
-	WorkweekDays                []string
-	Interactive                 bool
-	InteractivePageSizeNumber   int
-	AllowNameForID              bool
-	UserID                      string
-	Workspace                   string
-	Token                       string
-	AllowIncomplete             bool
-	ShowTask                    bool
-	DescriptionAutocomplete     bool
-	DescriptionAutocompleteDays int
-	ShowTotalDuration           bool
-	LogLevelValue               string
-	AllowArchivedTags           bool
+	WorkweekDays                 []string
+	Interactive                  bool
+	InteractivePageSizeNumber    int
+	AllowNameForID               bool
+	UserID                       string
+	Workspace                    string
+	Token                        string
+	AllowIncomplete              bool
+	ShowTask                     bool
+	DescriptionAutocomplete      bool
+	DescriptionAutocompleteDays  int
+	ShowTotalDuration            bool
+	LogLevelValue                string
+	AllowArchivedTags            bool
+	SearchProjectWithClientsName bool
+	LanguageTag                  language.Tag
+}
+
+// IsSearchProjectWithClientsName defines if the project name for ID should
+// include the client's name
+func (s *SimpleConfig) IsSearchProjectWithClientsName() bool {
+	return s.SearchProjectWithClientsName
 }
 
 // InteractivePageSize sets how many items are shown when prompting
@@ -114,6 +125,14 @@ func (d *SimpleConfig) IsInteractive() bool {
 
 func (d *SimpleConfig) GetWorkWeekdays() []string {
 	return d.WorkweekDays
+}
+
+func (d *SimpleConfig) SetLanguage(l language.Tag) {
+	d.LanguageTag = l
+}
+
+func (d *SimpleConfig) Language() language.Tag {
+	return d.LanguageTag
 }
 
 func (*SimpleConfig) Get(_ string) interface{} {

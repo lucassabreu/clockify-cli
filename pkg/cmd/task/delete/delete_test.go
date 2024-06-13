@@ -31,7 +31,9 @@ func TestCmdDelete(t *testing.T) {
 			args: []string{},
 			err:  "requires arg task",
 			params: func(t *testing.T) (cmdutil.Factory, report) {
-				return mocks.NewMockFactory(t), nil
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+				return f, nil
 			},
 		},
 		{
@@ -39,7 +41,9 @@ func TestCmdDelete(t *testing.T) {
 			err:  "flag.*project.*not set",
 			args: []string{"task-id"},
 			params: func(t *testing.T) (cmdutil.Factory, report) {
-				return mocks.NewMockFactory(t), nil
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+				return f, nil
 			},
 		},
 		{
@@ -48,6 +52,7 @@ func TestCmdDelete(t *testing.T) {
 			args: []string{"task-id", "-p", "p-1"},
 			params: func(t *testing.T) (cmdutil.Factory, report) {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").Return("", errors.New("w error"))
 				return f, nil
 			},
@@ -58,6 +63,7 @@ func TestCmdDelete(t *testing.T) {
 			args: []string{"task-id", "-p", "p-1"},
 			params: func(t *testing.T) (cmdutil.Factory, report) {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").Return("w", nil)
 				f.On("Client").Return(nil, errors.New("c error"))
 				return f, nil
@@ -74,6 +80,7 @@ func TestCmdDelete(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -96,6 +103,7 @@ func TestCmdDelete(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -124,6 +132,7 @@ func TestCmdDelete(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -162,6 +171,7 @@ func TestCmdDelete(t *testing.T) {
 				cf := mocks.NewMockConfig(t)
 				f.On("Config").Return(cf)
 				cf.On("IsAllowNameForID").Return(true)
+				cf.On("IsSearchProjectWithClientsName").Return(true)
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)

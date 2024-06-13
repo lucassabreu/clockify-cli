@@ -16,6 +16,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/text/language"
 )
 
 func setStringFn(config *mocks.MockConfig, name, value string) *mock.Call {
@@ -73,7 +74,12 @@ func TestInitCmd(t *testing.T) {
 
 			setStringFn(config, cmdutil.CONF_USER_ID, "user-1")
 
-			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true)
+			setBoolFn(config, cmdutil.CONF_ALLOW_NAME_FOR_ID, false, true).
+				Run(func(args mock.Arguments) {
+					config.EXPECT().IsAllowNameForID().Return(true)
+				})
+			setBoolFn(config, cmdutil.CONF_SEARCH_PROJECTS_WITH_CLIENT_NAME,
+				false, true)
 			setBoolFn(config, cmdutil.CONF_INTERACTIVE, false, false)
 
 			config.EXPECT().GetInt(cmdutil.CONF_INTERACTIVE_PAGE_SIZE).
@@ -93,6 +99,7 @@ func TestInitCmd(t *testing.T) {
 
 			setBoolFn(config, cmdutil.CONF_ALLOW_INCOMPLETE, false, false)
 			setBoolFn(config, cmdutil.CONF_SHOW_TASKS, true, true)
+			setBoolFn(config, cmdutil.CONF_SHOW_CLIENT, true, true)
 			setBoolFn(config, cmdutil.CONF_SHOW_TOTAL_DURATION, true, true)
 			setBoolFn(config, cmdutil.CONF_DESCR_AUTOCOMP, false, true)
 
@@ -100,6 +107,9 @@ func TestInitCmd(t *testing.T) {
 			config.EXPECT().SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
 
 			setBoolFn(config, cmdutil.CONF_ALLOW_ARCHIVED_TAGS, true, false)
+
+			config.EXPECT().Language().Return(language.English)
+			config.EXPECT().SetLanguage(language.German)
 
 			config.EXPECT().Save().Once().Return(nil)
 
@@ -127,6 +137,10 @@ func TestInitCmd(t *testing.T) {
 
 			c.ExpectString("Should try to find")
 			c.ExpectString("by their names?")
+			c.SendLine("y")
+			c.ExpectString("Yes")
+
+			c.ExpectString("search projects looking into their client's name")
 			c.SendLine("y")
 			c.ExpectString("Yes")
 
@@ -171,6 +185,10 @@ func TestInitCmd(t *testing.T) {
 			c.SendLine("")
 			c.ExpectString("Yes")
 
+			c.ExpectString("show client on time entries")
+			c.SendLine("")
+			c.ExpectString("Yes")
+
 			c.ExpectString("sum of the time entries duration?")
 			c.SendLine("yes")
 			c.ExpectString("Yes")
@@ -185,6 +203,11 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectString("archived tags?")
 			c.SendLine("n")
 			c.ExpectString("No")
+
+			c.ExpectString("preferred language")
+			c.Send("e")
+			c.Send(string(terminal.KeyTab))
+			c.SendLine(string(terminal.KeyTab))
 
 			c.ExpectEOF()
 		})

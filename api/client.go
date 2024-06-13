@@ -1,11 +1,11 @@
 package api
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -86,12 +86,16 @@ type Client interface {
 type client struct {
 	baseURL *url.URL
 	http.Client
-	debugLogger Logger
-	infoLogger  Logger
+	debugLogger    Logger
+	infoLogger     Logger
+	requestTickets chan struct{}
 }
 
 // baseURL is the Clockify API base URL
 const baseURL = "https://api.clockify.me/api"
+
+// REQUEST_RATE_LIMIT maximum number of requests per second
+const REQUEST_RATE_LIMIT = 50
 
 // ErrorMissingAPIKey returned if X-Api-Key is missing
 var ErrorMissingAPIKey = errors.New("api Key must be informed")
@@ -124,6 +128,7 @@ func NewClientFromUrlAndKey(
 				next:   http.DefaultTransport,
 			},
 		},
+		requestTickets: startRequestTick(REQUEST_RATE_LIMIT),
 	}, nil
 }
 
@@ -133,6 +138,39 @@ func NewClient(apiKey string) (Client, error) {
 		apiKey,
 		baseURL,
 	)
+}
+
+func startRequestTick(limit int) chan struct{} {
+	ch := make(chan struct{}, limit)
+
+	running := true
+	release := func() {
+		i := len(ch)
+		for i < limit {
+			if !running {
+				return
+			}
+
+			i = i + 1
+			ch <- struct{}{}
+		}
+	}
+
+	go func() {
+		release()
+		for {
+			select {
+			case <-time.After(time.Second):
+				go release()
+			case <-context.Background().Done():
+				running = false
+				defer close(ch)
+				return
+			}
+		}
+	}()
+
+	return ch
 }
 
 // GetWorkspaces will be used to filter the workspaces
@@ -308,27 +346,18 @@ func (c *client) WorkspaceUsers(p WorkspaceUsersParam) (users []dto.User, err er
 		return users, err
 	}
 
-	err = c.paginate(
+	users, err = paginate[dto.User](
+		c,
 		"GET",
 		fmt.Sprintf("v1/workspaces/%s/users", p.Workspace),
 		p.PaginationParam,
 		dto.WorkspaceUsersRequest{
 			Email: p.Email,
 		},
-		&users,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
-			ls := *res.(*[]dto.User)
-
-			users = append(users, ls...)
-			return len(ls), nil
-		},
 		"WorkspaceUsers",
 	)
 
-	return users, err
+	return
 }
 
 // PaginationParam parameters about pagination
@@ -410,36 +439,13 @@ type GetUserTimeEntriesParam struct {
 
 // GetUserTimeEntries will list the time entries of a user on a workspace, can be paginated
 func (c *client) GetUserTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntryImpl, error) {
-	var timeEntries []dto.TimeEntryImpl
-	var tes []dto.TimeEntryImpl
+	return getUserTimeEntriesImpl[dto.TimeEntryImpl](c, p, false)
 
-	err := c.getUserTimeEntriesImpl(p, false, &tes, func(res interface{}) (int, error) {
-		if res == nil {
-			return 0, nil
-		}
-
-		tes := res.(*[]dto.TimeEntryImpl)
-		timeEntries = append(timeEntries, *tes...)
-		return len(*tes), nil
-	})
-
-	return timeEntries, err
 }
 
 // GetUsersHydratedTimeEntries will list hydrated time entries of a user on a workspace, can be paginated
 func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.TimeEntry, error) {
-	var timeEntries []dto.TimeEntry
-	var tes []dto.TimeEntry
-
-	err := c.getUserTimeEntriesImpl(p, true, &tes, func(res interface{}) (int, error) {
-		if res == nil {
-			return 0, nil
-		}
-
-		tes := res.(*[]dto.TimeEntry)
-		timeEntries = append(timeEntries, *tes...)
-		return len(*tes), nil
-	})
+	timeEntries, err := getUserTimeEntriesImpl[dto.TimeEntry](c, p, true)
 
 	if err != nil {
 		return timeEntries, err
@@ -457,12 +463,11 @@ func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 	return timeEntries, err
 }
 
-func (c *client) getUserTimeEntriesImpl(
+func getUserTimeEntriesImpl[K dto.TimeEntry | dto.TimeEntryImpl](
+	c *client,
 	p GetUserTimeEntriesParam,
 	hydrated bool,
-	tmpl interface{},
-	reducer func(interface{}) (int, error),
-) (err error) {
+) (tes []K, err error) {
 	defer wrapError(&err, "get time entries from user \"%s\"", p.UserID)
 
 	ids := map[field]string{
@@ -471,11 +476,11 @@ func (c *client) getUserTimeEntriesImpl(
 	}
 
 	if err := required(ids); err != nil {
-		return err
+		return tes, err
 	}
 
 	if err := checkIDs(ids); err != nil {
-		return err
+		return tes, err
 	}
 
 	inProgressFilter := "nil"
@@ -513,7 +518,8 @@ func (c *client) getUserTimeEntriesImpl(
 		r.End = &dto.DateTime{Time: *p.End}
 	}
 
-	err = c.paginate(
+	tes, err = paginate[K](
+		c,
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/user/%s/time-entries",
@@ -522,22 +528,19 @@ func (c *client) getUserTimeEntriesImpl(
 		),
 		p.PaginationParam,
 		r,
-		tmpl,
-		reducer,
 		"GetUserTimeEntries",
 	)
 
-	return err
+	return
 }
 
-func (c *client) paginate(
+func paginate[K any](
+	c *client,
 	method, uri string,
 	p PaginationParam,
 	request dto.PaginatedRequest,
-	bodyTempl interface{},
-	reducer func(interface{}) (int, error),
 	name string,
-) error {
+) ([]K, error) {
 	page := p.Page
 	if p.AllPages {
 		page = 1
@@ -547,6 +550,7 @@ func (c *client) paginate(
 		p.PageSize = 50
 	}
 
+	var ls []K
 	stop := false
 	for !stop {
 		r, err := c.NewRequest(
@@ -555,24 +559,24 @@ func (c *client) paginate(
 			request.WithPagination(page, p.PageSize),
 		)
 		if err != nil {
-			return err
+			return ls, err
 		}
 
-		response := reflect.New(reflect.TypeOf(bodyTempl).Elem()).Interface()
+		var response []K
 		_, err = c.Do(r, &response, name)
 		if err != nil {
-			return err
+			return ls, err
 		}
 
-		count, err := reducer(response)
-		if err != nil {
-			return err
+		count := len(response)
+		if count > 0 {
+			ls = append(ls, response...)
 		}
 
 		stop = count < p.PageSize || !p.AllPages
 		page++
 	}
-	return nil
+	return ls, nil
 }
 
 // GetTimeEntryInProgressParam params to query entries
@@ -839,8 +843,6 @@ type GetTasksParam struct {
 
 // GetTasks get tasks of a project
 func (c *client) GetTasks(p GetTasksParam) (ps []dto.Task, err error) {
-	var tmpl []dto.Task
-
 	defer wrapError(&err, "get tasks from project \"%s\"", p.ProjectID)
 
 	ids := map[field]string{
@@ -856,7 +858,8 @@ func (c *client) GetTasks(p GetTasksParam) (ps []dto.Task, err error) {
 		return ps, err
 	}
 
-	err = c.paginate(
+	ps, err = paginate[dto.Task](
+		c,
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/projects/%s/tasks",
@@ -867,16 +870,6 @@ func (c *client) GetTasks(p GetTasksParam) (ps []dto.Task, err error) {
 		dto.GetTasksRequest{
 			Name:   p.Name,
 			Active: p.Active,
-		},
-		&tmpl,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
-			ls := *res.(*[]dto.Task)
-
-			ps = append(ps, ls...)
-			return len(ls), nil
 		},
 		"GetTasks",
 	)
@@ -1171,12 +1164,12 @@ type GetTagsParam struct {
 // GetTags get all tags of a workspace
 func (c *client) GetTags(p GetTagsParam) (ps []dto.Tag, err error) {
 	defer wrapError(&err, "get tags")
-	var tmpl []dto.Tag
 	if err = checkWorkspace(p.Workspace); err != nil {
 		return ps, err
 	}
 
-	err = c.paginate(
+	ps, err = paginate[dto.Tag](
+		c,
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/tags",
@@ -1186,16 +1179,6 @@ func (c *client) GetTags(p GetTagsParam) (ps []dto.Tag, err error) {
 		dto.GetTagsRequest{
 			Name:     p.Name,
 			Archived: p.Archived,
-		},
-		&tmpl,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
-			ls := *res.(*[]dto.Tag)
-
-			ps = append(ps, ls...)
-			return len(ls), nil
 		},
 		"GetTags",
 	)
@@ -1216,12 +1199,12 @@ func (c *client) GetClients(p GetClientsParam) (
 	clients []dto.Client, err error) {
 	defer wrapError(&err, "get clients")
 
-	var tmpl []dto.Client
 	if err = checkWorkspace(p.Workspace); err != nil {
 		return clients, err
 	}
 
-	err = c.paginate(
+	clients, err = paginate[dto.Client](
+		c,
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/clients",
@@ -1232,19 +1215,11 @@ func (c *client) GetClients(p GetClientsParam) (
 			Name:     p.Name,
 			Archived: p.Archived,
 		},
-		&tmpl,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
-			ls := *res.(*[]dto.Client)
 
-			clients = append(clients, ls...)
-			return len(ls), nil
-		},
 		"GetClients",
 	)
-	return clients, err
+
+	return
 }
 
 type AddClientParam struct {
@@ -1303,12 +1278,12 @@ type GetProjectsParam struct {
 func (c *client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
 	defer wrapError(&err, "get projects")
 
-	var tmpl []dto.Project
 	if err = checkWorkspace(p.Workspace); err != nil {
 		return ps, err
 	}
 
-	err = c.paginate(
+	ps, err = paginate[dto.Project](
+		c,
 		"GET",
 		fmt.Sprintf(
 			"v1/workspaces/%s/projects",
@@ -1320,16 +1295,6 @@ func (c *client) GetProjects(p GetProjectsParam) (ps []dto.Project, err error) {
 			Archived: p.Archived,
 			Clients:  p.Clients,
 			Hydrated: p.Hydrate,
-		},
-		&tmpl,
-		func(res interface{}) (int, error) {
-			if res == nil {
-				return 0, nil
-			}
-			ls := *res.(*[]dto.Project)
-
-			ps = append(ps, ls...)
-			return len(ls), nil
 		},
 		"GetProjects",
 	)

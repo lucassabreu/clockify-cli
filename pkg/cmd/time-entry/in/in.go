@@ -37,7 +37,7 @@ func NewCmdIn(
 			util.HelpMoreInfoAboutPrinting,
 		Args: cobra.MaximumNArgs(2),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
-			cmdcomplutil.NewProjectAutoComplete(f)),
+			cmdcomplutil.NewProjectAutoComplete(f, f.Config())),
 		Aliases: []string{"start"},
 		Example: heredoc.Docf(`
 			# start a timer with project and description, starting now
@@ -136,13 +136,8 @@ func NewCmdIn(
 				return err
 			}
 
-			if report != nil {
-				return report(
-					util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
-			}
-
-			return util.PrintTimeEntryImpl(
-				util.TimeEntryDTOToImpl(tei), f, cmd.OutOrStdout(), of)
+			return report(
+				util.TimeEntryDTOToImpl(tei), cmd.OutOrStdout(), of)
 		},
 	}
 

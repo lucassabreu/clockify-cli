@@ -3,12 +3,14 @@ package search
 import (
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
 func GetProjectByName(
 	c api.Client,
+	cnf cmdutil.Config,
 	workspace string,
 	project string,
 	client string,
@@ -25,10 +27,20 @@ func GetProjectByName(
 		return "", err
 	}
 
+	toNamed := func(p dto.Project) named { return p }
+	if cnf.IsSearchProjectWithClientsName() {
+		toNamed = func(p dto.Project) named {
+			return namedStruct{
+				ID:   p.ID,
+				Name: p.Name + " " + p.ClientName,
+			}
+		}
+	}
+
 	id, err := findByName(project, "project", func() ([]named, error) {
 		ns := make([]named, len(ps))
 		for i := 0; i < len(ps); i++ {
-			ns[i] = ps[i]
+			ns[i] = toNamed(ps[i])
 		}
 
 		return ns, nil
@@ -104,14 +116,16 @@ func filterClientProjects(
 // name or id that matches the value
 func GetProjectsByName(
 	c api.Client,
+	cnf cmdutil.Config,
 	workspace string,
+	client string,
 	projects []string,
 ) ([]string, error) {
 	if len(projects) == 0 {
 		return projects, nil
 	}
 
-	ts, err := c.GetProjects(api.GetProjectsParam{
+	ps, err := c.GetProjects(api.GetProjectsParam{
 		Workspace:       workspace,
 		PaginationParam: api.AllPages(),
 	})
@@ -119,9 +133,23 @@ func GetProjectsByName(
 		return projects, err
 	}
 
-	ns := make([]named, len(ts))
+	if ps, err = filterClientProjects(ps, client); err != nil {
+		return projects, err
+	}
+
+	toNamed := func(p dto.Project) named { return p }
+	if cnf.IsSearchProjectWithClientsName() {
+		toNamed = func(p dto.Project) named {
+			return namedStruct{
+				ID:   p.ID,
+				Name: p.Name + " " + p.ClientName,
+			}
+		}
+	}
+
+	ns := make([]named, len(ps))
 	for i := 0; i < len(ns); i++ {
-		ns[i] = ts[i]
+		ns[i] = toNamed(ps[i])
 	}
 
 	var g errgroup.Group
@@ -141,5 +169,17 @@ func GetProjectsByName(
 		})
 	}
 
-	return projects, g.Wait()
+	err = g.Wait()
+	var eNotFound ErrNotFound
+	if client != "" && errors.As(err, &eNotFound) {
+		err = ErrNotFound{
+			EntityName: eNotFound.EntityName,
+			Reference:  eNotFound.Reference,
+			Filters: map[string]string{
+				"client": client,
+			},
+		}
+	}
+
+	return projects, err
 }

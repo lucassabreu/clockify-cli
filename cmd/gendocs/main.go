@@ -53,8 +53,7 @@ func execute() error {
 		return "/en/commands/" + strings.ToLower(base) + "/"
 	}
 
-	var f cmdutil.Factory
-	cmd := cmd.NewCmdRoot(f)
+	cmd := cmd.NewCmdRoot(cmdutil.NewFactory(cmdutil.Version{}))
 
 	fmt.Println("Generating Hugo command-line documentation in", docdir, "...")
 	err := doc.GenMarkdownTreeCustom(cmd, docdir, prepender, linkHandler)
