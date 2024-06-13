@@ -52,7 +52,10 @@ func (rf ReportFlags) Check() error {
 // NewReportFlags helps creating a util.ReportFlags for report commands
 func NewReportFlags() ReportFlags {
 	return ReportFlags{
-		OutputFlags: util.OutputFlags{TimeFormat: timehlp.FullTimeFormat, TimeZone: "local"},
+		OutputFlags: util.OutputFlags{
+			TimeFormat: timehlp.FullTimeFormat,
+			TimeZone:   "local",
+		},
 	}
 }
 
