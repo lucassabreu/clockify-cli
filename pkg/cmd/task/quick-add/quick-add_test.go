@@ -26,6 +26,12 @@ func TestCmdQuickAdd(t *testing.T) {
 		}
 	}
 
+	dFactory := func(t *testing.T) cmdutil.Factory {
+		f := mocks.NewMockFactory(t)
+		f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+		return f
+	}
+
 	tts := []struct {
 		name    string
 		args    []string
@@ -35,28 +41,22 @@ func TestCmdQuickAdd(t *testing.T) {
 		err string
 	}{
 		{
-			name: "only one format",
-			args: []string{"--format={}", "-q", "-j", "OK", "-p=OK"},
-			err:  "flags can't be used together.*format.*json.*quiet",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "only one format",
+			args:    []string{"--format={}", "-q", "-j", "OK", "-p=OK"},
+			err:     "flags can't be used together.*format.*json.*quiet",
+			factory: dFactory,
 		},
 		{
-			name: "name required",
-			args: []string{"-p=OK"},
-			err:  `requires arg name`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "name required",
+			args:    []string{"-p=OK"},
+			err:     `requires arg name`,
+			factory: dFactory,
 		},
 		{
-			name: "project required",
-			args: []string{"OK"},
-			err:  `"project" not set`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "project required",
+			args:    []string{"OK"},
+			err:     `"project" not set`,
+			factory: dFactory,
 		},
 		{
 			name: "client error",
@@ -64,6 +64,7 @@ func TestCmdQuickAdd(t *testing.T) {
 			args: []string{"a", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().Client().Return(nil, errors.New("client error"))
 				return f
 			},
@@ -74,6 +75,7 @@ func TestCmdQuickAdd(t *testing.T) {
 			args: []string{"a", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().Client().Return(mocks.NewMockClient(t), nil)
 				f.EXPECT().GetWorkspaceID().
 					Return("", errors.New("workspace error"))

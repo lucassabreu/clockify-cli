@@ -28,6 +28,11 @@ func TestCmdEdit(t *testing.T) {
 			return nil
 		}
 	}
+	dFactory := func(t *testing.T) cmdutil.Factory {
+		f := mocks.NewMockFactory(t)
+		f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+		return f
+	}
 
 	tts := []struct {
 		name    string
@@ -38,52 +43,40 @@ func TestCmdEdit(t *testing.T) {
 		err string
 	}{
 		{
-			name: "task id required",
-			args: []string{"-p=cli"},
-			err:  `requires arg task`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "task id required",
+			args:    []string{"-p=cli"},
+			err:     `requires arg task`,
+			factory: dFactory,
 		},
 		{
-			name: "project required",
-			args: []string{"task"},
-			err:  `"project" not set`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "project required",
+			args:    []string{"task"},
+			err:     `"project" not set`,
+			factory: dFactory,
 		},
 		{
-			name: "task id not empty",
-			args: []string{"   ", "-p=cli"},
-			err:  `task id should not be empty`,
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "task id not empty",
+			args:    []string{"   ", "-p=cli"},
+			err:     `task id should not be empty`,
+			factory: dFactory,
 		},
 		{
-			name: "only one format",
-			args: []string{"--format={}", "-q", "-j", "-p=OK", "edit"},
-			err:  "flags can't be used together.*format.*json.*quiet",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "only one format",
+			args:    []string{"--format={}", "-q", "-j", "-p=OK", "edit"},
+			err:     "flags can't be used together.*format.*json.*quiet",
+			factory: dFactory,
 		},
 		{
-			name: "billable or not",
-			args: []string{"--billable", "--not-billable", "edit", "-p=OK"},
-			err:  "flags can't be used together.*billable.*not-billable",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "billable or not",
+			args:    []string{"--billable", "--not-billable", "edit", "-p=OK"},
+			err:     "flags can't be used together.*billable.*not-billable",
+			factory: dFactory,
 		},
 		{
-			name: "assignee or no assignee",
-			args: []string{"--assignee=l", "--no-assignee", "edit", "-p=OK"},
-			err:  "flags can't be used together.*assignee.*no-assignee",
-			factory: func(t *testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
-			},
+			name:    "assignee or no assignee",
+			args:    []string{"--assignee=l", "--no-assignee", "edit", "-p=OK"},
+			err:     "flags can't be used together.*assignee.*no-assignee",
+			factory: dFactory,
 		},
 		{
 			name: "client error",
@@ -106,6 +99,7 @@ func TestCmdEdit(t *testing.T) {
 			args: []string{"edit", "-p=b"},
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.On("GetWorkspaceID").
 					Return("", errors.New("workspace error"))
 				return f

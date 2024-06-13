@@ -27,7 +27,7 @@ func NewCmdGet(
 		Use:  "get",
 		Args: cmdutil.RequiredNamedArgs("project"),
 		ValidArgsFunction: cmdcompl.CombineSuggestionsToArgs(
-			cmdcomplutil.NewProjectAutoComplete(f)),
+			cmdcomplutil.NewProjectAutoComplete(f, f.Config())),
 		Short: "Get a project on a Clockify workspace",
 		Example: heredoc.Docf(`
 			$ %[1]s 621948458cb9606d934ebb1c

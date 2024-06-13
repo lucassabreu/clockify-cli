@@ -13,6 +13,5 @@ func AddProjectFlags(cmd *cobra.Command, f Factory) {
 	_ = cmd.MarkFlagRequired("project")
 
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
-		cmdcomplutil.NewProjectAutoComplete(f))
-
+		cmdcomplutil.NewProjectAutoComplete(f, f.Config()))
 }
