@@ -164,7 +164,7 @@ func TestCmdToday(t *testing.T) {
 				f.On("GetUserID").Return("user-id", nil)
 				f.On("GetWorkspaceID").Return("w-id", nil)
 
-				f.On("Config").Return(mocks.NewMockConfig(t))
+				f.On("Config").Return(&mocks.SimpleConfig{})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
