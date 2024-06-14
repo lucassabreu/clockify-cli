@@ -26,8 +26,6 @@ func TimeEntriesTotalDurationOnlyAsFloat(
 	timeEntries []dto.TimeEntry, w io.Writer,
 	l language.Tag) error {
 	p := message.NewPrinter(l)
-	println(l.String())
-
 	return timeEntriesTotalDurationOnly(
 		func(d time.Duration) string {
 			return p.Sprintf("%f", number.Decimal(d.Hours()))

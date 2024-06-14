@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.53.1] - 2024-06-14
+
+### Fixed
+
+- was printing the language before the duration as float
+
 ## [v0.53.0] - 2024-06-14
 
 ### Added
@@ -1204,7 +1210,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.53.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.53.1...HEAD
+[v0.53.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.53.1
 [v0.53.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.53.0
 [v0.52.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.52.0
 [v0.51.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.51.1
