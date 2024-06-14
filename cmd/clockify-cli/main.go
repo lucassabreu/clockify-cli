@@ -157,6 +157,13 @@ func bindViper(rootCmd *cobra.Command) error {
 			}
 		}
 
+		if flag := cmd.Flags().Lookup("time-zone"); flag != nil {
+			if err := bind(flag, cmdutil.CONF_TIMEZONE,
+				"TIMEZONE"); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	}
 
