@@ -24,7 +24,7 @@ type OutputFlags struct {
 }
 
 func (of OutputFlags) Check() error {
-	if err := cmdutil.XorFlag(map[string]bool{
+	return cmdutil.XorFlag(map[string]bool{
 		"format":             of.Format != "",
 		"json":               of.JSON,
 		"csv":                of.CSV,
@@ -32,11 +32,7 @@ func (of OutputFlags) Check() error {
 		"md":                 of.Markdown,
 		"duration-float":     of.DurationFloat,
 		"duration-formatted": of.DurationFormatted,
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 // AddPrintMultipleTimeEntriesFlags add flags to print multiple time entries
