@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - new config `lang` to allow setting the number format to be used when printing
 - support to using client's name or id for autocompletion on bash
+- new config `timezone` to allow setting which timezone to use when reporting the time of a time entry
 
 ## [v0.52.0] - 2024-06-02
 

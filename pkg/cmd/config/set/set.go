@@ -1,13 +1,16 @@
 package set
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/strhlp"
 	"github.com/spf13/cobra"
+	"golang.org/x/text/language"
 )
 
 // NewCmdSet will update the value of one parameter
@@ -44,6 +47,22 @@ func NewCmdSet(
 					ws,
 				)
 				config.SetStringSlice(param, ws)
+			case cmdutil.CONF_LANGUAGE:
+				lang, err := language.Parse(value)
+				if err != nil {
+					return fmt.Errorf(
+						"%s is not a valid language: %w", value, err)
+				}
+
+				config.SetLanguage(lang)
+			case cmdutil.CONF_TIMEZONE:
+				tz, err := time.LoadLocation(value)
+				if err != nil {
+					return fmt.Errorf(
+						"%s is not a valid timezone: %w", value, err)
+				}
+
+				config.SetTimeZone(tz)
 			default:
 				config.SetString(param, value)
 			}

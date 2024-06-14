@@ -3,6 +3,7 @@ package init
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
@@ -110,7 +111,8 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 					"Should suggest and allow creating time entries "+
 						"with archived tags?",
 				),
-				func() error { return setLanguage(i, config) },
+				setLanguage(i, config),
+				setTimezone(i, config),
 			); err != nil {
 				return err
 			}
@@ -122,36 +124,62 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 	return cmd
 }
 
-func setLanguage(i ui.UI, config cmdutil.Config) error {
-	suggestLanguages := []string{
-		language.English.String(),
-		language.German.String(),
-		language.Afrikaans.String(),
-		language.Chinese.String(),
-		language.Portuguese.String(),
-	}
-
-	lang, err := i.AskForValidText("What is your preferred language:",
-		func(s string) error {
-			_, err := language.Parse(s)
+func setTimezone(i ui.UI, config cmdutil.Config) func() error {
+	return func() error {
+		tzname, err := i.AskForValidText("What is your preferred timezone:",
+			func(s string) error {
+				_, err := time.LoadLocation(s)
+				return err
+			},
+			ui.WithHelp("Should be 'Local' to use the systems timezone, UTC "+
+				"or valid TZ identifier from the IANA TZ database "+
+				"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"),
+			ui.WithDefault(config.TimeZone().String()),
+		)
+		if err != nil {
 			return err
-		},
-		ui.WithHelp("Accepts any IETF language tag "+
-			"https://en.wikipedia.org/wiki/IETF_language_tag"),
-		ui.WithSuggestion(func(toComplete string) []string {
-			return strhlp.Filter(
-				strhlp.IsSimilar(toComplete),
-				suggestLanguages,
-			)
-		}),
-		ui.WithDefault(config.Language().String()),
-	)
-	if err != nil {
-		return err
-	}
+		}
 
-	config.SetLanguage(language.MustParse(lang))
-	return nil
+		tz, _ := time.LoadLocation(tzname)
+
+		config.SetTimeZone(tz)
+
+		return nil
+	}
+}
+
+func setLanguage(i ui.UI, config cmdutil.Config) func() error {
+	return func() error {
+		suggestLanguages := []string{
+			language.English.String(),
+			language.German.String(),
+			language.Afrikaans.String(),
+			language.Chinese.String(),
+			language.Portuguese.String(),
+		}
+
+		lang, err := i.AskForValidText("What is your preferred language:",
+			func(s string) error {
+				_, err := language.Parse(s)
+				return err
+			},
+			ui.WithHelp("Accepts any IETF language tag "+
+				"https://en.wikipedia.org/wiki/IETF_language_tag"),
+			ui.WithSuggestion(func(toComplete string) []string {
+				return strhlp.Filter(
+					strhlp.IsSimilar(toComplete),
+					suggestLanguages,
+				)
+			}),
+			ui.WithDefault(config.Language().String()),
+		)
+		if err != nil {
+			return err
+		}
+
+		config.SetLanguage(language.MustParse(lang))
+		return nil
+	}
 }
 
 func setWeekdays(config cmdutil.Config, i ui.UI) (err error) {

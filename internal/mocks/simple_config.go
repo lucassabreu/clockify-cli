@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"time"
+
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"golang.org/x/text/language"
 )
@@ -24,18 +26,7 @@ type SimpleConfig struct {
 	AllowArchivedTags            bool
 	SearchProjectWithClientsName bool
 	LanguageTag                  language.Tag
-}
-
-// IsSearchProjectWithClientsName defines if the project name for ID should
-// include the client's name
-func (s *SimpleConfig) IsSearchProjectWithClientsName() bool {
-	return s.SearchProjectWithClientsName
-}
-
-// InteractivePageSize sets how many items are shown when prompting
-// projects
-func (s *SimpleConfig) InteractivePageSize() int {
-	return s.InteractivePageSizeNumber
+	TimeZoneLoc                  *time.Location
 }
 
 func (d *SimpleConfig) GetBool(n string) bool {
@@ -145,6 +136,32 @@ func (*SimpleConfig) All() map[string]interface{} {
 
 func (d *SimpleConfig) LogLevel() string {
 	return d.LogLevelValue
+}
+
+// TimeZone which time zone to use for showing date & time
+func (s *SimpleConfig) TimeZone() *time.Location {
+	if s.TimeZoneLoc == nil {
+		s.TimeZoneLoc = time.UTC
+	}
+
+	return s.TimeZoneLoc
+}
+
+// SetTimeZone changes the timezone used for dates
+func (s *SimpleConfig) SetTimeZone(loc *time.Location) {
+	s.TimeZoneLoc = loc
+}
+
+// IsSearchProjectWithClientsName defines if the project name for ID should
+// include the client's name
+func (s *SimpleConfig) IsSearchProjectWithClientsName() bool {
+	return s.SearchProjectWithClientsName
+}
+
+// InteractivePageSize sets how many items are shown when prompting
+// projects
+func (s *SimpleConfig) InteractivePageSize() int {
+	return s.InteractivePageSizeNumber
 }
 
 func (*SimpleConfig) Save() error {

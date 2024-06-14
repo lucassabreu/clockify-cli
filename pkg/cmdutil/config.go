@@ -3,6 +3,7 @@ package cmdutil
 import (
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lucassabreu/clockify-cli/strhlp"
@@ -29,6 +30,7 @@ const (
 	CONF_ALLOW_ARCHIVED_TAGS              = "allow-archived-tags"
 	CONF_INTERACTIVE_PAGE_SIZE            = "interactive-page-size"
 	CONF_LANGUAGE                         = "lang"
+	CONF_TIMEZONE                         = "time-zone"
 )
 
 const (
@@ -80,6 +82,12 @@ type Config interface {
 	// SetLanguage changes the language used for printing numbers
 	SetLanguage(language.Tag)
 
+	// TimeZone which time zone to use for showing date & time
+	TimeZone() *time.Location
+
+	// SetTimeZone changes the timezone used for dates
+	SetTimeZone(*time.Location)
+
 	// Get retrieves a config by its name
 	Get(string) interface{}
 	// All retrieves all the configurations of the CLI as a map
@@ -92,7 +100,13 @@ type Config interface {
 	Save() error
 }
 
-type config struct{}
+type config struct {
+	lngOnce sync.Once
+	lang    language.Tag
+
+	tzOnce   sync.Once
+	timezone *time.Location
+}
 
 // IsSearchProjectWithClientsName defines if the project name for ID should
 // include the client's name
@@ -167,21 +181,26 @@ func (c *config) IsInteractive() bool {
 }
 
 func (c *config) SetLanguage(l language.Tag) {
+	c.lngOnce = sync.Once{}
 	c.SetString(CONF_LANGUAGE, l.String())
 }
 
 func (c *config) Language() language.Tag {
-	lang := c.GetString(CONF_LANGUAGE)
-	if lang == "" {
-		return language.English
-	}
+	c.lngOnce.Do(func() {
+		c.lang = language.English
 
-	l, err := language.Parse(lang)
-	if err == nil {
-		return l
-	}
+		lang := c.GetString(CONF_LANGUAGE)
+		if lang == "" {
+			return
+		}
 
-	return language.English
+		if l, err := language.Parse(lang); err == nil {
+			c.lang = l
+			return
+		}
+	})
+
+	return c.lang
 }
 
 func (*config) Get(p string) interface{} {
@@ -223,4 +242,29 @@ func GetWeekdays() []string {
 		time.Friday:    strings.ToLower(time.Friday.String()),
 		time.Saturday:  strings.ToLower(time.Saturday.String()),
 	}
+}
+
+// SetTimeZone changes the timezone used for dates
+func (c *config) SetTimeZone(tz *time.Location) {
+	c.tzOnce = sync.Once{}
+	c.SetString(CONF_TIMEZONE, tz.String())
+}
+
+// TimeZone which time zone to use for showing date & time
+func (c *config) TimeZone() *time.Location {
+	c.tzOnce.Do(func() {
+		c.timezone = time.Local
+
+		tz := c.GetString(CONF_TIMEZONE)
+		if tz == "" {
+			return
+		}
+
+		if tz, err := time.LoadLocation(tz); err == nil {
+			c.timezone = tz
+			return
+		}
+	})
+
+	return c.timezone
 }

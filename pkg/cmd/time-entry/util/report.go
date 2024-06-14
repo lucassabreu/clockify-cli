@@ -2,6 +2,7 @@ package util
 
 import (
 	"io"
+	"time"
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
@@ -19,8 +20,7 @@ type OutputFlags struct {
 	Markdown          bool
 	DurationFormatted bool
 	DurationFloat     bool
-
-	TimeFormat string
+	TimeFormat        string
 }
 
 func (of OutputFlags) Check() error {
@@ -45,6 +45,11 @@ func AddPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
 func AddPrintTimeEntriesFlags(cmd *cobra.Command, of *OutputFlags) {
 	cmd.Flags().StringVarP(&of.Format, "format", "f", "",
 		"golang text/template format to be applied on each time entry")
+	cmd.Flags().String("tz", "Local",
+		"time zone to be used on the time entries can be "+
+			"'Local' to use the systems timezone, UTC "+
+			"or valid TZ identifier from the IANA TZ database "+
+			"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones")
 	cmd.Flags().BoolVarP(&of.JSON, "json", "j", false, "print as JSON")
 	cmd.Flags().BoolVarP(&of.CSV, "csv", "v", false, "print as CSV")
 	cmd.Flags().BoolVarP(&of.Quiet, "quiet", "q", false, "print only ID")
@@ -98,11 +103,28 @@ func PrintTimeEntry(
 	return err
 }
 
+func updateTimeZone(tes []dto.TimeEntry, config cmdutil.Config) []dto.TimeEntry {
+	loc := config.TimeZone()
+	if loc == time.Local {
+		return tes
+	}
+
+	for i := range tes {
+		tes[i].TimeInterval.Start = tes[i].TimeInterval.Start.In(loc)
+		if tes[i].TimeInterval.End != nil {
+			end := tes[i].TimeInterval.End.In(loc)
+			tes[i].TimeInterval.End = &end
+		}
+	}
+	return tes
+}
+
 // PrintTimeEntries will print out a list of time entries using parameters and
 // flags
 func PrintTimeEntries(
 	tes []dto.TimeEntry, out io.Writer, config cmdutil.Config, of OutputFlags,
 ) error {
+	tes = updateTimeZone(tes, config)
 	switch {
 	case of.Markdown:
 		return output.TimeEntriesMarkdownPrint(tes, out)

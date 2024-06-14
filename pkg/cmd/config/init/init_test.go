@@ -111,6 +111,12 @@ func TestInitCmd(t *testing.T) {
 			config.EXPECT().Language().Return(language.English)
 			config.EXPECT().SetLanguage(language.German)
 
+			config.EXPECT().TimeZone().Return(time.Local)
+			config.EXPECT().SetTimeZone(mock.Anything).
+				Run(func(tz *time.Location) {
+					assert.Equal(t, tz.String(), "America/Bahia")
+				})
+
 			config.EXPECT().Save().Once().Return(nil)
 
 			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
@@ -208,6 +214,10 @@ func TestInitCmd(t *testing.T) {
 			c.Send("e")
 			c.Send(string(terminal.KeyTab))
 			c.SendLine(string(terminal.KeyTab))
+
+			c.ExpectString("preferred timezone:")
+			c.SendLine("America/Bahia")
+			c.ExpectString("America/Bahia")
 
 			c.ExpectEOF()
 		})

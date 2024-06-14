@@ -12,6 +12,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/report/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -263,9 +264,9 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(false)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: false,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -617,6 +618,54 @@ func TestReportWithRange(t *testing.T) {
 				te-1
 				te-2
 				te-3
+			`),
+		},
+		{
+			name: "change timezone",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				tz, _ := time.LoadLocation("America/Sao_Paulo")
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					TimeZoneLoc:    tz,
+					AllowNameForID: false,
+				})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.On("LogRange", api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p",
+					Description:     "desc",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.TimeEntry{
+					{ID: "time-entry-1",
+						TimeInterval: dto.TimeInterval{Start: last}},
+					{ID: "time-entry-2",
+						TimeInterval: dto.TimeInterval{Start: first}},
+				}, nil)
+
+				return f
+			},
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Projects = []string{"p"}
+				rf.Description = "desc"
+				rf.Quiet = true
+				rf.Format = `{{ .TimeInterval.Start.Format "` +
+					timehlp.FullTimeFormat +
+					`" }}`
+				return rf
+			},
+			expected: heredoc.Doc(`
+				2006-01-01 22:00:00
+				2006-01-04 22:00:00
 			`),
 		},
 	}
