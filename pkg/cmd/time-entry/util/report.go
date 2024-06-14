@@ -21,7 +21,6 @@ type OutputFlags struct {
 	DurationFormatted bool
 	DurationFloat     bool
 	TimeFormat        string
-	TimeZone          string
 }
 
 func (of OutputFlags) Check() error {
@@ -37,10 +36,6 @@ func (of OutputFlags) Check() error {
 		return err
 	}
 
-	if of.TimeZone != "local" && of.TimeFormat != "" {
-		_, err := time.LoadLocation(of.TimeZone)
-		return err
-	}
 	return nil
 }
 
@@ -54,8 +49,11 @@ func AddPrintMultipleTimeEntriesFlags(cmd *cobra.Command) {
 func AddPrintTimeEntriesFlags(cmd *cobra.Command, of *OutputFlags) {
 	cmd.Flags().StringVarP(&of.Format, "format", "f", "",
 		"golang text/template format to be applied on each time entry")
-	cmd.Flags().StringVarP(&of.TimeZone, "time-zone", "z", "local",
-		"time zone to be used on the time entries")
+	cmd.Flags().String("tz", "Local",
+		"time zone to be used on the time entries can be "+
+			"'Local' to use the systems timezone, UTC "+
+			"or valid TZ identifier from the IANA TZ database "+
+			"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones")
 	cmd.Flags().BoolVarP(&of.JSON, "json", "j", false, "print as JSON")
 	cmd.Flags().BoolVarP(&of.CSV, "csv", "v", false, "print as CSV")
 	cmd.Flags().BoolVarP(&of.Quiet, "quiet", "q", false, "print only ID")
@@ -109,17 +107,10 @@ func PrintTimeEntry(
 	return err
 }
 
-func updateTimeZone(tes []dto.TimeEntry, of OutputFlags) []dto.TimeEntry {
-	if of.TimeZone == "" {
+func updateTimeZone(tes []dto.TimeEntry, config cmdutil.Config) []dto.TimeEntry {
+	loc := config.TimeZone()
+	if loc == time.Local {
 		return tes
-	}
-
-	var loc *time.Location
-	if of.TimeZone == "local" {
-		loc = time.Local
-	} else {
-		// parses of.TimeZone as a time.Location
-		loc, _ = time.LoadLocation(of.TimeZone)
 	}
 
 	for i := range tes {
@@ -137,7 +128,7 @@ func updateTimeZone(tes []dto.TimeEntry, of OutputFlags) []dto.TimeEntry {
 func PrintTimeEntries(
 	tes []dto.TimeEntry, out io.Writer, config cmdutil.Config, of OutputFlags,
 ) error {
-	tes = updateTimeZone(tes, of)
+	tes = updateTimeZone(tes, config)
 	switch {
 	case of.Markdown:
 		return output.TimeEntriesMarkdownPrint(tes, out)

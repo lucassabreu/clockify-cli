@@ -264,9 +264,9 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(false)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					AllowNameForID: false,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -330,7 +330,6 @@ func TestReportWithRange(t *testing.T) {
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
 				rf.FillMissingDates = true
-				rf.TimeZone = "UTC"
 				rf.Format = "{{.ID}};{{ .TimeInterval.Start.Format " +
 					`"2006-01-02"` +
 					" }}"
@@ -628,9 +627,11 @@ func TestReportWithRange(t *testing.T) {
 				f.On("GetUserID").Return("u", nil)
 				f.On("GetWorkspaceID").Return("w", nil)
 
-				cf := mocks.NewMockConfig(t)
-				f.On("Config").Return(cf)
-				cf.On("IsAllowNameForID").Return(false)
+				tz, _ := time.LoadLocation("America/Sao_Paulo")
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{
+					TimeZoneLoc:    tz,
+					AllowNameForID: false,
+				})
 
 				c := mocks.NewMockClient(t)
 				f.On("Client").Return(c, nil)
@@ -657,7 +658,6 @@ func TestReportWithRange(t *testing.T) {
 				rf.Projects = []string{"p"}
 				rf.Description = "desc"
 				rf.Quiet = true
-				rf.TimeZone = "America/Sao_Paulo"
 				rf.Format = `{{ .TimeInterval.Start.Format "` +
 					timehlp.FullTimeFormat +
 					`" }}`

@@ -54,7 +54,6 @@ func NewReportFlags() ReportFlags {
 	return ReportFlags{
 		OutputFlags: util.OutputFlags{
 			TimeFormat: timehlp.FullTimeFormat,
-			TimeZone:   "local",
 		},
 	}
 }
