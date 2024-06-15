@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"encoding/json"
-	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -71,7 +70,6 @@ var funcMap = template.FuncMap{
 
 		return length
 	},
-	"maxInt": func(s ...int) int { return slices.Max(s) },
 	"concat": func(ss ...string) string {
 		b := &strings.Builder{}
 		for _, s := range ss {
