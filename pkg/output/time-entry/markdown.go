@@ -7,7 +7,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 )
 
-//go:embed template.gotmpl.md
+//go:embed markdown.gotmpl.md
 var mdTemplate string
 
 // TimeEntriesMarkdownPrint will print time entries in "markdown blocks"

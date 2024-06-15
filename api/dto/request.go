@@ -2,6 +2,7 @@ package dto
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -41,8 +42,18 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 		return errors.Wrap(err, "unmarshal duration")
 	}
 
+	dc, err := StringToDuration(s)
+	if err != nil {
+		return err
+	}
+
+	*d = Duration{dc}
+	return err
+}
+
+func StringToDuration(s string) (time.Duration, error) {
 	if len(s) < 4 {
-		return errors.Errorf("duration %s is invalid", b)
+		return 0, errors.Errorf("duration %s is invalid", s)
 	}
 
 	var u, dc time.Duration
@@ -64,18 +75,35 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 
 		v, err := strconv.Atoi(s[j:i])
 		if err != nil {
-			return errors.Wrap(err, "unmarshal duration")
+			return 0, errors.Wrap(err, "cast cast "+s[j:i]+" to int")
 		}
 		dc = dc + time.Duration(v)*u
 		j = i + 1
 	}
 
-	*d = Duration{Duration: dc}
-	return nil
+	return dc, nil
 }
 
 func (d Duration) String() string {
-	return "PT" + strings.ToUpper(d.Duration.String())
+	s := d.Duration.String()
+	i := strings.LastIndex(s, ".")
+	if i > -1 {
+		s = s[0:i] + "s"
+	}
+
+	return "PT" + strings.ToUpper(s)
+}
+
+func (dd Duration) HumanString() string {
+	d := dd.Duration
+	p := ""
+	if d < 0 {
+		p = "-"
+		d = d * -1
+	}
+
+	return p + fmt.Sprintf("%d:%02d:%02d",
+		int64(d.Hours()), int64(d.Minutes())%60, int64(d.Seconds())%60)
 }
 
 type pagination struct {
