@@ -23,6 +23,7 @@ var funcMap = template.FuncMap{
 	"formatDateTime": formatTime(timehlp.FullTimeFormat),
 	"fdt":            formatTime(timehlp.FullTimeFormat),
 	"formatTime":     formatTime(timehlp.OnlyTimeFormat),
+	"formatTimeWS":   formatTime(timehlp.SimplerOnlyTimeFormat),
 	"ft":             formatTime(timehlp.OnlyTimeFormat),
 	"now": func(t *time.Time) time.Time {
 		if t == nil {
@@ -56,6 +57,34 @@ var funcMap = template.FuncMap{
 	},
 	"until": func(s time.Time, e ...time.Time) dto.Duration {
 		return diff(firstOrNow(e), s)
+	},
+	"repeatString": strings.Repeat,
+	"maxLength": func(s ...string) int {
+		length := 0
+		for i := range s {
+			l := len(s[i])
+			if l > length {
+				length = l
+			}
+		}
+
+		return length
+	},
+	"concat": func(ss ...string) string {
+		b := &strings.Builder{}
+		for _, s := range ss {
+			b.WriteString(s)
+		}
+
+		return b.String()
+	},
+	"dsf": func(ds string) string {
+		d, err := dto.StringToDuration(ds)
+		if err != nil {
+			panic(err)
+		}
+
+		return dto.Duration{Duration: d}.HumanString()
 	},
 }
 
