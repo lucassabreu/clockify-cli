@@ -12,11 +12,11 @@ import (
 
 // AskProjectParam informs what options to display while asking for a project
 type AskProjectParam struct {
-	UI            ui.UI
-	ProjectID     string
-	Projects      []dto.Project
-	ForceProjects bool
-	Message       string
+	UI        ui.UI
+	ProjectID string
+	Projects  []dto.Project
+	Force     bool
+	Message   string
 }
 
 // NoProject is the text shown to not select a project
@@ -38,7 +38,7 @@ func AskProject(p AskProjectParam) (*dto.Project, error) {
 	c, list := projectsToList(p.ProjectID, p.Projects)
 	p.ProjectID = c
 
-	if !p.ForceProjects {
+	if !p.Force {
 		list = append([]string{NoProject}, list...)
 	}
 
