@@ -107,7 +107,7 @@ func NewCmdSet(
 
 	cmd.Flags().StringP("project", "p", "", "project to used by default")
 	_ = cmdcompl.AddSuggestionsToFlag(cmd, "project",
-		cmdcomplutil.NewProjectAutoComplete(f))
+		cmdcomplutil.NewProjectAutoComplete(f, f.Config()))
 
 	return cmd
 }

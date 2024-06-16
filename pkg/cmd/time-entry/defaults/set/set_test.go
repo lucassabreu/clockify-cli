@@ -177,7 +177,9 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 			args: []string{"--billable", "--not-billable"},
 			err:  ".*flags can't be used together.*",
 			factory: func(*testing.T) cmdutil.Factory {
-				return mocks.NewMockFactory(t)
+				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+				return f
 			},
 		},
 		{
@@ -191,6 +193,7 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 				)
 
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().TimeEntryDefaults().Return(ted)
 
 				return f
@@ -208,6 +211,7 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 				)
 
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().TimeEntryDefaults().Return(ted)
 				f.EXPECT().GetWorkspaceID().Return("w", nil)
 				f.EXPECT().Client().Return(
@@ -229,6 +233,7 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 				)
 
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().TimeEntryDefaults().Return(ted)
 
 				f.EXPECT().GetWorkspaceID().Return("", errors.New("failed"))
@@ -250,6 +255,7 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 				)
 
 				f.EXPECT().TimeEntryDefaults().Return(ted)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 				f.EXPECT().GetWorkspaceID().Return("w", nil)
 				f.EXPECT().Config().Return(&mocks.SimpleConfig{
 					AllowNameForID: false,
@@ -504,6 +510,7 @@ func TestNewCmdSet_ShouldFail_WhenInvalidArgs(t *testing.T) {
 			args: []string{"--task=task"},
 			factory: func(*testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
+				f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
 				ted := mocks.NewMockTimeEntryDefaults(t)
 				ted.EXPECT().Read().Return(
