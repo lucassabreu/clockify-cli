@@ -29,7 +29,7 @@ func AskTags(p AskTagsParam) ([]dto.Tag, error) {
 		p.Message = "Choose your tags:"
 	}
 
-	s, list := toList(p.TagIDs, p.Tags)
+	s, list := toList[dto.Tag](p.TagIDs, p.Tags)
 	v := func(s []string) error { return nil }
 	if p.Force {
 		v = func(s []string) error {

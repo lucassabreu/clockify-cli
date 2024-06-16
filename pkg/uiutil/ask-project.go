@@ -86,8 +86,8 @@ func projectsToList(
 	}
 
 	if found == -1 {
-		return list[found], list
+		return "", list
 	}
 
-	return "", list
+	return list[found], list
 }
