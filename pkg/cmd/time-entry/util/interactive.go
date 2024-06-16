@@ -126,10 +126,10 @@ func getProjectID(
 	}
 
 	p, err := uiutil.AskProject(uiutil.AskProjectParam{
-		UI:            ui,
-		ProjectID:     projectID,
-		Projects:      projects,
-		ForceProjects: w.Settings.ForceDescription,
+		UI:        ui,
+		ProjectID: projectID,
+		Projects:  projects,
+		Force:     w.Settings.ForceProjects,
 	})
 
 	if p != nil {
