@@ -1,8 +1,6 @@
 package uiutil
 
 import (
-	"strings"
-
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/ui"
 	"github.com/pkg/errors"
@@ -31,20 +29,7 @@ func AskTags(p AskTagsParam) ([]dto.Tag, error) {
 		p.Message = "Choose your tags:"
 	}
 
-	list := make([]string, len(p.Tags))
-	for i := range p.Tags {
-		list[i] = p.Tags[i].ID + " - " + p.Tags[i].Name
-	}
-
-	s := make([]string, len(p.TagIDs))
-	for i := range p.TagIDs {
-		for _, o := range list {
-			if strings.HasPrefix(o, p.TagIDs[i]) {
-				s[i] = o
-			}
-		}
-	}
-
+	s, list := toList(p.TagIDs, p.Tags)
 	v := func(s []string) error { return nil }
 	if p.Force {
 		v = func(s []string) error {
@@ -60,21 +45,5 @@ func AskTags(p AskTagsParam) ([]dto.Tag, error) {
 		return []dto.Tag{}, err
 	}
 
-	tags := make([]dto.Tag, len(ids))
-	for i, t := range ids {
-		found := false
-		t = strings.TrimSpace(t[0:strings.Index(t, " - ")])
-		for j := range p.Tags {
-			if p.Tags[j].ID == t {
-				tags[i] = p.Tags[j]
-				found = true
-			}
-		}
-
-		if !found {
-			return []dto.Tag{}, errors.New(`tag with id "` + t + `" not found`)
-		}
-	}
-
-	return tags, nil
+	return listToEntities("tag", ids, p.Tags)
 }
