@@ -114,6 +114,11 @@ func (d *SimpleConfig) IsInteractive() bool {
 	return d.Interactive
 }
 
+// IsAllowArchivedTags defines if archived tags should be suggested
+func (s *SimpleConfig) IsAllowArchivedTags() bool {
+	return s.AllowArchivedTags
+}
+
 func (d *SimpleConfig) GetWorkWeekdays() []string {
 	return d.WorkweekDays
 }

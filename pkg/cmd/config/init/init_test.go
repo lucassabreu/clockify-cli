@@ -20,7 +20,12 @@ import (
 )
 
 func setStringFn(config *mocks.MockConfig, name, value string) *mock.Call {
-	r := ""
+	return setStringDefaultFn(config, name, "", value)
+}
+
+func setStringDefaultFn(
+	config *mocks.MockConfig, name, first, value string) *mock.Call {
+	r := first
 	config.On("GetString", name).
 		Return(func(string) string {
 			v := r
@@ -107,6 +112,8 @@ func TestInitCmd(t *testing.T) {
 			config.EXPECT().SetInt(cmdutil.CONF_DESCR_AUTOCOMP_DAYS, 10)
 
 			setBoolFn(config, cmdutil.CONF_ALLOW_ARCHIVED_TAGS, true, false)
+
+			setBoolFn(config, cmdutil.CONF_TIME_ENTRY_DEFAULTS, false, true)
 
 			config.EXPECT().Language().Return(language.English)
 			config.EXPECT().SetLanguage(language.German)
@@ -209,6 +216,13 @@ func TestInitCmd(t *testing.T) {
 			c.ExpectString("archived tags?")
 			c.SendLine("n")
 			c.ExpectString("No")
+
+			c.ExpectString(
+				"Look for default parameters for time entries per folder?")
+			c.SendLine("?")
+			c.ExpectString("https://")
+			c.SendLine("y")
+			c.ExpectString("Yes")
 
 			c.ExpectString("preferred language")
 			c.Send("e")

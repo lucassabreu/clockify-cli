@@ -111,6 +111,18 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 					"Should suggest and allow creating time entries "+
 						"with archived tags?",
 				),
+				updateFlag(i, config, cmdutil.CONF_TIME_ENTRY_DEFAULTS,
+					"Look for default parameters for time entries per folder?",
+					ui.WithConfirmHelp(
+						"This will set the default parameters of a time "+
+							"entry when using `clockify-cli in` and "+
+							"`clockify-cli manual` to the closest "+
+							".clockify-defaults.yaml file looking up the "+
+							"current folder you were running the commands.\n"+
+							"For more information and examples go to "+
+							"https://clockify-cli.netlify.app/",
+					),
+				),
 				setLanguage(i, config),
 				setTimezone(i, config),
 			); err != nil {
@@ -268,15 +280,13 @@ func updateInt(ui ui.UI, config cmdutil.Config, param, desc string,
 
 func updateFlag(
 	ui ui.UI, config cmdutil.Config, param, description string,
-) func() error {
+	opts ...ui.ConfirmOption) func() error {
 	return func() (err error) {
-
 		b := config.GetBool(param)
-		if b, err = ui.Confirm(description, b); err != nil {
+		if b, err = ui.Confirm(description, b, opts...); err != nil {
 			return
 		}
 		config.SetBool(param, b)
 		return
 	}
-
 }

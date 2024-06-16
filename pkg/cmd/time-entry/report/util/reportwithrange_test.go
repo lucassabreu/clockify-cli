@@ -21,6 +21,8 @@ func newDate(s string) time.Time {
 	return date
 }
 
+var bFalse = false
+
 func TestReportWithRange(t *testing.T) {
 	date := newDate("2006-01-02")
 	first := time.Date(
@@ -432,6 +434,7 @@ func TestReportWithRange(t *testing.T) {
 				tag := dto.Tag{ID: "t1", Name: "Client"}
 				c.On("GetTags", api.GetTagsParam{
 					Workspace:       "w",
+					Archived:        &bFalse,
 					PaginationParam: api.AllPages(),
 				}).Return([]dto.Tag{tag}, nil)
 
@@ -541,7 +544,7 @@ func TestReportWithRange(t *testing.T) {
 			`),
 		},
 		{
-			name: "projects form a client",
+			name: "projects from a client",
 			flags: func(t *testing.T) util.ReportFlags {
 				rf := util.NewReportFlags()
 				rf.Quiet = true
