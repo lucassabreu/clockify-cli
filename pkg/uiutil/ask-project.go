@@ -28,9 +28,6 @@ func AskProject(p AskProjectParam) (*dto.Project, error) {
 		return nil, errors.New("UI must be informed")
 	}
 
-	if p.Projects == nil || len(p.Projects) == 0 {
-		return nil, nil
-	}
 	if p.Message == "" {
 		p.Message = "Choose your project:"
 	}

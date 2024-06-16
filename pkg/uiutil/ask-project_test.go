@@ -11,6 +11,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAskProjectShouldFail(t *testing.T) {
+	tts := []struct {
+		name  string
+		param uiutil.AskProjectParam
+		err   string
+	}{
+		{
+			name:  "no ui",
+			param: uiutil.AskProjectParam{},
+			err:   "UI must be informed",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := uiutil.AskProject(tt.param)
+			if !assert.Error(t, err) {
+				return
+			}
+
+			assert.Regexp(t, tt.err, err.Error())
+		})
+	}
+}
+
 var ps = []dto.Project{
 	{ID: "p1", Name: "Project One"},
 	{ID: "p2", Name: "Project Two", ClientID: "c1", ClientName: "Client One"},
@@ -73,6 +98,33 @@ func TestAskProjectIsntRequired(t *testing.T) {
 			c.ExpectString("No Project")
 			c.Send(string(terminal.KeyArrowUp))
 			c.Send(string(terminal.KeyArrowUp))
+
+			c.SendLine()
+
+			c.ExpectEOF()
+		},
+	)
+}
+
+func TestAskProjectNoneSelected(t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			ui := ui.NewUI(in, out, out)
+
+			p, err := uiutil.AskProject(uiutil.AskProjectParam{
+				UI:        ui,
+				Message:   "Which project?",
+				ProjectID: "",
+				Force:     false,
+				Projects:  ps,
+			})
+
+			assert.Nil(t, p)
+
+			return err
+		},
+		func(c consoletest.ExpectConsole) {
+			c.ExpectString("project?")
 
 			c.SendLine()
 

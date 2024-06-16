@@ -11,6 +11,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAskTagsShouldFail(t *testing.T) {
+	tts := []struct {
+		name  string
+		param uiutil.AskTagsParam
+		err   string
+	}{
+		{
+			name:  "no ui",
+			param: uiutil.AskTagsParam{},
+			err:   "UI must be informed",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := uiutil.AskTags(tt.param)
+			if !assert.Error(t, err) {
+				return
+			}
+
+			assert.Regexp(t, tt.err, err.Error())
+		})
+	}
+}
+
 var tags = []dto.Tag{
 	{ID: "t1", Name: "Tag One"},
 	{ID: "t2", Name: "Tag Two"},
@@ -138,6 +163,35 @@ func TestAskTagsIsntRequired(t *testing.T) {
 
 			c.SendLine(string(terminal.KeyArrowLeft))
 
+			c.ExpectEOF()
+		},
+	)
+}
+
+func TestAskTagsNoneSelected(t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			ui := ui.NewUI(in, out, out)
+
+			ts, err := uiutil.AskTags(uiutil.AskTagsParam{
+				UI:      ui,
+				Message: "Which tags?",
+				TagIDs:  []string{},
+				Force:   false,
+				Tags:    tags,
+			})
+
+			assert.Equal(
+				t,
+				[]dto.Tag{},
+				ts,
+			)
+
+			return err
+		},
+		func(c consoletest.ExpectConsole) {
+			c.ExpectString("tags?")
+			c.SendLine()
 			c.ExpectEOF()
 		},
 	)

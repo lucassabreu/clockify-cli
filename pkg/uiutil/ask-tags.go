@@ -23,10 +23,6 @@ func AskTags(p AskTagsParam) ([]dto.Tag, error) {
 		return nil, errors.New("UI must be informed")
 	}
 
-	if p.Tags == nil || len(p.Tags) == 0 {
-		return []dto.Tag{}, nil
-	}
-
 	if p.Message == "" {
 		p.Message = "Choose your tags:"
 	}

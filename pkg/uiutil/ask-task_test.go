@@ -11,6 +11,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAskTaskShouldFail(t *testing.T) {
+	tts := []struct {
+		name  string
+		param uiutil.AskTaskParam
+		err   string
+	}{
+		{
+			name:  "no ui",
+			param: uiutil.AskTaskParam{},
+			err:   "UI must be informed",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := uiutil.AskTask(tt.param)
+			if !assert.Error(t, err) {
+				return
+			}
+
+			assert.Regexp(t, tt.err, err.Error())
+		})
+	}
+}
+
 var tks = []dto.Task{
 	{ID: "t1", Name: "Task One"},
 	{ID: "t2", Name: "Task Two"},
@@ -72,6 +97,34 @@ func TestAskTaskIsntRequired(t *testing.T) {
 			c.ExpectString("No Task")
 			c.Send(string(terminal.KeyArrowUp))
 			c.Send(string(terminal.KeyArrowUp))
+
+			c.SendLine()
+
+			c.ExpectEOF()
+		},
+	)
+}
+
+func TestAskTaskNoneSelected(t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			ui := ui.NewUI(in, out, out)
+
+			p, err := uiutil.AskTask(uiutil.AskTaskParam{
+				UI:      ui,
+				Message: "Which task?",
+				TaskID:  "",
+				Force:   false,
+				Tasks:   tks,
+			})
+
+			assert.Nil(t, p)
+
+			return err
+		},
+		func(c consoletest.ExpectConsole) {
+			c.ExpectString("task?")
+			c.ExpectString("No Task")
 
 			c.SendLine()
 
