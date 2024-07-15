@@ -12,16 +12,13 @@ import (
 )
 
 var bFalse = false
+var bTrue = true
 
 func TestNewCmdShow_ShouldPrintDefaults(t *testing.T) {
-	dte := defaults.DefaultTimeEntry{
-		Workspace: "w",
-		ProjectID: "p",
-		Billable:  &bFalse,
-		TagIDs:    []string{"t1"},
-	}
 
-	ft := func(name string, args []string, expected string) {
+	ft := func(name string,
+		dte defaults.DefaultTimeEntry,
+		args []string, expected string) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			f := mocks.NewMockFactory(t)
@@ -51,14 +48,37 @@ func TestNewCmdShow_ShouldPrintDefaults(t *testing.T) {
 		})
 	}
 
-	ft("as json", []string{"--json"},
-		`{"workspace": "w","project":"p","billable":false,"tags":["t1"]}`)
+	dte := defaults.DefaultTimeEntry{
+		Workspace: "w",
+		ProjectID: "p",
+		Billable:  &bFalse,
+		TagIDs:    []string{"t1"},
+	}
 
-	ft("as yaml", []string{"--yaml"}, heredoc.Doc(`
+	ft("as json", dte, []string{"--format=json"},
+		`{"workspace":"w","project":"p","billable":false,"tags":["t1"]}`)
+
+	ft("as yaml", dte, []string{"--format=yaml"}, heredoc.Doc(`
 		workspace: w
 		project: p
 		billable: false
-		tags:
-		  - t1
+		tags: [t1]
+	`))
+
+	dte = defaults.DefaultTimeEntry{
+		Workspace: "w",
+		ProjectID: "p",
+		TaskID:    "t",
+		Billable:  &bTrue,
+	}
+
+	ft("as json", dte, []string{"--format=json"},
+		`{"workspace":"w","project":"p","task":"t","billable":true}`)
+
+	ft("as yaml", dte, []string{"--format=yaml"}, heredoc.Doc(`
+		workspace: w
+		project: p
+		task: t
+		billable: true
 	`))
 }
