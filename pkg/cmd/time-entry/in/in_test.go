@@ -12,6 +12,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/in"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util/defaults"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/stretchr/testify/assert"
@@ -331,5 +332,69 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 			t.Fatalf("err: %s", err)
 		})
 	}
+}
 
+func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
+	ft := func(name string, d defaults.DefaultTimeEntry,
+		args []string, exp api.CreateTimeEntryParam) {
+		t.Run(name, func(t *testing.T) {
+			f := mocks.NewMockFactory(t)
+
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+			f.EXPECT().GetWorkspaceID().Return("w", nil)
+			f.EXPECT().GetWorkspace().Return(w, nil)
+			f.EXPECT().GetUserID().Return("u", nil)
+
+			c := mocks.NewMockClient(t)
+			f.EXPECT().Client().Return(c, nil)
+
+			c.EXPECT().GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+				Workspace: w.ID,
+				UserID:    "u",
+			}).
+				Return(nil, nil)
+
+			st := timehlp.Now()
+			c.EXPECT().Out(api.OutParam{
+				Workspace: w.ID,
+				UserID:    "u",
+				End:       st,
+			}).Return(api.ErrorNotFound)
+
+			c.EXPECT().CreateTimeEntry(exp).
+				Return(dto.TimeEntryImpl{ID: "te"}, nil)
+
+			called := false
+			cmd := in.NewCmdIn(f, func(
+				_ dto.TimeEntryImpl, _ io.Writer, _ util.OutputFlags) error {
+				called = true
+				return nil
+			})
+
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
+
+			out := bytes.NewBufferString("")
+			cmd.SetOut(out)
+			cmd.SetErr(out)
+
+			cmd.SetArgs(args)
+			_, err := cmd.ExecuteC()
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			assert.True(t, called)
+		})
+	}
+
+	ft("only defaults",
+		defaults.DefaultTimeEntry{},
+		[]string{},
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
+		},
+	)
 }
