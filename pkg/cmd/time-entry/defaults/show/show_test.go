@@ -15,7 +15,6 @@ var bFalse = false
 var bTrue = true
 
 func TestNewCmdShow_ShouldPrintDefaults(t *testing.T) {
-
 	ft := func(name string,
 		dte defaults.DefaultTimeEntry,
 		args []string, expected string) {
