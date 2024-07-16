@@ -20,11 +20,20 @@ import (
 
 var w = dto.Workspace{ID: "w"}
 
+func newTEDNotFound(t *testing.T) defaults.TimeEntryDefaults {
+	ted := mocks.NewMockTimeEntryDefaults(t)
+	ted.EXPECT().Read().Return(
+		defaults.DefaultTimeEntry{}, defaults.DefaultsFileNotFoundErr)
+
+	return ted
+}
+
 func TestNewCmdIn_ShouldBeBothBillableAndNotBillable(t *testing.T) {
 	f := mocks.NewMockFactory(t)
 
 	f.EXPECT().GetUserID().Return("u", nil)
 	f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+	f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 	f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
@@ -58,9 +67,10 @@ func TestNewCmdIn_ShouldBeBothBillableAndNotBillable(t *testing.T) {
 	t.Fatal("should've failed")
 }
 
+var bTrue = true
+var bFalse = false
+
 func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
-	bTrue := true
-	bFalse := false
 
 	tts := []struct {
 		name  string
@@ -105,6 +115,7 @@ func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
 			f.EXPECT().GetUserID().Return("u", nil)
 			f.EXPECT().GetWorkspace().Return(w, nil)
 			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+			f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 			f.EXPECT().Config().Return(&mocks.SimpleConfig{
 				AllowNameForID: true,
@@ -259,6 +270,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 
 			f.EXPECT().GetUserID().Return("u", nil)
 			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+			f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 			f.EXPECT().Config().Return(&mocks.SimpleConfig{
 				AllowNameForID:               true,
@@ -364,6 +376,10 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 			c.EXPECT().CreateTimeEntry(exp).
 				Return(dto.TimeEntryImpl{ID: "te"}, nil)
 
+			ted := mocks.NewMockTimeEntryDefaults(t)
+			f.EXPECT().TimeEntryDefaults().Return(ted)
+			ted.EXPECT().Read().Return(d, nil)
+
 			called := false
 			cmd := in.NewCmdIn(f, func(
 				_ dto.TimeEntryImpl, _ io.Writer, _ util.OutputFlags) error {
@@ -390,11 +406,37 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 	}
 
 	ft("only defaults",
-		defaults.DefaultTimeEntry{},
+		defaults.DefaultTimeEntry{
+			Workspace: w.ID,
+			ProjectID: "p1",
+			TaskID:    "t",
+			Billable:  &bTrue,
+			TagIDs:    []string{"t1", "t2"},
+		},
 		[]string{},
 		api.CreateTimeEntryParam{
 			Workspace: w.ID,
 			Start:     timehlp.Now(),
+			ProjectID: "p1",
+			TaskID:    "t",
+			Billable:  &bTrue,
+			TagIDs:    []string{"t1", "t2"},
+		},
+	)
+
+	ft("flags over defaults",
+		defaults.DefaultTimeEntry{
+			Workspace: w.ID,
+			ProjectID: "p1",
+			TaskID:    "t",
+			TagIDs:    []string{"t1", "t2"},
+		},
+		[]string{"-T", "tag", "-p", "p2"},
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
+			ProjectID: "p2",
+			TagIDs:    []string{"tag"},
 		},
 	)
 }
