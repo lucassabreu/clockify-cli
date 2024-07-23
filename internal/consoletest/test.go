@@ -17,7 +17,7 @@ type ExpectConsole interface {
 	ExpectEOF()
 	ExpectString(string)
 	Send(string)
-	SendLine(string)
+	SendLine(...string)
 }
 
 type console struct {
@@ -43,9 +43,15 @@ func (c *console) Send(s string) {
 	}
 }
 
-func (c *console) SendLine(s string) {
-	if _, err := c.c.SendLine(s); err != nil {
-		c.t.Errorf("failed to SendLine %v", err)
+func (c *console) SendLine(s ...string) {
+	if len(s) == 0 {
+		s = []string{""}
+	}
+
+	for i := range s {
+		if _, err := c.c.SendLine(s[i]); err != nil {
+			c.t.Errorf("failed to SendLine %v", err)
+		}
 	}
 }
 

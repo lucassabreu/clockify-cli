@@ -15,9 +15,9 @@ import (
 
 func TestSetCmdArgs(t *testing.T) {
 	tt := map[string][]string{
-		"zero":  []string{},
-		"one":   []string{"param"},
-		"three": []string{"param", "value", "other value"},
+		"zero":  {},
+		"one":   {"param"},
+		"three": {"param", "value", "other value"},
 	}
 
 	for name := range tt {

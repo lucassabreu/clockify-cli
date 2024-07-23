@@ -142,7 +142,7 @@ func ReportWithRange(
 
 	if len(rf.TagIDs) > 0 && f.Config().IsAllowNameForID() {
 		if rf.TagIDs, err = search.GetTagsByName(
-			c, workspace, rf.TagIDs); err != nil {
+			c, workspace, true, rf.TagIDs); err != nil {
 			return err
 		}
 	}

@@ -31,6 +31,7 @@ const (
 	CONF_INTERACTIVE_PAGE_SIZE            = "interactive-page-size"
 	CONF_LANGUAGE                         = "lang"
 	CONF_TIMEZONE                         = "time-zone"
+	CONF_TIME_ENTRY_DEFAULTS              = "time-entry-defaults"
 )
 
 const (
@@ -75,6 +76,8 @@ type Config interface {
 	// IsSearchProjectWithClientsName defines if the project name for ID should
 	// include the client's name
 	IsSearchProjectWithClientsName() bool
+	// IsAllowArchivedTags defines if archived tags should be suggested
+	IsAllowArchivedTags() bool
 
 	// Language what is the language to used when printing numbers
 	Language() language.Tag
@@ -112,6 +115,11 @@ type config struct {
 // include the client's name
 func (c *config) IsSearchProjectWithClientsName() bool {
 	return c.GetBool(CONF_SEARCH_PROJECTS_WITH_CLIENT_NAME)
+}
+
+// IsAllowArchivedTags defines if archived tags should be suggested
+func (c *config) IsAllowArchivedTags() bool {
+	return c.GetBool(CONF_ALLOW_ARCHIVED_TAGS)
 }
 
 func (c *config) InteractivePageSize() int {

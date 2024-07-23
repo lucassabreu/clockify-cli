@@ -12,6 +12,7 @@ import (
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/in"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util"
+	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util/defaults"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/stretchr/testify/assert"
@@ -19,11 +20,20 @@ import (
 
 var w = dto.Workspace{ID: "w"}
 
+func newTEDNotFound(t *testing.T) defaults.TimeEntryDefaults {
+	ted := mocks.NewMockTimeEntryDefaults(t)
+	ted.EXPECT().Read().Return(
+		defaults.DefaultTimeEntry{}, defaults.DefaultsFileNotFoundErr)
+
+	return ted
+}
+
 func TestNewCmdIn_ShouldBeBothBillableAndNotBillable(t *testing.T) {
 	f := mocks.NewMockFactory(t)
 
 	f.EXPECT().GetUserID().Return("u", nil)
 	f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+	f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 	f.EXPECT().Config().Return(&mocks.SimpleConfig{})
 
@@ -57,9 +67,10 @@ func TestNewCmdIn_ShouldBeBothBillableAndNotBillable(t *testing.T) {
 	t.Fatal("should've failed")
 }
 
+var bTrue = true
+var bFalse = false
+
 func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
-	bTrue := true
-	bFalse := false
 
 	tts := []struct {
 		name  string
@@ -104,6 +115,7 @@ func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
 			f.EXPECT().GetUserID().Return("u", nil)
 			f.EXPECT().GetWorkspace().Return(w, nil)
 			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+			f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 			f.EXPECT().Config().Return(&mocks.SimpleConfig{
 				AllowNameForID: true,
@@ -258,6 +270,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 
 			f.EXPECT().GetUserID().Return("u", nil)
 			f.EXPECT().GetWorkspaceID().Return(w.ID, nil)
+			f.EXPECT().TimeEntryDefaults().Return(newTEDNotFound(t))
 
 			f.EXPECT().Config().Return(&mocks.SimpleConfig{
 				AllowNameForID:               true,
@@ -331,5 +344,123 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 			t.Fatalf("err: %s", err)
 		})
 	}
+}
 
+func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
+	ft := func(name string, d *defaults.DefaultTimeEntry,
+		args []string, p *dto.Project, exp api.CreateTimeEntryParam) {
+		t.Run(name, func(t *testing.T) {
+			f := mocks.NewMockFactory(t)
+
+			f.EXPECT().Config().Return(&mocks.SimpleConfig{})
+			f.EXPECT().GetWorkspaceID().Return("w", nil)
+			f.EXPECT().GetWorkspace().Return(w, nil)
+			f.EXPECT().GetUserID().Return("u", nil)
+
+			c := mocks.NewMockClient(t)
+			f.EXPECT().Client().Return(c, nil)
+
+			if p != nil {
+				c.EXPECT().GetProject(api.GetProjectParam{
+					Workspace: w.ID,
+					ProjectID: p.ID,
+				}).Return(p, nil)
+			}
+
+			c.EXPECT().GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
+				Workspace: w.ID,
+				UserID:    "u",
+			}).
+				Return(nil, nil)
+
+			st := timehlp.Now()
+			c.EXPECT().Out(api.OutParam{
+				Workspace: w.ID,
+				UserID:    "u",
+				End:       st,
+			}).Return(api.ErrorNotFound)
+
+			c.EXPECT().CreateTimeEntry(exp).
+				Return(dto.TimeEntryImpl{ID: "te"}, nil)
+
+			ted := mocks.NewMockTimeEntryDefaults(t)
+			f.EXPECT().TimeEntryDefaults().Return(ted)
+			if d == nil {
+				ted.EXPECT().Read().Return(
+					defaults.DefaultTimeEntry{},
+					defaults.DefaultsFileNotFoundErr,
+				)
+			} else {
+				ted.EXPECT().Read().Return(*d, nil)
+			}
+
+			called := false
+			cmd := in.NewCmdIn(f, func(
+				_ dto.TimeEntryImpl, _ io.Writer, _ util.OutputFlags) error {
+				called = true
+				return nil
+			})
+
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
+
+			out := bytes.NewBufferString("")
+			cmd.SetOut(out)
+			cmd.SetErr(out)
+
+			cmd.SetArgs(args)
+			_, err := cmd.ExecuteC()
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			assert.True(t, called)
+		})
+	}
+
+	ft("only defaults",
+		&defaults.DefaultTimeEntry{
+			ProjectID: "p1",
+			TaskID:    "t",
+			Billable:  &bTrue,
+			TagIDs:    []string{"t1", "t2"},
+		},
+		[]string{},
+		&dto.Project{ID: "p1"},
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
+			ProjectID: "p1",
+			TaskID:    "t",
+			Billable:  &bTrue,
+			TagIDs:    []string{"t1", "t2"},
+		},
+	)
+
+	ft("flags over defaults",
+		&defaults.DefaultTimeEntry{
+			ProjectID: "p1",
+			TaskID:    "t",
+			TagIDs:    []string{"t1", "t2"},
+		},
+		[]string{"-T", "tag", "-p", "p2"},
+		&dto.Project{ID: "p2"},
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
+			ProjectID: "p2",
+			TagIDs:    []string{"tag"},
+		},
+	)
+
+	ft("no defaults",
+		&defaults.DefaultTimeEntry{},
+		[]string{},
+		nil,
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
+		},
+	)
 }

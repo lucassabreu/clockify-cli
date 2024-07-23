@@ -9,14 +9,21 @@ import (
 func GetTagsByName(
 	c api.Client,
 	workspace string,
+	onlyActive bool,
 	tags []string,
 ) ([]string, error) {
 	if len(tags) == 0 {
 		return tags, nil
 	}
+	var b *bool
+	if onlyActive {
+		f := false
+		b = &f
+	}
 
 	ts, err := c.GetTags(api.GetTagsParam{
 		Workspace:       workspace,
+		Archived:        b,
 		PaginationParam: api.AllPages(),
 	})
 	if err != nil {
