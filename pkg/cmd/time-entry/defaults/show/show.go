@@ -1,24 +1,21 @@
 package show
 
 import (
-	"encoding/json"
-	"errors"
 	"io"
-	"strings"
 
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util/defaults"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdcompl"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
+	outd "github.com/lucassabreu/clockify-cli/pkg/output/defaults"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
-const formatYAML = "yaml"
-const formatJSON = "json"
-
 // NewCmdShow prints the default options for the current folder
-func NewCmdShow(f cmdutil.Factory) *cobra.Command {
-	var format string
+func NewCmdShow(
+	f cmdutil.Factory,
+	report func(outd.OutputFlags, io.Writer, defaults.DefaultTimeEntry) error,
+) *cobra.Command {
+	of := outd.OutputFlags{}
 	cmd := &cobra.Command{
 		Use:  "show",
 		Args: cobra.NoArgs,
@@ -28,29 +25,14 @@ func NewCmdShow(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
-			return report(cmd.OutOrStdout(), format, d)
+			return report(of, cmd.OutOrStdout(), d)
 		},
 	}
 
-	cmd.Flags().StringVarP(&format, "format", "f", formatYAML, "output format")
+	cmd.Flags().StringVarP(&of.Format,
+		"format", "f", outd.FORMAT_YAML, "output format")
 	_ = cmdcompl.AddFixedSuggestionsToFlag(cmd, "format",
-		cmdcompl.ValidArgsSlide{formatYAML, formatJSON})
+		cmdcompl.ValidArgsSlide{outd.FORMAT_YAML, outd.FORMAT_JSON})
 
 	return cmd
-}
-
-func report(out io.Writer, format string, v defaults.DefaultTimeEntry) error {
-	format = strings.ToLower(format)
-	var b []byte
-	switch format {
-	case formatJSON:
-		b, _ = json.Marshal(v)
-	case formatYAML:
-		b, _ = yaml.Marshal(v)
-	default:
-		return errors.New("invalid format")
-	}
-
-	_, err := out.Write(b)
-	return err
 }

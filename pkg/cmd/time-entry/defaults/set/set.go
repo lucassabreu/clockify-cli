@@ -50,7 +50,8 @@ func NewCmdSet(
 
 			n, changed := readFlags(d, cmd.Flags())
 
-			if n.Workspace, err = f.GetWorkspaceID(); err != nil {
+			var w string
+			if w, err = f.GetWorkspaceID(); err != nil {
 				return err
 			}
 
@@ -59,25 +60,25 @@ func NewCmdSet(
 				return err
 			}
 
-			if changed || d.Workspace != n.Workspace {
+			if changed {
 				if n.TaskID != "" && n.ProjectID == "" {
 					return errors.New("can't set task without project")
 				}
 
 				if f.Config().IsAllowNameForID() {
 					if n, err = updateIDsByNames(
-						c, n, f.Config()); err != nil {
+						c, n, f.Config(), w); err != nil {
 						return err
 					}
 				} else {
-					if err = checkIDs(c, n); err != nil {
+					if err = checkIDs(c, w, n); err != nil {
 						return err
 					}
 				}
 			}
 
 			if f.Config().IsInteractive() {
-				if n, err = ask(n, f.Config(), c, f.UI()); err != nil {
+				if n, err = ask(n, w, f.Config(), c, f.UI()); err != nil {
 					return err
 				}
 			}
@@ -89,6 +90,11 @@ func NewCmdSet(
 			return report(of, cmd.OutOrStdout(), n)
 		},
 	}
+
+	cmd.Flags().StringVarP(&of.Format,
+		"format", "f", outd.FORMAT_YAML, "output format")
+	_ = cmdcompl.AddFixedSuggestionsToFlag(cmd, "format",
+		cmdcompl.ValidArgsSlide{outd.FORMAT_YAML, outd.FORMAT_JSON})
 
 	cmd.Flags().BoolP("billable", "b", false,
 		"time entry should be billable by default")
@@ -144,10 +150,10 @@ func readFlags(
 	return d, changed
 }
 
-func checkIDs(c api.Client, d defaults.DefaultTimeEntry) error {
+func checkIDs(c api.Client, w string, d defaults.DefaultTimeEntry) error {
 	if d.ProjectID != "" {
 		p, err := c.GetProject(api.GetProjectParam{
-			Workspace: d.Workspace,
+			Workspace: w,
 			ProjectID: d.ProjectID,
 			Hydrate:   d.TaskID != "",
 		})
@@ -176,7 +182,7 @@ func checkIDs(c api.Client, d defaults.DefaultTimeEntry) error {
 	}
 
 	tags, err := c.GetTags(api.GetTagsParam{
-		Workspace:       d.Workspace,
+		Workspace:       w,
 		Archived:        &archived,
 		PaginationParam: api.AllPages(),
 	})
@@ -201,14 +207,15 @@ func checkIDs(c api.Client, d defaults.DefaultTimeEntry) error {
 var archived = false
 
 func updateIDsByNames(
-	c api.Client, d defaults.DefaultTimeEntry, cnf cmdutil.Config) (
+	c api.Client, d defaults.DefaultTimeEntry,
+	cnf cmdutil.Config, w string) (
 	defaults.DefaultTimeEntry,
 	error,
 ) {
 	var err error
 	if d.ProjectID != "" {
 		d.ProjectID, err = search.GetProjectByName(c, cnf,
-			d.Workspace, d.ProjectID, "")
+			w, d.ProjectID, "")
 		if err != nil {
 			d.ProjectID = ""
 			d.TaskID = ""
@@ -220,7 +227,7 @@ func updateIDsByNames(
 
 	if d.TaskID != "" {
 		d.TaskID, err = search.GetTaskByName(c, api.GetTasksParam{
-			Workspace: d.Workspace,
+			Workspace: w,
 			ProjectID: d.ProjectID,
 			Active:    true,
 		}, d.TaskID)
@@ -231,7 +238,7 @@ func updateIDsByNames(
 
 	if len(d.TagIDs) > 0 {
 		d.TagIDs, err = search.GetTagsByName(
-			c, d.Workspace, !cnf.IsAllowArchivedTags(), d.TagIDs)
+			c, w, !cnf.IsAllowArchivedTags(), d.TagIDs)
 		if err != nil && !cnf.IsInteractive() {
 			return d, err
 		}
@@ -242,6 +249,7 @@ func updateIDsByNames(
 
 func ask(
 	d defaults.DefaultTimeEntry,
+	w string,
 	cnf cmdutil.Config,
 	c api.Client,
 	ui ui.UI,
@@ -252,7 +260,7 @@ func ask(
 	ui.SetPageSize(uint(cnf.InteractivePageSize()))
 
 	ps, err := c.GetProjects(api.GetProjectsParam{
-		Workspace:       d.Workspace,
+		Workspace:       w,
 		Archived:        &archived,
 		PaginationParam: api.AllPages(),
 	})
@@ -276,7 +284,7 @@ func ask(
 
 	if d.ProjectID != "" {
 		ts, err := c.GetTasks(api.GetTasksParam{
-			Workspace:       d.Workspace,
+			Workspace:       w,
 			ProjectID:       d.ProjectID,
 			Active:          true,
 			PaginationParam: api.AllPages(),
@@ -309,7 +317,7 @@ func ask(
 	}
 
 	tags, err := c.GetTags(api.GetTagsParam{
-		Workspace:       d.Workspace,
+		Workspace:       w,
 		Archived:        archived,
 		PaginationParam: api.AllPages(),
 	})

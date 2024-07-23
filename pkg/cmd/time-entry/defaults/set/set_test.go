@@ -108,7 +108,6 @@ func TestNewCmdSet_ShouldAskInfo_WhenInteractive(t *testing.T) {
 				return err
 			}
 
-			assert.Equal(t, "w", d.Workspace)
 			assert.Equal(t, "p3", d.ProjectID)
 			assert.Equal(t, "t2", d.TaskID)
 			assert.Equal(t, []string{"tg1", "tg2", "tg3"}, d.TagIDs)
@@ -589,9 +588,9 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 			name: "no arguments, no changes",
 			args: []string{},
 			current: defaults.DefaultTimeEntry{
-				Workspace: "w1", ProjectID: "p1"},
+				ProjectID: "p1"},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w1", ProjectID: "p1"},
+				ProjectID: "p1"},
 		},
 		{
 			name: "all arguments",
@@ -602,7 +601,6 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 				"--billable",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w2",
 				ProjectID: "p2",
 				TaskID:    "t2",
 				Billable:  &bTrue,
@@ -613,14 +611,12 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 			name: "not billable",
 			args: []string{"--not-billable"},
 			current: defaults.DefaultTimeEntry{
-				Workspace: "w2",
 				ProjectID: "p2",
 				TaskID:    "t2",
 				Billable:  &bTrue,
 				TagIDs:    []string{"tg1", "tg2"},
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w2",
 				ProjectID: "p2",
 				TaskID:    "t2",
 				Billable:  &bFalse,
@@ -673,7 +669,7 @@ func TestNewCmdSet_ShouldUpdateDefaultsFile_OnlyByFlags(t *testing.T) {
 				}
 			}
 
-			f.EXPECT().GetWorkspaceID().Return(tt.expected.Workspace, nil)
+			f.EXPECT().GetWorkspaceID().Return("w", nil)
 
 			ted := mocks.NewMockTimeEntryDefaults(t)
 			ted.EXPECT().Read().Return(tt.current, nil)

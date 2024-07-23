@@ -32,7 +32,6 @@ const DEFAULT_FILENAME = ".clockify-defaults.json"
 
 // DefaultTimeEntry has the default properties for the working directory
 type DefaultTimeEntry struct {
-	Workspace string   `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 	ProjectID string   `json:"project,omitempty"   yaml:"project,omitempty"`
 	TaskID    string   `json:"task,omitempty"      yaml:"task,omitempty"`
 	Billable  *bool    `json:"billable,omitempty"  yaml:"billable,omitempty"`

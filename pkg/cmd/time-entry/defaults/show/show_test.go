@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"testing"
 
+	outd "github.com/lucassabreu/clockify-cli/pkg/output/defaults"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/lucassabreu/clockify-cli/internal/mocks"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/defaults/show"
@@ -26,7 +28,7 @@ func TestNewCmdShow_ShouldPrintDefaults(t *testing.T) {
 			f.EXPECT().TimeEntryDefaults().Return(ted)
 			ted.EXPECT().Read().Return(dte, nil)
 
-			cmd := show.NewCmdShow(f)
+			cmd := show.NewCmdShow(f, outd.Report)
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true
 
@@ -48,34 +50,30 @@ func TestNewCmdShow_ShouldPrintDefaults(t *testing.T) {
 	}
 
 	dte := defaults.DefaultTimeEntry{
-		Workspace: "w",
 		ProjectID: "p",
 		Billable:  &bFalse,
 		TagIDs:    []string{"t1"},
 	}
 
 	ft("as json", dte, []string{"--format=json"},
-		`{"workspace":"w","project":"p","billable":false,"tags":["t1"]}`)
+		`{"project":"p","billable":false,"tags":["t1"]}`)
 
 	ft("as yaml", dte, []string{"--format=yaml"}, heredoc.Doc(`
-		workspace: w
 		project: p
 		billable: false
 		tags: [t1]
 	`))
 
 	dte = defaults.DefaultTimeEntry{
-		Workspace: "w",
 		ProjectID: "p",
 		TaskID:    "t",
 		Billable:  &bTrue,
 	}
 
 	ft("as json", dte, []string{"--format=json"},
-		`{"workspace":"w","project":"p","task":"t","billable":true}`)
+		`{"project":"p","task":"t","billable":true}`)
 
 	ft("as yaml", dte, []string{"--format=yaml"}, heredoc.Doc(`
-		workspace: w
 		project: p
 		task: t
 		billable: true

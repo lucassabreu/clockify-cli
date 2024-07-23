@@ -27,7 +27,6 @@ func TestWriteDefaults(t *testing.T) {
 		{
 			filename: "j_complete.json",
 			d: defaults.DefaultTimeEntry{
-				Workspace: "w",
 				ProjectID: "p",
 				TaskID:    "t",
 				TagIDs:    []string{"t1", "t2"},
@@ -36,7 +35,6 @@ func TestWriteDefaults(t *testing.T) {
 		{
 			filename: "y_complete.yaml",
 			d: defaults.DefaultTimeEntry{
-				Workspace: "w",
 				ProjectID: "p",
 				TaskID:    "t",
 				TagIDs:    []string{"t1", "t2"},
@@ -173,7 +171,6 @@ func TestScanForDefaults_ShouldLookUpperDirs(t *testing.T) {
 				Filename: ".clockify-defaults.yaml",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w",
 				ProjectID: "p",
 				TaskID:    "t",
 				TagIDs:    []string{"t1", "t2"},
@@ -186,7 +183,6 @@ func TestScanForDefaults_ShouldLookUpperDirs(t *testing.T) {
 				Filename: "defaults.json",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "W",
 				ProjectID: "P",
 				TaskID:    "T",
 			},
@@ -198,7 +194,6 @@ func TestScanForDefaults_ShouldLookUpperDirs(t *testing.T) {
 				Filename: ".clockify-defaults.yaml",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w",
 				ProjectID: "p",
 				TaskID:    "t",
 				TagIDs:    []string{"t1", "t2"},
@@ -211,7 +206,6 @@ func TestScanForDefaults_ShouldLookUpperDirs(t *testing.T) {
 				Filename: "defaults.json",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "W",
 				ProjectID: "P",
 				TaskID:    "T",
 			},
@@ -223,7 +217,6 @@ func TestScanForDefaults_ShouldLookUpperDirs(t *testing.T) {
 				Filename: ".clockify-defaults.yaml",
 			},
 			expected: defaults.DefaultTimeEntry{
-				Workspace: "w",
 				ProjectID: "p",
 			},
 		},

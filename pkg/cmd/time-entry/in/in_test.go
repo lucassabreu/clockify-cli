@@ -421,7 +421,6 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 
 	ft("only defaults",
 		&defaults.DefaultTimeEntry{
-			Workspace: w.ID,
 			ProjectID: "p1",
 			TaskID:    "t",
 			Billable:  &bTrue,
@@ -441,7 +440,6 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 
 	ft("flags over defaults",
 		&defaults.DefaultTimeEntry{
-			Workspace: w.ID,
 			ProjectID: "p1",
 			TaskID:    "t",
 			TagIDs:    []string{"t1", "t2"},

@@ -1,11 +1,8 @@
 package defaults
 
 import (
-	"io"
-
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/defaults/set"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/defaults/show"
-	"github.com/lucassabreu/clockify-cli/pkg/cmd/time-entry/util/defaults"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
 	outd "github.com/lucassabreu/clockify-cli/pkg/output/defaults"
 	"github.com/spf13/cobra"
@@ -23,10 +20,8 @@ func NewCmdDefaults(f cmdutil.Factory) *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		set.NewCmdSet(f, func(of outd.OutputFlags, w io.Writer, dte defaults.DefaultTimeEntry) error {
-			return nil
-		}),
-		show.NewCmdShow(f),
+		set.NewCmdSet(f, outd.Report),
+		show.NewCmdShow(f, outd.Report),
 	)
 
 	return cmd
