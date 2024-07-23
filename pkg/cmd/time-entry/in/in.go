@@ -129,7 +129,6 @@ func NewCmdIn(
 
 			if tei, err = util.Do(
 				tei,
-
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.ValidateClosingTimeEntry(f),
 				util.GetAllowNameForIDsFn(f.Config(), c),
