@@ -347,8 +347,8 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 }
 
 func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
-	ft := func(name string, d defaults.DefaultTimeEntry,
-		args []string, exp api.CreateTimeEntryParam) {
+	ft := func(name string, d *defaults.DefaultTimeEntry,
+		args []string, p *dto.Project, exp api.CreateTimeEntryParam) {
 		t.Run(name, func(t *testing.T) {
 			f := mocks.NewMockFactory(t)
 
@@ -359,6 +359,13 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 
 			c := mocks.NewMockClient(t)
 			f.EXPECT().Client().Return(c, nil)
+
+			if p != nil {
+				c.EXPECT().GetProject(api.GetProjectParam{
+					Workspace: w.ID,
+					ProjectID: p.ID,
+				}).Return(p, nil)
+			}
 
 			c.EXPECT().GetTimeEntryInProgress(api.GetTimeEntryInProgressParam{
 				Workspace: w.ID,
@@ -378,7 +385,14 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 
 			ted := mocks.NewMockTimeEntryDefaults(t)
 			f.EXPECT().TimeEntryDefaults().Return(ted)
-			ted.EXPECT().Read().Return(d, nil)
+			if d == nil {
+				ted.EXPECT().Read().Return(
+					defaults.DefaultTimeEntry{},
+					defaults.DefaultsFileNotFoundErr,
+				)
+			} else {
+				ted.EXPECT().Read().Return(*d, nil)
+			}
 
 			called := false
 			cmd := in.NewCmdIn(f, func(
@@ -406,7 +420,7 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 	}
 
 	ft("only defaults",
-		defaults.DefaultTimeEntry{
+		&defaults.DefaultTimeEntry{
 			Workspace: w.ID,
 			ProjectID: "p1",
 			TaskID:    "t",
@@ -414,6 +428,7 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 			TagIDs:    []string{"t1", "t2"},
 		},
 		[]string{},
+		&dto.Project{ID: "p1"},
 		api.CreateTimeEntryParam{
 			Workspace: w.ID,
 			Start:     timehlp.Now(),
@@ -425,18 +440,29 @@ func TestNewCmdIn_ShouldUseDefaults(t *testing.T) {
 	)
 
 	ft("flags over defaults",
-		defaults.DefaultTimeEntry{
+		&defaults.DefaultTimeEntry{
 			Workspace: w.ID,
 			ProjectID: "p1",
 			TaskID:    "t",
 			TagIDs:    []string{"t1", "t2"},
 		},
 		[]string{"-T", "tag", "-p", "p2"},
+		&dto.Project{ID: "p2"},
 		api.CreateTimeEntryParam{
 			Workspace: w.ID,
 			Start:     timehlp.Now(),
 			ProjectID: "p2",
 			TagIDs:    []string{"tag"},
+		},
+	)
+
+	ft("no defaults",
+		&defaults.DefaultTimeEntry{},
+		[]string{},
+		nil,
+		api.CreateTimeEntryParam{
+			Workspace: w.ID,
+			Start:     timehlp.Now(),
 		},
 	)
 }
