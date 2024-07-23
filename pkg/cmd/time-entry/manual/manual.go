@@ -52,6 +52,11 @@ func NewCmdManual(f cmdutil.Factory) *cobra.Command {
 				return err
 			}
 
+			tei, err = util.FromDefaults(f)(tei)
+			if err != nil {
+				return err
+			}
+
 			c, err := f.Client()
 			if err != nil {
 				return err
