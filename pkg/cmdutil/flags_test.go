@@ -88,7 +88,8 @@ func TestXorFlagSet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			fs := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flags := make([]string, len(tc.param))
-			args := []string{}
+			var args []string
+
 			for fl := range tc.param {
 				flags = append(flags, fl)
 				fs.Bool(fl, false, "help")
