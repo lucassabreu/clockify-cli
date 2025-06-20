@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.54.1] - 2025-06-20
+
+### Fixed
+
+- when config "show-client" was on, printing time entries without projects were breaking the cli
+- goreleaser config deprecations
+- installing snapcraft from apt does not work anymore
+
+### Thanks
+
+Thank you to [@melluh](https://github.com/melluh) for fixing the bug
+on PR [#275](https://github.com/lucassabreu/clockify-cli/pull/275).
+
 ## [v0.54.0] - 2024-06-15
 
 ### Changed
@@ -1216,7 +1229,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.54.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.54.1...HEAD
+[v0.54.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.1
 [v0.54.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.0
 [v0.53.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.53.1
 [v0.53.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.53.0

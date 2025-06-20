@@ -1,3 +1,5 @@
+version: 2
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -21,7 +23,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end -}}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
     files:
       - LICENSE
 
@@ -29,7 +31,7 @@ checksum:
   name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc
@@ -51,13 +53,11 @@ snapcrafts:
       clockify-cli:
         plugs: ["network"]
 
-brews:
+homebrew_casks:
   - repository:
       owner: lucassabreu
       name: homebrew-tap
     directory: Formula
     homepage: https://github.com/lucassabreu/clockify-cli
     description: Helps to interact with Clockfy's API
-    test: |
-      system "#{bin}/clockify-cli version"
     dependencies:
