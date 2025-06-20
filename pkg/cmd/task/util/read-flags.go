@@ -94,7 +94,8 @@ func TaskReadFlags(cmd *cobra.Command, f cmdutil.Factory) (p FlagsDTO, err error
 	}
 
 	if cmd.Flags().Changed("no-assignee") {
-		a := []string{}
+		var a []string
+
 		p.AssigneeIDs = &a
 	}
 

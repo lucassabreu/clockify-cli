@@ -250,7 +250,8 @@ func TestCmdEdit(t *testing.T) {
 
 				b := true
 				e := time.Hour * 32
-				us := []string{}
+				var us []string
+
 				c.On("UpdateTask", api.UpdateTaskParam{
 					Workspace:   "w",
 					TaskID:      "t-1",

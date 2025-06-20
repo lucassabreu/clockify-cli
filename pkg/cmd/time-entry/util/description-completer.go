@@ -75,7 +75,8 @@ func (dc *descriptionCompleter) getDescriptions() []string {
 		return dc.descriptions
 	}
 
-	ss := []string{}
+	var ss []string
+
 	for _, t := range tes {
 		ss = append(ss, t.Description)
 	}

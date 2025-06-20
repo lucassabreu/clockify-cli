@@ -197,7 +197,7 @@ func (c *client) GetWorkspaces(f GetWorkspaces) ([]dto.Workspace, error) {
 		return w, nil
 	}
 
-	ws := []dto.Workspace{}
+	var ws []dto.Workspace
 
 	n := strhlp.Normalize(strings.TrimSpace(f.Name))
 	for i := 0; i < len(w); i++ {
