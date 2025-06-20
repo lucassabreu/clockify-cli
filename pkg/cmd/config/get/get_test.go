@@ -178,7 +178,8 @@ func TestGetCmdRun(t *testing.T) {
 			_, err := cmd.ExecuteC()
 
 			assert.Equal(t, tc.output, out.String())
-			if err == nil && assert.NoError(t, err) {
+			if tc.err == nil {
+				assert.NoError(t, err)
 				return
 			}
 
