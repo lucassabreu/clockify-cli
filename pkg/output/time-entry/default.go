@@ -131,7 +131,7 @@ func TimeEntriesPrint(
 
 			if options.ShowClients {
 				client := ""
-				if t.Project.ClientName != "" {
+				if t.Project != nil && t.Project.ClientName != "" {
 					colors[len(line)] = colors[projectColumn]
 					client = t.Project.ClientName
 				}

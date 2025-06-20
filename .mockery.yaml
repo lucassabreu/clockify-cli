@@ -1,8 +1,16 @@
-with-expecter: true
-dir: "internal/mocks"
+dir: internal/mocks
+template: testify
+template-data:
+  unroll-variadic: true
 packages:
   github.com/lucassabreu/clockify-cli/internal/mocks:
     interfaces:
       Client:
+        configs:
+          - filename: "mock_Client.go"
       Config:
+        configs:
+          - filename: "mock_Config.go"
       Factory:
+        configs:
+          - filename: "mock_Factory.go"
