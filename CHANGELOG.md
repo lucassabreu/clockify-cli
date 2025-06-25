@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.54.2] - 2025-06-25
+
 ### Fixed
 
 - deepsource suggestions
@@ -1235,7 +1237,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.54.1...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.54.2...HEAD
+[v0.54.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.2
 [v0.54.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.1
 [v0.54.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.0
 [v0.53.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.53.1
