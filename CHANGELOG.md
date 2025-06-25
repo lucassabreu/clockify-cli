@@ -12,7 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- deepsource suggestions 
+
+- deepsource suggestions
+- `last` alias on `show`, `clone`, `edit` and `edit-multiple` would select future time entries if they
+    existed, now only time entries started before now will be considered
 
 ## [v0.54.1] - 2025-06-20
 

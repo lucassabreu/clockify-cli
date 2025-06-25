@@ -7,6 +7,7 @@ import (
 
 	"github.com/lucassabreu/clockify-cli/api"
 	"github.com/lucassabreu/clockify-cli/api/dto"
+	"github.com/lucassabreu/clockify-cli/pkg/timehlp"
 	"github.com/pkg/errors"
 )
 
@@ -87,10 +88,12 @@ func GetTimeEntry(
 		}
 	}
 
+	now := timehlp.Now()
 	list, err := c.GetUserTimeEntries(api.GetUserTimeEntriesParam{
 		Workspace:      workspace,
 		UserID:         userID,
 		OnlyInProgress: onlyInProgress,
+		End:            &now,
 		PaginationParam: api.PaginationParam{
 			PageSize: 1,
 			Page:     page,
