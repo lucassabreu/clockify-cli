@@ -215,7 +215,7 @@ func ReportWithRange(
 	})
 
 	if rf.Limit > 0 && len(log) > rf.Limit {
-		log = log[0:rf.Limit]
+		log = log[len(log)-rf.Limit:]
 	}
 
 	if rf.FillMissingDates && len(log) > 0 {

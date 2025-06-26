@@ -794,8 +794,8 @@ func TestReportWithRange(t *testing.T) {
 				return f
 			},
 			expected: heredoc.Doc(`
-				te-1
 				te-2
+				te-3
 			`),
 		},
 	}
