@@ -27,6 +27,7 @@ type ReportFlags struct {
 	util.OutputFlags
 
 	FillMissingDates bool
+	Limit            int
 
 	Billable    bool
 	NotBillable bool
@@ -43,6 +44,13 @@ func (rf ReportFlags) Check() error {
 		return err
 	}
 
+	if err := cmdutil.XorFlag(map[string]bool{
+		"limit":              rf.Limit > 0,
+		"fill-missing-dates": rf.FillMissingDates,
+	}); err != nil {
+		return err
+	}
+
 	return cmdutil.XorFlag(map[string]bool{
 		"billable":     rf.Billable,
 		"not-billable": rf.NotBillable,
@@ -52,6 +60,7 @@ func (rf ReportFlags) Check() error {
 // NewReportFlags helps creating a util.ReportFlags for report commands
 func NewReportFlags() ReportFlags {
 	return ReportFlags{
+		Limit: 0,
 		OutputFlags: util.OutputFlags{
 			TimeFormat: timehlp.FullTimeFormat,
 		},
@@ -65,8 +74,10 @@ func AddReportFlags(
 	util.AddPrintTimeEntriesFlags(cmd, &rf.OutputFlags)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
+	cmd.Flags().IntVarP(&rf.Limit, "limit", "L", 0,
+		"Only look for this quantity of time entries")
 	cmd.Flags().BoolVarP(&rf.FillMissingDates, "fill-missing-dates", "e", false,
-		"add empty lines for dates without time entries")
+		"Add empty lines for dates without time entries")
 	cmd.Flags().StringVarP(&rf.Description, "description", "d", "",
 		"will filter time entries that contains this on the description field")
 	cmd.Flags().StringSliceVarP(&rf.Projects, "project", "p", []string{},
@@ -157,6 +168,14 @@ func ReportWithRange(
 	wg := errgroup.Group{}
 	logs := make([][]dto.TimeEntry, len(rf.Projects))
 
+	pages := api.AllPages()
+	if rf.Limit > 0 {
+		pages = api.PaginationParam{
+			Page:     1,
+			PageSize: rf.Limit,
+		}
+	}
+
 	for i := range rf.Projects {
 		i := i
 		wg.Go(func() error {
@@ -169,7 +188,7 @@ func ReportWithRange(
 				Description:     rf.Description,
 				ProjectID:       rf.Projects[i],
 				TagIDs:          rf.TagIDs,
-				PaginationParam: api.AllPages(),
+				PaginationParam: pages,
 			})
 
 			return err
@@ -194,6 +213,10 @@ func ReportWithRange(
 			log[i].TimeInterval.Start,
 		)
 	})
+
+	if rf.Limit > 0 && len(log) > rf.Limit {
+		log = log[0:rf.Limit]
+	}
 
 	if rf.FillMissingDates && len(log) > 0 {
 		l := log
