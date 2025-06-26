@@ -668,6 +668,136 @@ func TestReportWithRange(t *testing.T) {
 				2006-01-04 22:00:00
 			`),
 		},
+		{
+			name: "limit number of time entries",
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Limit = 2
+				rf.Quiet = true
+				return rf
+			},
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				f.EXPECT().Config().Return(
+					&mocks.SimpleConfig{AllowNameForID: true})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace: "w",
+					UserID:    "u",
+					FirstDate: first,
+					LastDate:  last,
+					PaginationParam: api.PaginationParam{
+						Page:     1,
+						PageSize: 2,
+					},
+				}).Return([]dto.TimeEntry{
+					{ID: "te-1",
+						TimeInterval: dto.TimeInterval{
+							Start: first,
+						},
+					},
+					{ID: "te-3",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(2)),
+						},
+					},
+				}, nil)
+
+				return f
+			},
+			expected: heredoc.Doc(`
+				te-1
+				te-3
+			`),
+		},
+		{
+			name: "limit number of time entries with client filter",
+			flags: func(t *testing.T) util.ReportFlags {
+				rf := util.NewReportFlags()
+				rf.Limit = 2
+				rf.Client = "me"
+				rf.Quiet = true
+				return rf
+			},
+			factory: func(t *testing.T) cmdutil.Factory {
+
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("u", nil)
+				f.On("GetWorkspaceID").Return("w", nil)
+
+				f.EXPECT().Config().Return(
+					&mocks.SimpleConfig{AllowNameForID: true})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.EXPECT().GetClients(api.GetClientsParam{
+					Workspace:       "w",
+					PaginationParam: api.AllPages(),
+				}).
+					Return([]dto.Client{
+						{ID: "c1", Name: "me"},
+						{ID: "c2", Name: "you"},
+					}, nil)
+
+				c.EXPECT().GetProjects(api.GetProjectsParam{
+					Workspace:       "w",
+					Clients:         []string{"c1"},
+					PaginationParam: api.AllPages(),
+				}).Return([]dto.Project{
+					{ID: "p1", Name: "p1", ClientID: "c1", ClientName: "me"},
+					{ID: "p3", Name: "p3", ClientID: "c1", ClientName: "me"},
+				}, nil)
+
+				p := api.PaginationParam{Page: 1, PageSize: 2}
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p1",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: p,
+				}).Return([]dto.TimeEntry{
+					{ID: "te-1",
+						TimeInterval: dto.TimeInterval{
+							Start: first,
+						},
+					},
+					{ID: "te-3",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(2)),
+						},
+					},
+				}, nil)
+
+				c.EXPECT().LogRange(api.LogRangeParam{
+					Workspace:       "w",
+					UserID:          "u",
+					ProjectID:       "p3",
+					FirstDate:       first,
+					LastDate:        last,
+					PaginationParam: p,
+				}).Return([]dto.TimeEntry{
+					{ID: "te-2",
+						TimeInterval: dto.TimeInterval{
+							Start: first.Add(time.Duration(1)),
+						},
+					},
+				}, nil)
+
+				return f
+			},
+			expected: heredoc.Doc(`
+				te-1
+				te-2
+			`),
+		},
 	}
 
 	for _, tt := range tts {
