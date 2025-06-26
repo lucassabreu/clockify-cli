@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- support to limit how many time entries should be listed on the `report` commands, and choose which page to
+    show
+
 ## [v0.54.2] - 2025-06-25
 
 ### Fixed
