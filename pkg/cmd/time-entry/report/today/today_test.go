@@ -195,7 +195,7 @@ func TestCmdToday(t *testing.T) {
 		},
 		{
 			name: "report only the first time entry",
-			args: "--limit 2 -q",
+			args: "--limit 2 --page 10 -q",
 			factory: func(t *testing.T) cmdutil.Factory {
 				f := mocks.NewMockFactory(t)
 				f.On("GetUserID").Return("user-id", nil)
@@ -213,7 +213,7 @@ func TestCmdToday(t *testing.T) {
 					LastDate:  last,
 					TagIDs:    []string{},
 					PaginationParam: api.PaginationParam{
-						Page:     1,
+						Page:     10,
 						PageSize: 2,
 					},
 				}).

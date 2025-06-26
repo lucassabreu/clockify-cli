@@ -13,7 +13,6 @@ func TestReportFlags_Check(t *testing.T) {
 		err string
 	}{
 		"just billable": {
-
 			rf: util.ReportFlags{
 				Billable:    true,
 				NotBillable: false,
@@ -64,6 +63,18 @@ func TestReportFlags_Check(t *testing.T) {
 				FillMissingDates: true,
 			},
 			err: "can't be used together.*fill-missing-dates.*limit",
+		},
+		"limit and page": {
+			rf: util.ReportFlags{
+				Limit: 10,
+				Page:  10,
+			},
+		},
+		"page needs limit": {
+			rf: util.ReportFlags{
+				Page: 10,
+			},
+			err: "page can't be used without limit",
 		},
 	}
 

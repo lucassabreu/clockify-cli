@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"io"
 	"sort"
 	"time"
@@ -28,6 +29,7 @@ type ReportFlags struct {
 
 	FillMissingDates bool
 	Limit            int
+	Page             int
 
 	Billable    bool
 	NotBillable bool
@@ -42,6 +44,11 @@ type ReportFlags struct {
 func (rf ReportFlags) Check() error {
 	if err := rf.OutputFlags.Check(); err != nil {
 		return err
+	}
+
+	if rf.Page > 0 && rf.Limit <= 0 {
+		return cmdutil.FlagErrorWrap(
+			errors.New("page can't be used without limit"))
 	}
 
 	if err := cmdutil.XorFlag(map[string]bool{
@@ -74,6 +81,8 @@ func AddReportFlags(
 	util.AddPrintTimeEntriesFlags(cmd, &rf.OutputFlags)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
+	cmd.Flags().IntVarP(&rf.Page, "page", "P", 0,
+		"set which page to return")
 	cmd.Flags().IntVarP(&rf.Limit, "limit", "l", 0,
 		"Only look for this quantity of time entries")
 	cmd.Flags().BoolVarP(&rf.FillMissingDates, "fill-missing-dates", "e", false,
@@ -173,6 +182,10 @@ func ReportWithRange(
 		pages = api.PaginationParam{
 			Page:     1,
 			PageSize: rf.Limit,
+		}
+
+		if rf.Page > 0 {
+			pages.Page = rf.Page
 		}
 	}
 
