@@ -74,7 +74,7 @@ func AddReportFlags(
 	util.AddPrintTimeEntriesFlags(cmd, &rf.OutputFlags)
 	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
-	cmd.Flags().IntVarP(&rf.Limit, "limit", "L", 0,
+	cmd.Flags().IntVarP(&rf.Limit, "limit", "l", 0,
 		"Only look for this quantity of time entries")
 	cmd.Flags().BoolVarP(&rf.FillMissingDates, "fill-missing-dates", "e", false,
 		"Add empty lines for dates without time entries")
