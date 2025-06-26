@@ -193,6 +193,45 @@ func TestCmdToday(t *testing.T) {
 				time-entry-2
 			`),
 		},
+		{
+			name: "report only the first time entry",
+			args: "--limit 2 --page 10 -q",
+			factory: func(t *testing.T) cmdutil.Factory {
+				f := mocks.NewMockFactory(t)
+				f.On("GetUserID").Return("user-id", nil)
+				f.On("GetWorkspaceID").Return("w-id", nil)
+
+				f.On("Config").Return(&mocks.SimpleConfig{})
+
+				c := mocks.NewMockClient(t)
+				f.On("Client").Return(c, nil)
+
+				c.On("LogRange", api.LogRangeParam{
+					Workspace: "w-id",
+					UserID:    "user-id",
+					FirstDate: first,
+					LastDate:  last,
+					TagIDs:    []string{},
+					PaginationParam: api.PaginationParam{
+						Page:     10,
+						PageSize: 2,
+					},
+				}).
+					Return(
+						[]dto.TimeEntry{
+							{ID: "time-entry-1"},
+							{ID: "time-entry-2"},
+						},
+						nil,
+					)
+
+				return f
+			},
+			expected: heredoc.Doc(`
+				time-entry-1
+				time-entry-2
+			`),
+		},
 	}
 
 	for i := range tts {
