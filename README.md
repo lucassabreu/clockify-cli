@@ -53,7 +53,7 @@ How to install [![Powered By: GoReleaser](https://img.shields.io/badge/powered%2
 #### Using [`homebrew`](https://brew.sh/):
 
 ```sh
-brew install lucassabreu/tap/clockify-cli
+brew install --cask lucassabreu/tap/clockify-cli
 ```
 
 #### Using [`snapcraft`](https://snapcraft.io/clockify-cli)
