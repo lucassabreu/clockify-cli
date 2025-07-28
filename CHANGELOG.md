@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.55.1] - 2025-07-28
+
+### Fixed
+
+- migration from homebrew Formula to Casks needed fixing
+
 ## [v0.55.0] - 2025-06-26
 
 ### Added
@@ -1244,7 +1250,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.55.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.55.1...HEAD
+[v0.55.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.55.1
 [v0.55.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.55.0
 [v0.54.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.2
 [v0.54.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.54.1

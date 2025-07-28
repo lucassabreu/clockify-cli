@@ -54,10 +54,9 @@ snapcrafts:
         plugs: ["network"]
 
 homebrew_casks:
-  - repository:
+  - name: clockify-cli
+    repository:
       owner: lucassabreu
       name: homebrew-tap
-    directory: Formula
     homepage: https://github.com/lucassabreu/clockify-cli
     description: Helps to interact with Clockfy's API
-    dependencies:
