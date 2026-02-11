@@ -39,6 +39,7 @@ var validParameters = cmdcompl.ValidArgsMap{
 	cmdutil.CONF_LANGUAGE: "which language to use for number " +
 		"formatting",
 	cmdutil.CONF_TIMEZONE: "which timezone to use to input/output time",
+	cmdutil.CONF_API_URL:  "custom Clockify API base URL (for segregated tenants)",
 }
 
 // NewCmdConfig represents the config command

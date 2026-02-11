@@ -181,7 +181,15 @@ func clientFunc(f Factory) func() (api.Client, error) {
 			return c, err
 		}
 
-		c, err = api.NewClient(f.Config().GetString(CONF_TOKEN))
+		apiUrl := f.Config().GetString(CONF_API_URL)
+		if apiUrl != "" {
+			c, err = api.NewClientFromUrlAndKey(
+				f.Config().GetString(CONF_TOKEN),
+				apiUrl,
+			)
+		} else {
+			c, err = api.NewClient(f.Config().GetString(CONF_TOKEN))
+		}
 		if err != nil {
 			return c, err
 		}
