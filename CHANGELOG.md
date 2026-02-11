@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.60.0] - 2026-02-11
+
+### Added
+
+- support to set which api to use with the client, this became necessary because of the EU datacenters
+
+### Thanks
+
+Thank you to [@mbosc](https://github.com/mbosc) for the improvements on
+[#285](https://github.com/lucassabreu/clockify-cli/pull/285).
+
 ## [v0.59.0] - 2026-01-20
 
 ### Changed
@@ -1308,7 +1319,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.59.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.60.0...HEAD
+[v0.60.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.60.0
 [v0.59.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.59.0
 [v0.58.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.58.0
 [v0.57.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.57.0
