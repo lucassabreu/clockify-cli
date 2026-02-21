@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - support to config file to be at `$HOME/.config` also, instead of just `$HOME`.
 
+### Changed
+
+- hugo theme to be compatible with newer versions
+
 ## [v0.60.0] - 2026-02-11
 
 ### Added

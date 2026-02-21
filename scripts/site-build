@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 set -e
 
 rm -rf site/content/commands/* || true

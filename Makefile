@@ -71,10 +71,10 @@ ifneq ($(SNAPSHOT),1)
 	curl -X POST -d '{"trigger_branch":"$(tag)","trigger_title":"Releasing $(tag)"}' https://api.netlify.com/build_hooks/5eef4f99028bddbb4093e4c6 -v
 endif
 
-site/themes/hugo-theme-learn/.git:
+site/themes/hugo-theme-relearn/.git:
 	git submodule update --init
 
-site-build: site/themes/hugo-theme-learn/.git ## generates command documents and builds the site
+site-build: site/themes/hugo-theme-relearn/.git ## generates command documents and builds the site
 	./scripts/site-build
 
 site-serve: site-build ## builds the site, and serves it locally
