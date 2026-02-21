@@ -8,12 +8,15 @@ pygmentsCodeFences = true
 pygmentsUseClasses = true
 pygmentsOptions = "hl_lines=3,startinline=1"
 
+author = "Lucas dos Santos Abreu"
+description = "Clockify CLI"
+
+ignoreLogs = ['warning-goldmark-raw-html']
+
 [outputs]
     home = ["HTML", "RSS", "JSON"]
 
 [params]
-    description = "Clockify CLI"
-    author = "Lucas dos Santos Abreu"
     showVisitedLinks = false
     custom_css = ["css/custom.css"]
     editURL = "https://github.com/lucassabreu/clockify-cli/tree/main/site/"
