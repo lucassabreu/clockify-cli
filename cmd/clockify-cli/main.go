@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2/terminal"
@@ -134,7 +135,7 @@ func bindViper(rootCmd *cobra.Command) error {
 
 	var cfgFile = ""
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
-		"config file (default is $HOME/.config/.clockify-cli.yaml)")
+		"config file (default is $HOME/.config/clockify-cli/config.yaml)")
 
 	var viperErr error
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
@@ -178,7 +179,8 @@ func bindViper(rootCmd *cobra.Command) error {
 			}
 
 			viper.AddConfigPath(home)
-			viper.AddConfigPath(home + "/.config")
+			viper.AddConfigPath(path.Join(home, ".config"))
+			viper.AddConfigPath(path.Join(home, ".config", "clockify-cli"))
 			viper.SetConfigName(".clockify-cli")
 		}
 

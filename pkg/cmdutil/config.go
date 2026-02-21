@@ -1,6 +1,7 @@
 package cmdutil
 
 import (
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -221,7 +222,9 @@ func (*config) Save() error {
 			return err
 		}
 
-		filename = path.Join(home, ".config/.clockify-cli.yaml")
+		dir := path.Join(home, ".config", "clockify-cli")
+		os.MkdirAll(dir, os.ModePerm)
+		filename = path.Join(dir, ".clockify-cli.yaml")
 	}
 
 	return viper.WriteConfigAs(filename)
