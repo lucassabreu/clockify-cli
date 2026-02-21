@@ -223,7 +223,7 @@ func (*config) Save() error {
 		}
 
 		dir := path.Join(home, ".config", "clockify-cli")
-		os.MkdirAll(dir, os.ModePerm)
+		_ = os.MkdirAll(dir, os.ModePerm)
 		filename = path.Join(dir, ".clockify-cli.yaml")
 	}
 
