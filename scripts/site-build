@@ -21,5 +21,14 @@ chapter: true
 cat LICENSE >> site/content/license/_index.md
 echo '```' >> site/content/license/_index.md
 
+# add changelog
+mkdir -p site/content/changelog
+echo '---
+title: CHANGELOG
+chapter: true
+---
+' > site/content/changelog/_index.md
+tail -n+2 CHANGELOG.md >> site/content/changelog/_index.md
+
 echo "building site :tada:"
 cd site && hugo
