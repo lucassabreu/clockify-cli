@@ -221,7 +221,7 @@ func (*config) Save() error {
 			return err
 		}
 
-		filename = path.Join(home, ".clockify-cli.yaml")
+		filename = path.Join(home, ".config/.clockify-cli.yaml")
 	}
 
 	return viper.WriteConfigAs(filename)

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- support to config file to be at `$HOME/.config` also, instead of just `$HOME`.
+
 ## [v0.60.0] - 2026-02-11
 
 ### Added
