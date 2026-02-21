@@ -9,3 +9,9 @@ footer.footline {
   line-height: 110% !important;
   margin-top: 0.5rem !important;
 }
+
+#logo {
+  display: block;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+}
