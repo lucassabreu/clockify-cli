@@ -1,4 +1,11 @@
 #body img.badges {
-    display: inline;
-    margin: 0;
+  display: inline;
+  margin: 0;
+}
+
+h6,
+footer.footline {
+  font-size: 0.7rem;
+  line-height: 110% !important;
+  margin-top: 0.5rem !important;
 }

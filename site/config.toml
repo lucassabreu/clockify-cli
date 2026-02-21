@@ -2,7 +2,7 @@ baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "Clockify CLI"
 
-theme = "hugo-theme-learn"
+theme = "hugo-theme-relearn"
 
 pygmentsCodeFences = true
 pygmentsUseClasses = true
@@ -18,3 +18,4 @@ pygmentsOptions = "hl_lines=3,startinline=1"
     custom_css = ["css/custom.css"]
     editURL = "https://github.com/lucassabreu/clockify-cli/tree/main/site/"
     disableNextPrev = true
+    themeVariant = 'learn'

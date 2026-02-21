@@ -7,7 +7,7 @@ weight: 10
 After you [install the CLI][install] the first thing to do is run the command `clockifycli config
 init`, it will interactively ask you the information necessary to setup your environment.
 
-```console
+```sh
 $ clockify-cli config init
 ? User Generated Token: <your-api-token>
 ? Choose default Workspace: <workspace-id> - John Doe's workspace
@@ -27,7 +27,7 @@ to machine if needed. You can see all the options [here][cli-config].
 
 After that you can start a new entry using the `clockify-cli in` command.
 
-```console
+```sh
 $ clockify-cli in
 ? Choose your project: 621948458cb9606d934ebb1c - Clockify Cli      | Client: Myself (6202634a28782767054eec26)
 ? Choose your task: 62ae29e62518aa18da2acd14 - In Command
@@ -52,7 +52,7 @@ This behavior is true for all interactive commands, except for `clockify-cli con
 
 Once you finish the activity or need to stop timer, run `clockify-cli out` to stop it.
 
-```console
+```sh
 $ clockify-cli out
 +--------------------------+----------+----------+---------+--------------+------------------+----------------------------------------+
 |            ID            |  START   |   END    |   DUR   |   PROJECT    |   DESCRIPTION    |                  TAGS                  |
@@ -65,7 +65,7 @@ $ clockify-cli out
 To start a new timer with the same information as the last one you did, you can run `clockify-cli
 clone last` and a new timer with the same properties as the last stopped one will be started.
 
-```console
+```sh
 $ clockify-cli clone last -i=0 # -i=0 will stop the CLI from prompting you about the timer
 +--------------------------+----------+----------+---------+--------------+------------------+----------------------------------------+
 |            ID            |  START   |   END    |   DUR   |   PROJECT    |   DESCRIPTION    |                  TAGS                  |
@@ -78,7 +78,7 @@ Lets say that the current activity is for the same task, project and description
 pairing with someone now. You can fix the timer using the `clockify-cli edit current` command and
 change the tags of the timer.
 
-```console
+```sh
 $ clockify-cli edit current -T pair -T web
 +--------------------------+----------+----------+---------+--------------+------------------+---------------------------------------------+
 |            ID            |  START   |   END    |   DUR   |   PROJECT    |   DESCRIPTION    |                    TAGS                     |
@@ -95,7 +95,7 @@ register, but you don't want to stop the running one.
 To create a time entry that has a start and end without tempering with a running timer you can use
 the command `clockify-cli manual`.
 
-```console
+```sh
 $ clockify-cli manual -s "yesterday 17:50" -e "yesterday 18:00" -T meet -d 'About the Calendar' \
     -p cli
 
@@ -110,7 +110,7 @@ $ clockify-cli manual -s "yesterday 17:50" -e "yesterday 18:00" -T meet -d 'Abou
 If you forgot to stop a timer running and wants to stop it with a specific instead of now, you can
 use the flag `--when` to set the end time.
 
-```console
+```sh
 $ clockify-cli out --when 23:35
 +--------------------------+----------+----------+---------+--------------+------------------+---------------------------------------------+
 |            ID            |  START   |   END    |   DUR   |   PROJECT    |   DESCRIPTION    |                    TAGS                     |
@@ -122,7 +122,7 @@ $ clockify-cli out --when 23:35
 
 To see the entries for today you can use the command `clockify-cli report` to list them.
 
-```console
+```sh
 $ clockify-cli report
 +--------------------------+---------------------+---------------------+---------+--------------+-------------------+---------------------------------------------+
 |            ID            |        START        |         END         |   DUR   |   PROJECT    |    DESCRIPTION    |                    TAGS                     |
@@ -143,7 +143,7 @@ If you need to quickly see how much time was spent this month in a project you c
 `clockify-cli report this-month`, the flag `--project` to filter the timers and
 `--duration-formatted` to get only the sum of time.
 
-```console
+```sh
 $ clockify-cli report this-month -p cli --duration-formatted
 6:23:52
 ```
