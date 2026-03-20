@@ -260,3 +260,36 @@ func TestInitCmdCtrlC(t *testing.T) {
 			c.ExpectEOF()
 		})
 }
+
+func TestInitCmdCtrlCAtToken(t *testing.T) {
+	consoletest.RunTestConsole(t,
+		func(out consoletest.FileWriter, in consoletest.FileReader) error {
+			f := mocks.NewMockFactory(t)
+			config := mocks.NewMockConfig(t)
+
+			f.EXPECT().Config().Return(config)
+			config.EXPECT().GetString(cmdutil.CONF_API_URL).Return("")
+			config.EXPECT().SetString(cmdutil.CONF_API_URL, "").Once()
+			config.EXPECT().GetString(cmdutil.CONF_TOKEN).Return("")
+
+			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
+
+			_, err := ini.NewCmdInit(f).ExecuteC()
+			if !assert.Error(t, err) {
+				return errors.New("should have failed")
+			}
+
+			assert.ErrorIs(t, err, terminal.InterruptErr)
+			return nil
+		},
+		func(c consoletest.ExpectConsole) {
+			c.ExpectString("Clockify API URL:")
+			c.SendLine("")
+			c.ExpectString("https://api.clockify.me/api")
+
+			c.ExpectString("Token:")
+			c.Send(string(terminal.KeyInterrupt))
+
+			c.ExpectEOF()
+		})
+}
