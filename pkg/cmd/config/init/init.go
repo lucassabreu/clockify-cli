@@ -37,7 +37,25 @@ func NewCmdInit(f cmdutil.Factory) *cobra.Command {
 			i := f.UI()
 			config := f.Config()
 
+			apiURL := config.GetString(cmdutil.CONF_API_URL)
+			if apiURL == "" {
+				apiURL = api.BASE_URL
+			}
+
 			var err error
+			if apiURL, err = i.AskForText("Clockify API URL:",
+				ui.WithDefault(apiURL),
+				ui.WithHelp("If you need a specific URL, you can find it at "+
+					"https://clockify.me/help/getting-started/data-regions#data-residency-and-api, "+
+					"or leave it empty for the default."),
+			); err != nil {
+				return err
+			}
+			if apiURL == api.BASE_URL {
+				apiURL = ""
+			}
+			config.SetString(cmdutil.CONF_API_URL, apiURL)
+
 			token := ""
 			if token, err = i.AskForText("User Generated Token:",
 				ui.WithDefault(config.GetString(cmdutil.CONF_TOKEN)),

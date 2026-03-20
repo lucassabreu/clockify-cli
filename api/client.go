@@ -91,8 +91,8 @@ type client struct {
 	requestTickets chan struct{}
 }
 
-// baseURL is the Clockify API base URL
-const baseURL = "https://api.clockify.me/api"
+// BASE_URL is the Clockify API base URL
+const BASE_URL = "https://api.clockify.me/api"
 
 // REQUEST_RATE_LIMIT maximum number of requests per second
 const REQUEST_RATE_LIMIT = 50
@@ -136,7 +136,7 @@ func NewClientFromUrlAndKey(
 func NewClient(apiKey string) (Client, error) {
 	return NewClientFromUrlAndKey(
 		apiKey,
-		baseURL,
+		BASE_URL,
 	)
 }
 

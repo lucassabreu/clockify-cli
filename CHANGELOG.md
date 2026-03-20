@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- prompt for API URL on `config init` command to allow configuring different Clockify datacenters
+
 ### Fixed
 
 - changelog was not showing on the site

@@ -73,7 +73,7 @@ func (teo TimeEntryOutputOptions) WithShowCustomFields() TimeEntryOutputOptions 
 	return teo
 }
 
-// WithShowCliens shows a new column with the client of the time entry
+// WithShowClients shows a new column with the client of the time entry
 func (teo TimeEntryOutputOptions) WithShowClients() TimeEntryOutputOptions {
 	teo.ShowClients = true
 	return teo
