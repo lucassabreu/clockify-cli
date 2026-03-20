@@ -79,3 +79,10 @@ site-build: site/themes/hugo-theme-relearn/.git ## generates command documents a
 
 site-serve: site-build ## builds the site, and serves it locally
 	cd site && hugo serve
+
+create-release-minor: ## create a new minor release
+	go run cmd/release/main.go minor
+
+create-release-patch: ## create a new patch release
+	go run cmd/release/main.go patch
+
