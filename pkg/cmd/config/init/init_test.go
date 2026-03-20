@@ -49,6 +49,8 @@ func TestInitCmd(t *testing.T) {
 			client := mocks.NewMockClient(t)
 
 			f.EXPECT().Config().Return(config)
+			config.EXPECT().GetString(cmdutil.CONF_API_URL).Return("")
+			config.EXPECT().SetString(cmdutil.CONF_API_URL, "").Once()
 			config.EXPECT().GetString(cmdutil.CONF_TOKEN).Return("")
 			config.EXPECT().SetString(cmdutil.CONF_TOKEN, "new token")
 
@@ -126,6 +128,10 @@ func TestInitCmd(t *testing.T) {
 			return err
 		},
 		func(c consoletest.ExpectConsole) {
+			c.ExpectString("Clockify API URL:")
+			c.SendLine("")
+			c.ExpectString("https://api.clockify.me/api")
+
 			c.ExpectString("Token:")
 			c.SendLine("new token")
 			c.ExpectString("new token")
@@ -235,7 +241,7 @@ func TestInitCmdCtrlC(t *testing.T) {
 			config := mocks.NewMockConfig(t)
 
 			f.EXPECT().Config().Return(config)
-			config.EXPECT().GetString(cmdutil.CONF_TOKEN).Return("")
+			config.EXPECT().GetString(cmdutil.CONF_API_URL).Return("")
 
 			f.EXPECT().UI().Return(ui.NewUI(in, out, out))
 
@@ -248,7 +254,7 @@ func TestInitCmdCtrlC(t *testing.T) {
 			return nil
 		},
 		func(c consoletest.ExpectConsole) {
-			c.ExpectString("Token: ")
+			c.ExpectString("Clockify API URL:")
 			c.Send(string(terminal.KeyInterrupt))
 
 			c.ExpectEOF()
