@@ -129,6 +129,7 @@ func NewCmdIn(
 				util.GetAllowNameForIDsFn(f.Config(), c),
 				util.GetPropsInteractiveFn(dc, f),
 				util.GetDatesInteractiveFn(f),
+				util.FillMissingBillableFn(c),
 				util.GetValidateTimeEntryFn(f),
 				util.OutInProgressFn(c),
 				util.CreateTimeEntryFn(c),
