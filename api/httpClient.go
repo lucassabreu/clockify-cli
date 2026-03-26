@@ -84,7 +84,11 @@ func (c *client) Do(
 	if err != nil {
 		return r, err
 	}
-	defer func() { err = r.Body.Close() }()
+	defer func() {
+		if e := r.Body.Close(); e != nil {
+			err = e
+		}
+	}()
 
 	buf := new(bytes.Buffer)
 
