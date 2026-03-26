@@ -745,3 +745,82 @@ func TestGetAllowNameForIDsFn_ShouldBeQuiet_WhenInteractive(t *testing.T) {
 		return
 	}
 }
+
+func TestFillMissingBillableFn(t *testing.T) {
+	tts := []struct {
+		name    string
+		input   TimeEntryDTO
+		project *dto.Project
+		task    *dto.Task
+		want    *bool
+	}{
+		{
+			name:  "billable already set, no api call",
+			input: TimeEntryDTO{Billable: &bTrue, ProjectID: "p"},
+			want:  &bTrue,
+		},
+		{
+			name:  "not-billable already set, no api call",
+			input: TimeEntryDTO{Billable: &bFalse, ProjectID: "p"},
+			want:  &bFalse,
+		},
+		{
+			name:  "no project, no api call",
+			input: TimeEntryDTO{},
+			want:  nil,
+		},
+		{
+			name:    "derives true from project when no task",
+			input:   TimeEntryDTO{Workspace: "w", ProjectID: "p"},
+			project: &dto.Project{ID: "p", Billable: true},
+			want:    &bTrue,
+		},
+		{
+			name:    "derives false from project when no task",
+			input:   TimeEntryDTO{Workspace: "w", ProjectID: "p"},
+			project: &dto.Project{ID: "p", Billable: false},
+			want:    &bFalse,
+		},
+		{
+			name:  "derives true from task, ignores project",
+			input: TimeEntryDTO{Workspace: "w", ProjectID: "p", TaskID: "t"},
+			task:  &dto.Task{ID: "t", Billable: true},
+			want:  &bTrue,
+		},
+		{
+			name:  "derives false from task, ignores project",
+			input: TimeEntryDTO{Workspace: "w", ProjectID: "p", TaskID: "t"},
+			task:  &dto.Task{ID: "t", Billable: false},
+			want:  &bFalse,
+		},
+	}
+
+	for i := range tts {
+		tt := &tts[i]
+		t.Run(tt.name, func(t *testing.T) {
+			c := mocks.NewMockClient(t)
+
+			if tt.project != nil {
+				c.EXPECT().GetProject(api.GetProjectParam{
+					Workspace: tt.input.Workspace,
+					ProjectID: tt.input.ProjectID,
+				}).Return(tt.project, nil)
+			}
+
+			if tt.task != nil {
+				c.EXPECT().GetTask(api.GetTaskParam{
+					Workspace: tt.input.Workspace,
+					ProjectID: tt.input.ProjectID,
+					TaskID:    tt.input.TaskID,
+				}).Return(*tt.task, nil)
+			}
+
+			result, err := FillMissingBillableFn(c)(tt.input)
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			assert.Equal(t, tt.want, result.Billable)
+		})
+	}
+}
