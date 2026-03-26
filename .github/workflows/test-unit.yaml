@@ -2,6 +2,10 @@ name: Unit Tests
 on:
   pull_request:
   push:
+    tags:
+      - v*
+    branches:
+      - main
 jobs:
   tests:
     runs-on: ubuntu-latest
