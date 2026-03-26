@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- when not informed in the command new time entries will read the `billable` flag from the Task or Project set
+
+### Fixed
+
+- updated github workflows to use the newest versions of the actions
+- removed unused code
+
 ## [v0.62.0] - 2026-03-20
 
 ### Added
