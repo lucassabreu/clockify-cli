@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - updated github workflows to use the newest versions of the actions
 - removed unused code
 
+### Thanks
+
+Thank you to [@reva](https://github.com/reva) for the improvements on
+[#292](https://github.com/lucassabreu/clockify-cli/pull/292).
+
 ## [v0.62.0] - 2026-03-20
 
 ### Added
