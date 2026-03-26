@@ -58,14 +58,14 @@ func execute() int {
 
 	stderr := cmd.ErrOrStderr()
 	if errors.Is(err, terminal.InterruptErr) {
-		fmt.Fprintln(stderr)
+		_, _ = fmt.Fprintln(stderr)
 		return exitCancel
 	}
 
 	var flagError *cmdutil.FlagError
 	if errors.As(err, &flagError) {
-		fmt.Fprintln(stderr, flagError.Error())
-		fmt.Fprintln(stderr, cmd.UsageString())
+		_, _ = fmt.Fprintln(stderr, flagError.Error())
+		_, _ = fmt.Fprintln(stderr, cmd.UsageString())
 		return exitError
 	}
 
