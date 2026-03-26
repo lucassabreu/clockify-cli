@@ -100,17 +100,6 @@ func extractUnreleasedContent(unreleasedSection string) string {
 	return strings.TrimSpace(strings.Join(content, "\n"))
 }
 
-func findLastLinkLine(content string) int {
-	lines := strings.Split(content, "\n")
-	for i := len(lines) - 1; i >= 0; i-- {
-		if strings.HasPrefix(strings.TrimSpace(lines[i]), "[") &&
-			strings.Contains(lines[i], "github.com") {
-			return i
-		}
-	}
-	return -1
-}
-
 func updateUnreleasedLink(content string, newVersion string) string {
 	oldUnreleasedLink := regexp.MustCompile(`\[Unreleased\]:.*`).FindString(content)
 	if oldUnreleasedLink == "" {
