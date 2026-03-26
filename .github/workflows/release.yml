@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: go-setup
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 1.24
       - name: install snapcraft
-        uses: samuelmeuli/action-snapcraft@v4
+        uses: samuelmeuli/action-snapcraft@v3
       - name: install nix
         uses: cachix/install-nix-action@v31
       - name: goreleaser-setup
