@@ -70,9 +70,9 @@ func execute() int {
 	}
 
 	if f.Config().IsDebuging() {
-		fmt.Fprintf(stderr, "%+v\n", err)
+		_, _ = fmt.Fprintf(stderr, "%+v\n", err)
 	} else {
-		fmt.Fprintln(stderr, err.Error())
+		_, _ = fmt.Fprintln(stderr, err.Error())
 	}
 
 	return exitError

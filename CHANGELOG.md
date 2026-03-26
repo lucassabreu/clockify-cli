@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - updated github workflows to use the newest versions of the actions
 - removed unused code
+- fixed assorted lint errors
 
 ### Thanks
 

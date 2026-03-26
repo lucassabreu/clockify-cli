@@ -76,15 +76,15 @@ func (c *client) NewRequest(method, uri string, body interface{}) (*http.Request
 
 // Do executes a http.Request inside the Clockify's Client
 func (c *client) Do(
-	req *http.Request, v interface{}, name string) (*http.Response, error) {
+	req *http.Request, v interface{}, name string) (r *http.Response, err error) {
 
 	<-c.requestTickets
 
-	r, err := c.Client.Do(req)
+	r, err = c.Client.Do(req)
 	if err != nil {
 		return r, err
 	}
-	defer r.Body.Close()
+	defer func() { err = r.Body.Close() }()
 
 	buf := new(bytes.Buffer)
 
