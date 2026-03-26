@@ -158,6 +158,7 @@ func TestNewCmdIn_ShouldNotSetBillable_WhenNotAsked(t *testing.T) {
 
 func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 	defaultStart := timehlp.Today().Add(8 * time.Hour)
+	bFalse := false
 
 	projects := []dto.Project{
 		{ID: "p1", Name: "first", ClientID: "c1", ClientName: "other"},
@@ -180,6 +181,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[0].ID,
+				Billable:  &bFalse,
 			},
 		},
 		{
@@ -189,6 +191,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[1].ID,
+				Billable:  &bFalse,
 			},
 		},
 		{
@@ -198,6 +201,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[2].ID,
+				Billable:  &bFalse,
 			},
 		},
 		{
@@ -207,6 +211,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[3].ID,
+				Billable:  &bFalse,
 			},
 		},
 		{
@@ -237,6 +242,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[1].ID,
+				Billable:  &bFalse,
 			},
 		},
 		{
@@ -246,6 +252,7 @@ func TestNewCmdIn_ShouldLookupProject_WithAndWithoutClient(t *testing.T) {
 				Workspace: w.ID,
 				Start:     defaultStart,
 				ProjectID: projects[2].ID,
+				Billable:  &bFalse,
 			},
 		},
 	}
