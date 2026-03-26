@@ -15,7 +15,7 @@ deps-upgrade: ## upgrade go dependencies
 	go get -u -v $(MAIN_PKG)
 	go mod tidy
 
-build: dist
+build: clean dist
 
 dist: deps-install dist/darwin dist/linux dist/windows ## build all cli versions (default)
 

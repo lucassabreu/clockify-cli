@@ -12,11 +12,13 @@ func NewCmdVersion(f cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
 		Short: "Shows the CLI version",
-		Run: func(cmd *cobra.Command, _ []string) {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			v := f.Version()
-			fmt.Fprintln(cmd.OutOrStdout(),
+			_, err := fmt.Fprintln(cmd.OutOrStdout(),
 				"Version: "+v.Tag+", Commit: "+v.Commit+", Build At: "+v.Date,
 			)
+
+			return err
 		},
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/lucassabreu/clockify-cli/api/dto"
 	"github.com/lucassabreu/clockify-cli/pkg/cmd/client/util"
 	"github.com/lucassabreu/clockify-cli/pkg/cmdutil"
-	"github.com/lucassabreu/clockify-cli/pkg/output/client"
 	"github.com/spf13/cobra"
 )
 
@@ -64,10 +63,6 @@ func NewCmdAdd(
 
 			if report != nil {
 				return report(out, &of, cl)
-			}
-
-			if of.JSON {
-				client.ClientJSONPrint(cl, out)
 			}
 
 			return util.Report([]dto.Client{cl}, out, of)

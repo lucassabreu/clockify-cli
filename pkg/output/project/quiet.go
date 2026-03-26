@@ -10,7 +10,9 @@ import (
 // ProjectPrintQuietly will only print the IDs
 func ProjectPrintQuietly(ps []dto.Project, w io.Writer) error {
 	for i := 0; i < len(ps); i++ {
-		fmt.Fprintln(w, ps[i].ID)
+		if _, err := fmt.Fprintln(w, ps[i].ID); err != nil {
+			return err
+		}
 	}
 
 	return nil

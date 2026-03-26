@@ -89,7 +89,7 @@ func RunTestConsole(
 	if err != nil {
 		t.Fatalf("failed to create console: %v", err)
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	finished := false
 	t.Cleanup(func() {
@@ -109,7 +109,7 @@ func RunTestConsole(
 	}()
 
 	go func() {
-		defer c.Tty().Close()
+		defer func() { _ = c.Tty().Close() }()
 		if err = setup(c.Tty(), c.Tty()); err != nil {
 			t.Error(err)
 			return
