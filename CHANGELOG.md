@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.63.1] - 2026-05-21
+
 ### Fixed
 
 - zsh auto-complete did not follow the right pattern for people the use auto-completion files
@@ -1367,7 +1369,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.63.0...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.63.1...HEAD
+[v0.63.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.63.1
 [v0.63.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.63.0
 [v0.62.0]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.62.0
 [v0.61.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.61.1
