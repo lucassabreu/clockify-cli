@@ -1,8 +1,6 @@
 package completion
 
 import (
-	"fmt"
-	"io"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
@@ -36,7 +34,7 @@ func NewCmdCompletion() *cobra.Command {
 			case bash:
 				return cmd.Root().GenBashCompletion(out)
 			case zsh:
-				return genZshCompletion(cmd, out)
+				return cmd.Root().GenZshCompletion(out)
 			case fish:
 				return cmd.Root().GenFishCompletion(out, false)
 			case powershell:
@@ -84,18 +82,4 @@ func NewCmdCompletion() *cobra.Command {
 		%[1]s`, "```", bash, zsh, fish)
 
 	return cmd
-}
-
-func genZshCompletion(cmd *cobra.Command, w io.Writer) error {
-	if _, err := fmt.Fprintln(w,
-		"autoload -U compinit; compinit"); err != nil {
-		return err
-	}
-
-	if err := cmd.Root().GenZshCompletion(w); err != nil {
-		return err
-	}
-
-	_, err := fmt.Fprintln(w, "compdef _clockify-cli clockify-cli")
-	return err
 }

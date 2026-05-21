@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- zsh auto-complete did not follow the right pattern for people the use auto-completion files
+
+### Thanks
+
+Thank you to [@HaleTom](https://github.com/HaleTom) for reporting the zsh problema at
+[#295](https://github.com/lucassabreu/clockify-cli/issues/295).
+
 ## [v0.63.0] - 2026-03-26
 
 ### Added
