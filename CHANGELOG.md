@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- update the snapcraft github actions to node24
+
 ## [v0.63.1] - 2026-05-21
 
 ### Fixed
