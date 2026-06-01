@@ -1,6 +1,7 @@
 package edit
 
 import (
+	"errors"
 	"io"
 
 	"github.com/MakeNowJust/heredoc"
@@ -24,17 +25,29 @@ func NewCmdEdit(
 		timeentryhlp.AliasCurrent, timeentryhlp.AliasLast}
 	cmd := &cobra.Command{
 		Use: "edit { <time-entry-id> | " + va.IntoUseOptions() +
-			" | ^n }",
-		Aliases: []string{"update"},
+			" | ^n }...",
+		Aliases: []string{
+			"update",
+			"update-multiple", "multi-edit",
+			"multi-update", "mult-edit", "mult-update",
+		},
 		Args: cobra.MatchAll(
 			cmdutil.RequiredNamedArgs("time entry id"),
-			cobra.ExactArgs(1),
+			cobra.MinimumNArgs(1),
 		),
 		ValidArgs: va.IntoValidArgs(),
-		Short:     `Edit a time entry`,
+		Short:     `Edit one or more time entries`,
 		Long: heredoc.Docf(`
-			Edit a time entry.
+			Edit one or more time entries.
+
+			When editing a single time entry, you can use --when and --when-to-close to change when it started or ended.
 			Only the inputs sent thought flags will be changed, any other properties will remain the same.
+
+			When editing multiple time entries, you can change all properties except for when they start or end,
+			as different time entries will have different start and end times.
+
+			Except on interactive mode where the values informed, even if not changed will be applied to all entries
+			(except for Start and End time).
 
 			%s
 			%s
@@ -90,6 +103,36 @@ func NewCmdEdit(
 
 			Tags:
 			 * Pair Programming (%[2]s621948708cb9606d934ebba7%[2]s)
+
+			# change all to use other task
+			$ %[1]s edit -i=0 -f "$F" current last ^2 --task multiple
+			ID: %[2]s62ae4b304ebb4f143c931d50%[2]s  
+			Billable: %[2]syes%[2]s
+			Locked: %[2]sno%[2]s
+			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
+			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
+			Interval: %[2]s2022-06-18 22:13:14%[2]s until %[2]s2022-06-18 22:13:15%[2]s
+			Description:
+			> Start
+			ID: %[2]s4d7a9e2f1b3c5d8e6f0a2b4c%[2]s  
+			Billable: %[2]syes%[2]s
+			Locked: %[2]sno%[2]s
+			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
+			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
+			Interval: %[2]s2022-06-18 22:13:15%[2]s until %[2]s2022-06-18 22:13:16%[2]s
+			Description:
+			> Middle
+			ID: %[2]s62ae4b304ebb4f143c931d50%[2]s  
+			Billable: %[2]syes%[2]s
+			Locked: %[2]sno%[2]s
+			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
+			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
+			Interval: %[2]s2022-06-18 22:13:16%[2]s until %[2]snow%[2]s
+			Description:
+			> Ending
+
+			Tags:
+			 * Pair Programming (%[2]s621948708cb9606d934ebba7%[2]s)
 		`, "clockify-cli", "`"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
@@ -111,49 +154,153 @@ func NewCmdEdit(
 				return err
 			}
 
-			tei, err := timeentryhlp.GetTimeEntry(
-				c,
-				w,
-				userID,
-				args[0],
-			)
-			if err != nil {
-				return err
+			if len(args) > 1 {
+				if cmd.Flags().Changed("when") || cmd.Flags().Changed("when-to-close") {
+					return errors.New("--when and --when-to-close can only be used when editing a single time entry")
+				}
 			}
 
-			te := util.TimeEntryImplToDTO(tei)
+			teis := make([]util.TimeEntryDTO, len(args))
+			for i := range args {
+				t, err := timeentryhlp.GetTimeEntry(c, w, userID, args[i])
+				if err != nil {
+					return err
+				}
+				teis[i] = util.TimeEntryImplToDTO(t)
+			}
+
 			dc := util.NewDescriptionCompleter(f)
 
-			if te, err = util.Do(
-				te,
+			if len(args) == 1 {
+				te := teis[0]
+				if te, err = util.Do(
+					te,
+					util.FillTimeEntryWithFlags(cmd.Flags()),
+					util.GetAllowNameForIDsFn(f.Config(), c),
+					util.GetPropsInteractiveFn(dc, f),
+					util.GetDatesInteractiveFn(f),
+					util.GetValidateTimeEntryFn(f),
+				); err != nil {
+					return err
+				}
+
+				tei, err := c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+					Workspace:   te.Workspace,
+					TimeEntryID: te.ID,
+					Description: te.Description,
+					Start:       te.Start,
+					End:         te.End,
+					Billable:    *te.Billable,
+					ProjectID:   te.ProjectID,
+					TaskID:      te.TaskID,
+					TagIDs:      te.TagIDs,
+				})
+				if err != nil {
+					return err
+				}
+
+				return report(tei, cmd.OutOrStdout(), of)
+			}
+
+			tei := teis[0]
+			editFn := func(tei util.TimeEntryDTO) (util.TimeEntryDTO, error) {
+				t, err := c.UpdateTimeEntry(api.UpdateTimeEntryParam{
+					Workspace:   tei.Workspace,
+					TimeEntryID: tei.ID,
+					Description: tei.Description,
+					Start:       tei.Start,
+					End:         tei.End,
+					Billable:    *tei.Billable,
+					ProjectID:   tei.ProjectID,
+					TaskID:      tei.TaskID,
+					TagIDs:      tei.TagIDs,
+				})
+
+				return util.TimeEntryImplToDTO(t), err
+			}
+
+			fn := func(input util.TimeEntryDTO) (util.TimeEntryDTO, error) {
+				var err error
+				for i, tei := range teis {
+					input.Start = tei.Start
+					input.End = tei.End
+					input.ID = tei.ID
+
+					if tei, err = editFn(input); err != nil {
+						return input, err
+					}
+
+					teis[i] = tei
+				}
+
+				return input, err
+			}
+
+			if !f.Config().IsInteractive() {
+				fn = func(input util.TimeEntryDTO) (util.TimeEntryDTO, error) {
+					changed := cmd.Flags().Changed
+					for i, tei := range teis {
+						if changed("project") {
+							tei.ProjectID = input.ProjectID
+						}
+
+						if changed("description") {
+							tei.Description = input.Description
+						}
+
+						if changed("task") {
+							tei.TaskID = input.TaskID
+						}
+
+						if changed("tag") || changed("tags") {
+							tei.TagIDs = input.TagIDs
+						}
+
+						if changed("not-billable") {
+							tei.Billable = input.Billable
+						}
+
+						teis[i] = tei
+						if _, err = editFn(tei); err != nil {
+							return tei, err
+						}
+					}
+					return input, nil
+				}
+			}
+
+			if _, err = util.Do(
+				tei,
 				util.FillTimeEntryWithFlags(cmd.Flags()),
 				util.GetAllowNameForIDsFn(f.Config(), c),
 				util.GetPropsInteractiveFn(dc, f),
-				util.GetDatesInteractiveFn(f),
 				util.GetValidateTimeEntryFn(f),
+				fn,
 			); err != nil {
 				return err
 			}
 
-			if tei, err = c.UpdateTimeEntry(api.UpdateTimeEntryParam{
-				Workspace:   te.Workspace,
-				TimeEntryID: te.ID,
-				Description: te.Description,
-				Start:       te.Start,
-				End:         te.End,
-				Billable:    *te.Billable,
-				ProjectID:   te.ProjectID,
-				TaskID:      te.TaskID,
-				TagIDs:      te.TagIDs,
-			}); err != nil {
-				return err
+			tes := make([]dto.TimeEntry, len(teis))
+			var t *dto.TimeEntry
+			for i, tei := range teis {
+				t, err = c.GetHydratedTimeEntry(api.GetTimeEntryParam{
+					TimeEntryID: tei.ID,
+					Workspace:   tei.Workspace,
+				})
+
+				if err != nil {
+					return err
+				}
+				tes[i] = *t
 			}
 
-			return report(tei, cmd.OutOrStdout(), of)
+			return util.PrintTimeEntries(tes,
+				cmd.OutOrStdout(), f.Config(), of)
 		},
 	}
 
 	util.AddTimeEntryFlags(cmd, f, &of)
+	util.AddPrintMultipleTimeEntriesFlags(cmd)
 
 	cmd.Flags().StringP("when", "s", "",
 		"when the entry should be started")

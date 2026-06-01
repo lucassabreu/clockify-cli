@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CLAUDE.md project guidance documentation with codebase overview and development patterns
 
+### Changed
+
+- `edit` and `edit-multiple` commands merged into a single `edit` command that accepts one or more time entry IDs
+
 ## [v0.63.2] - 2026-05-21
 
 ### Fixed
