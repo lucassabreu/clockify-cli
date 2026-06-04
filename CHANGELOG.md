@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - CLAUDE.md project guidance documentation with codebase overview and development patterns
+- `edit` command now validates that all time entries share the same project when only changing the task without `--project` flag
 
 ### Changed
 

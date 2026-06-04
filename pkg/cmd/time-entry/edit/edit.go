@@ -234,8 +234,21 @@ func NewCmdEdit(
 			if !f.Config().IsInteractive() {
 				fn = func(input util.TimeEntryDTO) (util.TimeEntryDTO, error) {
 					changed := cmd.Flags().Changed
+
+					if changed("task") && !changed("project") {
+						projectID := teis[0].ProjectID
+						for _, te := range teis[1:] {
+							if te.ProjectID != projectID {
+								return input, errors.New("you are changing the task of the time entries, but not the project and some of them are not in the same project, please also set --project")
+							}
+						}
+					}
+
 					for i, tei := range teis {
 						if changed("project") {
+							if tei.ProjectID != input.ProjectID {
+								tei.TaskID = ""
+							}
 							tei.ProjectID = input.ProjectID
 						}
 
