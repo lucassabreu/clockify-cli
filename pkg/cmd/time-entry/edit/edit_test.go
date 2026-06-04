@@ -378,6 +378,79 @@ func TestNewCmdEditMultipleTimeEntries(t *testing.T) {
 			err:  "--when and --when-to-close can only be used when editing a single time entry",
 		},
 		{
+			name:        "should set billable to true for multiple entries",
+			args:        []string{"teid1", "teid2", "-b", "-q"},
+			timeEntries: []dto.TimeEntryImpl{te1, te2},
+			updateParams: []api.UpdateTimeEntryParam{
+				{
+					Workspace:   te1.WorkspaceID,
+					TimeEntryID: te1.ID,
+					Start:       te1.TimeInterval.Start,
+					End:         te1.TimeInterval.End,
+					Billable:    true,
+					Description: te1.Description,
+					ProjectID:   te1.ProjectID,
+					TaskID:      te1.TaskID,
+					TagIDs:      te1.TagIDs,
+				},
+				{
+					Workspace:   te2.WorkspaceID,
+					TimeEntryID: te2.ID,
+					Start:       te2.TimeInterval.Start,
+					End:         te2.TimeInterval.End,
+					Billable:    true,
+					Description: te2.Description,
+					ProjectID:   te2.ProjectID,
+					TaskID:      te2.TaskID,
+					TagIDs:      te2.TagIDs,
+				},
+			},
+			validateProject: &dto.Project{ID: te1.ProjectID},
+		},
+		{
+			name:        "should set billable to false for multiple entries",
+			args:        []string{"teid1", "teid2", "--not-billable", "-q"},
+			timeEntries: []dto.TimeEntryImpl{te1, te2},
+			updateParams: []api.UpdateTimeEntryParam{
+				{
+					Workspace:   te1.WorkspaceID,
+					TimeEntryID: te1.ID,
+					Start:       te1.TimeInterval.Start,
+					End:         te1.TimeInterval.End,
+					Billable:    false,
+					Description: te1.Description,
+					ProjectID:   te1.ProjectID,
+					TaskID:      te1.TaskID,
+					TagIDs:      te1.TagIDs,
+				},
+				{
+					Workspace:   te2.WorkspaceID,
+					TimeEntryID: te2.ID,
+					Start:       te2.TimeInterval.Start,
+					End:         te2.TimeInterval.End,
+					Billable:    false,
+					Description: te2.Description,
+					ProjectID:   te2.ProjectID,
+					TaskID:      te2.TaskID,
+					TagIDs:      te2.TagIDs,
+				},
+			},
+			validateProject: &dto.Project{ID: te1.ProjectID},
+		},
+		{
+			name: "should fail when using both billable and not-billable",
+			args: []string{"teid1", "teid2", "-b", "--not-billable", "-q"},
+			setup: func(c *mocks.MockClient) {
+				c.EXPECT().GetTimeEntry(api.GetTimeEntryParam{
+					Workspace: w.ID, TimeEntryID: "teid1",
+				}).Return(&te1, nil)
+				c.EXPECT().GetTimeEntry(api.GetTimeEntryParam{
+					Workspace: w.ID, TimeEntryID: "teid2",
+				}).Return(&te2, nil)
+			},
+			err: "can't be used together",
+		},
+		{
 			name:        "should update only description",
 			args:        []string{"teid1", "teid2", "-d", "New Description", "-q"},
 			timeEntries: []dto.TimeEntryImpl{te1, te2},

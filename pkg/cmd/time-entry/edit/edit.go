@@ -264,7 +264,7 @@ func NewCmdEdit(
 							tei.TagIDs = input.TagIDs
 						}
 
-						if changed("not-billable") {
+						if changed("billable") || changed("not-billable") {
 							tei.Billable = input.Billable
 						}
 
