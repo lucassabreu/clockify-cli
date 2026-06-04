@@ -104,32 +104,27 @@ func NewCmdEdit(
 			Tags:
 			 * Pair Programming (%[2]s621948708cb9606d934ebba7%[2]s)
 
+			# just to help show the data
+			$ export F="{{.ID}} :: {{ .Description }}
+			  When: {{ fdt .TimeInterval.Start }} util {{ ft (.TimeInterval.End | now) }}
+			  Task: {{ .Task.Name }} ({{ .Project.Name}})
+			  Tags: {{ .Tags }}
+			"
+
 			# change all to use other task
-			$ %[1]s edit -i=0 -f "$F" current last ^2 --task multiple
-			ID: %[2]s62ae4b304ebb4f143c931d50%[2]s  
-			Billable: %[2]syes%[2]s
-			Locked: %[2]sno%[2]s
-			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
-			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
-			Interval: %[2]s2022-06-18 22:13:14%[2]s until %[2]s2022-06-18 22:13:15%[2]s
-			Description:
-			> Start
-			ID: %[2]s4d7a9e2f1b3c5d8e6f0a2b4c%[2]s  
-			Billable: %[2]syes%[2]s
-			Locked: %[2]sno%[2]s
-			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
-			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
-			Interval: %[2]s2022-06-18 22:13:15%[2]s until %[2]s2022-06-18 22:13:16%[2]s
-			Description:
-			> Middle
-			ID: %[2]s62ae4b304ebb4f143c931d50%[2]s  
-			Billable: %[2]syes%[2]s
-			Locked: %[2]sno%[2]s
-			Project: Clockify Cli (%[2]s621948458cb9606d934ebb1c%[2]s)
-			Task: Edit Multiple Command (%[2]s2ae29e62518aa18da2acd14%[2]s)
-			Interval: %[2]s2022-06-18 22:13:16%[2]s until %[2]snow%[2]s
-			Description:
-			> Ending
+			$ %[1]s edit-multiple -i=0 -f "$F" current last ^2 --task multiple
+			62af6b0f4ebb4f143c94880e :: More examples
+			  When: 2022-06-19 18:29:32 util 18:43:04
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+			62af668b49445270d7c092e4 :: Adding examples
+			  When: 2022-06-19 18:10:15 util 18:29:32
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
+			62af668b49445270d7c092e4 :: Adding examples
+			  When: 2022-06-19 18:10:15 util 18:29:32
+			  Task: Edit Multiple Command (Clockify Cli)
+			  Tags: [Development (62ae28b72518aa18da2acb49)]
 
 			Tags:
 			 * Pair Programming (%[2]s621948708cb9606d934ebba7%[2]s)
