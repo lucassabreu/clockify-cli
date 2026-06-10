@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- update goreleaser action version
+- update netlify build
+
 ## [v0.64.0] - 2026-06-04
 
 ### Added
