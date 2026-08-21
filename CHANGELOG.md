@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `report` and `out` commands no longer fail with "Access Denied" when the user
   is not allowed to list all the users of the workspace
 
+### Thanks
+
+Thank you to [@reva](https://github.com/reva) for reporting and fixed the bug on `report`/`out` commands at
+[#301](https://github.com/lucassabreu/clockify-cli/issues/301) and
+[#302](https://github.com/lucassabreu/clockify-cli/pull/302).
+
 ## [v0.64.1] - 2026-06-10
 
 ### Fixed
