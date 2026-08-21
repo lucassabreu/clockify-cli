@@ -451,9 +451,16 @@ func (c *client) GetUsersHydratedTimeEntries(p GetUserTimeEntriesParam) ([]dto.T
 		return timeEntries, err
 	}
 
-	user, err := c.GetUser(GetUser{p.Workspace, p.UserID})
+	user, err := c.GetMe()
 	if err != nil {
 		return timeEntries, err
+	}
+
+	if user.ID != p.UserID {
+		if user, err = c.GetUser(
+			GetUser{p.Workspace, p.UserID}); err != nil {
+			return timeEntries, err
+		}
 	}
 
 	for i := 0; i < len(timeEntries); i++ {
