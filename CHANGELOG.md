@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `report` and `out` commands no longer fail with "Access Denied" when the user
+  is not allowed to list all the users of the workspace
+
 ## [v0.64.1] - 2026-06-10
 
 ### Fixed

@@ -128,3 +128,144 @@ func TestCreateTimeEntry(t *testing.T) {
 			})
 	}
 }
+
+func TestGetUsersHydratedTimeEntries(t *testing.T) {
+	otherID := "62f2af744a912b05acc7c79f"
+	meUri := "/v1/user"
+	entriesUri := func(user string) string {
+		return "/v1/workspaces/" + exampleID + "/user/" + user +
+			"/time-entries?hydrated=1&page=1&page-size=50"
+	}
+	usersUri := "/v1/workspaces/" + exampleID + "/users?page=1&page-size=50"
+
+	me := dto.User{ID: exampleID, Name: "me"}
+	other := dto.User{ID: otherID, Name: "other"}
+	meBody := `{"id":"` + exampleID + `","name":"me"}`
+
+	tts := []testCase{
+		(&multiRequestTestCase{
+			name: "hydrates with the token owner",
+			param: api.GetUserTimeEntriesParam{
+				Workspace:       exampleID,
+				UserID:          exampleID,
+				PaginationParam: api.AllPages(),
+			},
+
+			result: []dto.TimeEntry{{ID: "t1", User: &me}},
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      entriesUri(exampleID),
+				status:   200,
+				response: `[{"id":"t1"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      meUri,
+				status:   200,
+				response: meBody,
+			}),
+		(&multiRequestTestCase{
+			name: "hydrates another user from the workspace",
+			param: api.GetUserTimeEntriesParam{
+				Workspace:       exampleID,
+				UserID:          otherID,
+				PaginationParam: api.AllPages(),
+			},
+
+			result: []dto.TimeEntry{{ID: "t1", User: &other}},
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      entriesUri(otherID),
+				status:   200,
+				response: `[{"id":"t1"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      meUri,
+				status:   200,
+				response: meBody,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      usersUri,
+				status:   200,
+				response: `[{"id":"` + otherID + `","name":"other"}]`,
+			}),
+		(&multiRequestTestCase{
+			name: "fails when the token owner is unknown",
+			param: api.GetUserTimeEntriesParam{
+				Workspace:       exampleID,
+				UserID:          exampleID,
+				PaginationParam: api.AllPages(),
+			},
+
+			err: `Access Denied \(code: 501\)`,
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      entriesUri(exampleID),
+				status:   200,
+				response: `[{"id":"t1"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      meUri,
+				status:   403,
+				response: `{"code": 501, "message":"Access Denied"}`,
+			}),
+		(&multiRequestTestCase{
+			name: "fails when the workspace users can't be listed",
+			param: api.GetUserTimeEntriesParam{
+				Workspace:       exampleID,
+				UserID:          otherID,
+				PaginationParam: api.AllPages(),
+			},
+
+			err: `get users.*: Access Denied \(code: 501\)`,
+		}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      entriesUri(otherID),
+				status:   200,
+				response: `[{"id":"t1"}]`,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      meUri,
+				status:   200,
+				response: meBody,
+			}).
+			addHttpCall(&httpRequest{
+				method:   "get",
+				url:      usersUri,
+				status:   403,
+				response: `{"code": 501, "message":"Access Denied"}`,
+			}),
+		&simpleTestCase{
+			name: "fails when the time entries can't be listed",
+			param: api.GetUserTimeEntriesParam{
+				Workspace:       exampleID,
+				UserID:          exampleID,
+				PaginationParam: api.AllPages(),
+			},
+
+			requestMethod: "get",
+			requestUrl:    entriesUri(exampleID),
+
+			responseStatus: 400,
+			responseBody:   `{"code": 10, "message":"error"}`,
+
+			err: `get time entries from user .*: error \(code: 10\)`,
+		},
+	}
+
+	for _, tt := range tts {
+		runClient(t, tt,
+			func(c api.Client, p interface{}) (interface{}, error) {
+				return c.GetUsersHydratedTimeEntries(
+					p.(api.GetUserTimeEntriesParam))
+			})
+	}
+}
