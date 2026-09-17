@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the non-existent `bash_cmdcompl.d`
 - `user me` help example no longer uses `--email`, a flag the `me` subcommand does not have
 
+### Thanks
+
+Thank you to [@nikosavola](https://github.com/nikosavola) for reporting and fixed the bug on `report`/`out`
+commands at [#304](https://github.com/lucassabreu/clockify-cli/issues/304) and
+[#305](https://github.com/lucassabreu/clockify-cli/pull/302).
+
 ## [v0.64.2] - 2026-08-21
 
 ### Fixed
