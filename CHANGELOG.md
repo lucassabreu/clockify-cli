@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of `clockify-cli task -p cli done <task>`)
 - `completion` help now points to the `bash_completion.d` directory instead of
   the non-existent `bash_cmdcompl.d`
+- `user me` help example no longer uses `--email`, a flag the `me` subcommand does not have
 
 ## [v0.64.2] - 2026-08-21
 
