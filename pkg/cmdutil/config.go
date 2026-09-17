@@ -223,11 +223,19 @@ func (*config) Save() error {
 		}
 
 		dir := path.Join(home, ".config", "clockify-cli")
-		_ = os.MkdirAll(dir, os.ModePerm)
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return err
+		}
 		filename = path.Join(dir, ".clockify-cli.yaml")
 	}
 
-	return viper.WriteConfigAs(filename)
+	// the file holds the api token, keep it owner-only even when it was
+	// created world-readable by an older version
+	viper.SetConfigPermissions(0o600)
+	if err := viper.WriteConfigAs(filename); err != nil {
+		return err
+	}
+	return os.Chmod(filename, 0o600)
 }
 
 func configFunc() func() (c Config) {
