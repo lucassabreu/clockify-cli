@@ -49,7 +49,7 @@ func EmptySuggestionFuncion(_ *cobra.Command, _ []string, _ string) (ValidArgs, 
 // CombineSuggestionsToArgs combine one or more suggestion resolver functions and call then accordingly with arg count
 func CombineSuggestionsToArgs(fns ...SuggestFn) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) > len(fns) {
+		if len(args) >= len(fns) {
 			return []string{}, cobra.ShellCompDirectiveDefault
 		}
 

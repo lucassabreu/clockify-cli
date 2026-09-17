@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   permissions, and files left world-readable by older versions are tightened on
   the next save
 
+### Fixed
+
+- shell completion no longer crashes with an index-out-of-range panic when
+  pressing tab after the last positional argument of a command
+
 ## [v0.64.3] - 2026-09-17
 
 ### Fixed
