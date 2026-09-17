@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- the config file, which stores the API token, is now saved with owner-only
+  permissions, and files left world-readable by older versions are tightened on
+  the next save
+
 ## [v0.64.3] - 2026-09-17
 
 ### Fixed
