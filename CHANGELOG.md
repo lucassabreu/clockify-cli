@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `config` help examples now show valid commands (`clockify-cli config list` and
   `clockify-cli config get/set <param>` instead of the non-existent root-level
   `get`/`set`)
+- `project edit` help examples now include the `edit` subcommand and are actually
+  runnable (quoted `--color` value, corrected `--archived` sample output)
 
 ## [v0.64.2] - 2026-08-21
 
