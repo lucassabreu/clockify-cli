@@ -33,7 +33,7 @@ func NewCmdDone(
 		Short: "Edits a task  to done",
 		Long:  "Edits a task to done, similar to doing `task edit <task> --done`",
 		Example: heredoc.Docf(`
-			$ %[1]s ls
+			$ %[1]s ls -p cli
 			+--------------------------+--------+--------+
 			|            ID            |  NAME  | STATUS |
 			+--------------------------+--------+--------+
@@ -44,7 +44,7 @@ func NewCmdDone(
 			| 62adfcaa4ebb4f143c92bf8b | First  | ACTIVE |
 			+--------------------------+--------+--------+
 
-			$ %[1]s done first second 62adfcb649445270d7becfca
+			$ %[1]s done -p cli first second 62adfcb649445270d7becfca
 			+--------------------------+--------+--------+
 			|            ID            |  NAME  | STATUS |
 			+--------------------------+--------+--------+
@@ -53,13 +53,13 @@ func NewCmdDone(
 			| 62adfcb649445270d7becfca | Three  | DONE   |
 			+--------------------------+--------+--------+
 
-			$ %[1]s done four
+			$ %[1]s done -p cli four
 			id,name,status
 			62adfcc4c22de9759e739d64,Four,DONE
 
-			$ %[1]s done five
+			$ %[1]s done -p cli five
 			No active task with id or name containing 'five' was found
-		`, "clockify-cli task -p cli"),
+		`, "clockify-cli task"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := of.Check(); err != nil {
 				return err

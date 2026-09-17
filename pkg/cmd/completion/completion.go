@@ -51,19 +51,13 @@ func NewCmdCompletion() *cobra.Command {
 		#### Linux (Bash):
 
 		%[1]s
-		$ clockify-cli completion %[2]s > /etc/bash_cmdcompl.d/clockify-cli
-		%[1]s
-
-		#### Linux (Shell):
-
-		%[1]s
-		$ clockify-cli completion %[2]s > /etc/bash_cmdcompl.d/clockify-cli
+		$ clockify-cli completion %[2]s > /etc/bash_completion.d/clockify-cli
 		%[1]s
 
 		#### MacOS:
 
 		%[1]s
-		$ clockify-cli completion %[2]s > /usr/local/etc/bash_cmdcompl.d/clockify-cli
+		$ clockify-cli completion %[2]s > /usr/local/etc/bash_completion.d/clockify-cli
 		%[1]s
 
 		#### Zsh:

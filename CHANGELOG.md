@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `config` help examples now show valid commands (`clockify-cli config list` and
+  `clockify-cli config get/set <param>` instead of the non-existent root-level
+  `get`/`set`)
+- `project edit` help examples now include the `edit` subcommand and are actually
+  runnable (quoted `--color` value, corrected `--archived` sample output)
+- `task done` help examples now show valid commands (`clockify-cli task done -p cli <task>`
+  instead of `clockify-cli task -p cli done <task>`)
+- `completion` help now points to the `bash_completion.d` directory instead of
+  the non-existent `bash_cmdcompl.d`
+- `user me` help example no longer uses `--email`, a flag the `me` subcommand does not have
+
 ## [v0.64.2] - 2026-08-21
 
 ### Fixed

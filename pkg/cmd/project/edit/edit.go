@@ -45,24 +45,24 @@ func NewCmdEdit(
 			+--------------------------+--------------+--------+
 
 			# change name, color and make public
-			$ clockify-cli project 62f19c254a912b05acc6d6cf \
-				--name First --public --color #0f0 \
+			$ clockify-cli project edit 62f19c254a912b05acc6d6cf \
+				--name First --public --color=#0f0 \
 				--format "{{.Name}} | {{.Public}} | {{.Color}}"
 			First | true | #00ff00
 
 			# change to not billable, archived and leave a note
-			$ clockify-cli project second --not-billable --archived \
+			$ clockify-cli project edit second --not-billable --archived \
 				--note "$(cat notes.txt)" \
 				--format 'n: {{.Name}}\nb: {{.Billable}}\na: {{.Archived}}\nn:\n{{ .Note }}'
 			n: Noted
 			b: false
-			a: false
+			a: true
 			n: one line
 			two lines
 			three lines
 
 			# archive multiple projects
-			$ clockify-cli project first second \
+			$ clockify-cli project edit first second \
 				--archived \
 				--format "{{.Name}} | {{.Archived}}"
 			First | true

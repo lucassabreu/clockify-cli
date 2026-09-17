@@ -42,7 +42,7 @@ func NewCmdUser(
 			| ffffffffffffffffffffffff | John JD Due | due@john.net | ACTIVE | America/Sao_Paulo |
 			+--------------------------+-------------+--------------+--------+-------------------+
 
-			$ %[1]s me --format "{{ .Name }} ({{ .Email }})" --email due@john.net
+			$ %[1]s me --format "{{ .Name }} ({{ .Email }})"
 			John JD Due (due@john.net)
 		`, "clockify-cli user"),
 		RunE: func(cmd *cobra.Command, args []string) error {
