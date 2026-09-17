@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `config` help examples now show valid commands (`clockify-cli config list` and
+  `clockify-cli config get/set <param>` instead of the non-existent root-level
+  `get`/`set`)
+
 ## [v0.64.2] - 2026-08-21
 
 ### Fixed

@@ -53,13 +53,13 @@ func NewCmdConfig(f cmdutil.Factory) *cobra.Command {
 			$ clockify-cli config init
 
 			# token is the minimum information required for the CLI to work
-			$ clockify-cli set token <token>
+			$ clockify-cli config set token <token>
 
 			# you can see your current parameters using:
-			$ clockify-cli get
+			$ clockify-cli config list
 
 			# if you wanna see the value of token parameter:
-			$ clockify-cli get token
+			$ clockify-cli config get token
 		`),
 		Long: heredoc.Doc(`
 			Changes or shows configuration settings for clockify-cli
