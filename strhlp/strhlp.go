@@ -1,6 +1,7 @@
 package strhlp
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -88,6 +89,20 @@ func ListForHumans(s []string) string {
 	}
 
 	return strings.Join(s[:len(s)-1], ", ") + " and " + s[len(s)-1]
+}
+
+// LimitedListForHumans works like ListForHumans, but only lists up to limit
+// entries and adds how many were left out
+//
+// Example: LimitedListForHumans([]string{"one", "two", "three"}, 2) will
+// output: "one, two, and 1 more"
+func LimitedListForHumans(s []string, limit int) string {
+	if len(s) <= limit {
+		return ListForHumans(s)
+	}
+
+	return ListForHumans(s[:limit]) +
+		fmt.Sprintf(", and %d more", len(s)-limit)
 }
 
 // PadSpace will add spaces to the end of a string until it reaches the size
