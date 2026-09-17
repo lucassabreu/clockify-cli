@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runnable (quoted `--color` value, corrected `--archived` sample output)
 - `task done` help examples now show valid commands (`clockify-cli task done -p cli <task>`
   instead of `clockify-cli task -p cli done <task>`)
+- `completion` help now points to the `bash_completion.d` directory instead of
+  the non-existent `bash_cmdcompl.d`
 
 ## [v0.64.2] - 2026-08-21
 
