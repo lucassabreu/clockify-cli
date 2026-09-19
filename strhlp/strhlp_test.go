@@ -300,12 +300,12 @@ func TestLimitedListForHumans(t *testing.T) {
 		{
 			args:     []string{"uno", "dos", "tres"},
 			limit:    2,
-			expected: "uno and dos, and 1 more",
+			expected: "uno, dos and 1 more",
 		},
 		{
 			args:     []string{"uno", "dos", "tres", "cuatro"},
 			limit:    1,
-			expected: "uno, and 3 more",
+			expected: "uno and 3 more",
 		},
 	}
 

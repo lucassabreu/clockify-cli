@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - shell completion no longer crashes with an index-out-of-range panic when
   pressing tab after the last positional argument of a command
-- Commands that accept names for ids (`in`, `out`, `edit`, `delete`, `report`, etc.) now fail with a list of matching candidates when a name matches more than one project, task, client or tag, instead of silently using the first match
+- Commands that accept names for ids (`in`, `out`, `edit`, `delete`,
+  `report`, etc.) now fail with a list of matching candidates when a name
+  matches more than one project, task, client or tag, instead of silently
+  using the first match
 
 ## [v0.64.3] - 2026-09-17
 

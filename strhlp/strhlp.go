@@ -102,7 +102,11 @@ func LimitedListForHumans(s []string, limit int) string {
 	}
 
 	return ListForHumans(s[:limit]) +
-		fmt.Sprintf(", and %d more", len(s)-limit)
+	return ListForHumans(append(
+		s[:limit],
+		fmt.Sprintf("%d more", len(s)-limit),
+	))
+		
 }
 
 // PadSpace will add spaces to the end of a string until it reaches the size
