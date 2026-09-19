@@ -161,7 +161,9 @@ func getProjectID(
 
 	if found == -1 {
 		if projectID != "" {
-			fmt.Printf("Project '%s' informed was not found.\n", projectID)
+			fmt.Printf(
+				"Project '%s' informed was not found or is ambiguous, choose one:\n",
+				projectID)
 			projectID = ""
 		}
 	} else {
@@ -224,7 +226,9 @@ func getTaskID(
 
 	if found == -1 {
 		if taskID != "" {
-			fmt.Printf("Task '%s' informed was not found.\n", taskID)
+			fmt.Printf(
+				"Task '%s' informed was not found or is ambiguous, choose one:\n",
+				taskID)
 			taskID = ""
 		}
 	} else {
