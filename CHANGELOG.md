@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.64.4] - 2026-09-21
+
 ### Security
 
 - the config file, which stores the API token, is now saved with owner-only
@@ -1453,7 +1455,8 @@ time entry.
 - Golang CLI using [cobra](https://github.com/spf13/cobra)
 - Makefile to help setup actions
 
-[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.64.3...HEAD
+[Unreleased]: https://github.com/lucassabreu/clockify-cli/compare/v0.64.4...HEAD
+[v0.64.4]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.64.4
 [v0.64.3]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.64.3
 [v0.64.2]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.64.2
 [v0.64.1]: https://github.com/lucassabreu/clockify-cli/releases/tag/v0.64.1
