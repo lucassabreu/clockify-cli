@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   matches more than one project, task, client or tag, instead of silently
   using the first match
 
+### Thanks
+
+Thank you to [@nikosavola](https://github.com/nikosavola) for fixing bugs at:
+- [#306](https://github.com/lucassabreu/clockify-cli/issues/306)
+- [#307](https://github.com/lucassabreu/clockify-cli/pull/307)
+- [#308](https://github.com/lucassabreu/clockify-cli/pull/308)
+
 ## [v0.64.3] - 2026-09-17
 
 ### Fixed
