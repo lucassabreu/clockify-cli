@@ -17,10 +17,19 @@ func NewMockConfig(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockConfig {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockConfig{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -110,7 +119,7 @@ type MockConfig_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - s string
-func (_e *MockConfig_Expecter) Get(s interface{}) *MockConfig_Get_Call {
+func (_e *MockConfig_Expecter) Get(s any) *MockConfig_Get_Call {
 	return &MockConfig_Get_Call{Call: _e.mock.On("Get", s)}
 }
 
@@ -161,7 +170,7 @@ type MockConfig_GetBool_Call struct {
 
 // GetBool is a helper method to define mock.On call
 //   - s string
-func (_e *MockConfig_Expecter) GetBool(s interface{}) *MockConfig_GetBool_Call {
+func (_e *MockConfig_Expecter) GetBool(s any) *MockConfig_GetBool_Call {
 	return &MockConfig_GetBool_Call{Call: _e.mock.On("GetBool", s)}
 }
 
@@ -212,7 +221,7 @@ type MockConfig_GetInt_Call struct {
 
 // GetInt is a helper method to define mock.On call
 //   - s string
-func (_e *MockConfig_Expecter) GetInt(s interface{}) *MockConfig_GetInt_Call {
+func (_e *MockConfig_Expecter) GetInt(s any) *MockConfig_GetInt_Call {
 	return &MockConfig_GetInt_Call{Call: _e.mock.On("GetInt", s)}
 }
 
@@ -263,7 +272,7 @@ type MockConfig_GetString_Call struct {
 
 // GetString is a helper method to define mock.On call
 //   - s string
-func (_e *MockConfig_Expecter) GetString(s interface{}) *MockConfig_GetString_Call {
+func (_e *MockConfig_Expecter) GetString(s any) *MockConfig_GetString_Call {
 	return &MockConfig_GetString_Call{Call: _e.mock.On("GetString", s)}
 }
 
@@ -316,7 +325,7 @@ type MockConfig_GetStringSlice_Call struct {
 
 // GetStringSlice is a helper method to define mock.On call
 //   - s string
-func (_e *MockConfig_Expecter) GetStringSlice(s interface{}) *MockConfig_GetStringSlice_Call {
+func (_e *MockConfig_Expecter) GetStringSlice(s any) *MockConfig_GetStringSlice_Call {
 	return &MockConfig_GetStringSlice_Call{Call: _e.mock.On("GetStringSlice", s)}
 }
 
@@ -755,7 +764,7 @@ type MockConfig_SetBool_Call struct {
 // SetBool is a helper method to define mock.On call
 //   - s string
 //   - b bool
-func (_e *MockConfig_Expecter) SetBool(s interface{}, b interface{}) *MockConfig_SetBool_Call {
+func (_e *MockConfig_Expecter) SetBool(s any, b any) *MockConfig_SetBool_Call {
 	return &MockConfig_SetBool_Call{Call: _e.mock.On("SetBool", s, b)}
 }
 
@@ -801,7 +810,7 @@ type MockConfig_SetInt_Call struct {
 // SetInt is a helper method to define mock.On call
 //   - s string
 //   - n int
-func (_e *MockConfig_Expecter) SetInt(s interface{}, n interface{}) *MockConfig_SetInt_Call {
+func (_e *MockConfig_Expecter) SetInt(s any, n any) *MockConfig_SetInt_Call {
 	return &MockConfig_SetInt_Call{Call: _e.mock.On("SetInt", s, n)}
 }
 
@@ -846,7 +855,7 @@ type MockConfig_SetLanguage_Call struct {
 
 // SetLanguage is a helper method to define mock.On call
 //   - tag language.Tag
-func (_e *MockConfig_Expecter) SetLanguage(tag interface{}) *MockConfig_SetLanguage_Call {
+func (_e *MockConfig_Expecter) SetLanguage(tag any) *MockConfig_SetLanguage_Call {
 	return &MockConfig_SetLanguage_Call{Call: _e.mock.On("SetLanguage", tag)}
 }
 
@@ -887,7 +896,7 @@ type MockConfig_SetString_Call struct {
 // SetString is a helper method to define mock.On call
 //   - s string
 //   - s1 string
-func (_e *MockConfig_Expecter) SetString(s interface{}, s1 interface{}) *MockConfig_SetString_Call {
+func (_e *MockConfig_Expecter) SetString(s any, s1 any) *MockConfig_SetString_Call {
 	return &MockConfig_SetString_Call{Call: _e.mock.On("SetString", s, s1)}
 }
 
@@ -933,7 +942,7 @@ type MockConfig_SetStringSlice_Call struct {
 // SetStringSlice is a helper method to define mock.On call
 //   - s string
 //   - strings []string
-func (_e *MockConfig_Expecter) SetStringSlice(s interface{}, strings interface{}) *MockConfig_SetStringSlice_Call {
+func (_e *MockConfig_Expecter) SetStringSlice(s any, strings any) *MockConfig_SetStringSlice_Call {
 	return &MockConfig_SetStringSlice_Call{Call: _e.mock.On("SetStringSlice", s, strings)}
 }
 
@@ -978,7 +987,7 @@ type MockConfig_SetTimeZone_Call struct {
 
 // SetTimeZone is a helper method to define mock.On call
 //   - location *time.Location
-func (_e *MockConfig_Expecter) SetTimeZone(location interface{}) *MockConfig_SetTimeZone_Call {
+func (_e *MockConfig_Expecter) SetTimeZone(location any) *MockConfig_SetTimeZone_Call {
 	return &MockConfig_SetTimeZone_Call{Call: _e.mock.On("SetTimeZone", location)}
 }
 
