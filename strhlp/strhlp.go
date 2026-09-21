@@ -101,7 +101,6 @@ func LimitedListForHumans(s []string, limit int) string {
 		return ListForHumans(s)
 	}
 
-	return ListForHumans(s[:limit]) +
 	return ListForHumans(append(
 		s[:limit],
 		fmt.Sprintf("%d more", len(s)-limit),
