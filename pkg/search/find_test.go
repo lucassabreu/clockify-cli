@@ -134,7 +134,7 @@ func TestFindByNameAmbiguousCapsCandidatesInMessage(t *testing.T) {
 		msg := err.Error()
 		assert.Contains(t, msg, "'Web 10' (p10)")
 		assert.NotContains(t, msg, "'Web 11'")
-		assert.Contains(t, msg, ", and 2 more")
+		assert.Contains(t, msg, " and 2 more")
 		assert.NotContains(t, msg, "and and")
 	}
 }
