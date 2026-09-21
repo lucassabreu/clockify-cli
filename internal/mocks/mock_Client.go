@@ -16,10 +16,19 @@ func NewMockClient(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockClient {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockClient{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -70,7 +79,7 @@ type MockClient_AddClient_Call struct {
 
 // AddClient is a helper method to define mock.On call
 //   - addClientParam api.AddClientParam
-func (_e *MockClient_Expecter) AddClient(addClientParam interface{}) *MockClient_AddClient_Call {
+func (_e *MockClient_Expecter) AddClient(addClientParam any) *MockClient_AddClient_Call {
 	return &MockClient_AddClient_Call{Call: _e.mock.On("AddClient", addClientParam)}
 }
 
@@ -130,7 +139,7 @@ type MockClient_AddProject_Call struct {
 
 // AddProject is a helper method to define mock.On call
 //   - addProjectParam api.AddProjectParam
-func (_e *MockClient_Expecter) AddProject(addProjectParam interface{}) *MockClient_AddProject_Call {
+func (_e *MockClient_Expecter) AddProject(addProjectParam any) *MockClient_AddProject_Call {
 	return &MockClient_AddProject_Call{Call: _e.mock.On("AddProject", addProjectParam)}
 }
 
@@ -190,7 +199,7 @@ type MockClient_AddTask_Call struct {
 
 // AddTask is a helper method to define mock.On call
 //   - addTaskParam api.AddTaskParam
-func (_e *MockClient_Expecter) AddTask(addTaskParam interface{}) *MockClient_AddTask_Call {
+func (_e *MockClient_Expecter) AddTask(addTaskParam any) *MockClient_AddTask_Call {
 	return &MockClient_AddTask_Call{Call: _e.mock.On("AddTask", addTaskParam)}
 }
 
@@ -241,7 +250,7 @@ type MockClient_ChangeInvoiced_Call struct {
 
 // ChangeInvoiced is a helper method to define mock.On call
 //   - changeInvoicedParam api.ChangeInvoicedParam
-func (_e *MockClient_Expecter) ChangeInvoiced(changeInvoicedParam interface{}) *MockClient_ChangeInvoiced_Call {
+func (_e *MockClient_Expecter) ChangeInvoiced(changeInvoicedParam any) *MockClient_ChangeInvoiced_Call {
 	return &MockClient_ChangeInvoiced_Call{Call: _e.mock.On("ChangeInvoiced", changeInvoicedParam)}
 }
 
@@ -301,7 +310,7 @@ type MockClient_CreateTimeEntry_Call struct {
 
 // CreateTimeEntry is a helper method to define mock.On call
 //   - createTimeEntryParam api.CreateTimeEntryParam
-func (_e *MockClient_Expecter) CreateTimeEntry(createTimeEntryParam interface{}) *MockClient_CreateTimeEntry_Call {
+func (_e *MockClient_Expecter) CreateTimeEntry(createTimeEntryParam any) *MockClient_CreateTimeEntry_Call {
 	return &MockClient_CreateTimeEntry_Call{Call: _e.mock.On("CreateTimeEntry", createTimeEntryParam)}
 }
 
@@ -361,7 +370,7 @@ type MockClient_DeleteProject_Call struct {
 
 // DeleteProject is a helper method to define mock.On call
 //   - deleteProjectParam api.DeleteProjectParam
-func (_e *MockClient_Expecter) DeleteProject(deleteProjectParam interface{}) *MockClient_DeleteProject_Call {
+func (_e *MockClient_Expecter) DeleteProject(deleteProjectParam any) *MockClient_DeleteProject_Call {
 	return &MockClient_DeleteProject_Call{Call: _e.mock.On("DeleteProject", deleteProjectParam)}
 }
 
@@ -421,7 +430,7 @@ type MockClient_DeleteTask_Call struct {
 
 // DeleteTask is a helper method to define mock.On call
 //   - deleteTaskParam api.DeleteTaskParam
-func (_e *MockClient_Expecter) DeleteTask(deleteTaskParam interface{}) *MockClient_DeleteTask_Call {
+func (_e *MockClient_Expecter) DeleteTask(deleteTaskParam any) *MockClient_DeleteTask_Call {
 	return &MockClient_DeleteTask_Call{Call: _e.mock.On("DeleteTask", deleteTaskParam)}
 }
 
@@ -472,7 +481,7 @@ type MockClient_DeleteTimeEntry_Call struct {
 
 // DeleteTimeEntry is a helper method to define mock.On call
 //   - deleteTimeEntryParam api.DeleteTimeEntryParam
-func (_e *MockClient_Expecter) DeleteTimeEntry(deleteTimeEntryParam interface{}) *MockClient_DeleteTimeEntry_Call {
+func (_e *MockClient_Expecter) DeleteTimeEntry(deleteTimeEntryParam any) *MockClient_DeleteTimeEntry_Call {
 	return &MockClient_DeleteTimeEntry_Call{Call: _e.mock.On("DeleteTimeEntry", deleteTimeEntryParam)}
 }
 
@@ -534,7 +543,7 @@ type MockClient_GetClients_Call struct {
 
 // GetClients is a helper method to define mock.On call
 //   - getClientsParam api.GetClientsParam
-func (_e *MockClient_Expecter) GetClients(getClientsParam interface{}) *MockClient_GetClients_Call {
+func (_e *MockClient_Expecter) GetClients(getClientsParam any) *MockClient_GetClients_Call {
 	return &MockClient_GetClients_Call{Call: _e.mock.On("GetClients", getClientsParam)}
 }
 
@@ -596,7 +605,7 @@ type MockClient_GetHydratedTimeEntry_Call struct {
 
 // GetHydratedTimeEntry is a helper method to define mock.On call
 //   - getTimeEntryParam api.GetTimeEntryParam
-func (_e *MockClient_Expecter) GetHydratedTimeEntry(getTimeEntryParam interface{}) *MockClient_GetHydratedTimeEntry_Call {
+func (_e *MockClient_Expecter) GetHydratedTimeEntry(getTimeEntryParam any) *MockClient_GetHydratedTimeEntry_Call {
 	return &MockClient_GetHydratedTimeEntry_Call{Call: _e.mock.On("GetHydratedTimeEntry", getTimeEntryParam)}
 }
 
@@ -658,7 +667,7 @@ type MockClient_GetHydratedTimeEntryInProgress_Call struct {
 
 // GetHydratedTimeEntryInProgress is a helper method to define mock.On call
 //   - getTimeEntryInProgressParam api.GetTimeEntryInProgressParam
-func (_e *MockClient_Expecter) GetHydratedTimeEntryInProgress(getTimeEntryInProgressParam interface{}) *MockClient_GetHydratedTimeEntryInProgress_Call {
+func (_e *MockClient_Expecter) GetHydratedTimeEntryInProgress(getTimeEntryInProgressParam any) *MockClient_GetHydratedTimeEntryInProgress_Call {
 	return &MockClient_GetHydratedTimeEntryInProgress_Call{Call: _e.mock.On("GetHydratedTimeEntryInProgress", getTimeEntryInProgressParam)}
 }
 
@@ -773,7 +782,7 @@ type MockClient_GetProject_Call struct {
 
 // GetProject is a helper method to define mock.On call
 //   - getProjectParam api.GetProjectParam
-func (_e *MockClient_Expecter) GetProject(getProjectParam interface{}) *MockClient_GetProject_Call {
+func (_e *MockClient_Expecter) GetProject(getProjectParam any) *MockClient_GetProject_Call {
 	return &MockClient_GetProject_Call{Call: _e.mock.On("GetProject", getProjectParam)}
 }
 
@@ -835,7 +844,7 @@ type MockClient_GetProjects_Call struct {
 
 // GetProjects is a helper method to define mock.On call
 //   - getProjectsParam api.GetProjectsParam
-func (_e *MockClient_Expecter) GetProjects(getProjectsParam interface{}) *MockClient_GetProjects_Call {
+func (_e *MockClient_Expecter) GetProjects(getProjectsParam any) *MockClient_GetProjects_Call {
 	return &MockClient_GetProjects_Call{Call: _e.mock.On("GetProjects", getProjectsParam)}
 }
 
@@ -897,7 +906,7 @@ type MockClient_GetTag_Call struct {
 
 // GetTag is a helper method to define mock.On call
 //   - getTagParam api.GetTagParam
-func (_e *MockClient_Expecter) GetTag(getTagParam interface{}) *MockClient_GetTag_Call {
+func (_e *MockClient_Expecter) GetTag(getTagParam any) *MockClient_GetTag_Call {
 	return &MockClient_GetTag_Call{Call: _e.mock.On("GetTag", getTagParam)}
 }
 
@@ -959,7 +968,7 @@ type MockClient_GetTags_Call struct {
 
 // GetTags is a helper method to define mock.On call
 //   - getTagsParam api.GetTagsParam
-func (_e *MockClient_Expecter) GetTags(getTagsParam interface{}) *MockClient_GetTags_Call {
+func (_e *MockClient_Expecter) GetTags(getTagsParam any) *MockClient_GetTags_Call {
 	return &MockClient_GetTags_Call{Call: _e.mock.On("GetTags", getTagsParam)}
 }
 
@@ -1019,7 +1028,7 @@ type MockClient_GetTask_Call struct {
 
 // GetTask is a helper method to define mock.On call
 //   - getTaskParam api.GetTaskParam
-func (_e *MockClient_Expecter) GetTask(getTaskParam interface{}) *MockClient_GetTask_Call {
+func (_e *MockClient_Expecter) GetTask(getTaskParam any) *MockClient_GetTask_Call {
 	return &MockClient_GetTask_Call{Call: _e.mock.On("GetTask", getTaskParam)}
 }
 
@@ -1081,7 +1090,7 @@ type MockClient_GetTasks_Call struct {
 
 // GetTasks is a helper method to define mock.On call
 //   - getTasksParam api.GetTasksParam
-func (_e *MockClient_Expecter) GetTasks(getTasksParam interface{}) *MockClient_GetTasks_Call {
+func (_e *MockClient_Expecter) GetTasks(getTasksParam any) *MockClient_GetTasks_Call {
 	return &MockClient_GetTasks_Call{Call: _e.mock.On("GetTasks", getTasksParam)}
 }
 
@@ -1143,7 +1152,7 @@ type MockClient_GetTimeEntry_Call struct {
 
 // GetTimeEntry is a helper method to define mock.On call
 //   - getTimeEntryParam api.GetTimeEntryParam
-func (_e *MockClient_Expecter) GetTimeEntry(getTimeEntryParam interface{}) *MockClient_GetTimeEntry_Call {
+func (_e *MockClient_Expecter) GetTimeEntry(getTimeEntryParam any) *MockClient_GetTimeEntry_Call {
 	return &MockClient_GetTimeEntry_Call{Call: _e.mock.On("GetTimeEntry", getTimeEntryParam)}
 }
 
@@ -1205,7 +1214,7 @@ type MockClient_GetTimeEntryInProgress_Call struct {
 
 // GetTimeEntryInProgress is a helper method to define mock.On call
 //   - getTimeEntryInProgressParam api.GetTimeEntryInProgressParam
-func (_e *MockClient_Expecter) GetTimeEntryInProgress(getTimeEntryInProgressParam interface{}) *MockClient_GetTimeEntryInProgress_Call {
+func (_e *MockClient_Expecter) GetTimeEntryInProgress(getTimeEntryInProgressParam any) *MockClient_GetTimeEntryInProgress_Call {
 	return &MockClient_GetTimeEntryInProgress_Call{Call: _e.mock.On("GetTimeEntryInProgress", getTimeEntryInProgressParam)}
 }
 
@@ -1265,7 +1274,7 @@ type MockClient_GetUser_Call struct {
 
 // GetUser is a helper method to define mock.On call
 //   - getUser api.GetUser
-func (_e *MockClient_Expecter) GetUser(getUser interface{}) *MockClient_GetUser_Call {
+func (_e *MockClient_Expecter) GetUser(getUser any) *MockClient_GetUser_Call {
 	return &MockClient_GetUser_Call{Call: _e.mock.On("GetUser", getUser)}
 }
 
@@ -1327,7 +1336,7 @@ type MockClient_GetUserTimeEntries_Call struct {
 
 // GetUserTimeEntries is a helper method to define mock.On call
 //   - getUserTimeEntriesParam api.GetUserTimeEntriesParam
-func (_e *MockClient_Expecter) GetUserTimeEntries(getUserTimeEntriesParam interface{}) *MockClient_GetUserTimeEntries_Call {
+func (_e *MockClient_Expecter) GetUserTimeEntries(getUserTimeEntriesParam any) *MockClient_GetUserTimeEntries_Call {
 	return &MockClient_GetUserTimeEntries_Call{Call: _e.mock.On("GetUserTimeEntries", getUserTimeEntriesParam)}
 }
 
@@ -1389,7 +1398,7 @@ type MockClient_GetUsersHydratedTimeEntries_Call struct {
 
 // GetUsersHydratedTimeEntries is a helper method to define mock.On call
 //   - getUserTimeEntriesParam api.GetUserTimeEntriesParam
-func (_e *MockClient_Expecter) GetUsersHydratedTimeEntries(getUserTimeEntriesParam interface{}) *MockClient_GetUsersHydratedTimeEntries_Call {
+func (_e *MockClient_Expecter) GetUsersHydratedTimeEntries(getUserTimeEntriesParam any) *MockClient_GetUsersHydratedTimeEntries_Call {
 	return &MockClient_GetUsersHydratedTimeEntries_Call{Call: _e.mock.On("GetUsersHydratedTimeEntries", getUserTimeEntriesParam)}
 }
 
@@ -1449,7 +1458,7 @@ type MockClient_GetWorkspace_Call struct {
 
 // GetWorkspace is a helper method to define mock.On call
 //   - getWorkspace api.GetWorkspace
-func (_e *MockClient_Expecter) GetWorkspace(getWorkspace interface{}) *MockClient_GetWorkspace_Call {
+func (_e *MockClient_Expecter) GetWorkspace(getWorkspace any) *MockClient_GetWorkspace_Call {
 	return &MockClient_GetWorkspace_Call{Call: _e.mock.On("GetWorkspace", getWorkspace)}
 }
 
@@ -1511,7 +1520,7 @@ type MockClient_GetWorkspaces_Call struct {
 
 // GetWorkspaces is a helper method to define mock.On call
 //   - getWorkspaces api.GetWorkspaces
-func (_e *MockClient_Expecter) GetWorkspaces(getWorkspaces interface{}) *MockClient_GetWorkspaces_Call {
+func (_e *MockClient_Expecter) GetWorkspaces(getWorkspaces any) *MockClient_GetWorkspaces_Call {
 	return &MockClient_GetWorkspaces_Call{Call: _e.mock.On("GetWorkspaces", getWorkspaces)}
 }
 
@@ -1573,7 +1582,7 @@ type MockClient_Log_Call struct {
 
 // Log is a helper method to define mock.On call
 //   - logParam api.LogParam
-func (_e *MockClient_Expecter) Log(logParam interface{}) *MockClient_Log_Call {
+func (_e *MockClient_Expecter) Log(logParam any) *MockClient_Log_Call {
 	return &MockClient_Log_Call{Call: _e.mock.On("Log", logParam)}
 }
 
@@ -1635,7 +1644,7 @@ type MockClient_LogRange_Call struct {
 
 // LogRange is a helper method to define mock.On call
 //   - logRangeParam api.LogRangeParam
-func (_e *MockClient_Expecter) LogRange(logRangeParam interface{}) *MockClient_LogRange_Call {
+func (_e *MockClient_Expecter) LogRange(logRangeParam any) *MockClient_LogRange_Call {
 	return &MockClient_LogRange_Call{Call: _e.mock.On("LogRange", logRangeParam)}
 }
 
@@ -1686,7 +1695,7 @@ type MockClient_Out_Call struct {
 
 // Out is a helper method to define mock.On call
 //   - outParam api.OutParam
-func (_e *MockClient_Expecter) Out(outParam interface{}) *MockClient_Out_Call {
+func (_e *MockClient_Expecter) Out(outParam any) *MockClient_Out_Call {
 	return &MockClient_Out_Call{Call: _e.mock.On("Out", outParam)}
 }
 
@@ -1739,7 +1748,7 @@ type MockClient_SetDebugLogger_Call struct {
 
 // SetDebugLogger is a helper method to define mock.On call
 //   - logger api.Logger
-func (_e *MockClient_Expecter) SetDebugLogger(logger interface{}) *MockClient_SetDebugLogger_Call {
+func (_e *MockClient_Expecter) SetDebugLogger(logger any) *MockClient_SetDebugLogger_Call {
 	return &MockClient_SetDebugLogger_Call{Call: _e.mock.On("SetDebugLogger", logger)}
 }
 
@@ -1792,7 +1801,7 @@ type MockClient_SetInfoLogger_Call struct {
 
 // SetInfoLogger is a helper method to define mock.On call
 //   - logger api.Logger
-func (_e *MockClient_Expecter) SetInfoLogger(logger interface{}) *MockClient_SetInfoLogger_Call {
+func (_e *MockClient_Expecter) SetInfoLogger(logger any) *MockClient_SetInfoLogger_Call {
 	return &MockClient_SetInfoLogger_Call{Call: _e.mock.On("SetInfoLogger", logger)}
 }
 
@@ -1852,7 +1861,7 @@ type MockClient_UpdateProject_Call struct {
 
 // UpdateProject is a helper method to define mock.On call
 //   - updateProjectParam api.UpdateProjectParam
-func (_e *MockClient_Expecter) UpdateProject(updateProjectParam interface{}) *MockClient_UpdateProject_Call {
+func (_e *MockClient_Expecter) UpdateProject(updateProjectParam any) *MockClient_UpdateProject_Call {
 	return &MockClient_UpdateProject_Call{Call: _e.mock.On("UpdateProject", updateProjectParam)}
 }
 
@@ -1912,7 +1921,7 @@ type MockClient_UpdateProjectEstimate_Call struct {
 
 // UpdateProjectEstimate is a helper method to define mock.On call
 //   - updateProjectEstimateParam api.UpdateProjectEstimateParam
-func (_e *MockClient_Expecter) UpdateProjectEstimate(updateProjectEstimateParam interface{}) *MockClient_UpdateProjectEstimate_Call {
+func (_e *MockClient_Expecter) UpdateProjectEstimate(updateProjectEstimateParam any) *MockClient_UpdateProjectEstimate_Call {
 	return &MockClient_UpdateProjectEstimate_Call{Call: _e.mock.On("UpdateProjectEstimate", updateProjectEstimateParam)}
 }
 
@@ -1972,7 +1981,7 @@ type MockClient_UpdateProjectMemberships_Call struct {
 
 // UpdateProjectMemberships is a helper method to define mock.On call
 //   - updateProjectMembershipsParam api.UpdateProjectMembershipsParam
-func (_e *MockClient_Expecter) UpdateProjectMemberships(updateProjectMembershipsParam interface{}) *MockClient_UpdateProjectMemberships_Call {
+func (_e *MockClient_Expecter) UpdateProjectMemberships(updateProjectMembershipsParam any) *MockClient_UpdateProjectMemberships_Call {
 	return &MockClient_UpdateProjectMemberships_Call{Call: _e.mock.On("UpdateProjectMemberships", updateProjectMembershipsParam)}
 }
 
@@ -2032,7 +2041,7 @@ type MockClient_UpdateProjectTemplate_Call struct {
 
 // UpdateProjectTemplate is a helper method to define mock.On call
 //   - updateProjectTemplateParam api.UpdateProjectTemplateParam
-func (_e *MockClient_Expecter) UpdateProjectTemplate(updateProjectTemplateParam interface{}) *MockClient_UpdateProjectTemplate_Call {
+func (_e *MockClient_Expecter) UpdateProjectTemplate(updateProjectTemplateParam any) *MockClient_UpdateProjectTemplate_Call {
 	return &MockClient_UpdateProjectTemplate_Call{Call: _e.mock.On("UpdateProjectTemplate", updateProjectTemplateParam)}
 }
 
@@ -2092,7 +2101,7 @@ type MockClient_UpdateProjectUserBillableRate_Call struct {
 
 // UpdateProjectUserBillableRate is a helper method to define mock.On call
 //   - updateProjectUserRateParam api.UpdateProjectUserRateParam
-func (_e *MockClient_Expecter) UpdateProjectUserBillableRate(updateProjectUserRateParam interface{}) *MockClient_UpdateProjectUserBillableRate_Call {
+func (_e *MockClient_Expecter) UpdateProjectUserBillableRate(updateProjectUserRateParam any) *MockClient_UpdateProjectUserBillableRate_Call {
 	return &MockClient_UpdateProjectUserBillableRate_Call{Call: _e.mock.On("UpdateProjectUserBillableRate", updateProjectUserRateParam)}
 }
 
@@ -2152,7 +2161,7 @@ type MockClient_UpdateProjectUserCostRate_Call struct {
 
 // UpdateProjectUserCostRate is a helper method to define mock.On call
 //   - updateProjectUserRateParam api.UpdateProjectUserRateParam
-func (_e *MockClient_Expecter) UpdateProjectUserCostRate(updateProjectUserRateParam interface{}) *MockClient_UpdateProjectUserCostRate_Call {
+func (_e *MockClient_Expecter) UpdateProjectUserCostRate(updateProjectUserRateParam any) *MockClient_UpdateProjectUserCostRate_Call {
 	return &MockClient_UpdateProjectUserCostRate_Call{Call: _e.mock.On("UpdateProjectUserCostRate", updateProjectUserRateParam)}
 }
 
@@ -2212,7 +2221,7 @@ type MockClient_UpdateTask_Call struct {
 
 // UpdateTask is a helper method to define mock.On call
 //   - updateTaskParam api.UpdateTaskParam
-func (_e *MockClient_Expecter) UpdateTask(updateTaskParam interface{}) *MockClient_UpdateTask_Call {
+func (_e *MockClient_Expecter) UpdateTask(updateTaskParam any) *MockClient_UpdateTask_Call {
 	return &MockClient_UpdateTask_Call{Call: _e.mock.On("UpdateTask", updateTaskParam)}
 }
 
@@ -2272,7 +2281,7 @@ type MockClient_UpdateTimeEntry_Call struct {
 
 // UpdateTimeEntry is a helper method to define mock.On call
 //   - updateTimeEntryParam api.UpdateTimeEntryParam
-func (_e *MockClient_Expecter) UpdateTimeEntry(updateTimeEntryParam interface{}) *MockClient_UpdateTimeEntry_Call {
+func (_e *MockClient_Expecter) UpdateTimeEntry(updateTimeEntryParam any) *MockClient_UpdateTimeEntry_Call {
 	return &MockClient_UpdateTimeEntry_Call{Call: _e.mock.On("UpdateTimeEntry", updateTimeEntryParam)}
 }
 
@@ -2334,7 +2343,7 @@ type MockClient_WorkspaceUsers_Call struct {
 
 // WorkspaceUsers is a helper method to define mock.On call
 //   - workspaceUsersParam api.WorkspaceUsersParam
-func (_e *MockClient_Expecter) WorkspaceUsers(workspaceUsersParam interface{}) *MockClient_WorkspaceUsers_Call {
+func (_e *MockClient_Expecter) WorkspaceUsers(workspaceUsersParam any) *MockClient_WorkspaceUsers_Call {
 	return &MockClient_WorkspaceUsers_Call{Call: _e.mock.On("WorkspaceUsers", workspaceUsersParam)}
 }
 

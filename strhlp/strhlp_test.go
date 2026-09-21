@@ -281,6 +281,44 @@ func TestListForHumans(t *testing.T) {
 	}
 }
 
+func TestLimitedListForHumans(t *testing.T) {
+	tts := []struct {
+		args     []string
+		limit    int
+		expected string
+	}{
+		{
+			args:     []string{"uno", "dos", "tres"},
+			limit:    3,
+			expected: "uno, dos and tres",
+		},
+		{
+			args:     []string{"uno", "dos", "tres"},
+			limit:    5,
+			expected: "uno, dos and tres",
+		},
+		{
+			args:     []string{"uno", "dos", "tres"},
+			limit:    2,
+			expected: "uno, dos and 1 more",
+		},
+		{
+			args:     []string{"uno", "dos", "tres", "cuatro"},
+			limit:    1,
+			expected: "uno and 3 more",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.expected, func(t *testing.T) {
+			assert.Equal(t, tt.expected, strhlp.LimitedListForHumans(
+				tt.args,
+				tt.limit,
+			))
+		})
+	}
+}
+
 func TestIsSimilar(t *testing.T) {
 	tts := [][]string{
 		{"similar", "similar"},
