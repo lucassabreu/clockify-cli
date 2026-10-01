@@ -5,7 +5,7 @@ A simple cli to manage your time entries and projects on Clockify from terminal
 
 [![Release](https://img.shields.io/github/release/lucassabreu/clockify-cli.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
 [![GitHub all releases](https://img.shields.io/github/downloads/lucassabreu/clockify-cli/total)](https://github.com/lucassabreu/clockify-cli/releases)
-[![clockify-cli](https://snapcraft.io//clockify-cli/badge.svg?classes=badges)](https://snapcraft.io/clockify-cli)
+[![clockify-cli](https://snapcraft.io/clockify-cli/badge.svg)](https://snapcraft.io/clockify-cli)
 [![Build Status](https://github.com/lucassabreu/clockify-cli/actions/workflows/release.yml/badge.svg?classes=badges)](.github/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/lucassabreu/clockify-cli?classes=badges)](https://goreportcard.com/report/github.com/lucassabreu/clockify-cli)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/8667b9f6-4ca2-4ee4-865e-20b5848e7059/deploy-status?classes=badges)](https://app.netlify.com/sites/clockify-cli/deploys)
